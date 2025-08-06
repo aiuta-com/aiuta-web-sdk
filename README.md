@@ -17,3 +17,4 @@ A lightweight JavaScript SDK to embed the Aiuta image generation iframe.
 var aiuta = new Aiuta("your_api_key_here");
 aiuta.startGeneration("your_product_id_here");
 ```
+
