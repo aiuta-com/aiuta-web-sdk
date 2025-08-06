@@ -18,3 +18,4 @@ var aiuta = new Aiuta("your_api_key_here");
 aiuta.startGeneration("your_product_id_here");
 ```
 
+
