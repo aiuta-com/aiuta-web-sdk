@@ -36,7 +36,7 @@ jobs:
       - name: Set up GCP credentials
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY }}
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
 
       # Upload dist/ to GCS
       - name: Upload to GCS bucket
@@ -44,6 +44,34 @@ jobs:
         with:
           path: dist/
           destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
+          parent: false
+
+      # Authenticate with GCP
+      - name: Set up GCP credentials
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
+
+      # Upload dist/ to GCS
+      - name: Upload to GCS bucket
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
+          parent: false
+
+      # Authenticate with GCP
+      - name: Set up GCP credentials
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+
+      # Upload dist/ to GCS
+      - name: Upload to GCS bucket
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
           parent: false
 
       - name: Create GitHub Release
