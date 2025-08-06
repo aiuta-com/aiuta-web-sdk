@@ -28,9 +28,9 @@ jobs:
       - name: Archive build output
         run: |
           cd dist
-          zip -r ../release.zip .
+          zip -r $HOME/release.zip .
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: release.zip
+          files: $HOME/release.zip
