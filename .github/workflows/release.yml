@@ -33,46 +33,49 @@ jobs:
           zip -r ../release.zip .
 
       # Authenticate with GCP
-      - name: Set up GCP credentials
+      - name: Set up GCP credentials Dev
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
 
       # Upload dist/ to GCS
-      - name: Upload to GCS bucket
+      - name: Upload to GCS bucket Dev
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/
           destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
           parent: false
+          process_gcloudignore: 'false'
 
       # Authenticate with GCP
-      - name: Set up GCP credentials
+      - name: Set up GCP credentials Preprod
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
 
       # Upload dist/ to GCS
-      - name: Upload to GCS bucket
+      - name: Upload to GCS bucket Preprod
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/
           destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
           parent: false
+          process_gcloudignore: 'false'
 
       # Authenticate with GCP
-      - name: Set up GCP credentials
+      - name: Set up GCP credentials Prod
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
 
       # Upload dist/ to GCS
-      - name: Upload to GCS bucket
+      - name: Upload to GCS bucket Prod
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/
           destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
           parent: false
+          process_gcloudignore: 'false'
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
