@@ -32,6 +32,20 @@ jobs:
           cd dist
           zip -r ../release.zip .
 
+      # Authenticate with GCP
+      - name: Set up GCP credentials
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY }}
+
+      # Upload dist/ to GCS
+      - name: Upload to GCS bucket
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
+          parent: false
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
