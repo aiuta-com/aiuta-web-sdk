@@ -27,9 +27,7 @@ jobs:
 
       - name: Archive build output
         run: |
-          mkdir artifacts
-          cp -r dist/* artifacts/ # adjust path if your build output dir is different
-          cd artifacts
+          cd dist
           zip -r ../release.zip .
 
       - name: Create GitHub Release
