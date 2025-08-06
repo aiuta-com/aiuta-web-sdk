@@ -6,7 +6,8 @@ export default {
     {
       file: "dist/index.umd.js",
       format: "umd",
-      name: "IframeWidget",
+      name: "Aiuta",
+      exports: "default",
     },
     {
       file: "dist/index.cjs",
