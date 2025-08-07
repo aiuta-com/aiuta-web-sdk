@@ -119,6 +119,7 @@ jobs:
         id: extract_version
         run: |
           # Extract major version from tag (e.g., v1.2.3 -> v1)
+          MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
           echo "Major version: $MAJOR_VERSION"
           echo "major_version=$MAJOR_VERSION" >> $GITHUB_OUTPUT
           
@@ -152,6 +153,16 @@ jobs:
           echo "The following files are available at:" >> updated_description.md
           echo "" >> updated_description.md
           
+          # Extract major version for links
+          MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
+          
+          # Generate links for major version files
+          echo -e "\n### Major Version Files (stable version for your major release)" >> updated_description.md
+          for file in dist/*; do
+            filename=$(basename "$file")
+            echo "- https://static.aiuta.com/sdk/${MAJOR_VERSION}/${filename}" >> updated_description.md
+          done
+          
           # Generate links for versioned files
           echo "### Versioned Files (specific to this release)" >> updated_description.md
           for file in dist/*; do
@@ -164,16 +175,6 @@ jobs:
           for file in dist/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/latest/${filename}" >> updated_description.md
-          done
-          
-          # Extract major version for links
-          MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
-          
-          # Generate links for major version files
-          echo -e "\n### Major Version Files (stable version for your major release)" >> updated_description.md
-          for file in dist/*; do
-            filename=$(basename "$file")
-            echo "- https://static.aiuta.com/sdk/${MAJOR_VERSION}/${filename}" >> updated_description.md
           done
           
           # Update the release description
