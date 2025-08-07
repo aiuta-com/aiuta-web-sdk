@@ -1,0 +1,29 @@
+steps:
+  # Kaniko is (docker build + docker push) with global docker layer cache
+  # https://cloud.google.com/build/docs/optimize-builds/kaniko-cache#kaniko-build
+  # default cache TTL is 2 weeks
+  - name: 'us-central1-docker.pkg.dev/aiuta-dev/ci-public/kaniko:v1.9.2-slim'
+    dir: $_PROJECT_DIRECTORY
+    args:
+    - --destination=us-central1-docker.pkg.dev/$_ARTIFACT_REGISTRY_PROJECT/main/$_SERVICE_NAME:$SHORT_SHA
+    - --dockerfile=./Dockerfile
+    - --cache=true
+    - --reproducible
+    - --context=dir://. # for some reason it does not work without this in Cloud Build trigger
+  # Deploy container image to Cloud Run. Service configs are defined in terraform
+  - name: 'us-central1-docker.pkg.dev/aiuta-dev/ci-public/google-cloud-sdk:448.0.0-alpine'
+    entrypoint: gcloud
+    dir: $_PROJECT_DIRECTORY
+    args: [
+      "builds",
+      "submit",
+      "--no-source",
+      "--config=cloudbuild_deploy.yaml",
+      "--substitutions=SHORT_SHA=$SHORT_SHA,_ARTIFACT_REGISTRY_PROJECT=$_ARTIFACT_REGISTRY_PROJECT,_REGION=$_REGION",
+    ]
+
+substitutions:
+  _SERVICE_NAME: "web-sdk"
+  _ARTIFACT_REGISTRY_PROJECT: "aiuta-preprod"
+  _PROJECT_DIRECTORY: "."
+  _REGION: "us-central1"

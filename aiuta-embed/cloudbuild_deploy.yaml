@@ -1,0 +1,14 @@
+steps:
+  # Deploy container image to Cloud Run
+  - name: 'us-central1-docker.pkg.dev/aiuta-dev/ci-public/google-cloud-sdk:448.0.0-alpine'
+    entrypoint: gcloud
+    args: [
+      'run', 'deploy', '$_SERVICE_NAME',
+      '--image=us-central1-docker.pkg.dev/$_ARTIFACT_REGISTRY_PROJECT/main/$_SERVICE_NAME:$SHORT_SHA',
+      '--region=$_REGION',
+    ]
+
+substitutions:
+  _SERVICE_NAME: "web-sdk"
+  _ARTIFACT_REGISTRY_PROJECT: "aiuta-preprod"
+  _REGION: "us-central1"
