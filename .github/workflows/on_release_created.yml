@@ -113,6 +113,23 @@ jobs:
           destination: aiuta_prod_static/sdk/latest/
           parent: false
           process_gcloudignore: 'false'
+          
+      # Extract major version from tag
+      - name: Extract major version
+        id: extract_version
+        run: |
+          # Extract major version from tag (e.g., v1.2.3 -> v1)
+          echo "Major version: $MAJOR_VERSION"
+          echo "major_version=$MAJOR_VERSION" >> $GITHUB_OUTPUT
+          
+      # Upload dist/ to GCS major version folder
+      - name: Upload to GCS bucket Prod (major version)
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_prod_static/sdk/${{ steps.extract_version.outputs.major_version }}/
+          parent: false
+          process_gcloudignore: 'false'
 
       - name: Upload artifacts to release
         env:
@@ -147,6 +164,16 @@ jobs:
           for file in dist/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/latest/${filename}" >> updated_description.md
+          done
+          
+          # Extract major version for links
+          MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
+          
+          # Generate links for major version files
+          echo -e "\n### Major Version Files (stable version for your major release)" >> updated_description.md
+          for file in dist/*; do
+            filename=$(basename "$file")
+            echo "- https://static.aiuta.com/sdk/${MAJOR_VERSION}/${filename}" >> updated_description.md
           done
           
           # Update the release description
