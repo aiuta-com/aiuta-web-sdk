@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for all branches and tags
 
       - name: Update version in package.json
         run: |
@@ -21,14 +23,36 @@ jobs:
           # Update version in package.json
           npm version $VERSION --no-git-tag-version
           
+      - name: Get default branch
+        id: default-branch
+        run: |
+          # Use GitHub API to get the default branch
+          DEFAULT_BRANCH=$(gh api repos/${{ github.repository }} --jq '.default_branch')
+          echo "Default branch is $DEFAULT_BRANCH"
+          echo "branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          
       - name: Commit version update
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
+          
+          # Add and commit the changes
           git add package.json package-lock.json
           git commit -m "Update version to ${{ github.event.release.tag_name }}"
-          # For release events, we need to explicitly push to the default branch
-          git push origin HEAD:main
+          
+          # Fetch the latest changes from the default branch
+          git fetch origin ${{ steps.default-branch.outputs.branch }}
+          
+          # Create a temporary branch from the current HEAD
+          git checkout -b temp-branch
+          
+          # Rebase on top of the latest changes from the default branch
+          git rebase origin/${{ steps.default-branch.outputs.branch }}
+          
+          # Push to the default branch with force-with-lease for safety
+          git push --force-with-lease origin temp-branch:${{ steps.default-branch.outputs.branch }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
