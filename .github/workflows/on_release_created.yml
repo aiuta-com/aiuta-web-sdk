@@ -110,4 +110,28 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ github.event.release.tag_name }} release.zip dist/* --clobber
+          
+      - name: Update release description with file links
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the current release description
+          CURRENT_DESCRIPTION=$(gh release view ${{ github.event.release.tag_name }} --json body -q .body)
+          
+          # Create a temporary file for the updated description
+          echo "$CURRENT_DESCRIPTION" > updated_description.md
+        
+          # Add a section header for the links
+          echo -e "\n## SDK Files" >> updated_description.md
+          echo "The following files are available at:" >> updated_description.md
+          echo "" >> updated_description.md
+          
+          # Generate links for each file in dist directory
+          for file in dist/*; do
+            filename=$(basename "$file")
+            echo "- https://static.aiuta.com/sdk/${{ github.event.release.tag_name }}/${filename}" >> updated_description.md
+          done
+          
+          # Update the release description
+          gh release edit ${{ github.event.release.tag_name }} --notes "$(cat updated_description.md)"
 
