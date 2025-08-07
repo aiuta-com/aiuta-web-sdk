@@ -27,7 +27,8 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git add package.json package-lock.json
           git commit -m "Update version to ${{ github.event.release.tag_name }}"
-          git push
+          # For release events, we need to explicitly push to the default branch
+          git push origin HEAD:main
 
       - name: Set up Node
         uses: actions/setup-node@v4
