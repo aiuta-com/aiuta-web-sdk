@@ -104,6 +104,15 @@ jobs:
           destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
           parent: false
           process_gcloudignore: 'false'
+          
+      # Upload dist/ to GCS latest folder
+      - name: Upload to GCS bucket Prod (latest)
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_prod_static/sdk/latest/
+          parent: false
+          process_gcloudignore: 'false'
 
       - name: Upload artifacts to release
         env:
@@ -126,10 +135,18 @@ jobs:
           echo "The following files are available at:" >> updated_description.md
           echo "" >> updated_description.md
           
-          # Generate links for each file in dist directory
+          # Generate links for versioned files
+          echo "### Versioned Files (specific to this release)" >> updated_description.md
           for file in dist/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/${{ github.event.release.tag_name }}/${filename}" >> updated_description.md
+          done
+          
+          # Generate links for latest files
+          echo -e "\n### Latest Files (always points to the most recent release)" >> updated_description.md
+          for file in dist/*; do
+            filename=$(basename "$file")
+            echo "- https://static.aiuta.com/sdk/latest/${filename}" >> updated_description.md
           done
           
           # Update the release description
