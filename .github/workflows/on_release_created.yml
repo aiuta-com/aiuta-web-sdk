@@ -14,6 +14,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Update version in package.json
+        run: |
+          # Extract version from tag (remove 'v' prefix if present)
+          VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
+          # Update version in package.json
+          npm version $VERSION --no-git-tag-version
+          
+      - name: Commit version update
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add package.json package-lock.json
+          git commit -m "Update version to ${{ github.event.release.tag_name }}"
+          git push
+
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -30,9 +45,52 @@ jobs:
           cd dist
           zip -r ../release.zip .
 
+      # Authenticate with GCP
+      - name: Set up GCP credentials Dev
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+
+      # Upload dist/ to GCS
+      - name: Upload to GCS bucket Dev
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
+          parent: false
+          process_gcloudignore: 'false'
+
+      # Authenticate with GCP
+      - name: Set up GCP credentials Preprod
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
+
+      # Upload dist/ to GCS
+      - name: Upload to GCS bucket Preprod
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
+          parent: false
+          process_gcloudignore: 'false'
+
+      # Authenticate with GCP
+      - name: Set up GCP credentials Prod
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+
+      # Upload dist/ to GCS
+      - name: Upload to GCS bucket Prod
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          path: dist/
+          destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
+          parent: false
+          process_gcloudignore: 'false'
+
       - name: Upload artifacts to release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ github.event.release.tag_name }} release.zip dist/* --clobber
 
