@@ -30,9 +30,7 @@ jobs:
           DEFAULT_BRANCH=$(gh api repos/${{ github.repository }} --jq '.default_branch')
           echo "Default branch is $DEFAULT_BRANCH"
           echo "branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          
+
       - name: Commit version update
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
@@ -116,6 +114,8 @@ jobs:
           process_gcloudignore: 'false'
 
       - name: Upload artifacts to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ github.event.release.tag_name }} release.zip dist/* --clobber
 
