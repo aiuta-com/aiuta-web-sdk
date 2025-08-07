@@ -22,14 +22,6 @@ jobs:
           VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
           # Update version in package.json
           npm version $VERSION --no-git-tag-version
-          
-      - name: Get default branch
-        id: default-branch
-        run: |
-          # Use GitHub API to get the default branch
-          DEFAULT_BRANCH=$(gh api repos/${{ github.repository }} --jq '.default_branch')
-          echo "Default branch is $DEFAULT_BRANCH"
-          echo "branch=$DEFAULT_BRANCH" >> $GITHUB_OUTPUT
 
       - name: Commit version update
         run: |
@@ -41,16 +33,16 @@ jobs:
           git commit -m "Update version to ${{ github.event.release.tag_name }}"
           
           # Fetch the latest changes from the default branch
-          git fetch origin ${{ steps.default-branch.outputs.branch }}
+          git fetch origin main
           
           # Create a temporary branch from the current HEAD
           git checkout -b temp-branch
           
           # Rebase on top of the latest changes from the default branch
-          git rebase origin/${{ steps.default-branch.outputs.branch }}
+          git rebase origin/main
           
           # Push to the default branch with force-with-lease for safety
-          git push --force-with-lease origin temp-branch:${{ steps.default-branch.outputs.branch }}
+          git push --force-with-lease origin temp-branch:main
 
       - name: Set up Node
         uses: actions/setup-node@v4
