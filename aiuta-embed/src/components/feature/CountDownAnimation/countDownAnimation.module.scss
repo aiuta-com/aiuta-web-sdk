@@ -1,0 +1,24 @@
+.circularChart {
+  position: relative;
+  width: 52px;
+  height: 52px;
+
+  .circleBg {
+    stroke: #78797c;
+  }
+
+  .circle {
+    stroke: #fff;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .countsText {
+    fill: #fff;
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 100%;
+    letter-spacing: -0.07em;
+    transform: translateY(1px);
+  }
+}
