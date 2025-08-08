@@ -156,7 +156,7 @@ export const SdkHeader = () => {
           Select
         </p>
       ) : !isCheckQrTokenPage ? (
-        <img alt="History icon" src={'../icons/close.svg'} onClick={handleCloseModal} />
+        <img alt="History icon" src={'./icons/close.svg'} onClick={handleCloseModal} />
       ) : null}
     </header>
   );
