@@ -180,7 +180,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release upload ${{ github.event.release.tag_name }} release.zip dist/* --clobber
+          gh release upload ${{ github.event.release.tag_name }} release.zip dist/sdk/* --clobber
           
       - name: Update release description with file links
         env:
