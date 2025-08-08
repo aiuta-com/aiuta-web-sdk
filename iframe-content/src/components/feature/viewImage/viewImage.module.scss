@@ -1,0 +1,212 @@
+.viewImageBox {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  max-width: 280px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  .changeImageBtn {
+    cursor: pointer;
+    border: none;
+    color: #000;
+    border-radius: 9px;
+    min-width: 160px;
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    padding: 12px 25px;
+    background: #ffffff66;
+    transform: translateX(-50%);
+    backdrop-filter: blur(10px);
+
+    font-family: GT Maru;
+    text-wrap: nowrap;
+    font-weight: 500;
+    font-size: 15px;
+    line-height: 19.29px;
+    letter-spacing: -0.035em;
+
+    input {
+      display: none;
+    }
+  }
+
+  img {
+    transition: all ease-in-out 0.3s;
+    object-fit: cover;
+  }
+
+  .tryOnButtonSecondary {
+    display: none;
+  }
+}
+
+.startGeneration {
+  position: relative;
+
+  &::after {
+    position: absolute;
+    content: "";
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 189px;
+    opacity: 30%;
+    background: linear-gradient(
+      180deg,
+      var(--try-on-primary-color) 0%,
+      rgba(64, 0, 255, 0) 100%
+    );
+    animation: generateLine 5s infinite ease-in-out;
+    animation-composition: add;
+  }
+
+  &::before {
+    position: absolute;
+    content: "";
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 2.14px;
+    background: var(--try-on-primary-color);
+    animation: generateLine 5s infinite ease-in-out;
+    animation-composition: add;
+  }
+
+  .tryOnButtonSecondary {
+    display: block;
+    max-height: 45px;
+    width: max-content !important;
+    border: none;
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(10px);
+    background-color: rgba(255, 255, 255, 0.4);
+
+    span {
+      margin-left: 10px;
+      color: #000;
+      font-family: GT Maru;
+      font-weight: 500;
+      font-size: 15px;
+      letter-spacing: -0.035em;
+    }
+
+    .tryOnBtnSpinner {
+      position: relative;
+      width: 22px !important;
+      height: 22px !important;
+      color: #000;
+      display: inline-block;
+
+      .loadingBox {
+        transform-origin: 1px 11px;
+        animation: tryOnBtnSpinners 0.6s linear infinite;
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 10px;
+        width: 3px;
+        height: 7px;
+        border-radius: 10px;
+        background: #3c3c4399;
+
+        .tryOnHidden {
+          display: none;
+        }
+
+        &:nth-child(1) {
+          transform: rotate(0deg);
+          animation-delay: -0.9s;
+        }
+
+        &:nth-child(2) {
+          transform: rotate(45deg);
+          animation-delay: -0.8s;
+        }
+
+        &:nth-child(3) {
+          transform: rotate(90deg);
+          animation-delay: -0.7s;
+        }
+
+        &:nth-child(4) {
+          transform: rotate(135deg);
+          animation-delay: -0.6s;
+        }
+
+        &:nth-child(5) {
+          transform: rotate(180deg);
+          animation-delay: -0.5s;
+        }
+
+        &:nth-child(6) {
+          transform: rotate(225deg);
+          animation-delay: -0.4s;
+        }
+
+        &:nth-child(7) {
+          transform: rotate(270deg);
+          animation-delay: -0.3s;
+        }
+
+        &:nth-child(8) {
+          transform: rotate(315deg);
+          animation-delay: -0.2s;
+        }
+      }
+    }
+  }
+}
+
+.startShowGeneratedImage {
+  .newGeneratedImage {
+    transition: all ease-in-out 0.3s;
+    min-height: 0;
+    transform: translateY(-500px);
+    animation: showGeneratedImage 0.3s ease-in-out forwards;
+  }
+}
+
+@keyframes disappearImage {
+  100% {
+    transform: translateY(500px);
+  }
+}
+
+@keyframes generateLine {
+  0% {
+    top: 100%;
+  }
+  50% {
+    top: -50%;
+  }
+  100% {
+    top: -200%;
+  }
+}
+
+@keyframes showGeneratedImage {
+  100% {
+    min-height: 460px;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tryOnBtnSpinners {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
