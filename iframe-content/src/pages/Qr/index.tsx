@@ -1,18 +1,34 @@
-import React, { useRef, useState, useEffect, useCallback, ChangeEvent } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  ChangeEvent,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
+// redux
 import { useAppSelector, useAppDispatch } from "../../../lib/redux/store";
+
+// actions
 import { fileSlice } from "@lib/redux/slices/fileSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
 
+// selectors
 import { qrTokenSelector } from "@lib/redux/slices/configSlice/selectors";
 
+// components
 import { QrCode } from "@/components/feature";
 
+// types
 import { EndpointDataTypes } from "@/types";
 
+// helpers
 import { generateRandomString } from "@/helpers/generateRandomString";
+
+// styles
+import styles from "./token.module.scss";
 
 export default function Qr() {
   const navigate = useNavigate();
@@ -35,15 +51,18 @@ export default function Qr() {
 
       if (!file) return dispatch(configSlice.actions.setIsShowSpinner(false));
 
-      const uploadedResponse = await fetch("https://web-sdk.aiuta.com/api/upload-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": file.type,
-          "X-Filename": file.name,
-          keys: endpointData.apiKey,
-        },
-        body: file,
-      });
+      const uploadedResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/upload-image",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": file.type,
+            "X-Filename": file.name,
+            keys: endpointData.apiKey,
+          },
+          body: file,
+        }
+      );
       const result = await uploadedResponse.json();
 
       if (result.owner_type === "user") {
@@ -61,7 +80,9 @@ export default function Qr() {
   };
 
   const handleCheckQRUploadedPhoto = useCallback(async () => {
-    const getUploadedPhoto = await fetch(`https://web-sdk.aiuta.com/api/get-photo?token=${qrToken}`);
+    const getUploadedPhoto = await fetch(
+      `https://web-sdk.aiuta.com/api/get-photo?token=${qrToken}`
+    );
     const result = await getUploadedPhoto.json();
 
     if (result.owner_type === "scanning") {
@@ -83,14 +104,11 @@ export default function Qr() {
     handleGetWidnwInitiallySizes();
 
     const handleMessage = (event: MessageEvent) => {
-      console.log(event, ': Event')
       if (event.data && event.data.type) {
         if (event.data.status === 200) {
           setEndpointData(event.data);
         } else {
-          console.error(
-            "Something went wrong. Please check the SDK file"
-          );
+          console.error("Something went wrong. Please check the SDK file");
         }
       } else {
         console.error("Not found API data");
@@ -123,6 +141,7 @@ export default function Qr() {
   return (
     <>
       <motion.div
+        className={styles.qrContainer}
         key="qr-page"
         initial={{
           opacity: 0,

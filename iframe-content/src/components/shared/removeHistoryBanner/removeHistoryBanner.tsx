@@ -72,7 +72,7 @@ export const RemoveHistoryBanner = () => {
       </div>
       <div className={styles.iconsLine}>
         <img
-          src={'/icons/trash.cvg'}
+          src={'/icons/trash.svg'}
           alt="Trash icon"
           onClick={handleShowHistoryImagesModal}
         />

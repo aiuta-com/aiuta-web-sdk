@@ -1,8 +1,16 @@
-import React, { useRef, useState, ChangeEvent, useEffect, useCallback } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  ChangeEvent,
+  useCallback,
+} from "react";
 import { useParams, useLocation } from "react-router-dom";
 
+// components
 import { TryOnButton, ViewImage } from "@/components/feature";
 
+// styles
 import styles from "./token.module.scss";
 
 function useQuery() {
@@ -41,15 +49,18 @@ export default function QRTokenPage() {
       setGenerationData({ isStart: true, uploadedUrl: null });
       const file = uploadedFile.file;
 
-      const uploadedResponse = await fetch("https://web-sdk.aiuta.com/api/upload-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": file.type,
-          "X-Filename": file.name,
-          keys: apiKey,
-        },
-        body: file,
-      });
+      const uploadedResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/upload-image",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": file.type,
+            "X-Filename": file.name,
+            keys: apiKey,
+          },
+          body: file,
+        }
+      );
 
       const result = await uploadedResponse.json();
 
@@ -124,15 +135,21 @@ export default function QRTokenPage() {
         </div>
       ) : !generationData.uploadedUrl ? (
         <div className={styles.banner}>
-          <img src={'/icons/tokenBannerGirl.svg'} alt="Girl icon" />
+          <img src={"/icons/tokenBannerGirl.svg"} alt="Girl icon" />
           <div className={styles.uploadBtnContent}>
-            <TryOnButton onClick={handleButtonClick}>Upload a photo of you</TryOnButton>
+            <TryOnButton onClick={handleButtonClick}>
+              Upload a photo of you
+            </TryOnButton>
           </div>
         </div>
       ) : (
         <div className={styles.resultContent}>
           <div className={styles.resultImageBox}>
-            <img src={'/icons/success.svg'} alt="Success icon" className={styles.successIcon} />
+            <img
+              alt="Success icon"
+              src={"/icons/success.svg"}
+              className={styles.successIcon}
+            />
             <img
               width={160}
               height={245}
