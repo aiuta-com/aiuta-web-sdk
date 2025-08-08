@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react",
+    "moduleResolution": "bundler",
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["iframe-content/src/*"],
+      "@lib/*": ["iframe-content/lib/*"]
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "incremental": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "web-sdk/**/*",
+    "iframe-content/**/*",
+    "vite.config.iframe.ts"
+, "vite-env.d.ts"  ],
+  "exclude": ["node_modules", "dist"]
+}
