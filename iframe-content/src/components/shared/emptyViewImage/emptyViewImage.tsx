@@ -13,7 +13,7 @@ export const EmptyViewImage = (props: EmptyViewImageTypes) => {
 
   return (
     <div className={styles.banner}>
-      <img src={'/icons/tokenBannerGirl.svg'} alt="Girl icon" />
+      <img src={'./icons/tokenBannerGirl.svg'} alt="Girl icon" />
       <div className={styles.uploadBtnContent}>
         <TryOnButton onClick={onClick}>Upload a photo of you</TryOnButton>
       </div>

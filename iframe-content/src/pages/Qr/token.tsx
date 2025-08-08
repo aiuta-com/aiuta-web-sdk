@@ -135,7 +135,7 @@ export default function QRTokenPage() {
         </div>
       ) : !generationData.uploadedUrl ? (
         <div className={styles.banner}>
-          <img src={"/icons/tokenBannerGirl.svg"} alt="Girl icon" />
+          <img src={"./icons/tokenBannerGirl.svg"} alt="Girl icon" />
           <div className={styles.uploadBtnContent}>
             <TryOnButton onClick={handleButtonClick}>
               Upload a photo of you
@@ -147,7 +147,7 @@ export default function QRTokenPage() {
           <div className={styles.resultImageBox}>
             <img
               alt="Success icon"
-              src={"/icons/success.svg"}
+              src={"./icons/success.svg"}
               className={styles.successIcon}
             />
             <img

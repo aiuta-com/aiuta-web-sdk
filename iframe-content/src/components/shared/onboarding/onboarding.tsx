@@ -58,7 +58,7 @@ export const Onboarding = () => {
               <img
                 loading="lazy"
                 alt="Onboarding image"
-                src="/images/firstOnboarding.png"
+                src="./images/firstOnboarding.png"
                 className={styles.firstImg}
               />
               <div className={styles.titlesBox}>
@@ -81,7 +81,7 @@ export const Onboarding = () => {
             <img
               loading="lazy"
               alt="Onboarding image"
-              src="/images/lastOnboarding.png" 
+              src="./images/lastOnboarding.png" 
               className={styles.firstImg}
             />
             <div className={styles.titlesBox}>

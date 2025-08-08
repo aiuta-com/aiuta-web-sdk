@@ -34,7 +34,7 @@ export const QrCode = (props: QrCodeTypes) => {
           text={url}
           logo={{
             options: { width: 52 },
-            src: isShowQrSpinner ? "" : "/icons/aiutaLogo.svg",
+            src: isShowQrSpinner ? "" : "./icons/aiutaLogo.svg",
           }}
           options={{
             errorCorrectionLevel: "M",

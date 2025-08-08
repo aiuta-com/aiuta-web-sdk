@@ -23,7 +23,7 @@
     return fullScreenImageUrl ? (
       <div className={styles.fullScreenModal}>
         <div className={styles.closeIconBox} onClick={handleCloseModa}>
-          <img src={'./icons/close.svg'} alt="Close Icon" className={styles.closeIcon} />
+          <img src={'../icons/close.svg'} alt="Close Icon" className={styles.closeIcon} />
         </div>
         <img
           width={100}

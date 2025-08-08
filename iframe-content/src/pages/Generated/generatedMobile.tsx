@@ -64,7 +64,7 @@ export default function GeneratedMobile() {
             />
             <div className={styles.shareBox} onClick={handleShare}>
               <img
-                src={'/icons/shareMobile.svg'}
+                src={'./icons/shareMobile.svg'}
                 alt="Share icon"
                 className={styles.shareIcon}
               />
