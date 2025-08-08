@@ -1,8 +1,6 @@
 import { useRef, useState } from "react";
-// types
 import { CheckboxLabelTypes } from "./types";
 
-// styles
 import styles from "./checkboxLabel.module.scss";
 
 export const CheckboxLabel = (props: CheckboxLabelTypes) => {

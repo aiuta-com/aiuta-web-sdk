@@ -1,4 +1,4 @@
-import { usePathname } from "next/navigation";
+
 
 // redux
 import { useAppSelector } from "@lib/redux/store";
@@ -11,9 +11,14 @@ import {
 
 // styles
 import styles from "./sdkFooter.module.scss";
+import { useEffect, useState } from "react";
 
 export const SdkFooter = () => {
-  const pathName = usePathname();
+  const [pathName, setPathName] = useState("");
+
+  useEffect(() => {
+    setPathName(window.location.pathname);
+  }, []);
 
   const isMobile = useAppSelector(isMobileSelector);
   const isShowFooter = useAppSelector(isShowFooterSelector);

@@ -1,44 +1,38 @@
-import Image from "next/image";
+  // redux
+  import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 
-// redux
-import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+  // actions
+  import { fileSlice } from "@lib/redux/slices/fileSlice";
 
-// actions
-import { fileSlice } from "@lib/redux/slices/fileSlice";
+  // selectors
+  import { fullScreenImageUrlSelector } from "@lib/redux/slices/fileSlice/selectors";
 
-// selectors
-import { fullScreenImageUrlSelector } from "@lib/redux/slices/fileSlice/selectors";
+  // styles
+  import styles from "./fullScreenImageModal.module.scss";
 
-// icons
-import { closeIcon } from "../../../../public/icons";
+  export const FullScreenImageModal = () => {
+    const dispatch = useAppDispatch();
 
-// styles
-import styles from "./fullScreenImageModal.module.scss";
+    const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector);
 
-export const FullScreenImageModal = () => {
-  const dispatch = useAppDispatch();
+    const handleCloseModa = () => {
+      dispatch(fileSlice.actions.setFullScreenImageUrl(null));
+    };
 
-  const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector);
-
-  const handleCloseModa = () => {
-    dispatch(fileSlice.actions.setFullScreenImageUrl(null));
-  };
-
-  return fullScreenImageUrl ? (
-    <div className={styles.fullScreenModal}>
-      <div className={styles.closeIconBox} onClick={handleCloseModa}>
-        <Image src={closeIcon} alt="Close Icon" className={styles.closeIcon} />
+    return fullScreenImageUrl ? (
+      <div className={styles.fullScreenModal}>
+        <div className={styles.closeIconBox} onClick={handleCloseModa}>
+          <img src={'./icons/close.svg'} alt="Close Icon" className={styles.closeIcon} />
+        </div>
+        <img
+          width={100}
+          height={100}
+          alt="Full Screen Image"
+          src={fullScreenImageUrl}
+          className={styles.fullImage}
+        />
       </div>
-      <Image
-        width={100}
-        height={100}
-        unoptimized={true}
-        alt="Full Screen Image"
-        src={fullScreenImageUrl}
-        className={styles.fullImage}
-      />
-    </div>
-  ) : (
-    <></>
-  );
-};
+    ) : (
+      <></>
+    );
+  };

@@ -1,7 +1,5 @@
 import { useState } from "react";
-import Image from "next/image";
-
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
@@ -22,18 +20,11 @@ import { OnboardingMobile } from "./onboardingMobile";
 import { Consent } from "./components/consent/consent";
 import { TitleDescription, TryOnButton } from "@/components/feature";
 
-// images
-import {
-  lastOnboardingImg,
-  firstOnboardingImg,
-} from "../../../../public/images";
-
 // styles
 import styles from "./onboarding.module.scss";
 
 export const Onboarding = () => {
-  const router = useRouter();
-
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const [isChecked, setIsChecked] = useState(false);
@@ -47,7 +38,7 @@ export const Onboarding = () => {
     if (onboardingSteps !== 2) {
       dispatch(configSlice.actions.setOnboardingSteps(null));
     } else {
-      router.push("/qr");
+      navigate("/qr");
       localStorage.setItem("isOnboarding", JSON.stringify(true));
     }
   };
@@ -64,10 +55,10 @@ export const Onboarding = () => {
             }`}
           >
             <>
-              <Image
+              <img
                 loading="lazy"
                 alt="Onboarding image"
-                src={firstOnboardingImg}
+                src="/images/firstOnboarding.png"
                 className={styles.firstImg}
               />
               <div className={styles.titlesBox}>
@@ -87,10 +78,10 @@ export const Onboarding = () => {
                 : ""
             }`}
           >
-            <Image
+            <img
               loading="lazy"
               alt="Onboarding image"
-              src={lastOnboardingImg}
+              src="/images/lastOnboarding.png"
               className={styles.firstImg}
             />
             <div className={styles.titlesBox}>

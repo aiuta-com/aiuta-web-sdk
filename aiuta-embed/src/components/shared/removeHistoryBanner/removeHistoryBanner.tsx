@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 // redux
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 
@@ -15,9 +13,6 @@ import {
 
 // components
 import { SecondaryButton } from "@/components/feature";
-
-// icons
-import { trashIcon, downloadIcon } from "../../../../public/icons";
 
 // styles
 import styles from "./removeHistoryBanner.module.scss";
@@ -75,12 +70,12 @@ export const RemoveHistoryBanner = () => {
         </p>
       </div>
       <div className={styles.iconsLine}>
-        <Image
+        <img
           src={trashIcon}
           alt="Trash icon"
           onClick={handleShowHistoryImagesModal}
         />
-        <Image
+        <img
           src={downloadIcon}
           alt="Download icon"
           onClick={handleDowloadSelectedImages}

@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 // types
 import { SecondaryButtonTypes } from "./types";
 
@@ -14,7 +12,7 @@ export const SecondaryButton = (props: SecondaryButtonTypes) => {
       className={`${styles.secondaryButton} ${classNames ?? ""}`}
       onClick={onClick}
     >
-      {iconUrl && <Image src={iconUrl} alt="Secondary button icon" />}
+      {iconUrl && <img src={iconUrl} alt="Secondary button icon" />}
       <p>{text}</p>
     </button>
   );

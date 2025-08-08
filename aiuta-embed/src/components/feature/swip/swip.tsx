@@ -1,5 +1,4 @@
 import { useRef, TouchEvent } from "react";
-import Image from "next/image";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
@@ -16,9 +15,6 @@ import { TitleDescription } from "../titleDescription/titleDescription";
 
 // types
 import { SwipTypes } from "./types";
-
-// icons
-import { swipLineIcon } from "../../../../public/icons";
 
 // styles
 import styles from "./swip.module.scss";
@@ -92,7 +88,7 @@ export const Swip = (props: SwipTypes) => {
           onTouchMove={onTouchMove}
           className={styles.swipCloseBox}
         >
-          <Image src={swipLineIcon} alt="Swip line icon" />
+          <img src={'/icons/swipLine'} alt="Swip line icon" />
         </div>
         <TitleDescription
           title="Previously used photos"

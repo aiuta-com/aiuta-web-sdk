@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import Image from "next/image";
 
 // redux
 import { useAppSelector } from "@lib/redux/store";
@@ -15,8 +14,6 @@ import { selectedImagesSelector } from "@lib/redux/slices/generateSlice/selector
 import { SecondaryButton } from "../secondaryButton/secondaryButton";
 import { CountDownAnimation } from "../CountDownAnimation/countDownAnimation";
 
-// icons
-import { redTrashIcon } from "../../../../public/icons";
 
 // types
 import { SelectableImageTypes } from "./types";
@@ -74,9 +71,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
       }
     } else {
       setIsSelect(false);
-    }
-
-    // eslint-disable-next-line
+    } 
   }, [selectedImages]);
 
   useEffect(() => {
@@ -120,7 +115,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
             handleToggleCountDown();
           }}
         >
-          <Image src={redTrashIcon} alt="asdasd" width={18} height={19} />
+          <img src={'/icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
         </div>
       )}
       {isStartCountdown && (
@@ -141,9 +136,8 @@ export const SelectableImage = (props: SelectableImageTypes) => {
           />
         </div>
       )}
-      <Image
+      <img
         src={src}
-        unoptimized
         width={115}
         height={180}
         loading="lazy"

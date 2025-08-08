@@ -1,13 +1,12 @@
-"use client";
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // redux
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 
 // actions
 import { generateSlice } from "@lib/redux/slices/generateSlice";
+import { configSlice } from "@lib/redux/slices/configSlice";
 
 // selectors
 import {
@@ -19,19 +18,14 @@ import {
 import {
   generatedImagesSelector,
   selectedImagesSelector,
-  // generatedImagesSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
-
-// icons
-import { backIcon, closeIcon, historyIcon } from "../../../../public/icons";
 
 // styles
 import styles from "./sdkHeader.module.scss";
-import { configSlice } from "@lib/redux/slices/configSlice";
 
 export const SdkHeader = () => {
-  const router = useRouter();
-  const pathName = usePathname();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const dispatch = useAppDispatch();
 
@@ -44,6 +38,8 @@ export const SdkHeader = () => {
 
   const [hasMounted, setHasMounted] = useState(false);
   const [headerText, setHeaderText] = useState("Virtual Try-On");
+
+  const pathName = location.pathname;
 
   const hasHistoryImages = generatedImages.length > 0;
   const isCheckOnboardingForMobile = isMobile && isOnboardingDone;
@@ -69,35 +65,35 @@ export const SdkHeader = () => {
         dispatch(generateSlice.actions.setSelectedImage([]));
 
         setTimeout(() => {
-          router.back();
+          navigate(-1);
         }, 100);
       } else {
         if (isMobile) {
           if (!hasHistoryImages) {
-            router.push("/view");
+            navigate("/view");
           } else {
-            router.back();
+            navigate(-1);
           }
         } else {
           if (generatedImages.length === 0) {
-            router.push("/view");
+            navigate("/view");
           } else {
-            router.back();
+            navigate(-1);
           }
         }
       }
     } else {
-      router.push(`/${path}`);
+      navigate(`/${path}`);
     }
   };
 
   useEffect(() => {
     if (pathName === "/history") {
-      return setHeaderText("History");
+      setHeaderText("History");
     } else if (pathName === "/previously") {
-      return setHeaderText("Previously used photos");
+      setHeaderText("Previously used photos");
     } else {
-      return setHeaderText("Virtual Try-On");
+      setHeaderText("Virtual Try-On");
     }
   }, [pathName]);
 
@@ -115,28 +111,28 @@ export const SdkHeader = () => {
     >
       {!isMobile && !isCheckQrTokenPage ? (
         hasHistoryImages ? (
-          <Image
+          <img
             alt="History icon"
-            src={iasNavigatePath ? backIcon : historyIcon}
+            src={iasNavigatePath ? '/icons/back.svg' : '/icons/history.svg'}
             onClick={() => handleNavigate("history")}
           />
         ) : iasNavigatePath ? (
-          <Image
+          <img
             alt="History icon"
-            src={backIcon}
+            src={'/icons/back.svg'}
             onClick={() => handleNavigate("history")}
           />
         ) : null
       ) : hasHistoryImages ? (
-        <Image
+        <img
           alt="History icon"
-          src={iasNavigatePath ? backIcon : historyIcon}
+          src={iasNavigatePath ? '/icons/back.svg' : 'icons/history.svg'}
           onClick={() => handleNavigate("history")}
         />
       ) : iasNavigatePath ? (
-        <Image
+        <img
           alt="History icon"
-          src={backIcon}
+          src={'/icons/back.svg'}
           onClick={() => handleNavigate("history")}
         />
       ) : null}
@@ -160,7 +156,7 @@ export const SdkHeader = () => {
           Select
         </p>
       ) : !isCheckQrTokenPage ? (
-        <Image alt="History icon" src={closeIcon} onClick={handleCloseModal} />
+        <img alt="History icon" src={'/icons/close.svg'} onClick={handleCloseModal} />
       ) : null}
     </header>
   );

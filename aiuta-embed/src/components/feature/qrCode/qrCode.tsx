@@ -1,4 +1,5 @@
 import { useQRCode } from "next-qrcode";
+import { QrSpinner } from "../animationIcons";
 
 // redux
 
@@ -6,9 +7,6 @@ import { useAppSelector } from "@lib/redux/store";
 
 // selectors
 import { isShowQrSpinnerSelector } from "@lib/redux/slices/configSlice/selectors";
-
-// animation icons
-import { QrSpinner } from "../../../../public/animationIcons";
 
 // types
 import { QrCodeTypes } from "./types";

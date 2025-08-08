@@ -1,8 +1,3 @@
-import Image from "next/image";
-
-// icons
-import { tryOnIcon } from "../../../../public/icons";
-
 // types
 import { TryOnButtonTypes } from "./types";
 
@@ -31,7 +26,7 @@ export const TryOnButton = (props: TryOnButtonTypes) => {
       onClick={onClick}
     >
       <>
-        {isShowTryOnIcon && <Image alt="Try On icon" src={tryOnIcon} />}{" "}
+        {isShowTryOnIcon && <img alt="Try On icon" src={'/icons/tryOn.svg'} />}{" "}
         {children}
       </>
     </button>

@@ -1,10 +1,5 @@
-import Image from "next/image";
-
 // components
 import { TryOnButton } from "@/components/feature";
-
-// icons
-import { tokenBannerGirlIcon } from "../../../../public/icons";
 
 // types
 import { EmptyViewImageTypes } from "./types";
@@ -17,7 +12,7 @@ export const EmptyViewImage = (props: EmptyViewImageTypes) => {
 
   return (
     <div className={styles.banner}>
-      <Image src={tokenBannerGirlIcon} alt="Girl icon" />
+      <img src={'/icons/tokenBannerGirl.svg'} alt="Girl icon" />
       <div className={styles.uploadBtnContent}>
         <TryOnButton onClick={onClick}>Upload a photo of you</TryOnButton>
       </div>

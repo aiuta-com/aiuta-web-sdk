@@ -1,44 +1,23 @@
 import { useState } from "react";
-import Image from "next/image";
-
-import { useRouter } from "next/navigation";
-
-// redux
+import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
-
-// actions
 import { configSlice } from "@lib/redux/slices/configSlice";
-
-// selectors
 import { onboardingStepsSelector } from "@lib/redux/slices/configSlice/selectors";
-
-// components
 import { Consent } from "./components/consent/consent";
 import { TitleDescription, TryOnButton } from "@/components/feature";
 
-// images
-import {
-  mobileLastMiniImg,
-  mobileFirstMiniImg,
-  mobileMiddleMiniImg,
-  mobileLastOnboardingImg,
-  mobileFirstOnboardingImg,
-  mobileMiddleOnboardingImg,
-  mobileLastStepOnboardingImg,
-} from "../../../../public/images";
 
 const INITIALLY_ONBOARDING = [
-  { imageUrl: mobileFirstOnboardingImg, miniImageUrl: mobileFirstMiniImg },
-  { imageUrl: mobileMiddleOnboardingImg, miniImageUrl: mobileMiddleMiniImg },
-  { imageUrl: mobileLastOnboardingImg, miniImageUrl: mobileLastMiniImg },
+  { imageUrl: '/images/mobileFirstOnboarding.png', miniImageUrl: '/images/mobileFirstMini.png' },
+  { imageUrl: '/images/mobileMiddleOnboarding.png', miniImageUrl: '/images/mobileMiddleMini.png' },
+  { imageUrl: '/images/mobileLastOnboarding.png', miniImageUrl: '/images/mobileLastMini.png' },
 ];
 
 // styles
 import styles from "./onboarding.module.scss";
 
 export const OnboardingMobile = () => {
-  const router = useRouter();
-
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const [isChecked, setIsChecked] = useState(false);
@@ -48,12 +27,12 @@ export const OnboardingMobile = () => {
 
   const handleClickOnboardingButton = () => {
     if (initiallyOnboardingStep !== 2) {
-      setInitiallyOnboardingStep((prevState) => (prevState += 1));
+      setInitiallyOnboardingStep((prevState) => prevState + 1);
     } else {
       if (onboardingSteps !== 2) {
         dispatch(configSlice.actions.setOnboardingSteps(null));
       } else {
-        router.push("/view");
+        navigate("/view");
         dispatch(configSlice.actions.setIsShowFooter(true));
         dispatch(configSlice.actions.setIsOnboardingDone(true));
         localStorage.setItem("isOnboarding", JSON.stringify(true));
@@ -86,7 +65,7 @@ export const OnboardingMobile = () => {
                       : ""
                   }`}
                 >
-                  <Image
+                  <img
                     loading="lazy"
                     alt="Onboarding image"
                     src={image.miniImageUrl}
@@ -95,7 +74,7 @@ export const OnboardingMobile = () => {
                 </div>
               ))}
             </div>
-            <Image
+            <img
               loading="lazy"
               alt="Onboarding image"
               className={styles.firstImg}
@@ -119,11 +98,11 @@ export const OnboardingMobile = () => {
               description="Use a photo with good lighting, stand straight a plain background"
             />
           </div>
-          <Image
+          <img
             loading="lazy"
             alt="Onboarding image"
             className={styles.firstImg}
-            src={mobileLastStepOnboardingImg}
+            src='/images/mobileLastStepOnboarding.png'
           />
         </div>
         <div

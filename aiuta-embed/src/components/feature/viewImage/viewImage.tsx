@@ -1,6 +1,5 @@
 import { useState, MouseEvent, useEffect } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useNavigate } from "react-router-dom";
 
 // types
 import { ViewImageTypes } from "./types";
@@ -15,22 +14,20 @@ export const ViewImage = (props: ViewImageTypes) => {
     generatedImageUrl,
     isStartGeneration,
     isShowChangeImageBtn,
-    imgUnoptimazed = false,
     onChange,
     onClick,
   } = props;
 
   const [generatingText, setGeneratingText] = useState("Scanning your body");
 
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {
-    router.push(`/${path}`);
+    navigate(`/${path}`);
   };
 
   const handleOnChange = () => {
     if (typeof onChange === "function") return onChange();
-
     handleNavigate("previously");
   };
 
@@ -60,54 +57,36 @@ export const ViewImage = (props: ViewImageTypes) => {
           Change photo
         </button>
       )}
+
       <div className={styles.tryOnButtonSecondary}>
         <div className={styles.tryOnBtnSpinner}>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
-          <div className={styles.loadingBox}>
-            <span className={styles.tryOnHidden}>Loading...</span>
-          </div>
+          {Array.from({ length: 8 }).map((_, idx) => (
+            <div key={idx} className={styles.loadingBox}>
+              <span className={styles.tryOnHidden}>Loading...</span>
+            </div>
+          ))}
         </div>
         <span>{generatingText}</span>
       </div>
+
       {generatedImageUrl && (
-        <Image
+        <img
           width={280}
           height={460}
           loading="lazy"
           alt="View image"
           src={generatedImageUrl}
-          unoptimized={imgUnoptimazed}
           className={styles.newGeneratedImage}
           onClick={handleClickOnImage}
         />
       )}
-      <Image
+
+      <img
         src={url}
         width={280}
         height={460}
         loading="lazy"
         alt="View image"
-        unoptimized={imgUnoptimazed}
         className={styles.tryOnImage}
         onClick={handleClickOnImage}
       />

@@ -1,23 +1,20 @@
-import { useRef, useState, ChangeEvent, useEffect, useCallback } from "react";
-import { GetServerSideProps } from "next";
-import Image from "next/image";
+import React, { useRef, useState, ChangeEvent, useEffect, useCallback } from "react";
+import { useParams, useLocation } from "react-router-dom";
 
-// components
 import { TryOnButton, ViewImage } from "@/components/feature";
 
-// icons
-import { successIcon, tokenBannerGirlIcon } from "../../../public/icons";
-
-// styles
 import styles from "./token.module.scss";
 
-export default function QRTokenPage({
-  token,
-  apiKey,
-}: {
-  token: string;
-  apiKey: string;
-}) {
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
+export default function QRTokenPage() {
+  // get `token` from route param and `apiKey` from query string
+  const { token } = useParams<{ token: string }>();
+  const query = useQuery();
+  const apiKey = query.get("apiKey") || "";
+
   const [generationData, setGenerationData] = useState<{
     isStart: boolean;
     uploadedUrl: string | null;
@@ -25,6 +22,7 @@ export default function QRTokenPage({
     isStart: false,
     uploadedUrl: null,
   });
+
   const [uploadedFile, setUploadedFile] = useState<{
     url: string;
     file: File;
@@ -33,7 +31,7 @@ export default function QRTokenPage({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleButtonClick = () => {
-    fileInputRef.current?.click(); // Programmatically open file picker
+    fileInputRef.current?.click();
   };
 
   const handleUploadPhoto = async () => {
@@ -43,7 +41,7 @@ export default function QRTokenPage({
       setGenerationData({ isStart: true, uploadedUrl: null });
       const file = uploadedFile.file;
 
-      const uploadedResponse = await fetch("/api/upload-image", {
+      const uploadedResponse = await fetch("https://web-sdk.aiuta.com/api/upload-image", {
         method: "POST",
         headers: {
           "Content-Type": file.type,
@@ -55,12 +53,12 @@ export default function QRTokenPage({
 
       const result = await uploadedResponse.json();
 
-      await fetch("/api/upload-qr-photo", {
+      await fetch("https://web-sdk.aiuta.com/api/upload-qr-photo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           token: token,
-          ...result, // includes id, type, url
+          ...result,
         }),
       });
 
@@ -81,20 +79,18 @@ export default function QRTokenPage({
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target && event.target.files) {
       const file = event.target.files[0];
-
       const objectUrl = URL.createObjectURL(file);
 
-      const uploadedFileData = {
-        file: file,
+      setUploadedFile({
+        file,
         url: objectUrl,
-      };
-
-      setUploadedFile(uploadedFileData);
+      });
     }
   };
 
   const handleMakeScannedStatus = useCallback(async () => {
-    await fetch("/api/upload-qr-photo", {
+    if (!token) return;
+    await fetch("https://web-sdk.aiuta.com/api/upload-qr-photo", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -108,8 +104,7 @@ export default function QRTokenPage({
 
   useEffect(() => {
     handleMakeScannedStatus();
-    // eslint-disable-next-line
-  }, []);
+  }, [handleMakeScannedStatus]);
 
   return (
     <div className={styles.tokenContainer}>
@@ -129,22 +124,16 @@ export default function QRTokenPage({
         </div>
       ) : !generationData.uploadedUrl ? (
         <div className={styles.banner}>
-          <Image src={tokenBannerGirlIcon} alt="Girl icon" />
+          <img src={'/icons/tokenBannerGirl.svg'} alt="Girl icon" />
           <div className={styles.uploadBtnContent}>
-            <TryOnButton onClick={handleButtonClick}>
-              Upload a photo of you
-            </TryOnButton>
+            <TryOnButton onClick={handleButtonClick}>Upload a photo of you</TryOnButton>
           </div>
         </div>
       ) : (
         <div className={styles.resultContent}>
           <div className={styles.resultImageBox}>
-            <Image
-              src={successIcon}
-              alt="Success icon"
-              className={styles.successIcon}
-            />
-            <Image
+            <img src={'/icons/success.svg'} alt="Success icon" className={styles.successIcon} />
+            <img
               width={160}
               height={245}
               alt="Uploaded photo"
@@ -163,20 +152,8 @@ export default function QRTokenPage({
         type="file"
         accept="image/*"
         onChange={handleChoosePhoto}
-        style={{ display: "none" }} // Hide native input
+        style={{ display: "none" }}
       />
     </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const token = context.params?.token as string;
-  const apiKey = context.query.apiKey as string;
-
-  return {
-    props: {
-      token,
-      apiKey: apiKey || null,
-    },
-  };
-};
