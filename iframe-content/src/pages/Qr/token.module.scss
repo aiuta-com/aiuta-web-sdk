@@ -1,3 +1,10 @@
+.qrContainer {
+  height: calc(100vh - 128px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .tokenContainer {
   display: flex;
   align-items: center;
@@ -16,9 +23,9 @@
       border-radius: 26px;
       margin-bottom: 18px;
 
-      div {
-        min-width: 300px;
+      .viewItem {
         height: 100%;
+        min-width: 300px;
 
         img {
           width: 100% !important;
