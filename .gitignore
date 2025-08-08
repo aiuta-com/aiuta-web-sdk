@@ -9,7 +9,6 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-/package-lock.json
 /test.html
 
 # testing
@@ -24,7 +23,7 @@
 /build
 
 # misc
-/DS_Store
+.DS_Store
 *.pem
 
 # debug
