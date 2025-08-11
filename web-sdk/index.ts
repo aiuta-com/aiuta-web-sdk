@@ -62,7 +62,7 @@ const createAiutaIframe = (apiKey: string, skuId: string) => {
   const aiutaIframe: any = document.createElement("iframe");
   aiutaIframe.id = "aiuta-iframe";
   aiutaIframe.allow = "fullscreen";
-  aiutaIframe.src = "// TO DO, the link to iframe";
+  aiutaIframe.src = "https://static.aiuta.com/sdk/v0/index.html";
   aiutaIframe.style.transition = "all ease-in-out 0.5s";
   aiutaIframe.style.position = "fixed";
   aiutaIframe.style.top = "12px";
