@@ -88,7 +88,7 @@ export const Swip = (props: SwipTypes) => {
           onTouchMove={onTouchMove}
           className={styles.swipCloseBox}
         >
-          <img src={'/icons/swipLine'} alt="Swip line icon" />
+          <img src={'./icons/swipLine'} alt="Swip line icon" />
         </div>
         <TitleDescription
           title="Previously used photos"

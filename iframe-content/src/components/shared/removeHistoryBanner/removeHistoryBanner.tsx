@@ -72,12 +72,12 @@ export const RemoveHistoryBanner = () => {
       </div>
       <div className={styles.iconsLine}>
         <img
-          src={'/icons/trash.svg'}
+          src={'./icons/trash.svg'}
           alt="Trash icon"
           onClick={handleShowHistoryImagesModal}
         />
         <img
-          src={'/icons/download.svg'}
+          src={'./icons/download.svg'}
           alt="Download icon"
           onClick={handleDowloadSelectedImages}
         />

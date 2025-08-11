@@ -86,7 +86,7 @@ export default function History() {
   const EmptyPage = () => {
     return (
       <div className={styles.emptyContent}>
-        <img src={'/icons/emptyhistory.svg'} alt="Empty icon" />
+        <img src={'./icons/emptyhistory.svg'} alt="Empty icon" />
         <p>
           Once you try on first item your try-on history would be stored here
         </p>

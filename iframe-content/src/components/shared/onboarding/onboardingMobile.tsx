@@ -8,9 +8,9 @@ import { TitleDescription, TryOnButton } from "@/components/feature";
 
 
 const INITIALLY_ONBOARDING = [
-  { imageUrl: '/images/mobileFirstOnboarding.png', miniImageUrl: '/images/mobileFirstMini.png' },
-  { imageUrl: '/images/mobileMiddleOnboarding.png', miniImageUrl: '/images/mobileMiddleMini.png' },
-  { imageUrl: '/images/mobileLastOnboarding.png', miniImageUrl: '/images/mobileLastMini.png' },
+  { imageUrl: './images/mobileFirstOnboarding.png', miniImageUrl: './images/mobileFirstMini.png' },
+  { imageUrl: './images/mobileMiddleOnboarding.png', miniImageUrl: './images/mobileMiddleMini.png' },
+  { imageUrl: './images/mobileLastOnboarding.png', miniImageUrl: './images/mobileLastMini.png' },
 ];
 
 // styles
@@ -102,7 +102,7 @@ export const OnboardingMobile = () => {
             loading="lazy"
             alt="Onboarding image"
             className={styles.firstImg}
-            src='/images/mobileLastStepOnboarding.png'
+            src='./images/mobileLastStepOnboarding.png'
           />
         </div>
         <div

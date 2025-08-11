@@ -113,26 +113,26 @@ export const SdkHeader = () => {
         hasHistoryImages ? (
           <img
             alt="History icon"
-            src={iasNavigatePath ? '/icons/back.svg' : '/icons/history.svg'}
+            src={iasNavigatePath ? './icons/back.svg' : './icons/history.svg'}
             onClick={() => handleNavigate("history")}
           />
         ) : iasNavigatePath ? (
           <img
             alt="History icon"
-            src={'/icons/back.svg'}
+            src={'./icons/back.svg'}
             onClick={() => handleNavigate("history")}
           />
         ) : null
       ) : hasHistoryImages ? (
         <img
           alt="History icon"
-          src={iasNavigatePath ? '/icons/back.svg' : 'icons/history.svg'}
+          src={iasNavigatePath ? './icons/back.svg' : 'icons/history.svg'}
           onClick={() => handleNavigate("history")}
         />
       ) : iasNavigatePath ? (
         <img
           alt="History icon"
-          src={'/icons/back.svg'}
+          src={'./icons/back.svg'}
           onClick={() => handleNavigate("history")}
         />
       ) : null}

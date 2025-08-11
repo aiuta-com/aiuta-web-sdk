@@ -27,7 +27,7 @@ export const TryOnButton = (props: TryOnButtonTypes) => {
       onClick={onClick}
     >
       <>
-        {isShowTryOnIcon && <img alt="Try On icon" src={'/icons/tryOn.svg'} />}{" "}
+        {isShowTryOnIcon && <img alt="Try On icon" src={'./icons/tryOn.svg'} />}{" "}
         {children}
       </>
     </button>

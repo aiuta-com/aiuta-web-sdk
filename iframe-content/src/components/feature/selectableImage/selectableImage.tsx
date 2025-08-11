@@ -115,7 +115,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
             handleToggleCountDown();
           }}
         >
-          <img src={'/icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
+          <img src={'./icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
         </div>
       )}
       {isStartCountdown && (
