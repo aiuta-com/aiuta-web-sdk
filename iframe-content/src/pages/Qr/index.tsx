@@ -166,7 +166,7 @@ export default function Qr() {
         {endpointData ? (
           <QrCode
             onChange={handleChoosePhoto}
-            url={`https://web-sdk.aiuta.com/qr/${qrToken}`}
+            url={`https://static.aiuta.com/sdk/v0/index.html#/qr/${qrToken}`}
           />
         ) : null}
       </motion.div>

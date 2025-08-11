@@ -215,7 +215,7 @@ export default function Previously() {
                 <QrCode
                   onChange={() => {}}
                   isShowQrInfo={false}
-                  url={`https://web-sdk.aiuta.com/qr/${qrToken}?apiKey=${endpointData.apiKey}`}
+                  url={`https://static.aiuta.com/sdk/v0/index.html#/qr/${qrToken}?apiKey=${endpointData.apiKey}`}
                 />
               ) : null}
             </div>
