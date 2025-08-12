@@ -8,23 +8,23 @@ import {
 
 function shareModal(imageUrl: string) {
   return `
-        <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
-          <p style="text-align: left; margin: 0">${SHARE_WITH_TEXT}</p>
-          <div style="cursor: pointer; position: absolute; right: 20px; top: 12px" onclick='window.parent.postMessage({ action: "close_share_modal", imageUrl: "\${imageUrl}" }, "*");'>
-            ${CLOSE_ICON}
-          </div>
-          <div style="display: flex; column-gap: 24px; align-items: center; margin: 25px 0px 30px 0px">
-            <a target="_blank" href="https://wa.me/?text=${imageUrl}" style="cursor: pointer; max-height: 74px;">${WHATS_APP}</a>
-            <a target="_blank" href="https://www.messenger.com/new?text=${imageUrl}" style="cursor: pointer; max-height: 74px;">${MESSENGER}</a>
-          </div>
-          <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; padding: 8px 12px 8px 16px; background: #F2F2F7;">
-            <p style="max-width: 300px; margin: 0; overflow: hidden; text-overflow: ellipsis; font-family: 'GT Maru', sans-serif; white-space: nowrap; font-size: 14px; font-weight: 500; letter-spacing: -0.49px;">${imageUrl}</p>
-            <div style="width: 70px; height: 36px; cursor: pointer" onclick="navigator.clipboard.writeText('${imageUrl}')">
-              ${COPY_BUTTON}
-            </div>
-          </div>
+    <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
+      <p style="text-align: left; margin: 0">${SHARE_WITH_TEXT}</p>
+      <div style="cursor: pointer; position: absolute; right: 20px; top: 12px" onclick='window.parent.postMessage({ action: "close_share_modal", imageUrl: "${imageUrl}" }, "*");'>
+        ${CLOSE_ICON}
+      </div>
+      <div style="display: flex; column-gap: 24px; align-items: center; margin: 25px 0px 30px 0px">
+        <a target="_blank" href="https://wa.me/?text=${imageUrl}" style="cursor: pointer; max-height: 74px;">${WHATS_APP}</a>
+        <a target="_blank" href="https://www.messenger.com/new?text=${imageUrl}" style="cursor: pointer; max-height: 74px;">${MESSENGER}</a>
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; padding: 8px 12px 8px 16px; background: #F2F2F7;">
+        <p style="max-width: 300px; margin: 0; overflow: hidden; text-overflow: ellipsis; font-family: 'GT Maru', sans-serif; white-space: nowrap; font-size: 14px; font-weight: 500; letter-spacing: -0.49px;">${imageUrl}</p>
+        <div style="width: 70px; height: 36px; cursor: pointer" onclick="navigator.clipboard.writeText('${imageUrl}')">
+          ${COPY_BUTTON}
         </div>
-      `;
+      </div>
+    </div>
+  `;
 }
 
 const closeShareModal = () => {
@@ -35,11 +35,12 @@ const closeShareModal = () => {
 };
 
 const openShareModal = (imageUrl: string) => {
-  const existingShareModal = document.getElementById("sdk-share-modal");
-  if (existingShareModal) {
-    existingShareModal.style.display = "flex";
+  let modalWrapper = document.getElementById("sdk-share-modal");
+  if (modalWrapper) {
+    modalWrapper.style.display = "flex";
+    modalWrapper.innerHTML = shareModal(imageUrl);
   } else {
-    const modalWrapper = document.createElement("div");
+    modalWrapper = document.createElement("div");
 
     modalWrapper.id = "sdk-share-modal";
     modalWrapper.style.minWidth = "100vw";
@@ -58,167 +59,160 @@ const openShareModal = (imageUrl: string) => {
   }
 };
 
-const createAiutaIframe = (apiKey: string, skuId: string) => {
-  const aiutaIframe: any = document.createElement("iframe");
-  aiutaIframe.id = "aiuta-iframe";
-  aiutaIframe.allow = "fullscreen";
-  aiutaIframe.src = "https://static.aiuta.com/sdk/v0/index.html";
-  aiutaIframe.style.transition = "all ease-in-out 0.5s";
-  aiutaIframe.style.position = "fixed";
-  aiutaIframe.style.top = "12px";
-  aiutaIframe.style.right = "-1000%";
-  aiutaIframe.style.width = "394px";
-  aiutaIframe.style.height = "632px";
-  aiutaIframe.style.borderRadius = "24px";
-  aiutaIframe.style.zIndex = "9999";
-  aiutaIframe.style.border = "1px solid #0000001A";
-  aiutaIframe.style.boxShadow = "0px 8px 28px -6px #0000001F";
+export default class Aiuta {
+  apiKey: string;
+  iframe: HTMLIFrameElement | null = null;
+  isIframeLoaded = false;
+  currentSkuId: string | null = null;
+  readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html"; // Replace with your production origin
 
-  document.body.append(aiutaIframe);
+  constructor(apiKey: string) {
+    if (!apiKey) {
+      throw new Error("Api key is required for Aiuta.");
+    }
+    this.apiKey = apiKey;
 
-  setTimeout(() => {
-    aiutaIframe.contentWindow.postMessage(
-      {
-        status: 200,
-        skuId,
-        apiKey: apiKey,
-        type: "baseKeys",
-      },
-      "*"
-    );
-  }, 5000);
+    this.handleMessage = this.handleMessage.bind(this);
 
-  setTimeout(() => {
-    aiutaIframe.style.right = "12px";
-  }, 1000);
-};
+    window.addEventListener("message", this.handleMessage);
+  }
 
-const handleListenWindowMessages = (apiKey: string, productId: string) => {
-  const aiutaIframe = document.getElementById(
-    "aiuta-iframe"
-  ) as HTMLIFrameElement;
-  if (!aiutaIframe) return;
+  private createIframe() {
+    if (this.iframe) return;
 
-  aiutaIframe.onload = () => {
-    const messages = async (event: any) => {
-      if (
-        event.data &&
-        typeof event.data === "object" &&
-        "action" in event.data
-      ) {
-        const action = event.data.action;
+    this.iframe = document.createElement("iframe");
+    this.iframe.id = "aiuta-iframe";
+    this.iframe.allow = "fullscreen";
+    this.iframe.src = this.iframeOrigin;
+    this.iframe.style.transition = "all ease-in-out 0.5s";
+    this.iframe.style.position = "fixed";
+    this.iframe.style.top = "12px";
+    this.iframe.style.right = "-1000%";
+    this.iframe.style.width = "394px";
+    this.iframe.style.height = "632px";
+    this.iframe.style.borderRadius = "24px";
+    this.iframe.style.zIndex = "9999";
+    this.iframe.style.border = "1px solid #0000001A";
+    this.iframe.style.boxShadow = "0px 8px 28px -6px #0000001F";
 
-        if (action === "close_modal") {
-          aiutaIframe.style.right = "-1000%";
-        } else if (action === "open_share_modal") {
-          openShareModal(event.data.imageUrl);
-        } else if (action === "close_share_modal") {
-          closeShareModal();
-        } else if (action === "get_window_sizes") {
-          if (aiutaIframe && aiutaIframe.contentWindow) {
-            aiutaIframe.contentWindow.postMessage(
-              {
-                type: "resize",
-                width: window.innerWidth,
-                height: window.innerHeight,
-              },
-              "*"
-            );
-          }
-        } else if (action === "SHARE_IMAGE") {
+    this.iframe.onload = () => {
+      this.isIframeLoaded = true;
+      if (this.currentSkuId) {
+        this.postMessageToIframe({
+          status: 200,
+          skuId: this.currentSkuId,
+          apiKey: this.apiKey,
+          type: "baseKeys",
+        });
+      }
+      this.adjustIframeForViewport();
+    };
+
+    document.body.appendChild(this.iframe);
+
+    window.addEventListener("resize", () => this.adjustIframeForViewport());
+  }
+
+  private postMessageToIframe(message: any) {
+    if (!this.iframe?.contentWindow) return;
+
+    this.iframe.contentWindow.postMessage(message, this.iframeOrigin);
+  }
+
+  private handleMessage(event: MessageEvent) {
+    if (event.origin !== this.iframeOrigin) return; // Security: accept only from your iframe origin
+    const data = event.data;
+
+    if (!data || typeof data !== "object" || !("action" in data)) return;
+
+    switch (data.action) {
+      case "close_modal":
+        if (this.iframe) {
+          this.iframe.style.right = "-1000%";
+        }
+        break;
+
+      case "open_share_modal":
+        if (data.imageUrl) {
+          openShareModal(data.imageUrl);
+        }
+        break;
+
+      case "close_share_modal":
+        closeShareModal();
+        break;
+
+      case "get_window_sizes":
+        if (this.iframe?.contentWindow) {
+          this.postMessageToIframe({
+            type: "resize",
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
+        }
+        break;
+
+      case "SHARE_IMAGE":
+        if (navigator.share && data.payload?.url) {
           navigator.share({
-            url: event.data.payload.url,
+            url: data.payload.url,
             title: "Check out this image",
             text: "Here's an image I generated!",
           });
-        } else if (action === "GET_AIUTA_API_KEYS") {
-          if (aiutaIframe && aiutaIframe.contentWindow) {
-            aiutaIframe.contentWindow.postMessage(
-              {
-                status: 200,
-                skuId: productId,
-                apiKey: apiKey,
-                type: "baseKeys",
-              },
-              "*"
-            );
-          }
         }
+        break;
 
-        if (window.innerWidth <= 992) {
-          aiutaIframe.style.top = "0px";
-          aiutaIframe.style.width = "100%";
-          aiutaIframe.style.height = "100%";
-          aiutaIframe.style.borderRadius = "0px";
-          aiutaIframe.style.border = "1px solid #ffffff";
+      case "GET_AIUTA_API_KEYS":
+        if (this.iframe?.contentWindow) {
+          this.postMessageToIframe({
+            status: 200,
+            skuId: this.currentSkuId,
+            apiKey: this.apiKey,
+            type: "baseKeys",
+          });
         }
-      }
-    };
+        break;
+    }
+  }
+
+  private adjustIframeForViewport() {
+    if (!this.iframe) return;
 
     if (window.innerWidth <= 992) {
-      aiutaIframe.style.top = "0px";
-      aiutaIframe.style.width = "100%";
-      aiutaIframe.style.height = "100%";
-      aiutaIframe.style.borderRadius = "0px";
-      aiutaIframe.style.border = "1px solid #ffffff";
-
-      if (aiutaIframe && aiutaIframe.contentWindow) {
-        aiutaIframe.contentWindow.postMessage(
-          {
-            type: "resize",
-            width: window.innerWidth,
-            height: window.innerHeight,
-          },
-          "*"
-        );
-      }
+      this.iframe.style.top = "0px";
+      this.iframe.style.width = "100%";
+      this.iframe.style.height = "100%";
+      this.iframe.style.borderRadius = "0px";
+      this.iframe.style.border = "1px solid #ffffff";
+    } else {
+      this.iframe.style.top = "12px";
+      this.iframe.style.width = "394px";
+      this.iframe.style.height = "632px";
+      this.iframe.style.borderRadius = "24px";
+      this.iframe.style.border = "1px solid #0000001A";
     }
-
-    window.addEventListener("message", messages);
-
-    window.addEventListener("resize", () => {
-      if (aiutaIframe && aiutaIframe.contentWindow) {
-        aiutaIframe.contentWindow.postMessage(
-          {
-            type: "resize",
-            width: window.innerWidth,
-            height: window.innerHeight,
-          },
-          "*"
-        );
-      }
-    });
-  };
-};
-
-export default class Aiuta {
-  apiKey: string = "";
-
-  constructor(apiKey: string) {
-    if (!apiKey || !apiKey.length) {
-      console.error("Api key is not provided for Aiuta.");
-      return;
-    }
-
-    this.apiKey = apiKey;
   }
 
   startGeneration(productId: string) {
-    if (!this.apiKey.length) return;
-
-    if (!productId || !productId.length) {
-      console.error("Product id is not provided for Aiuta.");
+    if (!productId) {
+      console.error("Product id is required for Aiuta.");
       return;
     }
 
-    const aiutaIframe = document.getElementById("aiuta-iframe");
+    this.currentSkuId = productId;
+    this.createIframe();
 
-    if (aiutaIframe) {
-      aiutaIframe.style.right = "12px";
-      handleListenWindowMessages(this.apiKey, productId);
-    } else {
-      createAiutaIframe(this.apiKey, productId);
-      handleListenWindowMessages(this.apiKey, productId);
+    if (this.iframe) {
+      this.iframe.style.right = "12px";
+    }
+
+    if (this.isIframeLoaded) {
+      this.postMessageToIframe({
+        status: 200,
+        skuId: productId,
+        apiKey: this.apiKey,
+        type: "baseKeys",
+      });
     }
   }
 }
