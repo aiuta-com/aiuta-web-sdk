@@ -7,6 +7,7 @@ import { motion, easeInOut } from "framer-motion";
 import { useAppSelector, useAppDispatch } from "../../../lib/redux/store";
 
 // actions
+import { alertSlice } from "@lib/redux/slices/alertSlice";
 import { generateSlice } from "../../../lib/redux/slices/generateSlice";
 
 // selectors
@@ -18,8 +19,15 @@ import { uploadedViewFileSelector } from "@lib/redux/slices/fileSlice/selectors"
 import { recentlyPhotosSelector } from "../../../lib/redux/slices/generateSlice/selectors";
 
 // components
+import {
+  Alert,
+  Section,
+  ViewImage,
+  TryOnButton,
+  SecondaryButton,
+} from "@/components/feature";
 import ViewMobile from "./viewMobile";
-import { Section, TryOnButton, ViewImage } from "@/components/feature";
+import { AiutaModal } from "@/components/shared/modals";
 
 // types
 import { EndpointDataTypes } from "@/types";
@@ -58,6 +66,7 @@ export default function View() {
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState("");
   const [isStartGeneration, setIsStartGeneration] = useState(false);
+  const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false);
   const [recentlyPhoto, setRecentlyPhoto] = useState({ id: "", url: "" });
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
     null
@@ -89,33 +98,52 @@ export default function View() {
 
   const handleGetGeneratedImage = async (operation_id: string) => {
     try {
-      const response = await fetch(`https://web-sdk.aiuta.com/api/sku-image-operation`, {
-        method: "POST",
-        body: JSON.stringify({ ...endpointData, operation_id: operation_id }),
-      });
+      const response = await fetch(
+        `https://web-sdk.aiuta.com/api/sku-image-operation`,
+        {
+          method: "POST",
+          body: JSON.stringify({ ...endpointData, operation_id: operation_id }),
+        }
+      );
 
       if (!response.ok) return;
 
       const result = await response.json();
-      console.log("result", result);
 
       if (result.status === "SUCCESS") {
         const { generated_images } = result;
         const { id, url } = generated_images[0];
-
         setGeneratedImageUrl(url);
         handleNavigate("generated");
-
         setTimeout(() => {
           setIsStartGeneration(false);
         }, 500);
-
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
-
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;
         }
+      } else if (result.status === "FAILED" || result.status === "CANCELLED") {
+        if (generationApiCallInterval) {
+          clearInterval(generationApiCallInterval);
+          generationApiCallInterval = null;
+        }
+        setIsStartGeneration(false);
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong. Please try again",
+          })
+        );
+      } else if (result.status === "ABORTED") {
+        if (generationApiCallInterval) {
+          clearInterval(generationApiCallInterval);
+          generationApiCallInterval = null;
+        }
+        setIsStartGeneration(false);
+        setIsOpenAbortedModal(true);
       }
     } catch (err) {
       console.error("Generation image Error:", err);
@@ -130,16 +158,19 @@ export default function View() {
       ? uploadedViewFile.id
       : recentlyPhoto.id;
 
-    const operationResponse = await fetch("https://web-sdk.aiuta.com/api/create-operation-id", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        uploaded_image_id: uploaded_image_id,
-        ...endpointData,
-      }),
-    });
+    const operationResponse = await fetch(
+      "https://web-sdk.aiuta.com/api/create-operation-id",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          uploaded_image_id: uploaded_image_id,
+          ...endpointData,
+        }),
+      }
+    );
 
     if (operationResponse.ok) {
       const result = await operationResponse.json();
@@ -160,6 +191,15 @@ export default function View() {
         }, 3000);
       }
     }
+  };
+
+  const handleRegenerate = () => {
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
+    handleTryOn();
+  };
+
+  const handleCloseAbortedMidal = () => {
+    setIsOpenAbortedModal(false);
   };
 
   const handleGetWidnwInitiallySizes = () => {
@@ -183,9 +223,7 @@ export default function View() {
         if (event.data.status === 200) {
           setEndpointData(event.data);
         } else {
-          console.error(
-            "Something went wrong. Please check the sdk file"
-          );
+          console.error("Something went wrong. Please check the sdk file");
         }
       } else {
         console.error("Not found API data");
@@ -201,6 +239,17 @@ export default function View() {
 
   return (
     <>
+      <AiutaModal isOpen={isOpenAbortedModal}>
+        <div className={styles.abortedModal}>
+          <p>We couldn’t detect anyone in this photo</p>
+          <SecondaryButton
+            text="Change photo"
+            onClick={handleCloseAbortedMidal}
+            classNames={styles.abortedButton}
+          />
+        </div>
+      </AiutaModal>
+      <Alert onClick={handleRegenerate} />
       {isMobile ? (
         <ViewMobile />
       ) : (
@@ -216,7 +265,13 @@ export default function View() {
                   url={uploadedViewFile.localUrl}
                   isStartGeneration={isStartGeneration}
                   generatedImageUrl={generatedImageUrl}
-                  isShowChangeImageBtn={isStartGeneration ? false : true}
+                  isShowChangeImageBtn={
+                    isOpenAbortedModal
+                      ? false
+                      : isStartGeneration
+                      ? false
+                      : true
+                  }
                 />
               ) : null}
               {recentlyPhoto.url.length ? (
@@ -224,17 +279,25 @@ export default function View() {
                   url={recentlyPhoto.url}
                   isStartGeneration={isStartGeneration}
                   generatedImageUrl={generatedImageUrl}
-                  isShowChangeImageBtn={isStartGeneration ? false : true}
+                  isShowChangeImageBtn={
+                    isOpenAbortedModal
+                      ? false
+                      : isStartGeneration
+                      ? false
+                      : true
+                  }
                 />
               ) : null}
             </div>
-            <TryOnButton
-              isShowTryOnIcon
-              onClick={handleTryOn}
-              dynamicStyles={generationButtonConfigs}
-            >
-              Try On
-            </TryOnButton>
+            {!isStartGeneration && !isOpenAbortedModal && (
+              <TryOnButton
+                isShowTryOnIcon
+                onClick={handleTryOn}
+                dynamicStyles={generationButtonConfigs}
+              >
+                Try On
+              </TryOnButton>
+            )}
           </motion.div>
         </Section>
       )}

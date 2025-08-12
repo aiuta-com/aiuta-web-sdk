@@ -1,3 +1,29 @@
+.abortedModal {
+  p {
+    margin: auto;
+    max-width: 150px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--black);
+    letter-spacing: -0.035em;
+  }
+  .abortedButton {
+    width: 262px;
+    margin-top: 31px;
+    background: var(--try-on-primary-color);
+
+    p {
+      color: var(--white);
+      font-family: GT Maru;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: unset;
+      letter-spacing: -0.035em;
+    }
+  }
+}
+
 .viewContainer {
   display: flex;
   row-gap: 30px;

@@ -1,4 +1,5 @@
 import { Swip } from "./swip/swip";
+import { Alert } from "./alert/alert";
 import { QrCode } from "./qrCode/qrCode";
 import { Layout } from "./layout/layout";
 import { Section } from "./section/section";
@@ -13,6 +14,7 @@ import { FullScreenImageModal } from "./fullScreenImageModal/fullScreenImageModa
 
 export {
   Swip,
+  Alert,
   QrCode,
   Layout,
   Section,

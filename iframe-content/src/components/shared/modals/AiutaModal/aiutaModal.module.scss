@@ -1,0 +1,27 @@
+.aiutaModal {
+  transition: all 0.2s ease-in-out;
+  transform: scale(0);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+  background-color: #00000063;
+
+  .moadlContent {
+    max-width: 298px;
+    text-align: center;
+    border-radius: 24px;
+    padding: 32px 16px 16px 16px;
+    background-color: #fff;
+  }
+}
+
+.aiutaModalActive {
+  z-index: 99;
+  transform: scale(1);
+}
