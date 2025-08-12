@@ -1,6 +1,15 @@
 import React, { useState, MouseEvent, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+// redux
+import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+
+// actions
+import { alertSlice } from "@lib/redux/slices/alertSlice";
+
+// selectors
+import { showAlertStatesSelector } from "@lib/redux/slices/alertSlice/selectors";
+
 // types
 import { ViewImageTypes } from "./types";
 
@@ -18,6 +27,10 @@ export const ViewImage = (props: ViewImageTypes) => {
     onClick,
   } = props;
 
+  const dispatch = useAppDispatch();
+
+  const showAlertStates = useAppSelector(showAlertStatesSelector);
+
   const [generatingText, setGeneratingText] = useState("Scanning your body");
 
   const navigate = useNavigate();
@@ -29,6 +42,10 @@ export const ViewImage = (props: ViewImageTypes) => {
   const handleOnChange = () => {
     if (typeof onChange === "function") return onChange();
     handleNavigate("previously");
+
+    if (showAlertStates && showAlertStates.isShow) {
+      dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
+    }
   };
 
   const handleClickOnImage = (event: MouseEvent<HTMLImageElement>) => {

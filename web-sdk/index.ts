@@ -142,15 +142,17 @@ export default class Aiuta {
         closeShareModal();
         break;
 
-      case "get_window_sizes":
-        if (this.iframe?.contentWindow) {
-          this.postMessageToIframe({
-            type: "resize",
-            width: window.innerWidth,
-            height: window.innerHeight,
-          });
-        }
-        break;
+
+      // TO DO may use in future
+      // case "get_window_sizes":
+      //   if (this.iframe?.contentWindow) {
+      //     // this.postMessageToIframe({
+      //     //   type: "resize",
+      //     //   width: window.innerWidth,
+      //     //   height: window.innerHeight,
+      //     // });
+      //   }
+      //   break;
 
       case "SHARE_IMAGE":
         if (navigator.share && data.payload?.url) {
@@ -180,6 +182,7 @@ export default class Aiuta {
 
     if (window.innerWidth <= 992) {
       this.iframe.style.top = "0px";
+      this.iframe.style.right = "0px";
       this.iframe.style.width = "100%";
       this.iframe.style.height = "100%";
       this.iframe.style.borderRadius = "0px";
