@@ -43,6 +43,8 @@ export default function Qr() {
     null
   );
 
+  console.log("endpointData", endpointData);
+
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return;
 
