@@ -101,10 +101,13 @@ export default function ViewMobile() {
 
   const handleGetGeneratedImage = async (operation_id: string) => {
     try {
-      const response = await fetch(`https://web-sdk.aiuta.com/api/sku-image-operation`, {
-        method: "POST",
-        body: JSON.stringify({ ...endpointData, operation_id: operation_id }),
-      });
+      const response = await fetch(
+        `https://web-sdk.aiuta.com/api/sku-image-operation`,
+        {
+          method: "POST",
+          body: JSON.stringify({ ...endpointData, operation_id: operation_id }),
+        }
+      );
 
       if (!response.ok) return;
 
@@ -137,16 +140,19 @@ export default function ViewMobile() {
       ? uploadedViewFile.id
       : recentlyPhoto.id;
 
-    const operationResponse = await fetch("https://web-sdk.aiuta.com/api/create-operation-id", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        uploaded_image_id: uploaded_image_id,
-        ...endpointData,
-      }),
-    });
+    const operationResponse = await fetch(
+      "https://web-sdk.aiuta.com/api/create-operation-id",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          uploaded_image_id: uploaded_image_id,
+          ...endpointData,
+        }),
+      }
+    );
 
     if (operationResponse.ok) {
       const result = await operationResponse.json();
@@ -172,16 +178,19 @@ export default function ViewMobile() {
   const handleGenerate = async (uploadedData: { id: string; url: string }) => {
     const isExistUploadedPhoto = uploadedData.id.length;
 
-    const operationResponse = await fetch("https://web-sdk.aiuta.com/api/create-operation-id", {
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-      body: JSON.stringify({
-        uploaded_image_id: uploadedData.id,
-        ...endpointData,
-      }),
-    });
+    const operationResponse = await fetch(
+      "https://web-sdk.aiuta.com/api/create-operation-id",
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({
+          uploaded_image_id: uploadedData.id,
+          ...endpointData,
+        }),
+      }
+    );
 
     if (operationResponse.ok) {
       const result = await operationResponse.json();
@@ -237,15 +246,18 @@ export default function ViewMobile() {
       }, 500);
       dispatch(configSlice.actions.setIsShowFooter(true));
 
-      const uploadedResponse = await fetch("https://web-sdk.aiuta.com/api/upload-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": file.type,
-          "X-Filename": file.name,
-          keys: endpointData.apiKey,
-        },
-        body: file,
-      });
+      const uploadedResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/upload-image",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": file.type,
+            "X-Filename": file.name,
+            keys: endpointData.apiKey,
+          },
+          body: file,
+        }
+      );
       const result = await uploadedResponse.json();
 
       if (result.owner_type === "user") {
@@ -270,10 +282,6 @@ export default function ViewMobile() {
       if (event.data && event.data.type) {
         if (event.data.status === 200) {
           setEndpointData(event.data);
-        } else {
-          console.error(
-            "Something is went to wrong. Please check the sdk file"
-          );
         }
       } else {
         console.error("Not found API data");
