@@ -122,6 +122,14 @@ export default class Aiuta {
   private handleMessage(event: MessageEvent) {
     if (event.origin !== this.iframeOrigin) return; // Security: accept only from your iframe origin
     const data = event.data;
+    console.log(
+      "event",
+      event,
+      "iframe::",
+      this.iframe,
+      this.apiKey,
+      this.currentSkuId
+    );
 
     if (!data || typeof data !== "object" || !("action" in data)) return;
 
@@ -141,7 +149,6 @@ export default class Aiuta {
       case "close_share_modal":
         closeShareModal();
         break;
-
 
       // TO DO may use in future
       // case "get_window_sizes":
