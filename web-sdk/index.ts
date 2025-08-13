@@ -71,44 +71,47 @@ export default class Aiuta {
       throw new Error("Api key is required for Aiuta.");
     }
     this.apiKey = apiKey;
-
-    this.handleMessage = this.handleMessage.bind(this);
-
-    window.addEventListener("message", this.handleMessage);
   }
 
-  private createIframe() {
-    if (this.iframe) return;
+  private createIframe(apiKey: string, productId: string) {
+    const aiutaIframe: any = document.createElement("iframe");
+    aiutaIframe.id = "aiuta-iframe";
+    aiutaIframe.allow = "fullscreen";
+    aiutaIframe.src = this.iframeOrigin;
+    aiutaIframe.style.transition = "all ease-in-out 0.5s";
+    aiutaIframe.style.position = "fixed";
+    aiutaIframe.style.top = "12px";
+    aiutaIframe.style.right = "-1000%";
+    aiutaIframe.style.width = "394px";
+    aiutaIframe.style.height = "632px";
+    aiutaIframe.style.borderRadius = "24px";
+    aiutaIframe.style.zIndex = "9999";
+    aiutaIframe.style.border = "1px solid #0000001A";
+    aiutaIframe.style.boxShadow = "0px 8px 28px -6px #0000001F";
 
-    this.iframe = document.createElement("iframe");
-    this.iframe.id = "aiuta-iframe";
-    this.iframe.allow = "fullscreen";
-    this.iframe.src = this.iframeOrigin;
-    this.iframe.style.transition = "all ease-in-out 0.5s";
-    this.iframe.style.position = "fixed";
-    this.iframe.style.top = "12px";
-    this.iframe.style.right = "-1000%";
-    this.iframe.style.width = "394px";
-    this.iframe.style.height = "632px";
-    this.iframe.style.borderRadius = "24px";
-    this.iframe.style.zIndex = "9999";
-    this.iframe.style.border = "1px solid #0000001A";
-    this.iframe.style.boxShadow = "0px 8px 28px -6px #0000001F";
+    document.body.append(aiutaIframe);
 
-    this.iframe.onload = () => {
-      this.isIframeLoaded = true;
-      if (this.currentSkuId) {
-        this.postMessageToIframe({
+    this.iframe = aiutaIframe;
+
+    aiutaIframe.onload = () => {
+      aiutaIframe.contentWindow.postMessage(
+        {
           status: 200,
-          skuId: this.currentSkuId,
-          apiKey: this.apiKey,
+          skuId: productId,
+          apiKey: apiKey,
           type: "baseKeys",
-        });
-      }
-      this.adjustIframeForViewport();
+        },
+        "*"
+      );
     };
 
-    document.body.appendChild(this.iframe);
+    setTimeout(() => {
+      if (window.innerWidth <= 992) {
+        aiutaIframe.style.right = "0px";
+      } else {
+        aiutaIframe.style.right = "12px";
+      }
+    }, 1000);
 
     window.addEventListener("resize", () => this.adjustIframeForViewport());
   }
@@ -119,69 +122,90 @@ export default class Aiuta {
     this.iframe.contentWindow.postMessage(message, this.iframeOrigin);
   }
 
-  private handleMessage(event: MessageEvent) {
-    if (event.origin !== this.iframeOrigin) return; // Security: accept only from your iframe origin
-    const data = event.data;
-    console.log(
-      "event",
-      event,
-      "iframe::",
-      this.iframe,
-      this.apiKey,
-      this.currentSkuId
-    );
+  private handleMessage(productId: string) {
+    const aiutaIframe = document.getElementById(
+      "aiuta-iframe"
+    ) as HTMLIFrameElement;
+    if (!aiutaIframe) return;
 
-    if (!data || typeof data !== "object" || !("action" in data)) return;
+    aiutaIframe.onload = () => {
+      const messages = async (event: any) => {
+        const data = event.data;
+        switch (data.action) {
+          case "close_modal":
+            if (aiutaIframe) {
+              aiutaIframe.style.right = "-1000%";
+            }
+            break;
 
-    switch (data.action) {
-      case "close_modal":
-        if (this.iframe) {
-          this.iframe.style.right = "-1000%";
+          case "open_share_modal":
+            if (data.imageUrl) {
+              openShareModal(data.imageUrl);
+            }
+            break;
+
+          case "close_share_modal":
+            closeShareModal();
+            break;
+
+          case "SHARE_IMAGE":
+            if (navigator.share && data.payload?.url) {
+              navigator.share({
+                url: data.payload.url,
+                title: "Check out this image",
+                text: "Here's an image I generated!",
+              });
+            }
+            break;
+
+          case "GET_AIUTA_API_KEYS":
+            if (aiutaIframe.contentWindow) {
+              this.postMessageToIframe({
+                status: 200,
+                skuId: productId,
+                apiKey: this.apiKey,
+                type: "baseKeys",
+              });
+            }
+            break;
         }
-        break;
+      };
 
-      case "open_share_modal":
-        if (data.imageUrl) {
-          openShareModal(data.imageUrl);
+      if (window.innerWidth <= 992) {
+        aiutaIframe.style.top = "0px";
+        aiutaIframe.style.width = "100%";
+        aiutaIframe.style.right = "0px";
+        aiutaIframe.style.height = "100%";
+        aiutaIframe.style.borderRadius = "0px";
+        aiutaIframe.style.border = "1px solid #ffffff";
+
+        if (aiutaIframe && aiutaIframe.contentWindow) {
+          aiutaIframe.contentWindow.postMessage(
+            {
+              type: "resize",
+              width: window.innerWidth,
+              height: window.innerHeight,
+            },
+            "*"
+          );
         }
-        break;
+      }
 
-      case "close_share_modal":
-        closeShareModal();
-        break;
+      window.addEventListener("message", messages);
 
-      // TO DO may use in future
-      // case "get_window_sizes":
-      //   if (this.iframe?.contentWindow) {
-      //     // this.postMessageToIframe({
-      //     //   type: "resize",
-      //     //   width: window.innerWidth,
-      //     //   height: window.innerHeight,
-      //     // });
-      //   }
-      //   break;
-
-      case "SHARE_IMAGE":
-        if (navigator.share && data.payload?.url) {
-          navigator.share({
-            url: data.payload.url,
-            title: "Check out this image",
-            text: "Here's an image I generated!",
-          });
+      window.addEventListener("resize", () => {
+        if (aiutaIframe && aiutaIframe.contentWindow) {
+          aiutaIframe.contentWindow.postMessage(
+            {
+              type: "resize",
+              width: window.innerWidth,
+              height: window.innerHeight,
+            },
+            "*"
+          );
         }
-        break;
-
-      case "GET_AIUTA_API_KEYS":
-        if (this.iframe?.contentWindow) {
-          this.postMessageToIframe({
-            status: 200,
-            skuId: this.currentSkuId,
-            apiKey: this.apiKey,
-            type: "baseKeys",
-          });
-        }
-        break;
-    }
+      });
+    };
   }
 
   private adjustIframeForViewport() {
@@ -204,25 +228,31 @@ export default class Aiuta {
   }
 
   startGeneration(productId: string) {
-    if (!productId) {
-      console.error("Product id is required for Aiuta.");
+    if (!this.apiKey.length) {
+      console.error("Api key is not provided for Aiuta.");
+      return;
+    }
+
+    if (!productId || !productId.length) {
+      console.error("Product id is not provided for Aiuta.");
       return;
     }
 
     this.currentSkuId = productId;
-    this.createIframe();
 
-    if (this.iframe) {
-      this.iframe.style.right = "12px";
-    }
+    const aiutaIframe = document.getElementById("aiuta-iframe");
 
-    if (this.isIframeLoaded) {
-      this.postMessageToIframe({
-        status: 200,
-        skuId: productId,
-        apiKey: this.apiKey,
-        type: "baseKeys",
-      });
+    if (aiutaIframe) {
+      if (window.innerWidth <= 992) {
+        aiutaIframe.style.right = "0px";
+      } else {
+        aiutaIframe.style.right = "12px";
+      }
+
+      this.handleMessage(productId);
+    } else {
+      this.createIframe(this.apiKey, productId);
+      this.handleMessage(productId);
     }
   }
 }

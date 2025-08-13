@@ -109,8 +109,6 @@ export default function Qr() {
       if (event.data && event.data.type) {
         if (event.data.status === 200) {
           setEndpointData(event.data);
-        } else {
-          console.error("Something went wrong. Please check the SDK file");
         }
       } else {
         console.error("Not found API data");
