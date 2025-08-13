@@ -119,7 +119,7 @@ export default class Aiuta {
   private postMessageToIframe(message: any) {
     if (!this.iframe?.contentWindow) return;
 
-    this.iframe.contentWindow.postMessage(message, this.iframeOrigin);
+    this.iframe.contentWindow.postMessage(message, "*");
   }
 
   private handleMessage(productId: string) {
