@@ -62,8 +62,6 @@ const openShareModal = (imageUrl: string) => {
 export default class Aiuta {
   apiKey: string;
   iframe: HTMLIFrameElement | null = null;
-  isIframeLoaded = false;
-  currentSkuId: string | null = null;
   readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html"; // Replace with your production origin
 
   constructor(apiKey: string) {
@@ -127,6 +125,15 @@ export default class Aiuta {
       "aiuta-iframe"
     ) as HTMLIFrameElement;
     if (!aiutaIframe) return;
+
+    if (aiutaIframe && aiutaIframe.contentWindow) {
+      this.postMessageToIframe({
+        status: 200,
+        skuId: productId,
+        apiKey: this.apiKey,
+        type: "baseKeys",
+      });
+    }
 
     aiutaIframe.onload = () => {
       const messages = async (event: any) => {
@@ -228,17 +235,10 @@ export default class Aiuta {
   }
 
   startGeneration(productId: string) {
-    if (!this.apiKey.length) {
-      console.error("Api key is not provided for Aiuta.");
-      return;
-    }
-
     if (!productId || !productId.length) {
       console.error("Product id is not provided for Aiuta.");
       return;
     }
-
-    this.currentSkuId = productId;
 
     const aiutaIframe = document.getElementById("aiuta-iframe");
 
