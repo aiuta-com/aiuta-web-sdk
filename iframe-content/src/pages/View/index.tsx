@@ -97,6 +97,8 @@ export default function View() {
   };
 
   const handleGetGeneratedImage = async (operation_id: string) => {
+    console.log("handleGetGeneratedImage endpointData", endpointData);
+
     try {
       const response = await fetch(
         `https://web-sdk.aiuta.com/api/sku-image-operation`,
@@ -153,7 +155,7 @@ export default function View() {
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
-    if (endpointData.jwtToken && endpointData.jwtToken.length > 0) {
+    if (endpointData.userId && endpointData.userId.length > 0) {
       window.parent.postMessage(
         { action: "GET_AIUTA_API_KEYS", isGetJwtToken: true },
         "*"
@@ -162,12 +164,12 @@ export default function View() {
       window.addEventListener("message", (event: any) => {
         (async () => {
           if (event.data.status === 200 && event.data.type === "baseKeys") {
-            setEndpointData(event.data);
-
             const isExistUploadedPhoto = uploadedViewFile.id.length;
             const uploaded_image_id = isExistUploadedPhoto
               ? uploadedViewFile.id
               : recentlyPhoto.id;
+
+            console.log("event.data", event.data);
 
             const operationResponse = await fetch(
               "https://web-sdk.aiuta.com/api/create-operation-id",
