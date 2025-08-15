@@ -194,28 +194,29 @@ export default class Aiuta {
             }
             break;
 
+          case "GET_AIUTA_JWT_TOKEN":
+            if (aiutaIframe.contentWindow) {
+              const token = await this.getToken(productId);
+
+              this.postMessageToIframe({
+                status: 200,
+                skuId: productId,
+                jwtToken: token,
+                userId: this.userId,
+                type: "baseKeys",
+              });
+            }
+            break;
+
           case "GET_AIUTA_API_KEYS":
             if (aiutaIframe.contentWindow) {
-              if (data.isGetJwtToken) {
-                const token = await this.getToken(productId);
-
-                this.postMessageToIframe({
-                  status: 200,
-                  skuId: productId,
-                  apiKey: this.apiKey,
-                  jwtToken: token,
-                  userId: this.userId,
-                  type: "baseKeys",
-                });
-              } else {
-                this.postMessageToIframe({
-                  status: 200,
-                  skuId: productId,
-                  apiKey: this.apiKey,
-                  userId: this.userId,
-                  type: "baseKeys",
-                });
-              }
+              this.postMessageToIframe({
+                status: 200,
+                skuId: productId,
+                apiKey: this.apiKey,
+                userId: this.userId,
+                type: "baseKeys",
+              });
             }
             break;
         }

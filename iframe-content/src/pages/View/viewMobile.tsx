@@ -134,43 +134,95 @@ export default function ViewMobile() {
     }
   };
 
+  const handleGenerates = async (event: any) => {
+    if (event.data.status === 200 && event.data.type === "baseKeys") {
+      const isExistUploadedPhoto = uploadedViewFile.id.length;
+      const uploaded_image_id = isExistUploadedPhoto
+        ? uploadedViewFile.id
+        : recentlyPhoto.id;
+
+      const operationResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/create-operation-id",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            uploaded_image_id: uploaded_image_id,
+            ...event.data,
+          }),
+        }
+      );
+
+      if (operationResponse.ok) {
+        const result = await operationResponse.json();
+
+        setIsStartGeneration(true);
+
+        if (isExistUploadedPhoto) {
+          handlePutRecentlyPhotos(
+            uploadedViewFile.id,
+            uploadedViewFile.url,
+            "tryon-recent-photos"
+          );
+        }
+
+        if (result.operation_id) {
+          generationApiCallInterval = setInterval(() => {
+            handleGetGeneratedImage(result.operation_id);
+            window.removeEventListener("message", handleGenerates);
+          }, 3000);
+        }
+      }
+    }
+  };
+
   const handleTryOn = async () => {
+    if (!endpointData) return console.error("Endpoints info is missing");
+
     const isExistUploadedPhoto = uploadedViewFile.id.length;
     const uploaded_image_id = isExistUploadedPhoto
       ? uploadedViewFile.id
       : recentlyPhoto.id;
 
-    const operationResponse = await fetch(
-      "https://web-sdk.aiuta.com/api/create-operation-id",
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          uploaded_image_id: uploaded_image_id,
-          ...endpointData,
-        }),
-      }
-    );
+    if (endpointData.userId && endpointData.userId.length > 0) {
+      window.parent.postMessage({ action: "GET_AIUTA_JWT_TOKEN" }, "*");
 
-    if (operationResponse.ok) {
-      const result = await operationResponse.json();
+      window.addEventListener("message", handleGenerates);
+    } else {
+      const operationResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/create-operation-id",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            uploaded_image_id: uploaded_image_id,
+            ...endpointData,
+          }),
+        }
+      );
 
-      setIsStartGeneration(true);
+      if (operationResponse.ok) {
+        const result = await operationResponse.json();
 
-      if (isExistUploadedPhoto) {
-        handlePutRecentlyPhotos(
-          uploadedViewFile.id,
-          uploadedViewFile.url,
-          "tryon-recent-photos"
-        );
-      }
+        setIsStartGeneration(true);
 
-      if (result.operation_id) {
-        generationApiCallInterval = setInterval(() => {
-          handleGetGeneratedImage(result.operation_id);
-        }, 3000);
+        if (isExistUploadedPhoto) {
+          handlePutRecentlyPhotos(
+            uploadedViewFile.id,
+            uploadedViewFile.url,
+            "tryon-recent-photos"
+          );
+        }
+
+        if (result.operation_id) {
+          generationApiCallInterval = setInterval(() => {
+            handleGetGeneratedImage(result.operation_id);
+          }, 3000);
+        }
       }
     }
   };
@@ -246,15 +298,22 @@ export default function ViewMobile() {
       }, 500);
       dispatch(configSlice.actions.setIsShowFooter(true));
 
+      const hasUserId =
+        typeof endpointData.userId === "string" &&
+        endpointData.userId.length > 0;
+      let headers: any = { "Content-Type": file.type, "X-Filename": file.name };
+
+      if (hasUserId) {
+        headers["userid"] = endpointData.userId;
+      } else {
+        headers["keys"] = endpointData.apiKey;
+      }
+
       const uploadedResponse = await fetch(
         "https://web-sdk.aiuta.com/api/upload-image",
         {
           method: "POST",
-          headers: {
-            "Content-Type": file.type,
-            "X-Filename": file.name,
-            keys: endpointData.apiKey,
-          },
+          headers: headers,
           body: file,
         }
       );

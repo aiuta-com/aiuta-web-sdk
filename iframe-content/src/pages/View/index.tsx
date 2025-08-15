@@ -97,8 +97,6 @@ export default function View() {
   };
 
   const handleGetGeneratedImage = async (operation_id: string) => {
-    console.log("handleGetGeneratedImage endpointData", endpointData);
-
     try {
       const response = await fetch(
         `https://web-sdk.aiuta.com/api/sku-image-operation`,
@@ -115,12 +113,15 @@ export default function View() {
       if (result.status === "SUCCESS") {
         const { generated_images } = result;
         const { id, url } = generated_images[0];
+
         setGeneratedImageUrl(url);
         handleNavigate("generated");
         setTimeout(() => {
           setIsStartGeneration(false);
         }, 500);
+
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
+
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;
@@ -130,6 +131,7 @@ export default function View() {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;
         }
+
         setIsStartGeneration(false);
         dispatch(
           alertSlice.actions.setShowAlert({
@@ -144,6 +146,7 @@ export default function View() {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;
         }
+
         setIsStartGeneration(false);
         setIsOpenAbortedModal(true);
       }
@@ -152,61 +155,57 @@ export default function View() {
     }
   };
 
+  const handleGenerate = async (event: any) => {
+    if (event.data.status === 200 && event.data.type === "baseKeys") {
+      const isExistUploadedPhoto = uploadedViewFile.id.length;
+      const uploaded_image_id = isExistUploadedPhoto
+        ? uploadedViewFile.id
+        : recentlyPhoto.id;
+
+      const operationResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/create-operation-id",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            uploaded_image_id: uploaded_image_id,
+            ...event.data,
+          }),
+        }
+      );
+
+      if (operationResponse.ok) {
+        const result = await operationResponse.json();
+
+        setIsStartGeneration(true);
+
+        if (isExistUploadedPhoto) {
+          handlePutRecentlyPhotos(
+            uploadedViewFile.id,
+            uploadedViewFile.url,
+            "tryon-recent-photos"
+          );
+        }
+
+        if (result.operation_id) {
+          generationApiCallInterval = setInterval(() => {
+            handleGetGeneratedImage(result.operation_id);
+            window.removeEventListener("message", handleGenerate);
+          }, 3000);
+        }
+      }
+    }
+  };
+
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
     if (endpointData.userId && endpointData.userId.length > 0) {
-      window.parent.postMessage(
-        { action: "GET_AIUTA_API_KEYS", isGetJwtToken: true },
-        "*"
-      );
+      window.parent.postMessage({ action: "GET_AIUTA_JWT_TOKEN" }, "*");
 
-      window.addEventListener("message", (event: any) => {
-        (async () => {
-          if (event.data.status === 200 && event.data.type === "baseKeys") {
-            const isExistUploadedPhoto = uploadedViewFile.id.length;
-            const uploaded_image_id = isExistUploadedPhoto
-              ? uploadedViewFile.id
-              : recentlyPhoto.id;
-
-            console.log("event.data", event.data);
-
-            const operationResponse = await fetch(
-              "https://web-sdk.aiuta.com/api/create-operation-id",
-              {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                method: "POST",
-                body: JSON.stringify({
-                  uploaded_image_id: uploaded_image_id,
-                  ...event.data,
-                }),
-              }
-            );
-
-            if (operationResponse.ok) {
-              const result = await operationResponse.json();
-
-              setIsStartGeneration(true);
-
-              if (isExistUploadedPhoto) {
-                handlePutRecentlyPhotos(
-                  uploadedViewFile.id,
-                  uploadedViewFile.url,
-                  "tryon-recent-photos"
-                );
-              }
-
-              if (result.operation_id) {
-                generationApiCallInterval = setInterval(() => {
-                  handleGetGeneratedImage(result.operation_id);
-                }, 3000);
-              }
-            }
-          }
-        })();
-      });
+      window.addEventListener("message", handleGenerate);
     } else {
       const isExistUploadedPhoto = uploadedViewFile.id.length;
       const uploaded_image_id = isExistUploadedPhoto

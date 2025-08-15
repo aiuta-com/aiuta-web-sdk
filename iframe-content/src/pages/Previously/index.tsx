@@ -81,16 +81,23 @@ export default function Previously() {
 
       if (!file) return dispatch(configSlice.actions.setIsShowSpinner(false));
 
+      const hasUserId =
+        typeof endpointData.userId === "string" &&
+        endpointData.userId.length > 0;
+      let headers: any = { "Content-Type": file.type, "X-Filename": file.name };
+
+      if (hasUserId) {
+        headers["userid"] = endpointData.userId;
+      } else {
+        headers["keys"] = endpointData.apiKey;
+      }
+
       try {
         const uploadedResponse = await fetch(
           "https://web-sdk.aiuta.com/api/upload-image",
           {
             method: "POST",
-            headers: {
-              "Content-Type": file.type,
-              "X-Filename": file.name,
-              keys: endpointData.apiKey,
-            },
+            headers: headers,
             body: file,
           }
         );
@@ -190,6 +197,18 @@ export default function Previously() {
     };
   }, []);
 
+  const hasUserId =
+    endpointData &&
+    typeof endpointData.userId === "string" &&
+    endpointData.userId.length > 0;
+  const qrUrl = endpointData
+    ? `http://localhost:5173/sdk/v0/index.html#/qr/${qrToken}?${
+        hasUserId
+          ? `userId=${endpointData.userId}`
+          : `apiKey=${endpointData.apiKey}`
+      }`
+    : "not-found";
+
   return (
     <>
       <Section className={styles.sectionContent}>
@@ -214,11 +233,7 @@ export default function Previously() {
           ) : (
             <div className={styles.qrContent}>
               {endpointData ? (
-                <QrCode
-                  onChange={() => {}}
-                  isShowQrInfo={false}
-                  url={`https://static.aiuta.com/sdk/v0/index.html#/qr/${qrToken}?apiKey=${endpointData.apiKey}`}
-                />
+                <QrCode onChange={() => {}} isShowQrInfo={false} url={qrUrl} />
               ) : null}
             </div>
           )}
