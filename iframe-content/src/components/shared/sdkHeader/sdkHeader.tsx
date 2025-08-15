@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-
 // redux
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-
 // actions
 import { generateSlice } from "@lib/redux/slices/generateSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
-
 // selectors
 import {
   qrTokenSelector,
@@ -17,20 +14,20 @@ import {
 } from "@lib/redux/slices/configSlice/selectors";
 import {
   generatedImagesSelector,
+  recentlyPhotosSelector,
   selectedImagesSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
-
 // styles
 import styles from "./sdkHeader.module.scss";
 
 export const SdkHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
-
   const dispatch = useAppDispatch();
 
   const qrToken = useAppSelector(qrTokenSelector);
   const isMobile = useAppSelector(isMobileSelector);
+  const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector);
@@ -40,7 +37,6 @@ export const SdkHeader = () => {
   const [headerText, setHeaderText] = useState("Virtual Try-On");
 
   const pathName = location.pathname;
-
   const hasHistoryImages = generatedImages.length > 0;
   const isCheckOnboardingForMobile = isMobile && isOnboardingDone;
   const isCheckQrTokenPage = qrToken ? pathName.includes(qrToken) : false;
@@ -49,6 +45,14 @@ export const SdkHeader = () => {
 
   const handleCloseModal = () => {
     if (typeof window !== "undefined") {
+      const recentPhotosFromLocal = JSON.parse(
+        localStorage.getItem("tryon-recent-photos") || "[]"
+      );
+      if (recentPhotosFromLocal.length > 0) {
+        setTimeout(() => {
+          navigate("/view");
+        }, 500);
+      }
       window.parent.postMessage({ action: "close_modal" }, "*");
     }
   };
@@ -63,7 +67,6 @@ export const SdkHeader = () => {
     if (iasNavigatePath) {
       if (selectedImages.length > 0) {
         dispatch(generateSlice.actions.setSelectedImage([]));
-
         setTimeout(() => {
           navigate(-1);
         }, 100);
@@ -113,26 +116,26 @@ export const SdkHeader = () => {
         hasHistoryImages ? (
           <img
             alt="History icon"
-            src={iasNavigatePath ? './icons/back.svg' : './icons/history.svg'}
+            src={iasNavigatePath ? "./icons/back.svg" : "./icons/history.svg"}
             onClick={() => handleNavigate("history")}
           />
         ) : iasNavigatePath ? (
           <img
             alt="History icon"
-            src={'./icons/back.svg'}
+            src={"./icons/back.svg"}
             onClick={() => handleNavigate("history")}
           />
         ) : null
       ) : hasHistoryImages ? (
         <img
           alt="History icon"
-          src={iasNavigatePath ? './icons/back.svg' : 'icons/history.svg'}
+          src={iasNavigatePath ? "./icons/back.svg" : "icons/history.svg"}
           onClick={() => handleNavigate("history")}
         />
       ) : iasNavigatePath ? (
         <img
           alt="History icon"
-          src={'./icons/back.svg'}
+          src={"./icons/back.svg"}
           onClick={() => handleNavigate("history")}
         />
       ) : null}
@@ -156,7 +159,11 @@ export const SdkHeader = () => {
           Select
         </p>
       ) : !isCheckQrTokenPage ? (
-        <img alt="History icon" src={'./icons/close.svg'} onClick={handleCloseModal} />
+        <img
+          alt="History icon"
+          src={"./icons/close.svg"}
+          onClick={handleCloseModal}
+        />
       ) : null}
     </header>
   );

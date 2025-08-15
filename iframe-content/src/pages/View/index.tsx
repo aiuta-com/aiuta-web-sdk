@@ -153,42 +153,96 @@ export default function View() {
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
-    const isExistUploadedPhoto = uploadedViewFile.id.length;
-    const uploaded_image_id = isExistUploadedPhoto
-      ? uploadedViewFile.id
-      : recentlyPhoto.id;
+    if (endpointData.jwtToken && endpointData.jwtToken.length > 0) {
+      window.parent.postMessage(
+        { action: "GET_AIUTA_API_KEYS", isGetJwtToken: true },
+        "*"
+      );
 
-    const operationResponse = await fetch(
-      "https://web-sdk.aiuta.com/api/create-operation-id",
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          uploaded_image_id: uploaded_image_id,
-          ...endpointData,
-        }),
-      }
-    );
+      window.addEventListener("message", (event: any) => {
+        (async () => {
+          if (event.data.status === 200 && event.data.type === "baseKeys") {
+            setEndpointData(event.data);
 
-    if (operationResponse.ok) {
-      const result = await operationResponse.json();
+            const isExistUploadedPhoto = uploadedViewFile.id.length;
+            const uploaded_image_id = isExistUploadedPhoto
+              ? uploadedViewFile.id
+              : recentlyPhoto.id;
 
-      setIsStartGeneration(true);
+            const operationResponse = await fetch(
+              "https://web-sdk.aiuta.com/api/create-operation-id",
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                method: "POST",
+                body: JSON.stringify({
+                  uploaded_image_id: uploaded_image_id,
+                  ...event.data,
+                }),
+              }
+            );
 
-      if (isExistUploadedPhoto) {
-        handlePutRecentlyPhotos(
-          uploadedViewFile.id,
-          uploadedViewFile.url,
-          "tryon-recent-photos"
-        );
-      }
+            if (operationResponse.ok) {
+              const result = await operationResponse.json();
 
-      if (result.operation_id) {
-        generationApiCallInterval = setInterval(() => {
-          handleGetGeneratedImage(result.operation_id);
-        }, 3000);
+              setIsStartGeneration(true);
+
+              if (isExistUploadedPhoto) {
+                handlePutRecentlyPhotos(
+                  uploadedViewFile.id,
+                  uploadedViewFile.url,
+                  "tryon-recent-photos"
+                );
+              }
+
+              if (result.operation_id) {
+                generationApiCallInterval = setInterval(() => {
+                  handleGetGeneratedImage(result.operation_id);
+                }, 3000);
+              }
+            }
+          }
+        })();
+      });
+    } else {
+      const isExistUploadedPhoto = uploadedViewFile.id.length;
+      const uploaded_image_id = isExistUploadedPhoto
+        ? uploadedViewFile.id
+        : recentlyPhoto.id;
+
+      const operationResponse = await fetch(
+        "https://web-sdk.aiuta.com/api/create-operation-id",
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            uploaded_image_id: uploaded_image_id,
+            ...endpointData,
+          }),
+        }
+      );
+
+      if (operationResponse.ok) {
+        const result = await operationResponse.json();
+
+        setIsStartGeneration(true);
+
+        if (isExistUploadedPhoto) {
+          handlePutRecentlyPhotos(
+            uploadedViewFile.id,
+            uploadedViewFile.url,
+            "tryon-recent-photos"
+          );
+        }
+
+        if (result.operation_id) {
+          generationApiCallInterval = setInterval(() => {
+            handleGetGeneratedImage(result.operation_id);
+          }, 3000);
+        }
       }
     }
   };
@@ -239,7 +293,7 @@ export default function View() {
     <>
       <AiutaModal isOpen={isOpenAbortedModal}>
         <div className={styles.abortedModal}>
-          <p>We couldn’t detect anyone in this photo</p>
+          <p>We couldn't detect anyone in this photo</p>
           <SecondaryButton
             text="Change photo"
             onClick={handleCloseAbortedMidal}
