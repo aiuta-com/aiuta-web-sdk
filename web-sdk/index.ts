@@ -27,6 +27,16 @@ function shareModal(imageUrl: string) {
   `;
 }
 
+type GetJwtCallback = (
+  params: Record<string, string>
+) => string | Promise<string>;
+
+// Define JwtAuth type
+interface JwtAuth {
+  subscriptionId: string;
+  getJwt: GetJwtCallback;
+}
+
 const closeShareModal = () => {
   const shareModal = document.getElementById("sdk-share-modal");
   if (shareModal) {
@@ -60,15 +70,32 @@ const openShareModal = (imageUrl: string) => {
 };
 
 export default class Aiuta {
-  apiKey: string;
-  iframe: HTMLIFrameElement | null = null;
-  readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html"; // Replace with your production origin
+  private getJwt!: GetJwtCallback;
 
-  constructor(apiKey: string) {
-    if (!apiKey) {
-      throw new Error("Api key is required for Aiuta.");
-    }
+  private apiKey!: string;
+  private userId!: string;
+  private iframe: HTMLIFrameElement | null = null;
+  readonly iframeOrigin = "http://localhost:5173"; // Replace with your production origin
+
+  // init methods
+  initWithApiKey(apiKey: string) {
+    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
+      throw new Error("Aiuta is already initialized");
     this.apiKey = apiKey;
+  }
+
+  initWithJwt({ subscriptionId, getJwt }: JwtAuth) {
+    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
+      throw new Error("Aiuta is already initialized");
+    this.userId = subscriptionId;
+    this.getJwt = getJwt;
+  }
+
+  private async getToken(productId: string) {
+    if (this.apiKey) return this.apiKey;
+    if (this.getJwt)
+      return await this.getJwt({ subscriptionId: this.userId, productId });
+    throw new Error("Aiuta SDK is not initialized with API key or JWT");
   }
 
   private createIframe(apiKey: string, productId: string) {
@@ -138,6 +165,8 @@ export default class Aiuta {
     aiutaIframe.onload = () => {
       const messages = async (event: any) => {
         const data = event.data;
+        console.log("event data", data);
+
         switch (data.action) {
           case "close_modal":
             if (aiutaIframe) {
@@ -167,12 +196,26 @@ export default class Aiuta {
 
           case "GET_AIUTA_API_KEYS":
             if (aiutaIframe.contentWindow) {
-              this.postMessageToIframe({
-                status: 200,
-                skuId: productId,
-                apiKey: this.apiKey,
-                type: "baseKeys",
-              });
+              if (data.isGetJwtToken) {
+                const token = await this.getToken(productId);
+
+                this.postMessageToIframe({
+                  status: 200,
+                  skuId: productId,
+                  apiKey: this.apiKey,
+                  jwtToken: token,
+                  userId: this.userId,
+                  type: "baseKeys",
+                });
+              } else {
+                this.postMessageToIframe({
+                  status: 200,
+                  skuId: productId,
+                  apiKey: this.apiKey,
+                  userId: this.userId,
+                  type: "baseKeys",
+                });
+              }
             }
             break;
         }

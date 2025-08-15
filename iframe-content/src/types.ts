@@ -3,4 +3,5 @@ export type EndpointDataTypes = {
   skuId: string;
   apiKey: string;
   status: number;
+  jwtToken: string;
 };
