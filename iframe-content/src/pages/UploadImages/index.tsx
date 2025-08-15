@@ -25,7 +25,7 @@ export default function UploadImages() {
           `https://api.aiuta.com/digital-try-on/v1/uploaded_images`,
           {
             method: "POST",
-            headers: { "x-api-key": "3iUr4Hc7TsAfB8DjM1XH98rIWX2ohu8r" },
+            headers: { "x-user-id": "67f4cfd450d2205dd03bcf02" },
             body: formData,
           }
         );
@@ -50,7 +50,7 @@ export default function UploadImages() {
 
     const images = await uploadAllImages(uploadImageUrl.split(","));
     const imageIds = images.map((image) => image.id);
-
+    // aiuta-demo40816
     const sku = {
       sku_id: `aiuta-demo${randomToken}`,
       product_id: `gid://shopify/Product/${productId}`,
@@ -69,9 +69,10 @@ export default function UploadImages() {
       {
         method: "POST",
         headers: {
-          "x-api-key": "3iUr4Hc7TsAfB8DjM1XH98rIWX2ohu8r",
+          // "x-api-key": "3iUr4Hc7TsAfB8DjM1XH98rIWX2ohu8r",
           accept: "application/json",
           "content-type": "application/json",
+          Authorization: "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJkd0xXVXVsRjBxT2txcXBxUnV2RXlMT2s2ZUFPeEF5OCIsIm5iZiI6MTc1NTI1NTkyNSwiZXhwIjoxNzU1MjU5NTI1LCJpYXQiOjE3NTUyNTU5MjV9.bxg8NE1w3sa5mqHKwkC3mjhJ2KrXuIPGR_vbb5HDkPo",
         },
         body: JSON.stringify(sku),
       }

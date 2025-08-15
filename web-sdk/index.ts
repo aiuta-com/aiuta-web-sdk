@@ -165,7 +165,6 @@ export default class Aiuta {
     aiutaIframe.onload = () => {
       const messages = async (event: any) => {
         const data = event.data;
-        console.log("event data", data);
 
         switch (data.action) {
           case "close_modal":

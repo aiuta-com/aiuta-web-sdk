@@ -43,8 +43,6 @@ export default function Qr() {
     null
   );
 
-  console.log("endpointData", endpointData);
-
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return;
 
@@ -150,7 +148,7 @@ export default function Qr() {
     typeof endpointData.userId === "string" &&
     endpointData.userId.length > 0;
   const qrUrl = endpointData
-    ? `http://localhost:5173/sdk/v0/index.html#/qr/${qrToken}?${
+    ? `https://static.aiuta.com/sdk/v0/index.html#/qr/${qrToken}?${
         hasUserId
           ? `userId=${endpointData.userId}`
           : `apiKey=${endpointData.apiKey}`
