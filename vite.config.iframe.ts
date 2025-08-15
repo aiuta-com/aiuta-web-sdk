@@ -17,9 +17,6 @@ export default defineConfig({
       input: path.resolve(__dirname, "iframe-content/index.html"),
     },
   },
-  server: {
-    allowedHosts: ["schema-grande-stream-observation.trycloudflare.com"],
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "iframe-content/src/"),

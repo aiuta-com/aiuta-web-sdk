@@ -22,6 +22,7 @@ export default function QRTokenPage() {
   const { token } = useParams<{ token: string }>();
   const query = useQuery();
   const apiKey = query.get("apiKey") || "";
+  const userId = query.get("userId") || "";
 
   const [generationData, setGenerationData] = useState<{
     isStart: boolean;
@@ -49,15 +50,27 @@ export default function QRTokenPage() {
       setGenerationData({ isStart: true, uploadedUrl: null });
       const file = uploadedFile.file;
 
+      const headers: {
+        userid?: string;
+        keys?: string;
+        "X-Filename": string;
+        "Content-Type": string;
+      } = {
+        "Content-Type": file.type,
+        "X-Filename": file.name,
+      };
+
+      if (userId.length > 0) {
+        headers["userid"] = userId;
+      } else {
+        headers["keys"] = apiKey;
+      }
+
       const uploadedResponse = await fetch(
         "https://web-sdk.aiuta.com/api/upload-image",
         {
           method: "POST",
-          headers: {
-            "Content-Type": file.type,
-            "X-Filename": file.name,
-            keys: apiKey,
-          },
+          headers: headers,
           body: file,
         }
       );
