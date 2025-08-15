@@ -75,7 +75,7 @@ export default class Aiuta {
   private apiKey!: string;
   private userId!: string;
   private iframe: HTMLIFrameElement | null = null;
-  readonly iframeOrigin = "http://localhost:5173"; // Replace with your production origin
+  readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
 
   // init methods
   initWithApiKey(apiKey: string) {
