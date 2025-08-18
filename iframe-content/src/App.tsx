@@ -17,7 +17,6 @@ import { SdkHeader } from "./components/shared";
 import { SdkFooter } from "./components/shared";
 
 function App() {
-  console.log("latest changes");
   return (
     <MemoryRouter initialEntries={["/"]}>
       <SdkHeader />
