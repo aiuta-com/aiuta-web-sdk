@@ -20,20 +20,18 @@ function App() {
   console.log("latest changes");
   return (
     <MemoryRouter initialEntries={["/"]}>
-      <Router>
-        <SdkHeader />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/generated" element={<Generated />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/previously" element={<Previously />} />
-          <Route path="/qr" element={<Qr />} />
-          <Route path="/uploadImages" element={<UploadImages />} />
-          <Route path="/view" element={<View />} />
-          <Route path="/qr/:token" element={<QRTokenPage />} />
-        </Routes>
-        <SdkFooter />
-      </Router>
+      <SdkHeader />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/generated" element={<Generated />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/previously" element={<Previously />} />
+        <Route path="/qr" element={<Qr />} />
+        <Route path="/uploadImages" element={<UploadImages />} />
+        <Route path="/view" element={<View />} />
+        <Route path="/qr/:token" element={<QRTokenPage />} />
+      </Routes>
+      <SdkFooter />
     </MemoryRouter>
   );
 }
