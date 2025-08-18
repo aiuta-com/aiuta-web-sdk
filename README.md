@@ -14,7 +14,7 @@ A lightweight JavaScript SDK to embed the Aiuta image generation iframe.
 ## Quick Start
 
 ```js
-<script src="https://static.aiuta.com/sdk/{{VERSION}}/index.umd.js"></script>
+<script src="https://static.aiuta.com/sdk/v0.0.65/index.umd.js"></script>
 ```
 
 ## Basic usage
