@@ -1,5 +1,10 @@
 import React from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  Route,
+  Routes,
+  MemoryRouter,
+  HashRouter as Router,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Generated from "./pages/Generated";
 import History from "./pages/History";
@@ -11,23 +16,25 @@ import QRTokenPage from "./pages/Qr/token";
 import { SdkHeader } from "./components/shared";
 import { SdkFooter } from "./components/shared";
 
-
 function App() {
+  console.log("latest changes");
   return (
-    <Router>
-      <SdkHeader />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/generated" element={<Generated />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/previously" element={<Previously />} />
-        <Route path="/qr" element={<Qr />} />
-        <Route path="/uploadImages" element={<UploadImages />} />
-        <Route path="/view" element={<View />} />
-        <Route path="/qr/:token" element={<QRTokenPage />} />
-      </Routes>
-      <SdkFooter />
-    </Router>
+    <MemoryRouter initialEntries={["/"]}>
+      <Router>
+        <SdkHeader />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/generated" element={<Generated />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/previously" element={<Previously />} />
+          <Route path="/qr" element={<Qr />} />
+          <Route path="/uploadImages" element={<UploadImages />} />
+          <Route path="/view" element={<View />} />
+          <Route path="/qr/:token" element={<QRTokenPage />} />
+        </Routes>
+        <SdkFooter />
+      </Router>
+    </MemoryRouter>
   );
 }
 
