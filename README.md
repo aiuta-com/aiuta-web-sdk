@@ -11,6 +11,12 @@ A lightweight JavaScript SDK to embed the Aiuta image generation iframe.
 
 ---
 
+## Quick Start
+
+```js
+<script src="https://static.dev.aiuta.com/sdk/v0.0.56/index.umd.js"></script>
+```
+
 ## Basic usage
 
 ```ts
@@ -27,26 +33,3 @@ aiuta.initWithJwt({
    getJwt: (params: Record<string, string>) => string | Promise<string>;
 });
 ```
-
----
-
-## Publishing Process
-
-The SDK is automatically published using GitHub Actions when a new GitHub release is created.
-
-### How to publish a new version
-
-1. Create a new GitHub release:
-   - Go to the repository's "Releases" page
-   - Click "Create a new release"
-   - Enter the tag version (e.g., `v1.0.0`) - this will be used to automatically update the version in `package.json`
-   - Add a title and description for the release
-   - Click "Publish release"
-
-### What happens during the release process
-
-When a new release is created:
-
-1. The workflow automatically updates the version in `package.json` based on the git tag
-2. The changes are committed back to the repository
-3. The project is built with the updated version
