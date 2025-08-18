@@ -134,8 +134,8 @@ export default class Aiuta {
       if (window.innerWidth <= 992) {
         aiutaIframe.style.right = "0px";
 
-        if (document && document.body) {
-          document.body.style.overflow = "hidden";
+        if (document && document.body && document.body.parentElement) {
+          document.body.parentElement.style.overflow = "hidden";
         }
       } else {
         aiutaIframe.style.right = "12px";
@@ -178,9 +178,10 @@ export default class Aiuta {
               if (
                 document &&
                 document.body &&
-                document.body.style.overflow === "hidden"
+                document.body.parentElement &&
+                document.body.parentElement.style.overflow === "hidden"
               ) {
-                document.body.style.overflow = "";
+                document.body.parentElement.style.overflow = "";
               }
             }
             break;
@@ -304,11 +305,14 @@ export default class Aiuta {
         if (
           document &&
           document.body &&
-          document.body.style.overflow === "hidden"
+          document.body.parentElement &&
+          document.body.parentElement.style.overflow === "hidden"
         ) {
-          document.body.style.overflow = "";
+          document.body.parentElement.style.overflow = "";
         } else {
-          document.body.style.overflow = "hidden";
+          if (document && document.body && document.body.parentElement) {
+            document.body.parentElement.style.overflow = "hidden";
+          }
         }
       } else {
         aiutaIframe.style.right = "12px";
