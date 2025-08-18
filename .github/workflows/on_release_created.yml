@@ -3,33 +3,8 @@ name: Upload Artifacts to Existing Release
 on:
   release:
     types: [created]
-permissions:
-  contents: write
+
 jobs:
-  update-readme:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
-          ref: main
-      - name: Update version in README
-        run: |
-          sed -i "s/{{VERSION}}/${{ github.event.release.tag_name }}/g" README.md
-      - name: Commit changes
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "actions@github.com"
-          git add .
-          if git diff --cached --quiet; then
-          echo "No changes to commit"
-          else
-          git commit -m "Update README with version ${{ github.event.release.tag_name }}"
-          fi
-      - name: Push changes
-        run: |
-          git pull --rebase origin ${{ github.event.repository.default_branch }}
-          git push origin HEAD:${{ github.event.repository.default_branch }}
   upload:
     runs-on: ubuntu-latest
     permissions:
@@ -52,20 +27,20 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-
+          
           # Add and commit the changes
           git add package.json package-lock.json
           git commit -m "Update version to ${{ github.event.release.tag_name }}"
-
+          
           # Fetch the latest changes from the default branch
           git fetch origin main
-
+          
           # Create a temporary branch from the current HEAD
           git checkout -b temp-branch
-
+          
           # Rebase on top of the latest changes from the default branch
           git rebase origin/main
-
+          
           # Push to the default branch with force-with-lease for safety
           git push --force-with-lease origin temp-branch:main
 
@@ -98,7 +73,7 @@ jobs:
           path: dist/sdk/
           destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Upload dist/ to GCS
       - name: Upload to GCS bucket Dev Iframe
@@ -107,7 +82,7 @@ jobs:
           path: dist/iframe/
           destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Authenticate with GCP
       - name: Set up GCP credentials Preprod
@@ -122,7 +97,7 @@ jobs:
           path: dist/sdk/
           destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Upload dist/ to GCS
       - name: Upload to GCS bucket Preprod Iframe
@@ -131,7 +106,7 @@ jobs:
           path: dist/iframe/
           destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Authenticate with GCP
       - name: Set up GCP credentials Prod
@@ -146,7 +121,7 @@ jobs:
           path: dist/sdk/
           destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Upload dist/ to GCS
       - name: Upload to GCS bucket Prod Iframe
@@ -155,7 +130,7 @@ jobs:
           path: dist/iframe/
           destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Upload dist/ to GCS latest folder
       - name: Upload to GCS bucket Prod (latest) JS
@@ -164,7 +139,7 @@ jobs:
           path: dist/sdk/
           destination: aiuta_prod_static/sdk/latest/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Upload dist/ to GCS latest folder
       - name: Upload to GCS bucket Prod (latest) Iframe
@@ -173,7 +148,7 @@ jobs:
           path: dist/iframe/
           destination: aiuta_prod_static/sdk/latest/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Extract major version from tag
       - name: Extract major version
@@ -183,7 +158,7 @@ jobs:
           MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
           echo "Major version: $MAJOR_VERSION"
           echo "major_version=$MAJOR_VERSION" >> $GITHUB_OUTPUT
-
+          
       # Upload dist/ to GCS major version folder
       - name: Upload to GCS bucket Prod (major version) JS
         uses: google-github-actions/upload-cloud-storage@v2
@@ -191,7 +166,7 @@ jobs:
           path: dist/sdk/
           destination: aiuta_prod_static/sdk/${{ steps.extract_version.outputs.major_version }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       # Upload dist/ to GCS major version folder
       - name: Upload to GCS bucket Prod (major version) Iframe
@@ -200,52 +175,52 @@ jobs:
           path: dist/iframe/
           destination: aiuta_prod_static/sdk/${{ steps.extract_version.outputs.major_version }}/
           parent: false
-          process_gcloudignore: "false"
+          process_gcloudignore: 'false'
 
       - name: Upload artifacts to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ github.event.release.tag_name }} release.zip dist/sdk/* --clobber
-
+          
       - name: Update release description with file links
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the current release description
           CURRENT_DESCRIPTION=$(gh release view ${{ github.event.release.tag_name }} --json body -q .body)
-
+          
           # Create a temporary file for the updated description
           echo "$CURRENT_DESCRIPTION" > updated_description.md
-
+        
           # Add a section header for the links
           echo -e "\n## SDK Files" >> updated_description.md
           echo "The following files are available at:" >> updated_description.md
           echo "" >> updated_description.md
-
+          
           # Generate links for versioned files
           echo "### Versioned Files (specific to this release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/${{ github.event.release.tag_name }}/${filename}" >> updated_description.md
           done
-
+          
           # Generate links for latest files
           echo -e "\n### Latest Files (always points to the most recent release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/latest/${filename}" >> updated_description.md
           done
-
+          
           # Extract major version for links
           MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
-
+          
           # Generate links for major version files
           echo -e "\n### Major Version Files (stable version for your major release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/${MAJOR_VERSION}/${filename}" >> updated_description.md
           done
-
+          
           # Update the release description
           gh release edit ${{ github.event.release.tag_name }} --notes "$(cat updated_description.md)"
