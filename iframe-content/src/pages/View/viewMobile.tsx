@@ -31,7 +31,7 @@ import {
 import { EmptyViewImage } from "@/components/shared";
 
 // types
-import { EndpointDataTypes } from "@/types";
+import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 // styles
 import styles from "./view.module.scss";
@@ -222,6 +222,27 @@ export default function ViewMobile() {
           generationApiCallInterval = setInterval(() => {
             handleGetGeneratedImage(result.operation_id);
           }, 3000);
+
+          const analytic = {
+            data: {
+              type: "tryOn",
+              event: "tryOn",
+              pageId: "tryOn",
+              productIds: [endpointData.skuId],
+            },
+            env: {
+              platform: "web",
+              sdkVersion: "0.0.1",
+              hostId: "123",
+              installationId: "123",
+            },
+            localDateTime: Date.now(),
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.tryOn, analytic },
+            "*"
+          );
         }
       }
     }

@@ -6,6 +6,38 @@ import {
   SHARE_WITH_TEXT,
 } from "./constants/socialIcons";
 
+enum AnalyticEventsEnum {
+  "tryOn" = "tryOn", // success
+  "share" = "share", // success
+  "results" = "results", // success
+  "history" = "history", // success
+  "onboarding" = "onboarding", // success
+  "newPhotoTaken" = "newPhotoTaken", // success
+  "uploadedPhotoDeleted" = "uploadedPhotoDeleted", //
+  "uploadedPhotoSelected" = "uploadedPhotoSelected", //
+  "generatedImageDeleted" = "generatedImageDeleted", //
+}
+
+type AnalyticsCallback = (
+  eventName: string,
+  data?: Record<string, any>
+) => void;
+
+type GetJwtCallback = (
+  params: Record<string, string>
+) => string | Promise<string>;
+
+interface JwtAuth {
+  subscriptionId: string;
+  getJwt: GetJwtCallback;
+  analytics: AnalyticsCallback;
+}
+
+interface ApiAuth {
+  apiKey: string;
+  analytics: AnalyticsCallback;
+}
+
 function shareModal(imageUrl: string) {
   return `
     <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
@@ -25,16 +57,6 @@ function shareModal(imageUrl: string) {
       </div>
     </div>
   `;
-}
-
-type GetJwtCallback = (
-  params: Record<string, string>
-) => string | Promise<string>;
-
-// Define JwtAuth type
-interface JwtAuth {
-  subscriptionId: string;
-  getJwt: GetJwtCallback;
 }
 
 const closeShareModal = () => {
@@ -71,24 +93,119 @@ const openShareModal = (imageUrl: string) => {
 
 export default class Aiuta {
   private getJwt!: GetJwtCallback;
+  private analytics!: AnalyticsCallback;
 
   private apiKey!: string;
   private userId!: string;
+  private subscriptionId!: string;
   private iframe: HTMLIFrameElement | null = null;
   readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
+  readonly analyticOrigin =
+    "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
 
-  // init methods
-  initWithApiKey(apiKey: string) {
-    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
-      throw new Error("Aiuta is already initialized");
-    this.apiKey = apiKey;
+  trackEvent(eventName: string, data: Record<string, any>) {
+    const currentDate = new Date().toISOString();
+
+    const body = {
+      data,
+      eventName,
+      timestamp: currentDate,
+      subscriptionId: this.subscriptionId,
+    };
+
+    fetch(this.analyticOrigin, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch(console.error);
   }
 
-  initWithJwt({ subscriptionId, getJwt }: JwtAuth) {
+  trackUserEvent(eventName: string, data?: Record<string, any>) {
+    if (this.analytics) {
+      try {
+        this.analytics(eventName, data);
+      } catch (err) {
+        console.warn("Analytics callback failed", err);
+      }
+    }
+  }
+
+  /** Event: Generated Image Deleted */
+  trackGeneratedImageDeleted() {
+    this.trackUserEvent("generatedImageDeleted", {});
+  }
+
+  /** Event: Uploaded Photo Selected */
+  trackUploadedPhotoSelected() {
+    this.trackUserEvent("uploadedPhotoSelected", {});
+  }
+
+  /** Event: Uploaded Photo Deleted */
+  trackUploadedPhotoDeleted() {
+    this.trackUserEvent("uploadedPhotoDeleted", {});
+  }
+
+  /** Event: New Photo */
+  trackNewPhotoTaken() {
+    this.trackUserEvent("newPhotoTaken", {});
+  }
+
+  /** Event: Onboarding Opened */
+  trackOnboardingOpened() {
+    this.trackUserEvent("onboardingOpened", {});
+  }
+
+  /** Event: Results Generated */
+  trackResultsGenerated() {
+    this.trackUserEvent("resultsGenerated", {});
+  }
+
+  /** Event: share clicked */
+  trackShareClicked() {
+    this.trackUserEvent("shareClicked", {});
+  }
+
+  /** Event: popup opened */
+  trackPopupOpened(popupId?: string) {
+    this.trackUserEvent("popupOpened", { popupId });
+  }
+
+  /** Event: try-on button clicked */
+  trackTryOnClicked(productId: string) {
+    this.trackUserEvent("tryOnClicked", { productId });
+  }
+
+  /** Event: history page opened */
+  trackHistoryOpened(userId?: string) {
+    this.trackUserEvent("historyClicked", { userId });
+  }
+
+  // init methods
+  initWithApiKey({ apiKey, analytics }: ApiAuth) {
+    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
+      throw new Error("Aiuta is already initialized");
+
+    this.apiKey = apiKey;
+    this.subscriptionId = apiKey;
+
+    if (analytics && typeof analytics === "function") {
+      this.analytics = analytics;
+    }
+  }
+
+  initWithJwt({ subscriptionId, getJwt, analytics }: JwtAuth) {
     if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
       throw new Error("Aiuta is already initialized");
     this.userId = subscriptionId;
-    this.getJwt = getJwt;
+    this.subscriptionId = subscriptionId;
+
+    if (getJwt && typeof getJwt === "function") {
+      this.getJwt = getJwt;
+    }
+
+    if (analytics && typeof analytics === "function") {
+      this.analytics = analytics;
+    }
   }
 
   private async getToken(productId: string) {
@@ -229,6 +346,75 @@ export default class Aiuta {
                 userId: this.userId,
                 type: "baseKeys",
               });
+            }
+            break;
+
+          case AnalyticEventsEnum.tryOn:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.tryOn, event.data.analytic);
+            }
+            break;
+
+          case AnalyticEventsEnum.share:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.share, event.data.analytic);
+            }
+            break;
+
+          case AnalyticEventsEnum.results:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.results, event.data.analytic);
+            }
+            break;
+
+          case AnalyticEventsEnum.history:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.history, event.data.analytic);
+            }
+            break;
+
+          case AnalyticEventsEnum.onboarding:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.onboarding,
+                event.data.analytic
+              );
+            }
+            break;
+
+          case AnalyticEventsEnum.newPhotoTaken:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.newPhotoTaken,
+                event.data.analytic
+              );
+            }
+            break;
+
+          case AnalyticEventsEnum.uploadedPhotoDeleted:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.uploadedPhotoDeleted,
+                event.data.analytic
+              );
+            }
+            break;
+
+          case AnalyticEventsEnum.uploadedPhotoSelected:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.uploadedPhotoSelected,
+                event.data.analytic
+              );
+            }
+            break;
+
+          case AnalyticEventsEnum.generatedImageDeleted:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.generatedImageDeleted,
+                event.data.analytic
+              );
             }
             break;
         }

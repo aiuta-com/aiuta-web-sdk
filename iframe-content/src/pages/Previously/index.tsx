@@ -32,7 +32,7 @@ import {
 } from "@/components/feature";
 
 // types
-import { EndpointDataTypes } from "@/types";
+import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 // styles
 import styles from "./previously.module.scss";
@@ -124,12 +124,50 @@ export default function Previously() {
   const handleChooseNewPhoto = (id: string, url: string) => {
     dispatch(fileSlice.actions.setUploadViewFile({ id, url }));
     handleNavigate("view");
+
+    const analytic = {
+      data: {
+        type: "uploadedPhotoSelected",
+        event: "uploadedPhotoSelected",
+      },
+      env: {
+        platform: "web",
+        sdkVersion: "0.0.1",
+        hostId: "123",
+        installationId: "123",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.uploadedPhotoSelected, analytic },
+      "*"
+    );
   };
 
   const handleRemovePhoto = (imageId: string) => {
     const removedPhoto = recentlyPhotos.filter(({ id }) => id !== imageId);
 
     dispatch(generateSlice.actions.setRecentlyPhotos(removedPhoto));
+
+    const analytic = {
+      data: {
+        type: "uploadedPhotoDeleted",
+        event: "uploadedPhotoDeleted",
+      },
+      env: {
+        platform: "web",
+        sdkVersion: "0.0.1",
+        hostId: "123",
+        installationId: "123",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.uploadedPhotoDeleted, analytic },
+      "*"
+    );
   };
 
   const handleGetWidnwInitiallySizes = () => {

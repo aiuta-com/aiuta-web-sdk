@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { motion, easeInOut } from "framer-motion";
 
 // redux
@@ -26,6 +26,9 @@ import { RemoveHistoryBanner } from "@/components/shared";
 
 // components modal
 import { HistoryImagesRemoveModal } from "@/components/shared/modals";
+
+// types
+import { AnalyticEventsEnum } from "@/types";
 
 // styles
 import styles from "./history.module.scss";
@@ -79,7 +82,54 @@ export default function History() {
     dispatch(generateSlice.actions.setGeneratedImage(deletedHistoryImages));
 
     handleCloseHistoryImagesModal(); // Use for close history images model
+
+    const analytic = {
+      data: {
+        type: "generatedImageDeleted",
+        event: "generatedImageDeleted",
+        pageId: "picker",
+      },
+      env: {
+        platform: "web",
+        sdkVersion: "0.0.1",
+        hostId: "123",
+        installationId: "123",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
+      "*"
+    );
   };
+
+  const onboardingAnalytic = useCallback(() => {
+    const analytic = {
+      data: {
+        type: "history",
+        event: "history",
+        pageId: "history",
+      },
+      env: {
+        platform: "web",
+        sdkVersion: "0.0.1",
+        hostId: "123",
+        installationId: "123",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.history, analytic },
+      "*"
+    );
+  }, []);
+
+  useEffect(() => {
+    onboardingAnalytic();
+    // eslint-disable-next-line
+  }, []);
 
   const hasSelectedImages = selectedImages.length > 0;
 
