@@ -17,6 +17,7 @@ import {
 import {
   isMobileSelector,
   isSelectHistoryImagesSelector,
+  stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 
 // components
@@ -55,6 +56,7 @@ export default function History() {
   const isMobile = useAppSelector(isMobileSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
 
   const handleSelectImage = (id: string, url: string) => {
@@ -134,7 +136,9 @@ export default function History() {
 
   return (
     <>
-      <Section className={styles.sectionContent}>
+      <Section
+        className={`${styles.sectionContent} ${stylesConfiguration.pages.historyClassName}`}
+      >
         <>
           <motion.div
             key="history-page"

@@ -17,7 +17,10 @@ import { configSlice } from "@lib/redux/slices/configSlice";
 import { generateSlice } from "@lib/redux/slices/generateSlice";
 
 // selectors
-import { qrTokenSelector } from "@lib/redux/slices/configSlice/selectors";
+import {
+  qrTokenSelector,
+  stylesConfigurationSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 import { recentlyPhotosSelector } from "@lib/redux/slices/generateSlice/selectors";
 
 // helpers
@@ -60,6 +63,7 @@ export default function Previously() {
 
   const qrToken = useAppSelector(qrTokenSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -237,7 +241,9 @@ export default function Previously() {
 
   return (
     <>
-      <Section className={styles.sectionContent}>
+      <Section
+        className={`${styles.sectionContent} ${stylesConfiguration.pages.previouselyPageClassName}`}
+      >
         <motion.div
           key="previously-page"
           className={styles.viewContent}

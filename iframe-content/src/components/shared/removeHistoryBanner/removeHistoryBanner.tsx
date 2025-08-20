@@ -11,6 +11,7 @@ import {
   selectedImagesSelector,
   generatedImagesSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
+import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
 
 // components
 import { SecondaryButton } from "@/components/feature";
@@ -23,6 +24,7 @@ export const RemoveHistoryBanner = () => {
 
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleSelectAll = () => {
     const generatedImagesId = generatedImages.map(({ id }) => id);
@@ -59,7 +61,9 @@ export const RemoveHistoryBanner = () => {
   };
 
   return (
-    <div className={styles.removeHistoryBanner}>
+    <div
+      className={`${styles.removeHistoryBanner} ${stylesConfiguration.components.historyBannerClassName}`}
+    >
       <div className={styles.buttonLine}>
         <SecondaryButton
           text="Cancel"
@@ -72,12 +76,12 @@ export const RemoveHistoryBanner = () => {
       </div>
       <div className={styles.iconsLine}>
         <img
-          src={'./icons/trash.svg'}
+          src={"./icons/trash.svg"}
           alt="Trash icon"
           onClick={handleShowHistoryImagesModal}
         />
         <img
-          src={'./icons/download.svg'}
+          src={"./icons/download.svg"}
           alt="Download icon"
           onClick={handleDowloadSelectedImages}
         />

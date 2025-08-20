@@ -5,10 +5,4 @@ export type TryOnButtonTypes = {
   onClick: () => void;
   isShowTryOnIcon?: boolean;
   children: string | ReactElement;
-  dynamicStyles?: {
-    bt_bg_color: string;
-    bt_tx_color: string;
-    bt_fontFamily: string;
-    bt_borderRadius: string;
-  };
 };
