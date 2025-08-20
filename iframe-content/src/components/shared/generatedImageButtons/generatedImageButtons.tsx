@@ -1,4 +1,11 @@
 import React from "react";
+
+// redux
+import { useAppSelector } from "@lib/redux/store";
+
+// selectors
+import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+
 // components
 import { SecondaryButton } from "@/components/feature";
 
@@ -11,6 +18,8 @@ import styles from "./generatedImageButtons.module.scss";
 
 export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const { activeGeneratedImageUrl } = props;
+
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleShare = async () => {
     window.parent.postMessage(
@@ -52,7 +61,9 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   };
 
   return (
-    <div className={styles.generatedImageButtons}>
+    <div
+      className={`${styles.generatedImageButtons} ${stylesConfiguration.components.resultButonsContentClassName}`}
+    >
       <SecondaryButton text="Share" onClick={handleShare} />
       <SecondaryButton text="Download" onClick={handleDownload} />
     </div>

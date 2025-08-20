@@ -13,7 +13,7 @@ import { generateSlice } from "../../../lib/redux/slices/generateSlice";
 // selectors
 import {
   isMobileSelector,
-  generationButtonConfigsSelector,
+  stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import { uploadedViewFileSelector } from "@lib/redux/slices/fileSlice/selectors";
 import { recentlyPhotosSelector } from "../../../lib/redux/slices/generateSlice/selectors";
@@ -75,9 +75,7 @@ export default function View() {
   const isMobile = useAppSelector(isMobileSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const uploadedViewFile = useAppSelector(uploadedViewFileSelector);
-  const generationButtonConfigs = useAppSelector(
-    generationButtonConfigsSelector
-  );
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleNavigate = (path: string) => {
     navigate(`/${path}`);
@@ -336,7 +334,7 @@ export default function View() {
   }, []);
 
   return (
-    <>
+    <div className={stylesConfiguration.pages.viewPageClassName}>
       <AiutaModal isOpen={isOpenAbortedModal}>
         <div className={styles.abortedModal}>
           <p>We couldn't detect anyone in this photo</p>
@@ -388,17 +386,13 @@ export default function View() {
               ) : null}
             </div>
             {!isStartGeneration && !isOpenAbortedModal && (
-              <TryOnButton
-                isShowTryOnIcon
-                onClick={handleTryOn}
-                dynamicStyles={generationButtonConfigs}
-              >
+              <TryOnButton isShowTryOnIcon onClick={handleTryOn}>
                 Try On
               </TryOnButton>
             )}
           </motion.div>
         </Section>
       )}
-    </>
+    </div>
   );
 }

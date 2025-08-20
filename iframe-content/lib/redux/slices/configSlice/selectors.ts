@@ -8,9 +8,6 @@ const isMobileSelector = (state: RootState) => state.config.isMobile;
 const isShowQrSpinnerSelector = (state: RootState) =>
   state.config.isShowQrSpinner;
 
-const generationButtonConfigsSelector = (state: RootState) =>
-  state.config.generationButtonConfigs;
-
 const isSelectHistoryImagesSelector = (state: RootState) =>
   state.config.isSelectHistoryImages;
 
@@ -27,6 +24,9 @@ const isShowSpinnerSelector = (state: RootState) => state.config.isShowSpinner;
 const onboardingStepsSelector = (state: RootState) =>
   state.config.onboardingSteps;
 
+const stylesConfigurationSelector = (state: RootState) =>
+  state.config.stylesConfiguration;
+
 export {
   qrTokenSelector,
   isMobileSelector,
@@ -37,6 +37,6 @@ export {
   isShowQrSpinnerSelector,
   onboardingStepsSelector,
   isOnboardingDoneSelector,
+  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
-  generationButtonConfigsSelector,
 };

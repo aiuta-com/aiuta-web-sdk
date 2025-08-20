@@ -12,6 +12,7 @@ import { configSlice } from "@lib/redux/slices/configSlice";
 import {
   isMobileSelector,
   onboardingStepsSelector,
+  stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 
 // components
@@ -50,6 +51,7 @@ export default function Home() {
 
   const isMobile = useAppSelector(isMobileSelector);
   const onboardingSteps = useAppSelector(onboardingStepsSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleGetWidnwInitiallySizes = () => {
     window.parent.postMessage({ action: "get_window_sizes" }, "*");
@@ -66,10 +68,6 @@ export default function Home() {
           } else {
             dispatch(configSlice.actions.setIsMobile(false));
           }
-        } else if (e.data.type === "ADD_GENERATION_BUTTON_CONFIGS") {
-          const buttonConfigs = { ...e.data };
-          delete buttonConfigs.type;
-          dispatch(configSlice.actions.setGenerationButtonConfigs(buttonConfigs));
         }
       }
     };
@@ -125,9 +123,9 @@ export default function Home() {
       */}
       <motion.div key="home-page" {...initiallAnimationConfig}>
         <Section
-          className={
+          className={`${
             isMobile && onboardingSteps === 2 ? styles.sectionMobile : ""
-          }
+          } ${stylesConfiguration.pages.onboardingPageClassName}`}
         >
           <Onboarding />
         </Section>

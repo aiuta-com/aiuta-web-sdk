@@ -1,36 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+
 // redux
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+
 // actions
-import { generateSlice } from "@lib/redux/slices/generateSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
+import { generateSlice } from "@lib/redux/slices/generateSlice";
+
 // selectors
 import {
   qrTokenSelector,
   isMobileSelector,
   isOnboardingDoneSelector,
+  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import {
-  generatedImagesSelector,
-  recentlyPhotosSelector,
   selectedImagesSelector,
+  generatedImagesSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
+
 // styles
 import styles from "./sdkHeader.module.scss";
 
 export const SdkHeader = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useAppDispatch();
+
+  const location = useLocation();
 
   const qrToken = useAppSelector(qrTokenSelector);
   const isMobile = useAppSelector(isMobileSelector);
-  const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
 
   const [hasMounted, setHasMounted] = useState(false);
@@ -110,7 +115,7 @@ export const SdkHeader = () => {
     <header
       className={`${styles.sdkHeader} ${
         isMobile ? styles.sdkHeaderMobile : ""
-      }`}
+      } ${stylesConfiguration.components.headerClassName}`}
     >
       {!isMobile && !isCheckQrTokenPage ? (
         hasHistoryImages ? (

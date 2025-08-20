@@ -12,7 +12,10 @@ import { motion, easeInOut } from "framer-motion";
 import { useAppSelector } from "@lib/redux/store";
 
 // selectors
-import { isMobileSelector } from "@lib/redux/slices/configSlice/selectors";
+import {
+  isMobileSelector,
+  stylesConfigurationSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 import { generatedImagesSelector } from "@lib/redux/slices/generateSlice/selectors";
 
 // components
@@ -60,6 +63,7 @@ export default function Generated() {
 
   const isMobile = useAppSelector(isMobileSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleClickOnSliderItem = (index: number) => {
     setSlideItemIndex(index);
@@ -144,7 +148,11 @@ export default function Generated() {
 
   return (
     <>
-      <Section className={`${isMobile ? styles.sectionMobile : ""}`}>
+      <Section
+        className={`${isMobile ? styles.sectionMobile : ""} ${
+          stylesConfiguration.pages.resultPageClassName
+        }`}
+      >
         <motion.div
           key="generated-page"
           className={styles.viewContent}

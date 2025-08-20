@@ -20,6 +20,30 @@ enum AnalyticEventsEnum {
   "generatedImageDeleted" = "generatedImageDeleted",
 }
 
+type StylesConfiguration = {
+  stylesConfiguration: {
+    pages: {
+      qrPageClassName: string;
+      historyClassName: string;
+      viewPageClassName: string;
+      resultPageClassName: string;
+      onboardingPageClassName: string;
+      previouselyPageClassName: string;
+    };
+    components: {
+      swipClassName: string;
+      footerClassName: string;
+      headerClassName: string;
+      tryOnButtonClassName: string;
+      historyBannerClassName: string;
+      secondaryButtonClassName: string;
+      changePhotoButtonClassName: string;
+      resultButonsContentClassName: string;
+      historyImagesRemoveModalClassName: string;
+    };
+  };
+};
+
 type AnalyticsCallback = (
   eventName: string,
   data?: Record<string, any>
@@ -31,14 +55,40 @@ type GetJwtCallback = (
 
 interface JwtAuth {
   subscriptionId: string;
+  stylesConfiguration?: StylesConfiguration;
   getJwt: GetJwtCallback;
   analytics: AnalyticsCallback;
 }
 
 interface ApiAuth {
   apiKey: string;
+  stylesConfiguration?: StylesConfiguration;
   analytics: AnalyticsCallback;
 }
+
+const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
+  stylesConfiguration: {
+    pages: {
+      qrPageClassName: "",
+      historyClassName: "",
+      viewPageClassName: "",
+      resultPageClassName: "",
+      onboardingPageClassName: "",
+      previouselyPageClassName: "",
+    },
+    components: {
+      swipClassName: "",
+      footerClassName: "",
+      headerClassName: "",
+      tryOnButtonClassName: "",
+      historyBannerClassName: "",
+      secondaryButtonClassName: "",
+      changePhotoButtonClassName: "",
+      resultButonsContentClassName: "",
+      historyImagesRemoveModalClassName: "",
+    },
+  },
+};
 
 function shareModal(imageUrl: string) {
   return `
@@ -101,6 +151,9 @@ export default class Aiuta {
   private userId!: string;
   private subscriptionId!: string;
   private iframe: HTMLIFrameElement | null = null;
+  private aiutaSdkStylesConfiguration: StylesConfiguration =
+    INITIALLY_STYLES_CONFIGURATION;
+
   readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
   readonly analyticOrigin =
     "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
@@ -123,23 +176,36 @@ export default class Aiuta {
   }
 
   // init methods
-  initWithApiKey({ apiKey, analytics }: ApiAuth) {
+  initWithApiKey({ apiKey, analytics, stylesConfiguration }: ApiAuth) {
     if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
       throw new Error("Aiuta is already initialized");
 
     this.apiKey = apiKey;
     this.subscriptionId = apiKey;
 
+    if (stylesConfiguration) {
+      this.aiutaSdkStylesConfiguration = stylesConfiguration;
+    }
+
     if (analytics && typeof analytics === "function") {
       this.analytics = analytics;
     }
   }
 
-  initWithJwt({ subscriptionId, getJwt, analytics }: JwtAuth) {
+  initWithJwt({
+    subscriptionId,
+    stylesConfiguration,
+    getJwt,
+    analytics,
+  }: JwtAuth) {
     if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
       throw new Error("Aiuta is already initialized");
     this.userId = subscriptionId;
     this.subscriptionId = subscriptionId;
+
+    if (stylesConfiguration) {
+      this.aiutaSdkStylesConfiguration = stylesConfiguration;
+    }
 
     if (getJwt && typeof getJwt === "function") {
       this.getJwt = getJwt;
@@ -288,6 +354,17 @@ export default class Aiuta {
                 userId: this.userId,
                 type: "baseKeys",
               });
+            }
+            break;
+
+          case "GET_AIUTA_STYLES_CONFIGURATION":
+            if (aiutaIframe.contentWindow) {
+              if (this.aiutaSdkStylesConfiguration) {
+                this.postMessageToIframe({
+                  type: "stylesConfiguration",
+                  stylesConfiguration: this.aiutaSdkStylesConfiguration,
+                });
+              }
             }
             break;
 

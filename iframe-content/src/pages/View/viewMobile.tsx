@@ -15,7 +15,7 @@ import { generateSlice } from "@lib/redux/slices/generateSlice";
 import {
   isOpenSwipSelector,
   isShowFooterSelector,
-  generationButtonConfigsSelector,
+  stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import { uploadedViewFileSelector } from "@lib/redux/slices/fileSlice/selectors";
 import { recentlyPhotosSelector } from "@lib/redux/slices/generateSlice/selectors";
@@ -78,9 +78,7 @@ export default function ViewMobile() {
   const isShowFooter = useAppSelector(isShowFooterSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const uploadedViewFile = useAppSelector(uploadedViewFileSelector);
-  const generationButtonConfigs = useAppSelector(
-    generationButtonConfigsSelector
-  );
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleNavigate = (path: string) => {
     navigate(`/${path}`);
@@ -381,7 +379,7 @@ export default function ViewMobile() {
       <Section
         className={`${styles.sectionMobile} ${
           !isShowFooter ? styles.sectionMobileActive : ""
-        }`}
+        } ${stylesConfiguration.pages.viewPageClassName}`}
       >
         <motion.div
           key="view-page"
@@ -412,11 +410,7 @@ export default function ViewMobile() {
             ) : null}
           </div>
           {recentlyPhoto.url.length && !isStartGeneration ? (
-            <TryOnButton
-              isShowTryOnIcon
-              onClick={handleTryOn}
-              dynamicStyles={generationButtonConfigs}
-            >
+            <TryOnButton isShowTryOnIcon onClick={handleTryOn}>
               Try On
             </TryOnButton>
           ) : null}

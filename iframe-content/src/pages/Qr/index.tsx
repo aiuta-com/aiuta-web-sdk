@@ -16,7 +16,10 @@ import { fileSlice } from "@lib/redux/slices/fileSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
 
 // selectors
-import { qrTokenSelector } from "@lib/redux/slices/configSlice/selectors";
+import {
+  qrTokenSelector,
+  stylesConfigurationSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 
 // components
 import { QrCode } from "@/components/feature";
@@ -36,6 +39,7 @@ export default function Qr() {
   const dispatch = useAppDispatch();
 
   const qrToken = useAppSelector(qrTokenSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -178,7 +182,7 @@ export default function Qr() {
   return (
     <>
       <motion.div
-        className={styles.qrContainer}
+        className={`${styles.qrContainer} ${stylesConfiguration.pages.qrPageClassName}`}
         key="qr-page"
         initial={{
           opacity: 0,

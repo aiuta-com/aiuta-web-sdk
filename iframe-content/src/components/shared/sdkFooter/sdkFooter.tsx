@@ -7,6 +7,7 @@ import { useAppSelector } from "@lib/redux/store";
 import {
   isMobileSelector,
   isShowFooterSelector,
+  stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 
 // styles
@@ -22,6 +23,7 @@ export const SdkFooter = () => {
 
   const isMobile = useAppSelector(isMobileSelector);
   const isShowFooter = useAppSelector(isShowFooterSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const iasNavigatePath =
     pathName === "/view" ||
@@ -34,7 +36,9 @@ export const SdkFooter = () => {
 
   return !isMobile ? (
     <footer
-      className={`${styles.footer} ${iasNavigatePath ? styles.hideFooter : ""}`}
+      className={`${styles.footer} ${
+        iasNavigatePath ? styles.hideFooter : ""
+      } ${stylesConfiguration.components.footerClassName}`}
     >
       <p className={styles.linkingText}>
         Powered{" "}

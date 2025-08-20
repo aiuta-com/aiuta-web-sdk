@@ -4,9 +4,27 @@ const isOnboardingDone =
   typeof window !== "undefined" &&
   JSON.parse(localStorage.getItem("isOnboarding") || "false");
 
-const hasgenerationButtonConfigs =
-  typeof window !== "undefined" &&
-  JSON.parse(localStorage.getItem("generationButtonConfigs") || "false");
+type StylesConfiguration = {
+  pages: {
+    qrPageClassName: string;
+    historyClassName: string;
+    viewPageClassName: string;
+    resultPageClassName: string;
+    onboardingPageClassName: string;
+    previouselyPageClassName: string;
+  };
+  components: {
+    swipClassName: string;
+    footerClassName: string;
+    headerClassName: string;
+    tryOnButtonClassName: string;
+    historyBannerClassName: string;
+    secondaryButtonClassName: string;
+    changePhotoButtonClassName: string;
+    resultButonsContentClassName: string;
+    historyImagesRemoveModalClassName: string;
+  };
+};
 
 interface configSliceState {
   qrToken: string;
@@ -19,13 +37,30 @@ interface configSliceState {
   isShowQrSpinner: boolean;
   isOnboardingDone: boolean;
   isSelectHistoryImages: boolean;
-  generationButtonConfigs: {
-    bt_bg_color: string;
-    bt_tx_color: string;
-    bt_fontFamily: string;
-    bt_borderRadius: string;
-  };
+  stylesConfiguration: StylesConfiguration;
 }
+
+const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
+  pages: {
+    qrPageClassName: "",
+    historyClassName: "",
+    viewPageClassName: "",
+    resultPageClassName: "",
+    onboardingPageClassName: "",
+    previouselyPageClassName: "",
+  },
+  components: {
+    swipClassName: "",
+    footerClassName: "",
+    headerClassName: "",
+    tryOnButtonClassName: "",
+    historyBannerClassName: "",
+    secondaryButtonClassName: "",
+    changePhotoButtonClassName: "",
+    resultButonsContentClassName: "",
+    historyImagesRemoveModalClassName: "",
+  },
+};
 
 const initialState: configSliceState = {
   qrToken: "",
@@ -38,14 +73,7 @@ const initialState: configSliceState = {
   isShowQrSpinner: false,
   isSelectHistoryImages: false,
   isOnboardingDone: isOnboardingDone,
-  generationButtonConfigs: hasgenerationButtonConfigs
-    ? hasgenerationButtonConfigs
-    : {
-        bt_bg_color: "#4000ff",
-        bt_tx_color: "#ffffff",
-        bt_fontFamily: "GT Maru",
-        bt_borderRadius: "12px",
-      },
+  stylesConfiguration: INITIALLY_STYLES_CONFIGURATION,
 };
 
 export const configSlice = createSlice({
@@ -76,17 +104,15 @@ export const configSlice = createSlice({
     setIsOnboardingDone: (state, { payload }) => {
       state.isOnboardingDone = payload;
     },
-    setGenerationButtonConfigs: (state, { payload }) => {
-      localStorage.setItem("generationButtonConfigs", JSON.stringify(payload));
-
-      state.generationButtonConfigs = payload;
-    },
     setOnboardingSteps: (state, { payload }) => {
       if (payload) {
         state.onboardingSteps = payload;
       } else {
         state.onboardingSteps++;
       }
+    },
+    setStylesConfiguration: (state, { payload }) => {
+      state.stylesConfiguration = payload;
     },
     setIsSelectHistoryImages: (state, { payload }) => {
       state.isSelectHistoryImages = payload;
