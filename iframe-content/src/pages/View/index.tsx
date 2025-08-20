@@ -141,6 +141,21 @@ export default function View() {
             content: "Something went wrong. Please try again",
           })
         );
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnError",
+            pageId: "tryOn",
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
+          "*"
+        );
       } else if (result.status === "ABORTED") {
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
@@ -149,6 +164,21 @@ export default function View() {
 
         setIsStartGeneration(false);
         setIsOpenAbortedModal(true);
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnAborted",
+            pageId: "tryOn",
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnAborted, analytic },
+          "*"
+        );
       }
     } catch (err) {
       console.error("Generation image Error:", err);
@@ -198,15 +228,9 @@ export default function View() {
           const analytic = {
             data: {
               type: "tryOn",
-              event: "tryOn",
+              event: "tryOnStarted",
               pageId: "tryOn",
               productIds: [endpointData?.skuId],
-            },
-            env: {
-              platform: "web",
-              sdkVersion: "0.0.1",
-              hostId: "123",
-              installationId: "123",
             },
             localDateTime: Date.now(),
           };

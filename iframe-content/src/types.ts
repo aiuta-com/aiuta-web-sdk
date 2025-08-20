@@ -8,13 +8,15 @@ export type EndpointDataTypes = {
 };
 
 export enum AnalyticEventsEnum {
-  "tryOn" = "tryOn", // success
-  "share" = "share", // success
-  "results" = "results", // success
-  "history" = "history", // success
-  "onboarding" = "onboarding", // success
-  "newPhotoTaken" = "newPhotoTaken", // success
-  "uploadedPhotoDeleted" = "uploadedPhotoDeleted", //
-  "uploadedPhotoSelected" = "uploadedPhotoSelected", //
-  "generatedImageDeleted" = "generatedImageDeleted", //
+  "tryOn" = "tryOn",
+  "share" = "share",
+  "results" = "results",
+  "history" = "history",
+  "onboarding" = "onboarding",
+  "tryOnError" = "tryOnError",
+  "tryOnAborted" = "tryOnAborted",
+  "newPhotoTaken" = "newPhotoTaken",
+  "uploadedPhotoDeleted" = "uploadedPhotoDeleted",
+  "uploadedPhotoSelected" = "uploadedPhotoSelected",
+  "generatedImageDeleted" = "generatedImageDeleted",
 }

@@ -47,25 +47,25 @@ export const Onboarding = () => {
   };
 
   const onboardingAnalytic = useCallback(() => {
-    const analytic = {
-      data: {
-        type: "onboarding",
-        event: "onboarding",
-        pageId: "onboarding",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
-      },
-      localDateTime: Date.now(),
-    };
-
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.onboarding, analytic },
-      "*"
+    const isOnboarding = JSON.parse(
+      localStorage.getItem("isOnboarding") || "false"
     );
+
+    if (!isOnboarding) {
+      const analytic = {
+        data: {
+          type: "onboarding",
+          event: "welcomeStartClicked",
+          pageId: "onboarding",
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.onboarding, analytic },
+        "*"
+      );
+    }
   }, []);
 
   useEffect(() => {

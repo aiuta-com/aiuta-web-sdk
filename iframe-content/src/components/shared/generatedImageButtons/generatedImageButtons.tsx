@@ -21,14 +21,8 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
     const analytic = {
       data: {
         type: "share",
-        event: "share",
+        event: "shareEvent",
         pageId: "share",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
       },
       localDateTime: Date.now(),
     };

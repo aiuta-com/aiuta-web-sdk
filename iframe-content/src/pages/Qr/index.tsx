@@ -47,13 +47,7 @@ export default function Qr() {
     const analytic = {
       data: {
         type: "newPhotoTaken",
-        event: "newPhotoTaken",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
+        event: "pickerEvent",
       },
       localDateTime: Date.now(),
     };

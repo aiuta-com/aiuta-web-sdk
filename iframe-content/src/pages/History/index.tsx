@@ -87,13 +87,7 @@ export default function History() {
       data: {
         type: "generatedImageDeleted",
         event: "generatedImageDeleted",
-        pageId: "picker",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
+        pageId: "imagePicker",
       },
       localDateTime: Date.now(),
     };
@@ -110,12 +104,6 @@ export default function History() {
         type: "history",
         event: "history",
         pageId: "history",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
       },
       localDateTime: Date.now(),
     };

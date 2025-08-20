@@ -128,13 +128,7 @@ export default function Previously() {
     const analytic = {
       data: {
         type: "uploadedPhotoSelected",
-        event: "uploadedPhotoSelected",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
+        event: "pickerEvent",
       },
       localDateTime: Date.now(),
     };
@@ -153,13 +147,7 @@ export default function Previously() {
     const analytic = {
       data: {
         type: "uploadedPhotoDeleted",
-        event: "uploadedPhotoDeleted",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
+        event: "pickerEvent",
       },
       localDateTime: Date.now(),
     };

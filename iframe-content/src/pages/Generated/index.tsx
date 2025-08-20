@@ -104,15 +104,9 @@ export default function Generated() {
     const analytic = {
       data: {
         type: "results",
-        event: "results",
+        event: "resultShared",
         pageId: "results",
         productIds: [endpointData?.skuId],
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
       },
       localDateTime: Date.now(),
     };

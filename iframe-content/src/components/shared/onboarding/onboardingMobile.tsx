@@ -55,14 +55,8 @@ export const OnboardingMobile = () => {
     const analytic = {
       data: {
         type: "onboarding",
-        event: "onboarding",
+        event: "welcomeStartClicked",
         pageId: "onboarding",
-      },
-      env: {
-        platform: "web",
-        sdkVersion: "0.0.1",
-        hostId: "123",
-        installationId: "123",
       },
       localDateTime: Date.now(),
     };

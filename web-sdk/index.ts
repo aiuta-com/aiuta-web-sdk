@@ -7,15 +7,17 @@ import {
 } from "./constants/socialIcons";
 
 enum AnalyticEventsEnum {
-  "tryOn" = "tryOn", // success
-  "share" = "share", // success
-  "results" = "results", // success
-  "history" = "history", // success
-  "onboarding" = "onboarding", // success
-  "newPhotoTaken" = "newPhotoTaken", // success
-  "uploadedPhotoDeleted" = "uploadedPhotoDeleted", //
-  "uploadedPhotoSelected" = "uploadedPhotoSelected", //
-  "generatedImageDeleted" = "generatedImageDeleted", //
+  "tryOn" = "tryOn",
+  "share" = "share",
+  "results" = "results",
+  "history" = "history",
+  "onboarding" = "onboarding",
+  "tryOnError" = "tryOnError",
+  "tryOnAborted" = "tryOnAborted",
+  "newPhotoTaken" = "newPhotoTaken",
+  "uploadedPhotoDeleted" = "uploadedPhotoDeleted",
+  "uploadedPhotoSelected" = "uploadedPhotoSelected",
+  "generatedImageDeleted" = "generatedImageDeleted",
 }
 
 type AnalyticsCallback = (
@@ -118,66 +120,6 @@ export default class Aiuta {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }).catch(console.error);
-  }
-
-  trackUserEvent(eventName: string, data?: Record<string, any>) {
-    if (this.analytics) {
-      try {
-        this.analytics(eventName, data);
-      } catch (err) {
-        console.warn("Analytics callback failed", err);
-      }
-    }
-  }
-
-  /** Event: Generated Image Deleted */
-  trackGeneratedImageDeleted() {
-    this.trackUserEvent("generatedImageDeleted", {});
-  }
-
-  /** Event: Uploaded Photo Selected */
-  trackUploadedPhotoSelected() {
-    this.trackUserEvent("uploadedPhotoSelected", {});
-  }
-
-  /** Event: Uploaded Photo Deleted */
-  trackUploadedPhotoDeleted() {
-    this.trackUserEvent("uploadedPhotoDeleted", {});
-  }
-
-  /** Event: New Photo */
-  trackNewPhotoTaken() {
-    this.trackUserEvent("newPhotoTaken", {});
-  }
-
-  /** Event: Onboarding Opened */
-  trackOnboardingOpened() {
-    this.trackUserEvent("onboardingOpened", {});
-  }
-
-  /** Event: Results Generated */
-  trackResultsGenerated() {
-    this.trackUserEvent("resultsGenerated", {});
-  }
-
-  /** Event: share clicked */
-  trackShareClicked() {
-    this.trackUserEvent("shareClicked", {});
-  }
-
-  /** Event: popup opened */
-  trackPopupOpened(popupId?: string) {
-    this.trackUserEvent("popupOpened", { popupId });
-  }
-
-  /** Event: try-on button clicked */
-  trackTryOnClicked(productId: string) {
-    this.trackUserEvent("tryOnClicked", { productId });
-  }
-
-  /** Event: history page opened */
-  trackHistoryOpened(userId?: string) {
-    this.trackUserEvent("historyClicked", { userId });
   }
 
   // init methods
@@ -352,24 +294,40 @@ export default class Aiuta {
           case AnalyticEventsEnum.tryOn:
             if (aiutaIframe.contentWindow) {
               this.trackEvent(AnalyticEventsEnum.tryOn, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.tryOn, event.data.analytic);
+              }
             }
             break;
 
           case AnalyticEventsEnum.share:
             if (aiutaIframe.contentWindow) {
               this.trackEvent(AnalyticEventsEnum.share, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.share, event.data.analytic);
+              }
             }
             break;
 
           case AnalyticEventsEnum.results:
             if (aiutaIframe.contentWindow) {
               this.trackEvent(AnalyticEventsEnum.results, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.results, event.data.analytic);
+              }
             }
             break;
 
           case AnalyticEventsEnum.history:
             if (aiutaIframe.contentWindow) {
               this.trackEvent(AnalyticEventsEnum.history, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.history, event.data.analytic);
+              }
             }
             break;
 
@@ -379,6 +337,13 @@ export default class Aiuta {
                 AnalyticEventsEnum.onboarding,
                 event.data.analytic
               );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.onboarding,
+                  event.data.analytic
+                );
+              }
             }
             break;
 
@@ -388,6 +353,13 @@ export default class Aiuta {
                 AnalyticEventsEnum.newPhotoTaken,
                 event.data.analytic
               );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.newPhotoTaken,
+                  event.data.analytic
+                );
+              }
             }
             break;
 
@@ -397,6 +369,13 @@ export default class Aiuta {
                 AnalyticEventsEnum.uploadedPhotoDeleted,
                 event.data.analytic
               );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.uploadedPhotoDeleted,
+                  event.data.analytic
+                );
+              }
             }
             break;
 
@@ -406,6 +385,13 @@ export default class Aiuta {
                 AnalyticEventsEnum.uploadedPhotoSelected,
                 event.data.analytic
               );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.uploadedPhotoSelected,
+                  event.data.analytic
+                );
+              }
             }
             break;
 
@@ -415,6 +401,45 @@ export default class Aiuta {
                 AnalyticEventsEnum.generatedImageDeleted,
                 event.data.analytic
               );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.generatedImageDeleted,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.tryOnError:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.tryOnError,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.tryOnError,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.tryOnAborted:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.tryOnAborted,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.tryOnAborted,
+                  event.data.analytic
+                );
+              }
             }
             break;
         }
@@ -510,4 +535,8 @@ export default class Aiuta {
       this.handleMessage(productId);
     }
   }
+}
+
+if (typeof window !== "undefined") {
+  (window as any).Aiuta = Aiuta;
 }
