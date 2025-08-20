@@ -22,7 +22,7 @@ import { qrTokenSelector } from "@lib/redux/slices/configSlice/selectors";
 import { QrCode } from "@/components/feature";
 
 // types
-import { EndpointDataTypes } from "@/types";
+import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 // helpers
 import { generateRandomString } from "@/helpers/generateRandomString";
@@ -42,6 +42,26 @@ export default function Qr() {
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
     null
   );
+
+  const onboardingAnalytic = useCallback(() => {
+    const analytic = {
+      data: {
+        type: "newPhotoTaken",
+        event: "pickerEvent",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.newPhotoTaken, analytic },
+      "*"
+    );
+  }, []);
+
+  useEffect(() => {
+    onboardingAnalytic();
+    // eslint-disable-next-line
+  }, []);
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return;

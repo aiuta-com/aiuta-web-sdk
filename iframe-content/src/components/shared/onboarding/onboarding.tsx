@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // redux
@@ -19,6 +19,9 @@ import {
 import { OnboardingMobile } from "./onboardingMobile";
 import { Consent } from "./components/consent/consent";
 import { TitleDescription, TryOnButton } from "@/components/feature";
+
+// types
+import { AnalyticEventsEnum } from "@/types";
 
 // styles
 import styles from "./onboarding.module.scss";
@@ -42,6 +45,33 @@ export const Onboarding = () => {
       localStorage.setItem("isOnboarding", JSON.stringify(true));
     }
   };
+
+  const onboardingAnalytic = useCallback(() => {
+    const isOnboarding = JSON.parse(
+      localStorage.getItem("isOnboarding") || "false"
+    );
+
+    if (!isOnboarding) {
+      const analytic = {
+        data: {
+          type: "onboarding",
+          event: "welcomeStartClicked",
+          pageId: "onboarding",
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.onboarding, analytic },
+        "*"
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    onboardingAnalytic();
+    // eslint-disable-next-line
+  }, []);
 
   return !isShowSpinner && isInitialized ? (
     <div className={styles.onboarding}>
@@ -81,7 +111,7 @@ export const Onboarding = () => {
             <img
               loading="lazy"
               alt="Onboarding image"
-              src="./images/lastOnboarding.png" 
+              src="./images/lastOnboarding.png"
               className={styles.firstImg}
             />
             <div className={styles.titlesBox}>

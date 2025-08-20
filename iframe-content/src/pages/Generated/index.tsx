@@ -1,4 +1,10 @@
-import React, { UIEvent, useRef, useState } from "react";
+import React, {
+  UIEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 import { motion, easeInOut } from "framer-motion";
 
@@ -16,6 +22,7 @@ import { Section, ViewImage, MiniSliderItem } from "@/components/feature";
 // styles
 import styles from "./generated.module.scss";
 import GeneratedMobile from "./generatedMobile";
+import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 const initiallAnimationConfig = {
   initial: {
@@ -44,6 +51,9 @@ const SLIDE_ITEM_IMAGE_HEIGHT = 96;
 
 export default function Generated() {
   const [slideItemIndex, setSlideItemIndex] = useState<number>(0);
+  const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
+    null
+  );
 
   const miniSliderContentRef = useRef<HTMLDivElement | null>(null);
   const generatedImagesContentRef = useRef<HTMLDivElement | null>(null);
@@ -85,6 +95,52 @@ export default function Generated() {
       }
     }
   };
+
+  const handleGetWidnwInitiallySizes = () => {
+    window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
+  };
+
+  const onboardingAnalytic = useCallback(async () => {
+    const analytic = {
+      data: {
+        type: "results",
+        event: "resultShared",
+        pageId: "results",
+        productIds: [endpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.results, analytic },
+      "*"
+    );
+  }, []);
+
+  useEffect(() => {
+    onboardingAnalytic();
+    // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    handleGetWidnwInitiallySizes();
+
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type) {
+        if (event.data.status === 200) {
+          setEndpointData(event.data);
+        }
+      } else {
+        console.error("Not found API data");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
 
   return (
     <>

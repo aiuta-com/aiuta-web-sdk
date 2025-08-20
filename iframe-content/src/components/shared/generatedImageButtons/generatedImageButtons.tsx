@@ -3,6 +3,7 @@ import React from "react";
 import { SecondaryButton } from "@/components/feature";
 
 // types
+import { AnalyticEventsEnum } from "@/types";
 import { GeneratedImageButtonsTypes } from "./types";
 
 // styles
@@ -14,6 +15,20 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const handleShare = async () => {
     window.parent.postMessage(
       { action: "open_share_modal", imageUrl: activeGeneratedImageUrl },
+      "*"
+    );
+
+    const analytic = {
+      data: {
+        type: "share",
+        event: "shareEvent",
+        pageId: "share",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.share, analytic },
       "*"
     );
   };

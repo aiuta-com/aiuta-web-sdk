@@ -30,7 +30,7 @@ import ViewMobile from "./viewMobile";
 import { AiutaModal } from "@/components/shared/modals";
 
 // types
-import { EndpointDataTypes } from "@/types";
+import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 // styles
 import styles from "./view.module.scss";
@@ -141,6 +141,21 @@ export default function View() {
             content: "Something went wrong. Please try again",
           })
         );
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnError",
+            pageId: "tryOn",
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
+          "*"
+        );
       } else if (result.status === "ABORTED") {
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
@@ -149,6 +164,21 @@ export default function View() {
 
         setIsStartGeneration(false);
         setIsOpenAbortedModal(true);
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnAborted",
+            pageId: "tryOn",
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnAborted, analytic },
+          "*"
+        );
       }
     } catch (err) {
       console.error("Generation image Error:", err);
@@ -194,6 +224,21 @@ export default function View() {
             handleGetGeneratedImage(result.operation_id);
             window.removeEventListener("message", handleGenerate);
           }, 3000);
+
+          const analytic = {
+            data: {
+              type: "tryOn",
+              event: "tryOnStarted",
+              pageId: "tryOn",
+              productIds: [endpointData?.skuId],
+            },
+            localDateTime: Date.now(),
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.tryOn, analytic },
+            "*"
+          );
         }
       }
     }

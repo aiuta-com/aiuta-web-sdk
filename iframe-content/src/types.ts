@@ -6,3 +6,17 @@ export type EndpointDataTypes = {
   status: number;
   jwtToken: string;
 };
+
+export enum AnalyticEventsEnum {
+  "tryOn" = "tryOn",
+  "share" = "share",
+  "results" = "results",
+  "history" = "history",
+  "onboarding" = "onboarding",
+  "tryOnError" = "tryOnError",
+  "tryOnAborted" = "tryOnAborted",
+  "newPhotoTaken" = "newPhotoTaken",
+  "uploadedPhotoDeleted" = "uploadedPhotoDeleted",
+  "uploadedPhotoSelected" = "uploadedPhotoSelected",
+  "generatedImageDeleted" = "generatedImageDeleted",
+}

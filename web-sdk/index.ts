@@ -6,6 +6,40 @@ import {
   SHARE_WITH_TEXT,
 } from "./constants/socialIcons";
 
+enum AnalyticEventsEnum {
+  "tryOn" = "tryOn",
+  "share" = "share",
+  "results" = "results",
+  "history" = "history",
+  "onboarding" = "onboarding",
+  "tryOnError" = "tryOnError",
+  "tryOnAborted" = "tryOnAborted",
+  "newPhotoTaken" = "newPhotoTaken",
+  "uploadedPhotoDeleted" = "uploadedPhotoDeleted",
+  "uploadedPhotoSelected" = "uploadedPhotoSelected",
+  "generatedImageDeleted" = "generatedImageDeleted",
+}
+
+type AnalyticsCallback = (
+  eventName: string,
+  data?: Record<string, any>
+) => void;
+
+type GetJwtCallback = (
+  params: Record<string, string>
+) => string | Promise<string>;
+
+interface JwtAuth {
+  subscriptionId: string;
+  getJwt: GetJwtCallback;
+  analytics: AnalyticsCallback;
+}
+
+interface ApiAuth {
+  apiKey: string;
+  analytics: AnalyticsCallback;
+}
+
 function shareModal(imageUrl: string) {
   return `
     <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
@@ -25,16 +59,6 @@ function shareModal(imageUrl: string) {
       </div>
     </div>
   `;
-}
-
-type GetJwtCallback = (
-  params: Record<string, string>
-) => string | Promise<string>;
-
-// Define JwtAuth type
-interface JwtAuth {
-  subscriptionId: string;
-  getJwt: GetJwtCallback;
 }
 
 const closeShareModal = () => {
@@ -71,24 +95,59 @@ const openShareModal = (imageUrl: string) => {
 
 export default class Aiuta {
   private getJwt!: GetJwtCallback;
+  private analytics!: AnalyticsCallback;
 
   private apiKey!: string;
   private userId!: string;
+  private subscriptionId!: string;
   private iframe: HTMLIFrameElement | null = null;
   readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
+  readonly analyticOrigin =
+    "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
 
-  // init methods
-  initWithApiKey(apiKey: string) {
-    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
-      throw new Error("Aiuta is already initialized");
-    this.apiKey = apiKey;
+  trackEvent(eventName: string, data: Record<string, any>) {
+    const currentDate = new Date().toISOString();
+
+    const body = {
+      data,
+      eventName,
+      timestamp: currentDate,
+      subscriptionId: this.subscriptionId,
+    };
+
+    fetch(this.analyticOrigin, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch(console.error);
   }
 
-  initWithJwt({ subscriptionId, getJwt }: JwtAuth) {
+  // init methods
+  initWithApiKey({ apiKey, analytics }: ApiAuth) {
+    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
+      throw new Error("Aiuta is already initialized");
+
+    this.apiKey = apiKey;
+    this.subscriptionId = apiKey;
+
+    if (analytics && typeof analytics === "function") {
+      this.analytics = analytics;
+    }
+  }
+
+  initWithJwt({ subscriptionId, getJwt, analytics }: JwtAuth) {
     if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
       throw new Error("Aiuta is already initialized");
     this.userId = subscriptionId;
-    this.getJwt = getJwt;
+    this.subscriptionId = subscriptionId;
+
+    if (getJwt && typeof getJwt === "function") {
+      this.getJwt = getJwt;
+    }
+
+    if (analytics && typeof analytics === "function") {
+      this.analytics = analytics;
+    }
   }
 
   private async getToken(productId: string) {
@@ -231,6 +290,158 @@ export default class Aiuta {
               });
             }
             break;
+
+          case AnalyticEventsEnum.tryOn:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.tryOn, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.tryOn, event.data.analytic);
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.share:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.share, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.share, event.data.analytic);
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.results:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.results, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.results, event.data.analytic);
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.history:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.history, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.history, event.data.analytic);
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.onboarding:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.onboarding,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.onboarding,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.newPhotoTaken:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.newPhotoTaken,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.newPhotoTaken,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.uploadedPhotoDeleted:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.uploadedPhotoDeleted,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.uploadedPhotoDeleted,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.uploadedPhotoSelected:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.uploadedPhotoSelected,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.uploadedPhotoSelected,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.generatedImageDeleted:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.generatedImageDeleted,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.generatedImageDeleted,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.tryOnError:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.tryOnError,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.tryOnError,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.tryOnAborted:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.tryOnAborted,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.tryOnAborted,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
         }
       };
 
@@ -324,4 +535,8 @@ export default class Aiuta {
       this.handleMessage(productId);
     }
   }
+}
+
+if (typeof window !== "undefined") {
+  (window as any).Aiuta = Aiuta;
 }

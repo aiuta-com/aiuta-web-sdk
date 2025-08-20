@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 import { configSlice } from "@lib/redux/slices/configSlice";
@@ -6,15 +6,26 @@ import { onboardingStepsSelector } from "@lib/redux/slices/configSlice/selectors
 import { Consent } from "./components/consent/consent";
 import { TitleDescription, TryOnButton } from "@/components/feature";
 
-
-const INITIALLY_ONBOARDING = [
-  { imageUrl: './images/mobileFirstOnboarding.png', miniImageUrl: './images/mobileFirstMini.png' },
-  { imageUrl: './images/mobileMiddleOnboarding.png', miniImageUrl: './images/mobileMiddleMini.png' },
-  { imageUrl: './images/mobileLastOnboarding.png', miniImageUrl: './images/mobileLastMini.png' },
-];
+// types
+import { AnalyticEventsEnum } from "@/types";
 
 // styles
 import styles from "./onboarding.module.scss";
+
+const INITIALLY_ONBOARDING = [
+  {
+    imageUrl: "./images/mobileFirstOnboarding.png",
+    miniImageUrl: "./images/mobileFirstMini.png",
+  },
+  {
+    imageUrl: "./images/mobileMiddleOnboarding.png",
+    miniImageUrl: "./images/mobileMiddleMini.png",
+  },
+  {
+    imageUrl: "./images/mobileLastOnboarding.png",
+    miniImageUrl: "./images/mobileLastMini.png",
+  },
+];
 
 export const OnboardingMobile = () => {
   const navigate = useNavigate();
@@ -39,6 +50,27 @@ export const OnboardingMobile = () => {
       }
     }
   };
+
+  const onboardingAnalytic = useCallback(() => {
+    const analytic = {
+      data: {
+        type: "onboarding",
+        event: "welcomeStartClicked",
+        pageId: "onboarding",
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.onboarding, analytic },
+      "*"
+    );
+  }, []);
+
+  useEffect(() => {
+    onboardingAnalytic();
+    // eslint-disable-next-line
+  }, []);
 
   return (
     <div className={styles.onboardingMobile}>
@@ -102,7 +134,7 @@ export const OnboardingMobile = () => {
             loading="lazy"
             alt="Onboarding image"
             className={styles.firstImg}
-            src='./images/mobileLastStepOnboarding.png'
+            src="./images/mobileLastStepOnboarding.png"
           />
         </div>
         <div
