@@ -23,7 +23,30 @@ A lightweight JavaScript SDK to embed the Aiuta image generation iframe.
 var aiuta = new Aiuta();
 
 // Option 1: Initialize with API Key
-aiuta.initWithApiKey("your_api_key_here");
+aiuta.initWithApiKey({
+   apiKey: "your_api_key_here",
+   analytics: (eventName: string, data:any) => Promise<{eventName, data}>,
+   stylesConfiguration: {
+      pages: {
+         qrPageClassName: string,
+         historyClassName: string,
+         viewPageClassName: string,
+         esultPageClassName: string,
+         onboardingPageClassName: string,
+         previouselyPageClassName: string,
+      },
+      components: {
+         headerClassName: string,
+         footerClassName: string,
+         tryOnButtonClassName: string,
+         historyBannerClassName: string,
+         secondaryButtonClassName: string,
+         changePhotoButtonClassName: string,
+         resultButonsContentClassName: string,
+         historyImagesRemoveModalClassNames: string,
+      },
+   },   
+});
 
 // OR
 
@@ -31,5 +54,26 @@ aiuta.initWithApiKey("your_api_key_here");
 aiuta.initWithJwt({
    subscriptionId: string;
    getJwt: (params: Record<string, string>) => string | Promise<string>;
+   analytics: (eventName: string, data:any) => Promise<{eventName, data}>;
+   stylesConfiguration: {
+      pages: {
+         qrPageClassName: string,
+         historyClassName: string,
+         viewPageClassName: string,
+         esultPageClassName: string,
+         onboardingPageClassName: string,
+         previouselyPageClassName: string,
+      },
+      components: {
+         headerClassName: string,
+         footerClassName: string,
+         tryOnButtonClassName: string,
+         historyBannerClassName: string,
+         secondaryButtonClassName: string,
+         changePhotoButtonClassName: string,
+         resultButonsContentClassName: string,
+         historyImagesRemoveModalClassNames: string,
+      },
+   },
 });
 ```
