@@ -42,7 +42,7 @@ function App() {
       ) {
         dispatch(
           configSlice.actions.setStylesConfiguration(
-            event.data.stylesConfiguration
+            event.data.stylesConfiguration.stylesConfiguration
           )
         );
       }
