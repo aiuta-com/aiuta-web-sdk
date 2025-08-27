@@ -40,18 +40,12 @@ let generationApiCallInterval: NodeJS.Timeout | null = null;
 const initiallAnimationConfig = {
   initial: {
     opacity: 0,
-    scale: 0,
-    x: "0vw",
   },
   animate: {
     opacity: 1,
-    scale: 1,
-    x: 0,
   },
   exit: {
     opacity: 0,
-    scale: 0,
-    x: "0vw",
   },
   transition: {
     duration: 0.3,
@@ -91,6 +85,7 @@ export default function View() {
     const newUploadedPhoto = { id, url };
     const newPhotos = [newUploadedPhoto, ...uploadedPhotos];
 
+    dispatch(generateSlice.actions.setRecentlyPhotos(newPhotos));
     localStorage.setItem(storageKey, JSON.stringify(newPhotos));
   };
 
@@ -300,6 +295,18 @@ export default function View() {
     setIsOpenAbortedModal(false);
   };
 
+  const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
+    window.parent.postMessage(
+      {
+        action: "OPEN_AIUTA_FULL_SCREEN_MODAL",
+        images: [],
+        modalType: undefined,
+        activeImage: activeImage,
+      },
+      "*"
+    );
+  };
+
   const handleGetWidnwInitiallySizes = () => {
     window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
   };
@@ -368,6 +375,12 @@ export default function View() {
                       ? false
                       : true
                   }
+                  onClick={() =>
+                    handleShowFullScreen({
+                      id: uploadedViewFile.id,
+                      url: uploadedViewFile.url,
+                    })
+                  }
                 />
               ) : null}
               {recentlyPhoto.url.length ? (
@@ -382,6 +395,7 @@ export default function View() {
                       ? false
                       : true
                   }
+                  onClick={() => handleShowFullScreen(recentlyPhoto)}
                 />
               ) : null}
             </div>

@@ -46,10 +46,10 @@
 .historyBanner {
   transition: all 0.3s ease-in-out;
   position: absolute;
+  z-index: 1;
   width: 100%;
   left: 7.5px;
   max-width: 377px;
-  // transform: translateY(120px);
   bottom: -200px;
 }
 

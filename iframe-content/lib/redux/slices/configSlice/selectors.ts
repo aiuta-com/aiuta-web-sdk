@@ -11,6 +11,9 @@ const isShowQrSpinnerSelector = (state: RootState) =>
 const isSelectHistoryImagesSelector = (state: RootState) =>
   state.config.isSelectHistoryImages;
 
+const isSelectPreviouselyImagesSelector = (state: RootState) =>
+  state.config.isSelectPreviouselyImages;
+
 const qrTokenSelector = (state: RootState) => state.config.qrToken;
 
 const isOpenSwipSelector = (state: RootState) => state.config.isOpenSwip;
@@ -39,4 +42,5 @@ export {
   isOnboardingDoneSelector,
   stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
+  isSelectPreviouselyImagesSelector,
 };

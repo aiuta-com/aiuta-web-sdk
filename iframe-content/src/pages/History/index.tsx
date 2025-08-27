@@ -36,13 +36,13 @@ import styles from "./history.module.scss";
 
 const initiallAnimationConfig = {
   initial: {
-    x: "150%",
+    opacity: 0,
   },
   animate: {
-    x: 0,
+    opacity: 1,
   },
   exit: {
-    x: "150%",
+    opacity: 0,
   },
   transition: {
     duration: 0.3,
@@ -59,9 +59,25 @@ export default function History() {
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
 
+  const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
+    window.parent.postMessage(
+      {
+        action: "OPEN_AIUTA_FULL_SCREEN_MODAL",
+        images: generatedImages,
+        modalType: "history",
+        activeImage: activeImage,
+      },
+      "*"
+    );
+  };
+
   const handleSelectImage = (id: string, url: string) => {
     if (!isMobile) {
-      dispatch(generateSlice.actions.setSelectedImage(id));
+      if (isSelectHistoryImages) {
+        dispatch(generateSlice.actions.setSelectedImage(id));
+      } else {
+        handleShowFullScreen({ id, url });
+      }
     } else {
       if (isSelectHistoryImages) {
         dispatch(generateSlice.actions.setSelectedImage(id));
@@ -119,6 +135,22 @@ export default function History() {
   useEffect(() => {
     onboardingAnalytic();
     // eslint-disable-next-line
+  }, []);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type) {
+        if (event.data.type === "REMOVE_HISTORY_IMAGES") {
+          dispatch(generateSlice.actions.setGeneratedImage(event.data.images));
+        }
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
 
   const hasSelectedImages = selectedImages.length > 0;

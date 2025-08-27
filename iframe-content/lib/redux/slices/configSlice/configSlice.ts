@@ -37,6 +37,7 @@ interface configSliceState {
   isShowQrSpinner: boolean;
   isOnboardingDone: boolean;
   isSelectHistoryImages: boolean;
+  isSelectPreviouselyImages: boolean;
   stylesConfiguration: StylesConfiguration;
 }
 
@@ -72,6 +73,7 @@ const initialState: configSliceState = {
   isInitialized: false,
   isShowQrSpinner: false,
   isSelectHistoryImages: false,
+  isSelectPreviouselyImages: false,
   isOnboardingDone: isOnboardingDone,
   stylesConfiguration: INITIALLY_STYLES_CONFIGURATION,
 };
@@ -116,6 +118,9 @@ export const configSlice = createSlice({
     },
     setIsSelectHistoryImages: (state, { payload }) => {
       state.isSelectHistoryImages = payload;
+    },
+    setIsSelectPreviouselyImages: (state, { payload }) => {
+      state.isSelectPreviouselyImages = payload;
     },
   },
 });

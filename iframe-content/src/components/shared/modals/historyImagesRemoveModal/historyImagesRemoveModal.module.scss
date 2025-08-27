@@ -1,6 +1,8 @@
 .historyImagesModal {
-  transition: all 0.2s ease-in-out;
-  transform: scale(0);
+  position: relative;
+  z-index: -10;
+  transition: opacity 0.2s ease-in-out;
+  opacity: 0;
   user-select: none;
   display: flex;
   align-items: center;
@@ -21,6 +23,7 @@
 
     .text {
       margin: auto;
+      color: #000;
       max-width: 206px;
       font-weight: 500;
       font-size: 14px;
@@ -61,5 +64,6 @@
 }
 
 .historyImagesModalActive {
-  transform: scale(1);
+  opacity: 1;
+  z-index: 1;
 }

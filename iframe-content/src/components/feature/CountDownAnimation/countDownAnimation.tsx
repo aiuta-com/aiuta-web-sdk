@@ -25,7 +25,7 @@ export const CountDownAnimation = (props: CountDownAnimationTypes) => {
     const timerInterval = setInterval(handleCountDown, 1000);
 
     return () => clearInterval(timerInterval);
-  }, [seconds, onClick]);
+  }, [seconds]);
 
   const circumference = 2 * Math.PI * RADIUS;
   const progress = ((timer + seconds) / timer) * circumference;

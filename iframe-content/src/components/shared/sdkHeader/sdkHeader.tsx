@@ -15,9 +15,11 @@ import {
   isOnboardingDoneSelector,
   stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
+  isSelectPreviouselyImagesSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import {
   selectedImagesSelector,
+  recentlyPhotosSelector,
   generatedImagesSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
 
@@ -32,21 +34,27 @@ export const SdkHeader = () => {
 
   const qrToken = useAppSelector(qrTokenSelector);
   const isMobile = useAppSelector(isMobileSelector);
+  const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
+  const isSelectPreviouselyImages = useAppSelector(
+    isSelectPreviouselyImagesSelector
+  );
 
   const [hasMounted, setHasMounted] = useState(false);
   const [headerText, setHeaderText] = useState("Virtual Try-On");
 
   const pathName = location.pathname;
   const hasHistoryImages = generatedImages.length > 0;
+  const hasRecentlyPhotos = recentlyPhotos.length > 0;
   const isCheckOnboardingForMobile = isMobile && isOnboardingDone;
   const isCheckQrTokenPage = qrToken ? pathName.includes(qrToken) : false;
   const iasNavigatePath = pathName === "/history" || pathName === "/previously";
-  const iasNavigatePathMobile = pathName === "/history";
+  const iasNavigatePathMobile =
+    pathName === "/history" || pathName === "/previously";
 
   const handleCloseModal = () => {
     if (typeof window !== "undefined") {
@@ -63,14 +71,24 @@ export const SdkHeader = () => {
   };
 
   const handleToggleHistorySelectImages = () => {
-    dispatch(
-      configSlice.actions.setIsSelectHistoryImages(!isSelectHistoryImages)
-    );
+    if (pathName === "/previously") {
+      dispatch(
+        configSlice.actions.setIsSelectPreviouselyImages(
+          !isSelectPreviouselyImages
+        )
+      );
+    } else if (pathName === "/history") {
+      dispatch(
+        configSlice.actions.setIsSelectHistoryImages(!isSelectHistoryImages)
+      );
+    }
   };
 
   const handleNavigate = (path: string) => {
     if (iasNavigatePath) {
-      if (selectedImages.length > 0) {
+      if (recentlyPhotos.length === 0) {
+        navigate("/qr");
+      } else if (selectedImages.length > 0) {
         dispatch(generateSlice.actions.setSelectedImage([]));
         setTimeout(() => {
           navigate(-1);
@@ -154,10 +172,12 @@ export const SdkHeader = () => {
           <p className={styles.title}>{headerText}</p>
         </div>
       )}
-      {isMobile && iasNavigatePathMobile ? (
+      {iasNavigatePathMobile && (hasHistoryImages || hasRecentlyPhotos) ? (
         <p
           className={`${styles.historyText} ${
-            isSelectHistoryImages ? styles.historyTextUnactive : ""
+            isSelectHistoryImages || isSelectPreviouselyImages
+              ? styles.historyTextUnactive
+              : ""
           }`}
           onClick={handleToggleHistorySelectImages}
         >

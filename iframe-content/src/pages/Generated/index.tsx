@@ -9,7 +9,10 @@ import React, {
 import { motion, easeInOut } from "framer-motion";
 
 // redux
-import { useAppSelector } from "@lib/redux/store";
+import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+
+// actions
+import { generateSlice } from "@lib/redux/slices/generateSlice";
 
 // selectors
 import {
@@ -19,29 +22,25 @@ import {
 import { generatedImagesSelector } from "@lib/redux/slices/generateSlice/selectors";
 
 // components
+import GeneratedMobile from "./generatedMobile";
 import { GeneratedImageButtons } from "@/components/shared";
 import { Section, ViewImage, MiniSliderItem } from "@/components/feature";
 
+// types
+import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
+
 // styles
 import styles from "./generated.module.scss";
-import GeneratedMobile from "./generatedMobile";
-import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 const initiallAnimationConfig = {
   initial: {
     opacity: 0,
-    scale: 0,
-    x: "0vw",
   },
   animate: {
     opacity: 1,
-    scale: 1,
-    x: 0,
   },
   exit: {
     opacity: 0,
-    scale: 0,
-    x: "0vw",
   },
   transition: {
     duration: 0.3,
@@ -57,6 +56,8 @@ export default function Generated() {
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
     null
   );
+
+  const dispatch = useAppDispatch();
 
   const miniSliderContentRef = useRef<HTMLDivElement | null>(null);
   const generatedImagesContentRef = useRef<HTMLDivElement | null>(null);
@@ -104,6 +105,18 @@ export default function Generated() {
     window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
   };
 
+  const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
+    window.parent.postMessage(
+      {
+        action: "OPEN_AIUTA_FULL_SCREEN_MODAL",
+        images: generatedImages,
+        modalType: "history",
+        activeImage: activeImage,
+      },
+      "*"
+    );
+  };
+
   const onboardingAnalytic = useCallback(async () => {
     const analytic = {
       data: {
@@ -133,6 +146,10 @@ export default function Generated() {
       if (event.data && event.data.type) {
         if (event.data.status === 200) {
           setEndpointData(event.data);
+        }
+
+        if (event.data.type === "REMOVE_HISTORY_IMAGES") {
+          dispatch(generateSlice.actions.setGeneratedImage(event.data.images));
         }
       } else {
         console.error("Not found API data");
@@ -194,6 +211,7 @@ export default function Generated() {
                             isStartGeneration={false}
                             className={styles.viewItem}
                             isShowChangeImageBtn={false}
+                            onClick={() => handleShowFullScreen({ id, url })}
                           />
                         </div>
                       );
