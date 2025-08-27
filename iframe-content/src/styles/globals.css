@@ -35,8 +35,8 @@ body {
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: #171717;
+  background: white;
   font-family: GT Maru, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

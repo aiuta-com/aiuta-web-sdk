@@ -1,6 +1,6 @@
 .titleDescriptionBox {
   h2 {
-    color: var(--black);
+    color: #000;
     font-weight: 500;
     font-size: 20px;
     line-height: 100%;
@@ -9,7 +9,7 @@
 
   h3 {
     margin-top: 12px;
-    color: var(--gray);
+    color: #666666;
     font-weight: 400;
     font-size: 14px;
     line-height: 20px;
@@ -17,7 +17,7 @@
   }
 
   a {
-    color: inherit;
+    color: black;
     font-weight: 400;
     font-size: 14px;
     letter-spacing: 0px;

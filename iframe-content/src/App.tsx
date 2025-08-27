@@ -20,9 +20,13 @@ import UploadImages from "./pages/UploadImages";
 // components
 import { SdkHeader } from "./components/shared";
 import { SdkFooter } from "./components/shared";
+import { FullScreenImageModal } from "./components/feature";
+import { Spinner } from "./components/feature/spinner/spinner";
 
 function App() {
   const dispatch = useAppDispatch();
+
+  const initialPath = window.location.hash.replace(/^#/, "") || "/";
 
   const handleGetStylesConfiguration = () => {
     window.parent.postMessage(
@@ -55,8 +59,10 @@ function App() {
     };
   }, []);
   return (
-    <MemoryRouter initialEntries={["/"]}>
+    <MemoryRouter initialEntries={[initialPath]}>
+      <Spinner />
       <SdkHeader />
+      <FullScreenImageModal />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/generated" element={<Generated />} />

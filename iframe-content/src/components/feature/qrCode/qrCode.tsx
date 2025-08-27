@@ -33,7 +33,7 @@ export const QrCode = (props: QrCodeTypes) => {
         <Canvas
           text={url}
           logo={{
-            options: { width: 52 },
+            options: { width: 40 },
             src: isShowQrSpinner ? "" : "./icons/aiutaLogo.svg",
           }}
           options={{

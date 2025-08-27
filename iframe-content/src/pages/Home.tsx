@@ -77,7 +77,7 @@ export default function Home() {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, [isMobile, dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (!globalThis) return;

@@ -74,6 +74,7 @@ export const OnboardingMobile = () => {
 
   return (
     <div className={styles.onboardingMobile}>
+      {onboardingSteps !== 2 && <div />}
       <div className={styles.obboardingStepBox}>
         <div
           className={`${styles.step} ${styles.firstStep} ${

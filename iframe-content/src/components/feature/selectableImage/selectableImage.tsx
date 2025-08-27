@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
 
 // redux
-import { useAppSelector } from "@lib/redux/store";
+import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+
+// actions
+import { generateSlice } from "@lib/redux/slices/generateSlice";
 
 // selectors
-import {
-  isMobileSelector,
-  isSelectHistoryImagesSelector,
-} from "@lib/redux/slices/configSlice/selectors";
 import { selectedImagesSelector } from "@lib/redux/slices/generateSlice/selectors";
+import {
+  isSelectHistoryImagesSelector,
+  isSelectPreviouselyImagesSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 
 // components
 import { SecondaryButton } from "../secondaryButton/secondaryButton";
 import { CountDownAnimation } from "../CountDownAnimation/countDownAnimation";
-
 
 // types
 import { SelectableImageTypes } from "./types";
@@ -32,22 +34,22 @@ export const SelectableImage = (props: SelectableImageTypes) => {
     onDelete,
   } = props;
 
+  const dispatch = useAppDispatch();
+
   const [isSelect, setIsSelect] = useState<boolean>(false);
   const [isActiveHover, setIsActiveHover] = useState<boolean>(false);
   const [isStartCountdown, setIsStartCountDown] = useState<boolean>(false);
 
-  const isMobile = useAppSelector(isMobileSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
+  const isSelectPreviouselyImages = useAppSelector(
+    isSelectPreviouselyImagesSelector
+  );
 
   const handleClick = () => {
     if (typeof onClick === "function") onClick();
 
-    if (isMobile) {
-      if (isSelectHistoryImages) {
-        setIsSelect((prevState) => !prevState);
-      }
-    } else {
+    if (isSelectHistoryImages) {
       setIsSelect((prevState) => !prevState);
     }
   };
@@ -59,7 +61,10 @@ export const SelectableImage = (props: SelectableImageTypes) => {
   const handleRejectDeleteProcess = () => setIsStartCountDown(false);
 
   const handleDelete = () => {
-    if (typeof onDelete === "function") onDelete(imageId);
+    if (typeof onDelete === "function") {
+      onDelete(imageId);
+      handleToggleCountDown();
+    }
   };
 
   useEffect(() => {
@@ -71,11 +76,15 @@ export const SelectableImage = (props: SelectableImageTypes) => {
       }
     } else {
       setIsSelect(false);
-    } 
+    }
   }, [selectedImages]);
 
   useEffect(() => {
-    setIsActiveHover(isSelectHistoryImages);
+    if (isSelectHistoryImages) setIsActiveHover(isSelectHistoryImages);
+    else {
+      setIsActiveHover(isSelectHistoryImages);
+      dispatch(generateSlice.actions.setSelectedImage([]));
+    }
   }, [isSelectHistoryImages]);
 
   const isHistory = variant === "history";
@@ -89,13 +98,11 @@ export const SelectableImage = (props: SelectableImageTypes) => {
       ${classNames ?? ""}
       `}
       onClick={handleClick}
-      onMouseLeave={() => !isMobile && setIsActiveHover(false)}
-      onMouseEnter={() => !isMobile && setIsActiveHover(true)}
     >
       {isHistory && (isSelect || (isActiveHover && !isSelect)) && (
         <div className={styles.checkmark} />
       )}
-      {isPreviously && !isShowTrashIcon && (
+      {isSelectPreviouselyImages && isPreviously && !isShowTrashIcon && (
         <div
           className={styles.deleteimage}
           onClick={(e) => {
@@ -107,7 +114,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
           <span />
         </div>
       )}
-      {isShowTrashIcon && (
+      {isSelectPreviouselyImages && isShowTrashIcon && (
         <div
           className={styles.previouslyTrashIcon}
           onClick={(e) => {
@@ -115,10 +122,15 @@ export const SelectableImage = (props: SelectableImageTypes) => {
             handleToggleCountDown();
           }}
         >
-          <img src={'./icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
+          <img
+            src={"./icons/redTrash.svg"}
+            alt="Red Trash"
+            width={18}
+            height={19}
+          />
         </div>
       )}
-      {isStartCountdown && (
+      {isSelectPreviouselyImages && isStartCountdown && (
         <div
           className={`${styles.countDownContent} ${
             isShowTrashIcon ? styles.countDownContentCentered : ""

@@ -1,3 +1,4 @@
+import { ShowFullScreenModal } from "./fullScreenImageModal";
 import {
   MESSENGER,
   WHATS_APP,
@@ -5,6 +6,15 @@ import {
   COPY_BUTTON,
   SHARE_WITH_TEXT,
 } from "./constants/socialIcons";
+
+type Position = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+
+const SDK_POSITION = {
+  topLeft: { top: "12px", left: "12px" },
+  topRight: { top: "12px", right: "12px" },
+  bottomLeft: { bottom: "12px", left: "12px" },
+  bottomRight: { bottom: "12px", right: "12px" },
+};
 
 enum AnalyticEventsEnum {
   "tryOn" = "tryOn",
@@ -55,6 +65,7 @@ type GetJwtCallback = (
 
 interface JwtAuth {
   subscriptionId: string;
+  position?: Position;
   stylesConfiguration?: StylesConfiguration;
   getJwt: GetJwtCallback;
   analytics: AnalyticsCallback;
@@ -62,6 +73,7 @@ interface JwtAuth {
 
 interface ApiAuth {
   apiKey: string;
+  position?: Position;
   stylesConfiguration?: StylesConfiguration;
   analytics: AnalyticsCallback;
 }
@@ -150,6 +162,7 @@ export default class Aiuta {
   private apiKey!: string;
   private userId!: string;
   private subscriptionId!: string;
+  private sdkPosition: Position = "topRight";
   private iframe: HTMLIFrameElement | null = null;
   private aiutaSdkStylesConfiguration: StylesConfiguration =
     INITIALLY_STYLES_CONFIGURATION;
@@ -176,12 +189,21 @@ export default class Aiuta {
   }
 
   // init methods
-  initWithApiKey({ apiKey, analytics, stylesConfiguration }: ApiAuth) {
+  initWithApiKey({
+    apiKey,
+    position,
+    stylesConfiguration,
+    analytics,
+  }: ApiAuth) {
     if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
       throw new Error("Aiuta is already initialized");
 
     this.apiKey = apiKey;
     this.subscriptionId = apiKey;
+
+    if (position && position.length > 0) {
+      this.sdkPosition = position;
+    }
 
     if (stylesConfiguration) {
       this.aiutaSdkStylesConfiguration = stylesConfiguration;
@@ -195,6 +217,7 @@ export default class Aiuta {
   initWithJwt({
     subscriptionId,
     stylesConfiguration,
+    position,
     getJwt,
     analytics,
   }: JwtAuth) {
@@ -205,6 +228,10 @@ export default class Aiuta {
 
     if (stylesConfiguration) {
       this.aiutaSdkStylesConfiguration = stylesConfiguration;
+    }
+
+    if (position && position.length > 0) {
+      this.sdkPosition = position;
     }
 
     if (getJwt && typeof getJwt === "function") {
@@ -230,14 +257,35 @@ export default class Aiuta {
     aiutaIframe.src = this.iframeOrigin;
     aiutaIframe.style.transition = "all ease-in-out 0.5s";
     aiutaIframe.style.position = "fixed";
-    aiutaIframe.style.top = "12px";
-    aiutaIframe.style.right = "-1000%";
     aiutaIframe.style.width = "394px";
     aiutaIframe.style.height = "632px";
     aiutaIframe.style.borderRadius = "24px";
     aiutaIframe.style.zIndex = "9999";
     aiutaIframe.style.border = "1px solid #0000001A";
     aiutaIframe.style.boxShadow = "0px 8px 28px -6px #0000001F";
+
+    switch (this.sdkPosition) {
+      case "topLeft":
+        aiutaIframe.style.top = SDK_POSITION.topLeft.top;
+        aiutaIframe.style.left = "-1000%";
+        break;
+
+      case "topRight":
+        aiutaIframe.style.top = SDK_POSITION.topRight.top;
+        aiutaIframe.style.right = "-1000%";
+        break;
+
+      case "bottomLeft":
+        aiutaIframe.style.bottom = SDK_POSITION.bottomLeft.bottom;
+        aiutaIframe.style.left = "-1000%";
+        break;
+
+      case "bottomRight":
+        aiutaIframe.style.bottom = SDK_POSITION.bottomRight.bottom;
+        aiutaIframe.style.right = "-1000%";
+
+        break;
+    }
 
     document.body.append(aiutaIframe);
 
@@ -257,13 +305,39 @@ export default class Aiuta {
 
     setTimeout(() => {
       if (window.innerWidth <= 992) {
-        aiutaIframe.style.right = "0px";
+        switch (this.sdkPosition) {
+          case "topLeft":
+            aiutaIframe.style.left = "0px";
+            break;
+          case "bottomRight":
+            aiutaIframe.style.right = "0px";
+            break;
+          case "bottomLeft":
+            aiutaIframe.style.left = "0px";
+            break;
+          case "topRight":
+            aiutaIframe.style.right = "0px";
+            break;
+        }
 
         if (document && document.body && document.body.parentElement) {
           document.body.parentElement.style.overflow = "hidden";
         }
       } else {
-        aiutaIframe.style.right = "12px";
+        switch (this.sdkPosition) {
+          case "topLeft":
+            aiutaIframe.style.left = SDK_POSITION.topLeft.left;
+            break;
+          case "topRight":
+            aiutaIframe.style.right = SDK_POSITION.topRight.right;
+            break;
+          case "bottomLeft":
+            aiutaIframe.style.left = SDK_POSITION.bottomLeft.left;
+            break;
+          case "bottomRight":
+            aiutaIframe.style.right = SDK_POSITION.bottomRight.right;
+            break;
+        }
       }
     }, 1000);
 
@@ -293,12 +367,26 @@ export default class Aiuta {
 
     aiutaIframe.onload = () => {
       const messages = async (event: any) => {
-        const data = event.data;
+        console.log("event", event);
 
+        const data = event.data;
         switch (data.action) {
           case "close_modal":
             if (aiutaIframe) {
-              aiutaIframe.style.right = "-1000%";
+              switch (this.sdkPosition) {
+                case "topLeft":
+                  aiutaIframe.style.left = "-1000%";
+                  break;
+                case "bottomRight":
+                  aiutaIframe.style.right = "-1000%";
+                  break;
+                case "bottomLeft":
+                  aiutaIframe.style.left = "-1000%";
+                  break;
+                case "topRight":
+                  aiutaIframe.style.right = "-1000%";
+                  break;
+              }
 
               if (
                 document &&
@@ -329,6 +417,14 @@ export default class Aiuta {
                 text: "Here's an image I generated!",
               });
             }
+            break;
+
+          case "get_window_sizes":
+            this.postMessageToIframe({
+              type: "resize",
+              width: window.innerWidth,
+              height: window.innerHeight,
+            });
             break;
 
           case "GET_AIUTA_JWT_TOKEN":
@@ -365,6 +461,18 @@ export default class Aiuta {
                   stylesConfiguration: this.aiutaSdkStylesConfiguration,
                 });
               }
+            }
+            break;
+
+          case "OPEN_AIUTA_FULL_SCREEN_MODAL":
+            if (aiutaIframe.contentWindow) {
+              const fullScreenModal = new ShowFullScreenModal({
+                activeImage: data.activeImage,
+                modalType: data.modalType,
+                images: data.images,
+              });
+
+              fullScreenModal.showModal();
             }
             break;
 
@@ -525,10 +633,24 @@ export default class Aiuta {
       if (window.innerWidth <= 992) {
         aiutaIframe.style.top = "0px";
         aiutaIframe.style.width = "100%";
-        aiutaIframe.style.right = "0px";
         aiutaIframe.style.height = "100%";
         aiutaIframe.style.borderRadius = "0px";
         aiutaIframe.style.border = "1px solid #ffffff";
+
+        switch (this.sdkPosition) {
+          case "topLeft":
+            aiutaIframe.style.left = SDK_POSITION.topLeft.left;
+            break;
+          case "topRight":
+            aiutaIframe.style.right = SDK_POSITION.topRight.right;
+            break;
+          case "bottomLeft":
+            aiutaIframe.style.left = SDK_POSITION.bottomLeft.left;
+            break;
+          case "bottomRight":
+            aiutaIframe.style.right = SDK_POSITION.bottomRight.right;
+            break;
+        }
 
         if (aiutaIframe && aiutaIframe.contentWindow) {
           aiutaIframe.contentWindow.postMessage(
@@ -563,18 +685,49 @@ export default class Aiuta {
     if (!this.iframe) return;
 
     if (window.innerWidth <= 992) {
-      this.iframe.style.top = "0px";
-      this.iframe.style.right = "0px";
       this.iframe.style.width = "100%";
       this.iframe.style.height = "100%";
       this.iframe.style.borderRadius = "0px";
       this.iframe.style.border = "1px solid #ffffff";
+
+      switch (this.sdkPosition) {
+        case "topLeft":
+          this.iframe.style.top = "0px";
+          this.iframe.style.left = "0px";
+          break;
+        case "topRight":
+          this.iframe.style.top = "0px";
+          this.iframe.style.right = "0px";
+          break;
+        case "bottomLeft":
+          this.iframe.style.left = "0px";
+          this.iframe.style.bottom = "0px";
+          break;
+        case "bottomRight":
+          this.iframe.style.right = "0px";
+          this.iframe.style.bottom = "0px";
+          break;
+      }
     } else {
-      this.iframe.style.top = "12px";
       this.iframe.style.width = "394px";
       this.iframe.style.height = "632px";
       this.iframe.style.borderRadius = "24px";
       this.iframe.style.border = "1px solid #0000001A";
+
+      switch (this.sdkPosition) {
+        case "topLeft":
+          this.iframe.style.top = SDK_POSITION.topLeft.top;
+          break;
+        case "topRight":
+          this.iframe.style.top = SDK_POSITION.topRight.top;
+          break;
+        case "bottomLeft":
+          this.iframe.style.bottom = SDK_POSITION.bottomLeft.bottom;
+          break;
+        case "bottomRight":
+          this.iframe.style.bottom = SDK_POSITION.bottomRight.bottom;
+          break;
+      }
     }
   }
 
@@ -603,7 +756,20 @@ export default class Aiuta {
           }
         }
       } else {
-        aiutaIframe.style.right = "12px";
+        switch (this.sdkPosition) {
+          case "topLeft":
+            aiutaIframe.style.left = SDK_POSITION.topLeft.left;
+            break;
+          case "topRight":
+            aiutaIframe.style.right = SDK_POSITION.topRight.right;
+            break;
+          case "bottomLeft":
+            aiutaIframe.style.left = SDK_POSITION.bottomLeft.left;
+            break;
+          case "bottomRight":
+            aiutaIframe.style.right = SDK_POSITION.bottomRight.right;
+            break;
+        }
       }
 
       this.handleMessage(productId);

@@ -20,6 +20,7 @@ import { generateSlice } from "@lib/redux/slices/generateSlice";
 import {
   qrTokenSelector,
   stylesConfigurationSelector,
+  isSelectPreviouselyImagesSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import { recentlyPhotosSelector } from "@lib/redux/slices/generateSlice/selectors";
 
@@ -42,13 +43,13 @@ import styles from "./previously.module.scss";
 
 const initiallAnimationConfig = {
   initial: {
-    x: "100%",
+    opacity: 0,
   },
   animate: {
-    x: 0,
+    opacity: 1,
   },
   exit: {
-    x: "100%",
+    opacity: 0,
   },
   transition: {
     duration: 0.3,
@@ -64,6 +65,9 @@ export default function Previously() {
   const qrToken = useAppSelector(qrTokenSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
+  const isSelectPreviouselyImages = useAppSelector(
+    isSelectPreviouselyImagesSelector
+  );
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -126,21 +130,25 @@ export default function Previously() {
   };
 
   const handleChooseNewPhoto = (id: string, url: string) => {
-    dispatch(fileSlice.actions.setUploadViewFile({ id, url }));
-    handleNavigate("view");
+    if (isSelectPreviouselyImages) {
+      dispatch(fileSlice.actions.setUploadViewFile({ id, url }));
+      handleNavigate("view");
 
-    const analytic = {
-      data: {
-        type: "uploadedPhotoSelected",
-        event: "pickerEvent",
-      },
-      localDateTime: Date.now(),
-    };
+      const analytic = {
+        data: {
+          type: "uploadedPhotoSelected",
+          event: "pickerEvent",
+        },
+        localDateTime: Date.now(),
+      };
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.uploadedPhotoSelected, analytic },
-      "*"
-    );
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.uploadedPhotoSelected, analytic },
+        "*"
+      );
+    } else {
+      handleShowFullScreen({ id, url });
+    }
   };
 
   const handleRemovePhoto = (imageId: string) => {
@@ -164,6 +172,18 @@ export default function Previously() {
 
   const handleGetWidnwInitiallySizes = () => {
     window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
+  };
+
+  const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
+    window.parent.postMessage(
+      {
+        action: "OPEN_AIUTA_FULL_SCREEN_MODAL",
+        images: recentlyPhotos,
+        modalType: "previously",
+        activeImage: activeImage,
+      },
+      "*"
+    );
   };
 
   const handleCheckQRUploadedPhoto = useCallback(async () => {
@@ -214,6 +234,10 @@ export default function Previously() {
       if (event.data && event.data.type) {
         if (event.data.status === 200) {
           setEndpointData(event.data);
+        }
+
+        if (event.data.type === "REMOVE_PREVIOUSELY_IMAGES") {
+          dispatch(generateSlice.actions.setRecentlyPhotos(event.data.images));
         }
       } else {
         console.error("Not found API data");

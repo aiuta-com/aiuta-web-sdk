@@ -41,18 +41,12 @@ let generationApiCallInterval: NodeJS.Timeout | null = null;
 const initiallAnimationConfig = {
   initial: {
     opacity: 0,
-    scale: 0,
-    x: "0vw",
   },
   animate: {
     opacity: 1,
-    scale: 1,
-    x: 0,
   },
   exit: {
     opacity: 0,
-    scale: 0,
-    x: "0vw",
   },
   transition: {
     duration: 0.3,
@@ -72,7 +66,7 @@ export default function ViewMobile() {
   const [recentlyPhoto, setRecentlyPhoto] = useState({ id: "", url: "" });
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
     null
-  );
+);
 
   const isOpenSwip = useAppSelector(isOpenSwipSelector);
   const isShowFooter = useAppSelector(isShowFooterSelector);
@@ -94,6 +88,7 @@ export default function ViewMobile() {
     const newUploadedPhoto = { id, url };
     const newPhotos = [newUploadedPhoto, ...uploadedPhotos];
 
+    dispatch(generateSlice.actions.setRecentlyPhotos(newPhotos));
     localStorage.setItem(storageKey, JSON.stringify(newPhotos));
   };
 
@@ -363,15 +358,15 @@ export default function ViewMobile() {
     window.addEventListener("message", handleMessage);
   }, []);
 
+  const isExistUploadedPhoto = uploadedViewFile.localUrl.length > 0;
+  const isCheckRecentlyPhotos = recentlyPhotos && recentlyPhotos.length > 0;
+
   useEffect(() => {
     if (!isExistUploadedPhoto && isCheckRecentlyPhotos) {
       setRecentlyPhoto(recentlyPhotos[0]);
       dispatch(configSlice.actions.setIsShowFooter(true));
     }
   }, [recentlyPhotos, uploadedViewFile]);
-
-  const isExistUploadedPhoto = uploadedViewFile.localUrl.length > 0;
-  const isCheckRecentlyPhotos = recentlyPhotos && recentlyPhotos.length > 0;
 
   return (
     <>
