@@ -12,6 +12,7 @@ const generatedImagesFromStorage: Array<ImagesTypes> =
   JSON.parse(localStorage.getItem("generated-images-history") || "[]");
 
 interface fileSliceState {
+  isStartGeneration: boolean;
   selectedImages: Array<string>;
   recentlyPhotos: Array<ImagesTypes>;
   generatedImages: Array<ImagesTypes>;
@@ -19,6 +20,7 @@ interface fileSliceState {
 
 const initialState: fileSliceState = {
   selectedImages: [],
+  isStartGeneration: false,
   recentlyPhotos: recentlyPhotosFromStorage,
   generatedImages: generatedImagesFromStorage,
 };
@@ -27,6 +29,9 @@ export const generateSlice = createSlice({
   name: "generate",
   initialState,
   reducers: {
+    setIsStartGeneration: (state, { payload }) => {
+      state.isStartGeneration = payload;
+    },
     setSelectedImage: (state, { payload }) => {
       if (Array.isArray(payload)) {
         state.selectedImages = payload;

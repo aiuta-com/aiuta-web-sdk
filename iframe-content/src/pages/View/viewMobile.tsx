@@ -18,7 +18,10 @@ import {
   stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import { uploadedViewFileSelector } from "@lib/redux/slices/fileSlice/selectors";
-import { recentlyPhotosSelector } from "@lib/redux/slices/generateSlice/selectors";
+import {
+  recentlyPhotosSelector,
+  isStartGenerationSelector,
+} from "@lib/redux/slices/generateSlice/selectors";
 
 // components
 import {
@@ -27,6 +30,7 @@ import {
   ViewImage,
   TryOnButton,
   SelectableImage,
+  Alert,
 } from "@/components/feature";
 import { EmptyViewImage } from "@/components/shared";
 
@@ -35,6 +39,7 @@ import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 // styles
 import styles from "./view.module.scss";
+import { alertSlice } from "@lib/redux/slices/alertSlice";
 
 let generationApiCallInterval: NodeJS.Timeout | null = null;
 
@@ -62,16 +67,16 @@ export default function ViewMobile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState("");
-  const [isStartGeneration, setIsStartGeneration] = useState(false);
   const [recentlyPhoto, setRecentlyPhoto] = useState({ id: "", url: "" });
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
     null
-);
+  );
 
   const isOpenSwip = useAppSelector(isOpenSwipSelector);
   const isShowFooter = useAppSelector(isShowFooterSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const uploadedViewFile = useAppSelector(uploadedViewFileSelector);
+  const isStartGeneration = useAppSelector(isStartGenerationSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleNavigate = (path: string) => {
@@ -111,7 +116,7 @@ export default function ViewMobile() {
         const { id, url } = generated_images[0];
 
         setGeneratedImageUrl(url);
-        setIsStartGeneration(false);
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
         handleNavigate("generated");
 
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
@@ -134,39 +139,52 @@ export default function ViewMobile() {
         ? uploadedViewFile.id
         : recentlyPhoto.id;
 
-      const operationResponse = await fetch(
-        "https://web-sdk.aiuta.com/api/create-operation-id",
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            uploaded_image_id: uploaded_image_id,
-            ...event.data,
-          }),
+      if (
+        typeof event.data.jwtToken === "string" &&
+        event.data.jwtToken.length > 0
+      ) {
+        const operationResponse = await fetch(
+          "https://web-sdk.aiuta.com/api/create-operation-id",
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({
+              uploaded_image_id: uploaded_image_id,
+              ...event.data,
+            }),
+          }
+        );
+
+        if (operationResponse.ok) {
+          const result = await operationResponse.json();
+
+          if (isExistUploadedPhoto) {
+            handlePutRecentlyPhotos(
+              uploadedViewFile.id,
+              uploadedViewFile.url,
+              "tryon-recent-photos"
+            );
+          }
+
+          if (result.operation_id) {
+            generationApiCallInterval = setInterval(() => {
+              handleGetGeneratedImage(result.operation_id);
+              window.removeEventListener("message", handleGenerates);
+            }, 3000);
+          }
         }
-      );
-
-      if (operationResponse.ok) {
-        const result = await operationResponse.json();
-
-        setIsStartGeneration(true);
-
-        if (isExistUploadedPhoto) {
-          handlePutRecentlyPhotos(
-            uploadedViewFile.id,
-            uploadedViewFile.url,
-            "tryon-recent-photos"
-          );
-        }
-
-        if (result.operation_id) {
-          generationApiCallInterval = setInterval(() => {
-            handleGetGeneratedImage(result.operation_id);
-            window.removeEventListener("message", handleGenerates);
-          }, 3000);
-        }
+      } else {
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong, please try again later.",
+          })
+        );
       }
     }
   };
@@ -174,13 +192,20 @@ export default function ViewMobile() {
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
+
+    dispatch(generateSlice.actions.setIsStartGeneration(true));
+
     const isExistUploadedPhoto = uploadedViewFile.id.length;
     const uploaded_image_id = isExistUploadedPhoto
       ? uploadedViewFile.id
       : recentlyPhoto.id;
 
     if (endpointData.userId && endpointData.userId.length > 0) {
-      window.parent.postMessage({ action: "GET_AIUTA_JWT_TOKEN" }, "*");
+      window.parent.postMessage(
+        { action: "GET_AIUTA_JWT_TOKEN", uploaded_image_id: uploaded_image_id },
+        "*"
+      );
 
       window.addEventListener("message", handleGenerates);
     } else {
@@ -200,8 +225,6 @@ export default function ViewMobile() {
 
       if (operationResponse.ok) {
         const result = await operationResponse.json();
-
-        setIsStartGeneration(true);
 
         if (isExistUploadedPhoto) {
           handlePutRecentlyPhotos(
@@ -231,6 +254,16 @@ export default function ViewMobile() {
             "*"
           );
         }
+      } else {
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong, please try again later.",
+          })
+        );
       }
     }
   };
@@ -268,6 +301,16 @@ export default function ViewMobile() {
           handleGetGeneratedImage(result.operation_id);
         }, 3000);
       }
+    } else {
+      dispatch(generateSlice.actions.setIsStartGeneration(false));
+      dispatch(
+        alertSlice.actions.setShowAlert({
+          type: "error",
+          isShow: true,
+          buttonText: "Try again",
+          content: "Something went wrong, please try again later.",
+        })
+      );
     }
   };
 
@@ -284,7 +327,7 @@ export default function ViewMobile() {
   const handleChooseNewPhoto = (id: string, url: string) => {
     setTimeout(() => {
       handleGenerate({ id, url });
-      setIsStartGeneration(true);
+      dispatch(generateSlice.actions.setIsStartGeneration(true));
       dispatch(fileSlice.actions.setUploadViewFile({ id, url }));
     }, 300);
   };
@@ -302,7 +345,7 @@ export default function ViewMobile() {
       if (!file) return dispatch(configSlice.actions.setIsShowSpinner(false));
 
       setTimeout(() => {
-        setIsStartGeneration(true);
+        dispatch(generateSlice.actions.setIsStartGeneration(true));
       }, 500);
       dispatch(configSlice.actions.setIsShowFooter(true));
 
@@ -336,6 +379,11 @@ export default function ViewMobile() {
         if (isOpenSwip) dispatch(configSlice.actions.setIsOpenSwip(false));
       }
     }
+  };
+
+  const handleRegenerate = () => {
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
+    handleTryOn();
   };
 
   const handleGetWidnwInitiallySizes = () => {
@@ -381,6 +429,7 @@ export default function ViewMobile() {
           className={styles.viewContainerMobile}
           {...initiallAnimationConfig}
         >
+          <Alert onClick={handleRegenerate} />
           <div />
           <div className={styles.viewContentMobile}>
             {isExistUploadedPhoto ? (
