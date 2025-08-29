@@ -242,9 +242,9 @@ export default function ViewMobile() {
           const analytic = {
             data: {
               type: "tryOn",
-              event: "tryOnStarted",
-              pageId: "tryOn",
-              productIds: [endpointData.skuId],
+              event: "initiated",
+              pageId: "imagePicker",
+              productIds: [endpointData?.skuId],
             },
             localDateTime: Date.now(),
           };

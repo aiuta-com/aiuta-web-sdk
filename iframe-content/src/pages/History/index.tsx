@@ -16,8 +16,9 @@ import {
 } from "@lib/redux/slices/generateSlice/selectors";
 import {
   isMobileSelector,
-  isSelectHistoryImagesSelector,
+  aiutaEndpointDataSelector,
   stylesConfigurationSelector,
+  isSelectHistoryImagesSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 
 // components
@@ -56,6 +57,7 @@ export default function History() {
   const isMobile = useAppSelector(isMobileSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
 
@@ -100,28 +102,14 @@ export default function History() {
     dispatch(generateSlice.actions.setGeneratedImage(deletedHistoryImages));
 
     handleCloseHistoryImagesModal(); // Use for close history images model
-
-    const analytic = {
-      data: {
-        type: "generatedImageDeleted",
-        event: "generatedImageDeleted",
-        pageId: "imagePicker",
-      },
-      localDateTime: Date.now(),
-    };
-
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
-      "*"
-    );
   };
 
-  const onboardingAnalytic = useCallback(() => {
+  const onboardingAnalytic = () => {
     const analytic = {
       data: {
-        type: "history",
-        event: "history",
+        type: "page",
         pageId: "history",
+        productIds: [aiutaEndpointData.skuId],
       },
       localDateTime: Date.now(),
     };
@@ -130,12 +118,12 @@ export default function History() {
       { action: AnalyticEventsEnum.history, analytic },
       "*"
     );
-  }, []);
+  };
 
   useEffect(() => {
     onboardingAnalytic();
     // eslint-disable-next-line
-  }, []);
+  }, [aiutaEndpointData]);
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {

@@ -19,13 +19,16 @@ const SDK_POSITION = {
 enum AnalyticEventsEnum {
   "tryOn" = "tryOn",
   "share" = "share",
+  "loading" = "loading",
   "results" = "results",
   "history" = "history",
   "onboarding" = "onboarding",
   "tryOnError" = "tryOnError",
+  "closeModal" = "closeModal",
   "tryOnAborted" = "tryOnAborted",
   "newPhotoTaken" = "newPhotoTaken",
   "uploadedPhotoDeleted" = "uploadedPhotoDeleted",
+  "uploadsHistoryOpened" = "uploadsHistoryOpened",
   "uploadedPhotoSelected" = "uploadedPhotoSelected",
   "generatedImageDeleted" = "generatedImageDeleted",
 }
@@ -110,12 +113,12 @@ function shareModal(imageUrl: string) {
         ${CLOSE_ICON}
       </div>
       <div style="display: flex; column-gap: 24px; align-items: center; margin: 25px 0px 30px 0px">
-        <a target="_blank" href="https://wa.me/?text=${imageUrl}" style="cursor: pointer; max-height: 74px;">${WHATS_APP}</a>
-        <a target="_blank" href="https://www.messenger.com/new?text=${imageUrl}" style="cursor: pointer; max-height: 74px;">${MESSENGER}</a>
+        <a target="_blank" href="https://wa.me/?text=${imageUrl}" style="cursor: pointer; max-height: 74px;" id="whatsapp-share">${WHATS_APP}</a>
+        <a target="_blank" href="https://www.messenger.com/new?text=${imageUrl}" style="cursor: pointer; max-height: 74px;" id="messenger-share">${MESSENGER}</a>
       </div>
       <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; padding: 8px 12px 8px 16px; background: #F2F2F7;">
         <p style="max-width: 300px; margin: 0; overflow: hidden; text-overflow: ellipsis; font-family: 'GT Maru', sans-serif; white-space: nowrap; font-size: 14px; font-weight: 500; letter-spacing: -0.49px;">${imageUrl}</p>
-        <div style="width: 70px; height: 36px; cursor: pointer" onclick="navigator.clipboard.writeText('${imageUrl}')">
+        <div style="width: 70px; height: 36px; cursor: pointer" onclick="navigator.clipboard.writeText('${imageUrl}')" id="copy-share">
           ${COPY_BUTTON}
         </div>
       </div>
@@ -153,6 +156,31 @@ const openShareModal = (imageUrl: string) => {
 
     document.body.appendChild(modalWrapper);
   }
+
+  const copyShare = document.getElementById("copy-share");
+  const whatsappShare = document.getElementById("whatsapp-share");
+  const messengerShare = document.getElementById("messenger-share");
+
+  whatsappShare?.addEventListener("click", () => {
+    window.parent.postMessage(
+      { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "whatsApp" },
+      "*"
+    );
+  });
+
+  messengerShare?.addEventListener("click", () => {
+    window.parent.postMessage(
+      { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "messenger" },
+      "*"
+    );
+  });
+
+  copyShare?.addEventListener("click", () => {
+    window.parent.postMessage(
+      { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "copy" },
+      "*"
+    );
+  });
 };
 
 export default class Aiuta {
@@ -243,10 +271,13 @@ export default class Aiuta {
     }
   }
 
-  private async getToken(productId: string) {
+  private async getToken(uploaded_image_id: string, productId: string) {
     if (this.apiKey) return this.apiKey;
     if (this.getJwt)
-      return await this.getJwt({ subscriptionId: this.userId, productId });
+      return await this.getJwt({
+        uploaded_image_id,
+        product_id: productId,
+      });
     throw new Error("Aiuta SDK is not initialized with API key or JWT");
   }
 
@@ -429,15 +460,29 @@ export default class Aiuta {
 
           case "GET_AIUTA_JWT_TOKEN":
             if (aiutaIframe.contentWindow) {
-              const token = await this.getToken(productId);
+              try {
+                const token = await this.getToken(
+                  data.uploaded_image_id,
+                  productId
+                );
 
-              this.postMessageToIframe({
-                status: 200,
-                skuId: productId,
-                jwtToken: token,
-                userId: this.userId,
-                type: "baseKeys",
-              });
+                this.postMessageToIframe({
+                  status: 200,
+                  skuId: productId,
+                  jwtToken: token,
+                  userId: this.userId,
+                  type: "baseKeys",
+                });
+              } catch (error) {
+                this.postMessageToIframe({
+                  status: 200,
+                  skuId: productId,
+                  jwtToken: undefined,
+                  userId: this.userId,
+                  type: "baseKeys",
+                });
+                console.error("Aiuta get JWT token error", error);
+              }
             }
             break;
 
@@ -624,6 +669,48 @@ export default class Aiuta {
                   AnalyticEventsEnum.tryOnAborted,
                   event.data.analytic
                 );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.closeModal:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.closeModal,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.closeModal,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.uploadsHistoryOpened:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(
+                AnalyticEventsEnum.uploadsHistoryOpened,
+                event.data.analytic
+              );
+
+              if (typeof this.analytics === "function") {
+                this.analytics(
+                  AnalyticEventsEnum.uploadsHistoryOpened,
+                  event.data.analytic
+                );
+              }
+            }
+            break;
+
+          case AnalyticEventsEnum.loading:
+            if (aiutaIframe.contentWindow) {
+              this.trackEvent(AnalyticEventsEnum.loading, event.data.analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(AnalyticEventsEnum.loading, event.data.analytic);
               }
             }
             break;

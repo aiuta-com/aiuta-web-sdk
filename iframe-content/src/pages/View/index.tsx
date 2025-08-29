@@ -118,6 +118,21 @@ export default function View() {
 
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
 
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "initiated",
+            pageId: "imagePicker",
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOn, analytic },
+          "*"
+        );
+
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;

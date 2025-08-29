@@ -9,12 +9,14 @@ import { alertSlice } from "@lib/redux/slices/alertSlice";
 
 // selectors
 import { showAlertStatesSelector } from "@lib/redux/slices/alertSlice/selectors";
+import { aiutaEndpointDataSelector } from "@lib/redux/slices/configSlice/selectors";
 
 // types
 import { ViewImageTypes } from "./types";
 
 // styles
 import styles from "./viewImage.module.scss";
+import { AnalyticEventsEnum } from "@/types";
 
 export const ViewImage = (props: ViewImageTypes) => {
   const {
@@ -30,6 +32,7 @@ export const ViewImage = (props: ViewImageTypes) => {
   const dispatch = useAppDispatch();
 
   const showAlertStates = useAppSelector(showAlertStatesSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
 
   const [generatingText, setGeneratingText] = useState("Scanning your body");
 
@@ -52,13 +55,30 @@ export const ViewImage = (props: ViewImageTypes) => {
     if (typeof onClick === "function") onClick(event);
   };
 
+  const handleAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "page",
+        pageId: "loading",
+        productIds: [aiutaEndpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.loading, analytic },
+      "*"
+    );
+  };
+
   useEffect(() => {
     if (isStartGeneration) {
       setTimeout(() => {
+        handleAnalytic();
         setGeneratingText("Generating outfit");
       }, 2000);
     }
-  }, [isStartGeneration]);
+  }, [isStartGeneration, aiutaEndpointData]);
 
   return (
     <div
