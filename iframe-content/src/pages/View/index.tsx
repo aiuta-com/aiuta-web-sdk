@@ -16,7 +16,10 @@ import {
   stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 import { uploadedViewFileSelector } from "@lib/redux/slices/fileSlice/selectors";
-import { recentlyPhotosSelector } from "../../../lib/redux/slices/generateSlice/selectors";
+import {
+  recentlyPhotosSelector,
+  isStartGenerationSelector,
+} from "../../../lib/redux/slices/generateSlice/selectors";
 
 // components
 import {
@@ -59,7 +62,6 @@ export default function View() {
   const dispatch = useAppDispatch();
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState("");
-  const [isStartGeneration, setIsStartGeneration] = useState(false);
   const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false);
   const [recentlyPhoto, setRecentlyPhoto] = useState({ id: "", url: "" });
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
@@ -69,6 +71,7 @@ export default function View() {
   const isMobile = useAppSelector(isMobileSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const uploadedViewFile = useAppSelector(uploadedViewFileSelector);
+  const isStartGeneration = useAppSelector(isStartGenerationSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleNavigate = (path: string) => {
@@ -110,7 +113,7 @@ export default function View() {
         setGeneratedImageUrl(url);
         handleNavigate("generated");
         setTimeout(() => {
-          setIsStartGeneration(false);
+          dispatch(generateSlice.actions.setIsStartGeneration(false));
         }, 500);
 
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
@@ -125,7 +128,7 @@ export default function View() {
           generationApiCallInterval = null;
         }
 
-        setIsStartGeneration(false);
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
         dispatch(
           alertSlice.actions.setShowAlert({
             type: "error",
@@ -155,7 +158,7 @@ export default function View() {
           generationApiCallInterval = null;
         }
 
-        setIsStartGeneration(false);
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
         setIsOpenAbortedModal(true);
 
         const analytic = {
@@ -185,54 +188,79 @@ export default function View() {
         ? uploadedViewFile.id
         : recentlyPhoto.id;
 
-      const operationResponse = await fetch(
-        "https://web-sdk.aiuta.com/api/create-operation-id",
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            uploaded_image_id: uploaded_image_id,
-            ...event.data,
-          }),
-        }
-      );
-
-      if (operationResponse.ok) {
-        const result = await operationResponse.json();
-
-        setIsStartGeneration(true);
-
-        if (isExistUploadedPhoto) {
-          handlePutRecentlyPhotos(
-            uploadedViewFile.id,
-            uploadedViewFile.url,
-            "tryon-recent-photos"
-          );
-        }
-
-        if (result.operation_id) {
-          generationApiCallInterval = setInterval(() => {
-            handleGetGeneratedImage(result.operation_id);
-            window.removeEventListener("message", handleGenerate);
-          }, 3000);
-
-          const analytic = {
-            data: {
-              type: "tryOn",
-              event: "tryOnStarted",
-              pageId: "tryOn",
-              productIds: [endpointData?.skuId],
+      if (
+        typeof event.data.jwtToken === "string" &&
+        event.data.jwtToken.length > 0
+      ) {
+        const operationResponse = await fetch(
+          "https://web-sdk.aiuta.com/api/create-operation-id",
+          {
+            headers: {
+              "Content-Type": "application/json",
             },
-            localDateTime: Date.now(),
-          };
+            method: "POST",
+            body: JSON.stringify({
+              uploaded_image_id: uploaded_image_id,
+              ...event.data,
+            }),
+          }
+        );
 
-          window.parent.postMessage(
-            { action: AnalyticEventsEnum.tryOn, analytic },
-            "*"
+        if (operationResponse.ok) {
+          const result = await operationResponse.json();
+
+          dispatch(generateSlice.actions.setIsStartGeneration(true));
+
+          if (isExistUploadedPhoto) {
+            handlePutRecentlyPhotos(
+              uploadedViewFile.id,
+              uploadedViewFile.url,
+              "tryon-recent-photos"
+            );
+          }
+
+          if (result.operation_id) {
+            generationApiCallInterval = setInterval(() => {
+              handleGetGeneratedImage(result.operation_id);
+              window.removeEventListener("message", handleGenerate);
+            }, 3000);
+
+            const analytic = {
+              data: {
+                type: "tryOn",
+                event: "tryOnStarted",
+                pageId: "tryOn",
+                productIds: [endpointData?.skuId],
+              },
+              localDateTime: Date.now(),
+            };
+
+            window.parent.postMessage(
+              { action: AnalyticEventsEnum.tryOn, analytic },
+              "*"
+            );
+          }
+        } else {
+          dispatch(generateSlice.actions.setIsStartGeneration(false));
+          dispatch(
+            alertSlice.actions.setShowAlert({
+              type: "error",
+              isShow: true,
+              buttonText: "Try again",
+              content: "Something went wrong, please try again later.",
+            })
           );
         }
+      } else {
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong, please try again later.",
+          })
+        );
       }
     }
   };
@@ -240,8 +268,22 @@ export default function View() {
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
+    dispatch(generateSlice.actions.setIsStartGeneration(true));
+
     if (endpointData.userId && endpointData.userId.length > 0) {
-      window.parent.postMessage({ action: "GET_AIUTA_JWT_TOKEN" }, "*");
+      const isExistUploadedPhoto = uploadedViewFile.id.length;
+      const uploaded_image_id = isExistUploadedPhoto
+        ? uploadedViewFile.id
+        : recentlyPhoto.id;
+
+      window.parent.postMessage(
+        {
+          action: "GET_AIUTA_JWT_TOKEN",
+          uploaded_image_id: uploaded_image_id,
+        },
+        "*"
+      );
 
       window.addEventListener("message", handleGenerate);
     } else {
@@ -267,8 +309,6 @@ export default function View() {
       if (operationResponse.ok) {
         const result = await operationResponse.json();
 
-        setIsStartGeneration(true);
-
         if (isExistUploadedPhoto) {
           handlePutRecentlyPhotos(
             uploadedViewFile.id,
@@ -282,6 +322,16 @@ export default function View() {
             handleGetGeneratedImage(result.operation_id);
           }, 3000);
         }
+      } else {
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong, please try again later.",
+          })
+        );
       }
     }
   };
