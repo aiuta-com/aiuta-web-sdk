@@ -12,7 +12,9 @@ import { generateSlice } from "@lib/redux/slices/generateSlice";
 import {
   qrTokenSelector,
   isMobileSelector,
+  onboardingStepsSelector,
   isOnboardingDoneSelector,
+  aiutaEndpointDataSelector,
   stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
@@ -21,7 +23,11 @@ import {
   selectedImagesSelector,
   recentlyPhotosSelector,
   generatedImagesSelector,
+  isStartGenerationSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
+
+// types
+import { AnalyticEventsEnum } from "@/types";
 
 // styles
 import styles from "./sdkHeader.module.scss";
@@ -36,8 +42,11 @@ export const SdkHeader = () => {
   const isMobile = useAppSelector(isMobileSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
   const selectedImages = useAppSelector(selectedImagesSelector);
+  const onboardingSteps = useAppSelector(onboardingStepsSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
+  const isStartGeneration = useAppSelector(isStartGenerationSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
   const isSelectPreviouselyImages = useAppSelector(
@@ -56,11 +65,47 @@ export const SdkHeader = () => {
   const iasNavigatePathMobile =
     pathName === "/history" || pathName === "/previously";
 
+  const handleAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "exit",
+        pageId: "howItWorks",
+        productIds: [aiutaEndpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    if (pathName === "/") {
+      if (onboardingSteps === 1) {
+        analytic.data.pageId = "bestResults";
+      } else if (onboardingSteps === 2) {
+        analytic.data.pageId = "consent";
+      }
+    } else if (pathName === "/qr") {
+      analytic.data.pageId = "imagePicker";
+    } else if (pathName === "/view") {
+      analytic.data.pageId = "loading";
+    } else if (pathName === "/generated") {
+      analytic.data.pageId = "results";
+    }
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.closeModal, analytic },
+      "*"
+    );
+  };
+
   const handleCloseModal = () => {
     if (typeof window !== "undefined") {
       const recentPhotosFromLocal = JSON.parse(
         localStorage.getItem("tryon-recent-photos") || "[]"
       );
+
+      if (isStartGeneration) {
+        window.parent.postMessage({ action: "close_modal" }, "*");
+        return;
+      }
+
       if (recentPhotosFromLocal.length > 0) {
         setTimeout(() => {
           navigate("/view");
@@ -68,6 +113,8 @@ export const SdkHeader = () => {
       }
       window.parent.postMessage({ action: "close_modal" }, "*");
     }
+
+    handleAnalytic();
   };
 
   const handleToggleHistorySelectImages = () => {
@@ -125,6 +172,24 @@ export const SdkHeader = () => {
 
   useEffect(() => {
     setHasMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type) {
+        if (event.data.status === 200) {
+          dispatch(configSlice.actions.setAiutaEndpointData(event.data));
+        }
+      } else {
+        console.error("Not found API data");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
   }, []);
 
   if (!hasMounted) return null;

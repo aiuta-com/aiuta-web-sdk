@@ -39,6 +39,12 @@ interface configSliceState {
   isSelectHistoryImages: boolean;
   isSelectPreviouselyImages: boolean;
   stylesConfiguration: StylesConfiguration;
+  aiutaEndpointData: {
+    skuId: string;
+    apiKey: string;
+    userId: string;
+    jwtToken: string;
+  };
 }
 
 const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
@@ -76,6 +82,12 @@ const initialState: configSliceState = {
   isSelectPreviouselyImages: false,
   isOnboardingDone: isOnboardingDone,
   stylesConfiguration: INITIALLY_STYLES_CONFIGURATION,
+  aiutaEndpointData: {
+    skuId: "",
+    apiKey: "",
+    userId: "",
+    jwtToken: "",
+  },
 };
 
 export const configSlice = createSlice({
@@ -105,6 +117,9 @@ export const configSlice = createSlice({
     },
     setIsOnboardingDone: (state, { payload }) => {
       state.isOnboardingDone = payload;
+    },
+    setAiutaEndpointData: (state, { payload }) => {
+      state.aiutaEndpointData = payload;
     },
     setOnboardingSteps: (state, { payload }) => {
       if (payload) {

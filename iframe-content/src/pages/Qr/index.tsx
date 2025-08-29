@@ -18,6 +18,7 @@ import { configSlice } from "@lib/redux/slices/configSlice";
 // selectors
 import {
   qrTokenSelector,
+  aiutaEndpointDataSelector,
   stylesConfigurationSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 
@@ -39,6 +40,7 @@ export default function Qr() {
   const dispatch = useAppDispatch();
 
   const qrToken = useAppSelector(qrTokenSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -47,11 +49,13 @@ export default function Qr() {
     null
   );
 
-  const onboardingAnalytic = useCallback(() => {
+  const handleAnalytic = () => {
     const analytic = {
       data: {
-        type: "newPhotoTaken",
+        type: "page",
         event: "pickerEvent",
+        pageId: "imagePicker",
+        productIds: [aiutaEndpointData.skuId],
       },
       localDateTime: Date.now(),
     };
@@ -60,12 +64,12 @@ export default function Qr() {
       { action: AnalyticEventsEnum.newPhotoTaken, analytic },
       "*"
     );
-  }, []);
+  };
 
   useEffect(() => {
-    onboardingAnalytic();
+    handleAnalytic();
     // eslint-disable-next-line
-  }, []);
+  }, [aiutaEndpointData]);
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return;
@@ -102,6 +106,21 @@ export default function Qr() {
         );
         dispatch(configSlice.actions.setIsShowFooter(false));
         navigate("/view");
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "photoUploaded",
+            pageId: "imagePicker",
+            productIds: [aiutaEndpointData.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.newPhotoTaken, analytic },
+          "*"
+        );
       }
     }
   };
@@ -121,6 +140,21 @@ export default function Qr() {
     } else if (result.owner_type === "user") {
       dispatch(configSlice.actions.setIsShowQrSpinner(false));
       dispatch(fileSlice.actions.setUploadViewFile({ ...result }));
+
+      const analytic = {
+        data: {
+          type: "tryOn",
+          event: "photoUploaded",
+          pageId: "imagePicker",
+          productIds: [aiutaEndpointData.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.newPhotoTaken, analytic },
+        "*"
+      );
 
       const deleteQrToken = await fetch(
         `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`

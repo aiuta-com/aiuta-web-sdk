@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 // redux
@@ -13,6 +13,7 @@ import {
   isInitializedSelector,
   isShowSpinnerSelector,
   onboardingStepsSelector,
+  aiutaEndpointDataSelector,
 } from "@lib/redux/slices/configSlice/selectors";
 
 // components
@@ -36,42 +37,69 @@ export const Onboarding = () => {
   const isShowSpinner = useAppSelector(isShowSpinnerSelector);
   const isInitialized = useAppSelector(isInitializedSelector);
   const onboardingSteps = useAppSelector(onboardingStepsSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
+
+  const onboardingAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "onboarding",
+        pageId: "consent",
+        event: "consentsGiven",
+        productIds: [aiutaEndpointData.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.onboarding, analytic },
+      "*"
+    );
+  };
 
   const handleClickOnboardingButton = () => {
     if (onboardingSteps !== 2) {
       dispatch(configSlice.actions.setOnboardingSteps(null));
     } else {
       navigate("/qr");
+      onboardingAnalytic();
       localStorage.setItem("isOnboarding", JSON.stringify(true));
     }
   };
 
-  const onboardingAnalytic = useCallback(() => {
+  const onboardingAnalytics = () => {
     const isOnboarding = JSON.parse(
       localStorage.getItem("isOnboarding") || "false"
     );
 
     if (!isOnboarding) {
-      const analytic = {
+      const analytic: any = {
         data: {
-          type: "onboarding",
-          event: "welcomeStartClicked",
-          pageId: "onboarding",
+          type: "page",
+          pageId: "howItWorks",
+          productIds: [aiutaEndpointData.skuId],
         },
         localDateTime: Date.now(),
       };
+
+      if (onboardingSteps === 0) {
+        analytic.data.event = "welcomeStartClicked";
+      } else if (onboardingSteps === 1) {
+        analytic.data.pageId = "bestResults";
+      } else if (onboardingSteps === 2) {
+        analytic.data.pageId = "consent";
+      }
 
       window.parent.postMessage(
         { action: AnalyticEventsEnum.onboarding, analytic },
         "*"
       );
     }
-  }, []);
+  };
 
   useEffect(() => {
-    onboardingAnalytic();
+    onboardingAnalytics();
     // eslint-disable-next-line
-  }, []);
+  }, [onboardingSteps, aiutaEndpointData]);
 
   return !isShowSpinner && isInitialized ? (
     <div className={styles.onboarding}>

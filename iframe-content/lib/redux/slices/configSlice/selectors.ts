@@ -27,6 +27,9 @@ const isShowSpinnerSelector = (state: RootState) => state.config.isShowSpinner;
 const onboardingStepsSelector = (state: RootState) =>
   state.config.onboardingSteps;
 
+const aiutaEndpointDataSelector = (state: RootState) =>
+  state.config.aiutaEndpointData;
+
 const stylesConfigurationSelector = (state: RootState) =>
   state.config.stylesConfiguration;
 
@@ -40,6 +43,7 @@ export {
   isShowQrSpinnerSelector,
   onboardingStepsSelector,
   isOnboardingDoneSelector,
+  aiutaEndpointDataSelector,
   stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,

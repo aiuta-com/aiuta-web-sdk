@@ -4,7 +4,10 @@ import React from "react";
 import { useAppSelector } from "@lib/redux/store";
 
 // selectors
-import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+import {
+  aiutaEndpointDataSelector,
+  stylesConfigurationSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 
 // components
 import { SecondaryButton } from "@/components/feature";
@@ -19,6 +22,7 @@ import styles from "./generatedImageButtons.module.scss";
 export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const { activeGeneratedImageUrl } = props;
 
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleShare = async () => {
@@ -30,8 +34,9 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
     const analytic = {
       data: {
         type: "share",
-        event: "shareEvent",
-        pageId: "share",
+        event: "initiated",
+        pageId: "results",
+        productIds: [aiutaEndpointData.skuId],
       },
       localDateTime: Date.now(),
     };
@@ -58,6 +63,21 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
     }
+
+    const analytic = {
+      data: {
+        type: "share",
+        event: "donwloaded",
+        pageId: "results",
+        productIds: [aiutaEndpointData.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.share, analytic },
+      "*"
+    );
   };
 
   return (

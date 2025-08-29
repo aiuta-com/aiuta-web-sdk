@@ -11,19 +11,24 @@ import {
   selectedImagesSelector,
   generatedImagesSelector,
 } from "@lib/redux/slices/generateSlice/selectors";
-import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+import {
+  aiutaEndpointDataSelector,
+  stylesConfigurationSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 
 // components
 import { SecondaryButton } from "@/components/feature";
 
 // styles
 import styles from "./removeHistoryBanner.module.scss";
+import { AnalyticEventsEnum } from "@/types";
 
 export const RemoveHistoryBanner = () => {
   const dispatch = useAppDispatch();
 
   const selectedImages = useAppSelector(selectedImagesSelector);
   const generatedImages = useAppSelector(generatedImagesSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleSelectAll = () => {
@@ -38,6 +43,21 @@ export const RemoveHistoryBanner = () => {
 
   const handleShowHistoryImagesModal = () => {
     dispatch(modalSlice.actions.setShowHistoryImagesModal(true));
+
+    const analytic = {
+      data: {
+        type: "history",
+        event: "generatedImageDeleted",
+        pageId: "history",
+        productIds: [aiutaEndpointData.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
+      "*"
+    );
   };
 
   const handleDowloadSelectedImages = async () => {
@@ -58,6 +78,21 @@ export const RemoveHistoryBanner = () => {
         URL.revokeObjectURL(blobUrl);
       }
     }
+
+    const analytic = {
+      data: {
+        type: "share",
+        event: "downloaded",
+        pageId: "history",
+        productIds: [aiutaEndpointData.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
+      "*"
+    );
   };
 
   return (

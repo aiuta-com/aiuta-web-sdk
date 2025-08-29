@@ -54,6 +54,7 @@ export default function Home() {
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
 
   const handleGetWidnwInitiallySizes = () => {
+    window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
     window.parent.postMessage({ action: "get_window_sizes" }, "*");
   };
 
@@ -68,6 +69,8 @@ export default function Home() {
           } else {
             dispatch(configSlice.actions.setIsMobile(false));
           }
+        } else if (e.data.type === "baseKeys") {
+          dispatch(configSlice.actions.setAiutaEndpointData(e.data));
         }
       }
     };

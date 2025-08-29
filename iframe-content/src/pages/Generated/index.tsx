@@ -117,10 +117,10 @@ export default function Generated() {
     );
   };
 
-  const onboardingAnalytic = useCallback(async () => {
+  const handleAnalytic = () => {
     const analytic = {
       data: {
-        type: "results",
+        type: "page",
         event: "resultShared",
         pageId: "results",
         productIds: [endpointData?.skuId],
@@ -132,10 +132,10 @@ export default function Generated() {
       { action: AnalyticEventsEnum.results, analytic },
       "*"
     );
-  }, []);
+  };
 
   useEffect(() => {
-    onboardingAnalytic();
+    handleAnalytic();
     // eslint-disable-next-line
   }, []);
 
@@ -150,6 +150,32 @@ export default function Generated() {
 
         if (event.data.type === "REMOVE_HISTORY_IMAGES") {
           dispatch(generateSlice.actions.setGeneratedImage(event.data.images));
+        }
+
+        if (event.data.type === "ANALYTIC_SOCIAL_MEDIA") {
+          const analytic = {
+            data: {
+              type: "share",
+              pageId: "results",
+              event: "succeded",
+              targetId: "whatsApp",
+              productIds: [endpointData?.skuId],
+            },
+            localDateTime: Date.now(),
+          };
+
+          if (event.data.shareMethod === "whatsApp") {
+            analytic.data.targetId = "whatsApp";
+          } else if (event.data.shareMethod === "messenger") {
+            analytic.data.targetId = "messenger";
+          } else if (event.data.shareMethod === "copy") {
+            analytic.data.targetId = "copy";
+          }
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.results, analytic },
+            "*"
+          );
         }
       } else {
         console.error("Not found API data");

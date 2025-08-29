@@ -136,8 +136,10 @@ export default function Previously() {
 
       const analytic = {
         data: {
-          type: "uploadedPhotoSelected",
-          event: "pickerEvent",
+          type: "picker",
+          pageId: "pickerEvent",
+          event: "uploadedPhotoSelected",
+          productIds: [endpointData?.skuId],
         },
         localDateTime: Date.now(),
       };
@@ -158,8 +160,10 @@ export default function Previously() {
 
     const analytic = {
       data: {
-        type: "uploadedPhotoDeleted",
-        event: "pickerEvent",
+        type: "picker",
+        pageId: "imagePicker",
+        event: "uploadedPhotoDeleted",
+        productIds: [endpointData?.skuId],
       },
       localDateTime: Date.now(),
     };
@@ -206,6 +210,27 @@ export default function Previously() {
       navigate("/view");
     }
   }, [qrToken, dispatch, navigate]);
+
+  const handleAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "picker",
+        pageId: "imagePicker",
+        event: "uploadsHistoryOpened",
+        productIds: [endpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.uploadsHistoryOpened, analytic },
+      "*"
+    );
+  };
+
+  useEffect(() => {
+    handleAnalytic();
+  }, []);
 
   useEffect(() => {
     if (!recentlyPhotos.length) {

@@ -10,13 +10,16 @@ export type EndpointDataTypes = {
 export enum AnalyticEventsEnum {
   "tryOn" = "tryOn",
   "share" = "share",
+  "loading" = "loading",
   "results" = "results",
   "history" = "history",
   "onboarding" = "onboarding",
   "tryOnError" = "tryOnError",
+  "closeModal" = "closeModal",
   "tryOnAborted" = "tryOnAborted",
   "newPhotoTaken" = "newPhotoTaken",
   "uploadedPhotoDeleted" = "uploadedPhotoDeleted",
+  "uploadsHistoryOpened" = "uploadsHistoryOpened",
   "uploadedPhotoSelected" = "uploadedPhotoSelected",
   "generatedImageDeleted" = "generatedImageDeleted",
 }
