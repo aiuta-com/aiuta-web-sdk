@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 
 // actions
+import { alertSlice } from "@lib/redux/slices/alertSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
 import { generateSlice } from "@lib/redux/slices/generateSlice";
 
@@ -115,6 +116,7 @@ export const SdkHeader = () => {
     }
 
     handleAnalytic();
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
   };
 
   const handleToggleHistorySelectImages = () => {

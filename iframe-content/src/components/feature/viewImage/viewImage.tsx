@@ -8,7 +8,6 @@ import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 import { alertSlice } from "@lib/redux/slices/alertSlice";
 
 // selectors
-import { showAlertStatesSelector } from "@lib/redux/slices/alertSlice/selectors";
 import { aiutaEndpointDataSelector } from "@lib/redux/slices/configSlice/selectors";
 
 // types
@@ -31,7 +30,6 @@ export const ViewImage = (props: ViewImageTypes) => {
 
   const dispatch = useAppDispatch();
 
-  const showAlertStates = useAppSelector(showAlertStatesSelector);
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
 
   const [generatingText, setGeneratingText] = useState("Scanning your body");
