@@ -466,6 +466,8 @@ export default class Aiuta {
                   productId
                 );
 
+                console.log("JWT token: ", token);
+
                 this.postMessageToIframe({
                   status: 200,
                   skuId: productId,
