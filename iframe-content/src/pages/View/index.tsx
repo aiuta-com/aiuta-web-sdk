@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { motion, easeInOut } from "framer-motion";
@@ -282,11 +282,13 @@ export default function View() {
     }
   };
 
-  const handleTryOn = async () => {
+  const handleTryOn = useCallback(async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
     dispatch(generateSlice.actions.setIsStartGeneration(true));
+
+    console.log("PRODUCT ID FROM SDK : ", endpointData.skuId);
 
     if (endpointData.userId && endpointData.userId.length > 0) {
       const isExistUploadedPhoto = uploadedViewFile.id.length;
@@ -351,7 +353,7 @@ export default function View() {
         );
       }
     }
-  };
+  }, [endpointData]);
 
   const handleRegenerate = () => {
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));

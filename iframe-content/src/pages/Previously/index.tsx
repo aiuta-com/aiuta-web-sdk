@@ -19,6 +19,7 @@ import { generateSlice } from "@lib/redux/slices/generateSlice";
 // selectors
 import {
   qrTokenSelector,
+  aiutaEndpointDataSelector,
   stylesConfigurationSelector,
   isSelectPreviouselyImagesSelector,
 } from "@lib/redux/slices/configSlice/selectors";
@@ -64,6 +65,7 @@ export default function Previously() {
 
   const qrToken = useAppSelector(qrTokenSelector);
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
   const isSelectPreviouselyImages = useAppSelector(
     isSelectPreviouselyImagesSelector
@@ -139,7 +141,7 @@ export default function Previously() {
           type: "picker",
           pageId: "pickerEvent",
           event: "uploadedPhotoSelected",
-          productIds: [endpointData?.skuId],
+          productIds: [aiutaEndpointData?.skuId],
         },
         localDateTime: Date.now(),
       };
@@ -163,7 +165,7 @@ export default function Previously() {
         type: "picker",
         pageId: "imagePicker",
         event: "uploadedPhotoDeleted",
-        productIds: [endpointData?.skuId],
+        productIds: [aiutaEndpointData?.skuId],
       },
       localDateTime: Date.now(),
     };
@@ -217,7 +219,7 @@ export default function Previously() {
         type: "picker",
         pageId: "imagePicker",
         event: "uploadsHistoryOpened",
-        productIds: [endpointData?.skuId],
+        productIds: [aiutaEndpointData?.skuId],
       },
       localDateTime: Date.now(),
     };
