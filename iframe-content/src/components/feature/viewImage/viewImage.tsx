@@ -46,9 +46,7 @@ export const ViewImage = (props: ViewImageTypes) => {
     if (typeof onChange === "function") return onChange();
     handleNavigate("previously");
 
-    if (showAlertStates && showAlertStates.isShow) {
-      dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
-    }
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
   };
 
   const handleClickOnImage = (event: MouseEvent<HTMLImageElement>) => {

@@ -132,6 +132,22 @@ export const SdkHeader = () => {
   };
 
   const handleNavigate = (path: string) => {
+    if (pathName === "/history" && iasNavigatePath) {
+      const analytic = {
+        data: {
+          type: "exit",
+          pageId: "history",
+          productIds: [aiutaEndpointData?.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.history, analytic },
+        "*"
+      );
+    }
+
     if (iasNavigatePath) {
       if (recentlyPhotos.length === 0) {
         navigate("/qr");

@@ -187,9 +187,20 @@ export default class Aiuta {
   private getJwt!: GetJwtCallback;
   private analytics!: AnalyticsCallback;
 
+  constructor() {
+    const analytic: any = {
+      data: {
+        type: "configure",
+      },
+    };
+
+    this.trackEvent("configure", analytic);
+  }
+
   private apiKey!: string;
   private userId!: string;
   private subscriptionId!: string;
+  private isIframeOpen: boolean = false;
   private sdkPosition: Position = "topRight";
   private iframe: HTMLIFrameElement | null = null;
   private aiutaSdkStylesConfiguration: StylesConfiguration =
@@ -202,12 +213,20 @@ export default class Aiuta {
   trackEvent(eventName: string, data: Record<string, any>) {
     const currentDate = new Date().toISOString();
 
-    const body = {
+    const body: {
+      data: any;
+      eventName: string;
+      timestamp: string;
+      subscriptionId?: string;
+    } = {
       data,
       eventName,
       timestamp: currentDate,
-      subscriptionId: this.subscriptionId,
     };
+
+    if (this.subscriptionId) {
+      body.subscriptionId = this.subscriptionId;
+    }
 
     fetch(this.analyticOrigin, {
       method: "POST",
@@ -398,12 +417,12 @@ export default class Aiuta {
 
     aiutaIframe.onload = () => {
       const messages = async (event: any) => {
-        console.log("event", event);
-
         const data = event.data;
         switch (data.action) {
           case "close_modal":
             if (aiutaIframe) {
+              this.isIframeOpen = false;
+
               switch (this.sdkPosition) {
                 case "topLeft":
                   aiutaIframe.style.left = "-1000%";
@@ -528,7 +547,7 @@ export default class Aiuta {
               this.trackEvent(AnalyticEventsEnum.tryOn, event.data.analytic);
 
               if (typeof this.analytics === "function") {
-                this.analytics(AnalyticEventsEnum.tryOn, event.data.analytic);
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -538,7 +557,7 @@ export default class Aiuta {
               this.trackEvent(AnalyticEventsEnum.share, event.data.analytic);
 
               if (typeof this.analytics === "function") {
-                this.analytics(AnalyticEventsEnum.share, event.data.analytic);
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -548,7 +567,7 @@ export default class Aiuta {
               this.trackEvent(AnalyticEventsEnum.results, event.data.analytic);
 
               if (typeof this.analytics === "function") {
-                this.analytics(AnalyticEventsEnum.results, event.data.analytic);
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -558,7 +577,7 @@ export default class Aiuta {
               this.trackEvent(AnalyticEventsEnum.history, event.data.analytic);
 
               if (typeof this.analytics === "function") {
-                this.analytics(AnalyticEventsEnum.history, event.data.analytic);
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -571,10 +590,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.onboarding,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -587,10 +603,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.newPhotoTaken,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -603,10 +616,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.uploadedPhotoDeleted,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -619,10 +629,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.uploadedPhotoSelected,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -635,10 +642,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.generatedImageDeleted,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -651,10 +655,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.tryOnError,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -667,10 +668,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.tryOnAborted,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -683,10 +681,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.closeModal,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -699,10 +694,7 @@ export default class Aiuta {
               );
 
               if (typeof this.analytics === "function") {
-                this.analytics(
-                  AnalyticEventsEnum.uploadsHistoryOpened,
-                  event.data.analytic
-                );
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -712,7 +704,7 @@ export default class Aiuta {
               this.trackEvent(AnalyticEventsEnum.loading, event.data.analytic);
 
               if (typeof this.analytics === "function") {
-                this.analytics(AnalyticEventsEnum.loading, event.data.analytic);
+                this.analytics(event.data.analytic.data);
               }
             }
             break;
@@ -771,7 +763,7 @@ export default class Aiuta {
   }
 
   private adjustIframeForViewport() {
-    if (!this.iframe) return;
+    if (!this.iframe || !this.isIframeOpen) return;
 
     if (window.innerWidth <= 992) {
       this.iframe.style.width = "100%";
@@ -826,7 +818,24 @@ export default class Aiuta {
       return;
     }
 
+    this.isIframeOpen = true;
+
     const aiutaIframe = document.getElementById("aiuta-iframe");
+
+    const analytic: any = {
+      data: {
+        type: "session",
+        flow: "tryOn",
+        productIds: [productId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    this.trackEvent("configure", analytic);
+
+    if (typeof this.analytics === "function") {
+      this.analytics(analytic.data);
+    }
 
     if (aiutaIframe) {
       if (window.innerWidth <= 992) {

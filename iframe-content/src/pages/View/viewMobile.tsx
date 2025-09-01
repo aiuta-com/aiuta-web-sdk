@@ -1,4 +1,10 @@
-import React, { useRef, useState, useEffect, ChangeEvent } from "react";
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  ChangeEvent,
+  useCallback,
+} from "react";
 import { useNavigate } from "react-router-dom";
 
 import { motion, easeInOut } from "framer-motion";
@@ -189,7 +195,7 @@ export default function ViewMobile() {
     }
   };
 
-  const handleTryOn = async () => {
+  const handleTryOn = useCallback(async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
@@ -266,7 +272,7 @@ export default function ViewMobile() {
         );
       }
     }
-  };
+  }, [endpointData]);
 
   const handleGenerate = async (uploadedData: { id: string; url: string }) => {
     const isExistUploadedPhoto = uploadedData.id.length;
