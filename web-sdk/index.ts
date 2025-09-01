@@ -199,6 +199,7 @@ export default class Aiuta {
 
   private apiKey!: string;
   private userId!: string;
+  private productId!: string;
   private subscriptionId!: string;
   private isIframeOpen: boolean = false;
   private sdkPosition: Position = "topRight";
@@ -400,17 +401,18 @@ export default class Aiuta {
     this.iframe.contentWindow.postMessage(message, "*");
   }
 
-  private handleMessage(productId: string) {
+  private handleMessage() {
     const aiutaIframe = document.getElementById(
       "aiuta-iframe"
     ) as HTMLIFrameElement;
     if (!aiutaIframe) return;
 
-    if (aiutaIframe && aiutaIframe.contentWindow) {
+    if (aiutaIframe) {
       this.postMessageToIframe({
         status: 200,
-        skuId: productId,
+        skuId: this.productId,
         apiKey: this.apiKey,
+        userId: this.userId,
         type: "baseKeys",
       });
     }
@@ -482,25 +484,25 @@ export default class Aiuta {
               try {
                 const token = await this.getToken(
                   data.uploaded_image_id,
-                  productId
+                  this.productId
                 );
 
-                console.log("JWT token: ", token);
+                console.log("JWT token: ", token, "PRODUCT ID", this.productId);
 
                 this.postMessageToIframe({
                   status: 200,
-                  skuId: productId,
+                  skuId: this.productId,
                   jwtToken: token,
                   userId: this.userId,
-                  type: "baseKeys",
+                  type: "jwt",
                 });
               } catch (error) {
                 this.postMessageToIframe({
                   status: 200,
-                  skuId: productId,
+                  skuId: this.productId,
                   jwtToken: undefined,
                   userId: this.userId,
-                  type: "baseKeys",
+                  type: "jwt",
                 });
                 console.error("Aiuta get JWT token error", error);
               }
@@ -508,10 +510,12 @@ export default class Aiuta {
             break;
 
           case "GET_AIUTA_API_KEYS":
+            console.log("PRODUCT ID", this.productId);
+
             if (aiutaIframe.contentWindow) {
               this.postMessageToIframe({
                 status: 200,
-                skuId: productId,
+                skuId: this.productId,
                 apiKey: this.apiKey,
                 userId: this.userId,
                 type: "baseKeys",
@@ -819,23 +823,9 @@ export default class Aiuta {
     }
 
     this.isIframeOpen = true;
+    this.productId = productId;
 
     const aiutaIframe = document.getElementById("aiuta-iframe");
-
-    const analytic: any = {
-      data: {
-        type: "session",
-        flow: "tryOn",
-        productIds: [productId],
-      },
-      localDateTime: Date.now(),
-    };
-
-    this.trackEvent("configure", analytic);
-
-    if (typeof this.analytics === "function") {
-      this.analytics(analytic.data);
-    }
 
     if (aiutaIframe) {
       if (window.innerWidth <= 992) {
@@ -870,10 +860,25 @@ export default class Aiuta {
         }
       }
 
-      this.handleMessage(productId);
+      this.handleMessage();
     } else {
       this.createIframe(this.apiKey, productId);
-      this.handleMessage(productId);
+      this.handleMessage();
+    }
+
+    const analytic: any = {
+      data: {
+        type: "session",
+        flow: "tryOn",
+        productIds: [productId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    this.trackEvent("configure", analytic);
+
+    if (typeof this.analytics === "function") {
+      this.analytics(analytic.data);
     }
   }
 }

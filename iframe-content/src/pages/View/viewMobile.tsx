@@ -139,7 +139,7 @@ export default function ViewMobile() {
   };
 
   const handleGenerates = async (event: any) => {
-    if (event.data.status === 200 && event.data.type === "baseKeys") {
+    if (event.data.status === 200 && event.data.type === "jwt") {
       const isExistUploadedPhoto = uploadedViewFile.id.length;
       const uploaded_image_id = isExistUploadedPhoto
         ? uploadedViewFile.id
@@ -181,9 +181,21 @@ export default function ViewMobile() {
               handleGetGeneratedImage(result.operation_id);
               window.removeEventListener("message", handleGenerates);
             }, 3000);
+          } else {
+            window.removeEventListener("message", handleGenerates);
+            dispatch(generateSlice.actions.setIsStartGeneration(false));
+            dispatch(
+              alertSlice.actions.setShowAlert({
+                type: "error",
+                isShow: true,
+                buttonText: "Try again",
+                content: "Something went wrong, please try again later.",
+              })
+            );
           }
         }
       } else {
+        window.removeEventListener("message", handleGenerates);
         dispatch(generateSlice.actions.setIsStartGeneration(false));
         dispatch(
           alertSlice.actions.setShowAlert({
@@ -197,7 +209,7 @@ export default function ViewMobile() {
     }
   };
 
-  const handleTryOn = useCallback(async () => {
+  const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
@@ -274,7 +286,7 @@ export default function ViewMobile() {
         );
       }
     }
-  }, [endpointData]);
+  };
 
   const handleGenerate = async (uploadedData: { id: string; url: string }) => {
     const isExistUploadedPhoto = uploadedData.id.length;

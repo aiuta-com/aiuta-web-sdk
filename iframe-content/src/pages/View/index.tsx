@@ -197,7 +197,7 @@ export default function View() {
   };
 
   const handleGenerate = async (event: any) => {
-    if (event.data.status === 200 && event.data.type === "baseKeys") {
+    if (event.data.status === 200 && event.data.type === "jwt") {
       const isExistUploadedPhoto = uploadedViewFile.id.length;
       const uploaded_image_id = isExistUploadedPhoto
         ? uploadedViewFile.id
@@ -258,6 +258,7 @@ export default function View() {
             );
           }
         } else {
+          window.removeEventListener("message", handleGenerate);
           dispatch(generateSlice.actions.setIsStartGeneration(false));
           dispatch(
             alertSlice.actions.setShowAlert({
@@ -269,6 +270,7 @@ export default function View() {
           );
         }
       } else {
+        window.removeEventListener("message", handleGenerate);
         dispatch(generateSlice.actions.setIsStartGeneration(false));
         dispatch(
           alertSlice.actions.setShowAlert({
@@ -282,13 +284,11 @@ export default function View() {
     }
   };
 
-  const handleTryOn = useCallback(async () => {
+  const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
     dispatch(generateSlice.actions.setIsStartGeneration(true));
-
-    console.log("PRODUCT ID FROM SDK : ", endpointData.skuId);
 
     if (endpointData.userId && endpointData.userId.length > 0) {
       const isExistUploadedPhoto = uploadedViewFile.id.length;
@@ -353,7 +353,7 @@ export default function View() {
         );
       }
     }
-  }, [endpointData]);
+  };
 
   const handleRegenerate = () => {
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
@@ -405,7 +405,6 @@ export default function View() {
     window.addEventListener("message", handleMessage);
 
     return () => {
-      handleGetWidnwInitiallySizes();
       window.removeEventListener("message", handleMessage);
     };
   }, []);
