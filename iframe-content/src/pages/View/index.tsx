@@ -221,6 +221,8 @@ export default function View() {
           }
         );
 
+        setEndpointData(event.data);
+
         if (operationResponse.ok) {
           const result = await operationResponse.json();
 
@@ -390,7 +392,7 @@ export default function View() {
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type) {
-        if (event.data.status === 200) {
+        if (event.data.status === 200 && "userId" in event.data) {
           setEndpointData(event.data);
         }
       } else {
@@ -401,6 +403,7 @@ export default function View() {
     window.addEventListener("message", handleMessage);
 
     return () => {
+      handleGetWidnwInitiallySizes();
       window.removeEventListener("message", handleMessage);
     };
   }, []);
