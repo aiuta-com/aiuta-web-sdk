@@ -84,8 +84,6 @@ export const SdkHeader = () => {
       }
     } else if (pathName === "/qr") {
       analytic.data.pageId = "imagePicker";
-    } else if (pathName === "/view") {
-      analytic.data.pageId = "loading";
     } else if (pathName === "/generated") {
       analytic.data.pageId = "results";
     }
@@ -103,6 +101,20 @@ export const SdkHeader = () => {
       );
 
       if (isStartGeneration) {
+        const analytic = {
+          data: {
+            type: "exit",
+            pageId: "loading",
+            productIds: [aiutaEndpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.closeModal, analytic },
+          "*"
+        );
+
         window.parent.postMessage({ action: "close_modal" }, "*");
         return;
       }
@@ -198,6 +210,33 @@ export const SdkHeader = () => {
         if (event.data.status === 200) {
           dispatch(configSlice.actions.setAiutaEndpointData(event.data));
         }
+      } else if (event.data.action === "ANALYTIC_SOCIAL_MEDIA") {
+        const analytic: any = {
+          data: {
+            type: "share",
+            pageId: "results",
+            event: "succeded",
+            targetId: "whatsApp",
+            productIds: [aiutaEndpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        if (event.data.shareMethod === "whatsApp") {
+          analytic.data.targetId = "whatsApp";
+        } else if (event.data.shareMethod === "messenger") {
+          analytic.data.targetId = "messenger";
+        } else if (event.data.shareMethod === "copy") {
+          analytic.data.targetId = "copy";
+        } else if (event.data.shareMethod === "share_close") {
+          delete analytic.data["targetId"];
+          analytic.data.event = "canceled";
+        }
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.results, analytic },
+          "*"
+        );
       } else {
         console.error("Not found API data");
       }
@@ -208,7 +247,7 @@ export const SdkHeader = () => {
     return () => {
       window.removeEventListener("message", handleMessage);
     };
-  }, []);
+  }, [aiutaEndpointData]);
 
   if (!hasMounted) return null;
 

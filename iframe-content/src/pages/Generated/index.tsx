@@ -51,6 +51,8 @@ const initiallAnimationConfig = {
 const GENERATED_IMAGE_HEIGHT = 460;
 const SLIDE_ITEM_IMAGE_HEIGHT = 96;
 
+let initialAnalyticCompleted = false;
+
 export default function Generated() {
   const [slideItemIndex, setSlideItemIndex] = useState<number>(0);
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
@@ -118,26 +120,31 @@ export default function Generated() {
   };
 
   const handleAnalytic = () => {
-    const analytic = {
-      data: {
-        type: "page",
-        event: "resultShared",
-        pageId: "results",
-        productIds: [endpointData?.skuId],
-      },
-      localDateTime: Date.now(),
-    };
+    if (initialAnalyticCompleted) return;
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.results, analytic },
-      "*"
-    );
+    if (endpointData && endpointData.skuId && endpointData.skuId.length > 0) {
+      initialAnalyticCompleted = true;
+
+      const analytic = {
+        data: {
+          type: "page",
+          pageId: "results",
+          productIds: [endpointData?.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.results, analytic },
+        "*"
+      );
+    }
   };
 
   useEffect(() => {
     handleAnalytic();
     // eslint-disable-next-line
-  }, []);
+  }, [endpointData]);
 
   useEffect(() => {
     handleGetWidnwInitiallySizes();
@@ -153,7 +160,7 @@ export default function Generated() {
         }
 
         if (event.data.type === "ANALYTIC_SOCIAL_MEDIA") {
-          const analytic = {
+          const analytic: any = {
             data: {
               type: "share",
               pageId: "results",
@@ -170,6 +177,9 @@ export default function Generated() {
             analytic.data.targetId = "messenger";
           } else if (event.data.shareMethod === "copy") {
             analytic.data.targetId = "copy";
+          } else if (event.data.shareMethod === "share_close") {
+            delete analytic.data["targetId"];
+            analytic.data.event = "canceled";
           }
 
           window.parent.postMessage(
@@ -177,8 +187,6 @@ export default function Generated() {
             "*"
           );
         }
-      } else {
-        console.error("Not found API data");
       }
     };
 

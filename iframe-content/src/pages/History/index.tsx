@@ -51,6 +51,8 @@ const initiallAnimationConfig = {
   },
 };
 
+let initiallAnalyticCompleted = false;
+
 export default function History() {
   const dispatch = useAppDispatch();
 
@@ -102,12 +104,11 @@ export default function History() {
     dispatch(generateSlice.actions.setGeneratedImage(deletedHistoryImages));
 
     handleCloseHistoryImagesModal(); // Use for close history images model
-  };
 
-  const onboardingAnalytic = () => {
     const analytic = {
       data: {
-        type: "page",
+        type: "history",
+        event: "generatedImageDeleted",
         pageId: "history",
         productIds: [aiutaEndpointData.skuId],
       },
@@ -115,9 +116,31 @@ export default function History() {
     };
 
     window.parent.postMessage(
-      { action: AnalyticEventsEnum.history, analytic },
+      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
       "*"
     );
+  };
+
+  const onboardingAnalytic = () => {
+    if (initiallAnalyticCompleted) return;
+
+    if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+      initiallAnalyticCompleted = true;
+
+      const analytic = {
+        data: {
+          type: "page",
+          pageId: "history",
+          productIds: [aiutaEndpointData.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.history, analytic },
+        "*"
+      );
+    }
   };
 
   useEffect(() => {

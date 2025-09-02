@@ -12,10 +12,12 @@ import { aiutaEndpointDataSelector } from "@lib/redux/slices/configSlice/selecto
 
 // types
 import { ViewImageTypes } from "./types";
+import { AnalyticEventsEnum } from "@/types";
 
 // styles
 import styles from "./viewImage.module.scss";
-import { AnalyticEventsEnum } from "@/types";
+
+let initialAnalyticCompleted = false;
 
 export const ViewImage = (props: ViewImageTypes) => {
   const {
@@ -52,6 +54,9 @@ export const ViewImage = (props: ViewImageTypes) => {
   };
 
   const handleAnalytic = () => {
+    if (initialAnalyticCompleted) return;
+    initialAnalyticCompleted = true;
+
     const analytic = {
       data: {
         type: "page",

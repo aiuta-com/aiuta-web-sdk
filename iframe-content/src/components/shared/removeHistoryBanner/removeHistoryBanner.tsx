@@ -43,21 +43,6 @@ export const RemoveHistoryBanner = () => {
 
   const handleShowHistoryImagesModal = () => {
     dispatch(modalSlice.actions.setShowHistoryImagesModal(true));
-
-    const analytic = {
-      data: {
-        type: "history",
-        event: "generatedImageDeleted",
-        pageId: "history",
-        productIds: [aiutaEndpointData.skuId],
-      },
-      localDateTime: Date.now(),
-    };
-
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
-      "*"
-    );
   };
 
   const handleDowloadSelectedImages = async () => {
