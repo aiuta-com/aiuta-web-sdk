@@ -27,6 +27,8 @@ import { AnalyticEventsEnum } from "@/types";
 // styles
 import styles from "./onboarding.module.scss";
 
+let initiallAnalyticCompleted = false;
+
 export const Onboarding = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -54,16 +56,6 @@ export const Onboarding = () => {
       { action: AnalyticEventsEnum.onboarding, analytic },
       "*"
     );
-  };
-
-  const handleClickOnboardingButton = () => {
-    if (onboardingSteps !== 2) {
-      dispatch(configSlice.actions.setOnboardingSteps(null));
-    } else {
-      navigate("/qr");
-      onboardingAnalytic();
-      localStorage.setItem("isOnboarding", JSON.stringify(true));
-    }
   };
 
   const onboardingAnalytics = () => {
@@ -96,10 +88,59 @@ export const Onboarding = () => {
     }
   };
 
+  const handleOnboardAnalyticFinish = () => {
+    const analytic = {
+      data: {
+        type: "onboarding",
+        pageId: "consent",
+        event: "onboardingFinished",
+        productIds: [aiutaEndpointData.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.onboarding, analytic },
+      "*"
+    );
+  };
+
+  const handleClickOnboardingButton = () => {
+    if (onboardingSteps !== 2) {
+      onboardingAnalytics();
+      dispatch(configSlice.actions.setOnboardingSteps(null));
+    } else {
+      navigate("/qr");
+      handleOnboardAnalyticFinish();
+      localStorage.setItem("isOnboarding", JSON.stringify(true));
+    }
+  };
+
+  const initaillAnalytic = () => {
+    if (initiallAnalyticCompleted) return;
+
+    if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+      initiallAnalyticCompleted = true;
+      const analytic = {
+        data: {
+          type: "page",
+          pageId: "howItWorks",
+          productIds: [aiutaEndpointData.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.onboarding, analytic },
+        "*"
+      );
+    }
+  };
+
   useEffect(() => {
-    onboardingAnalytics();
+    initaillAnalytic();
     // eslint-disable-next-line
-  }, [onboardingSteps, aiutaEndpointData]);
+  }, [aiutaEndpointData]);
 
   return !isShowSpinner && isInitialized ? (
     <div className={styles.onboarding}>
@@ -158,7 +199,15 @@ export const Onboarding = () => {
                 : ""
             }`}
           >
-            <Consent setIsChecked={setIsChecked} />
+            <Consent
+              setIsChecked={(val) => {
+                setIsChecked(val);
+
+                if (val) {
+                  onboardingAnalytic();
+                }
+              }}
+            />
           </div>
         </div>
       )}

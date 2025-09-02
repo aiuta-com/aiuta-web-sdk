@@ -14,6 +14,7 @@ import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 
 // actions
 import { fileSlice } from "@lib/redux/slices/fileSlice";
+import { alertSlice } from "@lib/redux/slices/alertSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
 import { generateSlice } from "@lib/redux/slices/generateSlice";
 
@@ -32,21 +33,23 @@ import {
 // components
 import {
   Swip,
+  Alert,
   Section,
   ViewImage,
   TryOnButton,
   SelectableImage,
-  Alert,
+  SecondaryButton,
 } from "@/components/feature";
 import { EmptyViewImage } from "@/components/shared";
+import { AiutaModal } from "@/components/shared/modals";
 
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
 
 // styles
 import styles from "./view.module.scss";
-import { alertSlice } from "@lib/redux/slices/alertSlice";
 
+let startTryOnDuration = 0;
 let generationApiCallInterval: NodeJS.Timeout | null = null;
 
 const initiallAnimationConfig = {
@@ -73,6 +76,7 @@ export default function ViewMobile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState("");
+  const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false);
   const [recentlyPhoto, setRecentlyPhoto] = useState({ id: "", url: "" });
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
     null
@@ -103,6 +107,24 @@ export default function ViewMobile() {
     localStorage.setItem(storageKey, JSON.stringify(newPhotos));
   };
 
+  const handleTryOnFinishedAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "tryOn",
+        event: "tryOnFinished",
+        pageId: "results",
+        productIds: [endpointData?.skuId],
+        tryOnDuration: Math.floor((Date.now() - startTryOnDuration) / 1000),
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+  };
+
   const handleGetGeneratedImage = async (operation_id: string) => {
     try {
       const response = await fetch(
@@ -122,16 +144,72 @@ export default function ViewMobile() {
         const { id, url } = generated_images[0];
 
         setGeneratedImageUrl(url);
+        handleTryOnFinishedAnalytic();
         dispatch(generateSlice.actions.setIsStartGeneration(false));
         handleNavigate("generated");
 
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
-
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;
           dispatch(fileSlice.actions.setUploadViewFile(null));
         }
+      } else if (result.status === "FAILED" || result.status === "CANCELLED") {
+        if (generationApiCallInterval) {
+          clearInterval(generationApiCallInterval);
+          generationApiCallInterval = null;
+        }
+
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong. Please try again",
+          })
+        );
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnError",
+            pageId: "loading",
+            errorType: result.status,
+            errorMessage: result.error,
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
+          "*"
+        );
+      } else if (result.status === "ABORTED") {
+        if (generationApiCallInterval) {
+          clearInterval(generationApiCallInterval);
+          generationApiCallInterval = null;
+        }
+
+        dispatch(generateSlice.actions.setIsStartGeneration(false));
+        setIsOpenAbortedModal(true);
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnAborted",
+            abortReason: result.error,
+            pageId: "result",
+            productIds: [endpointData?.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnAborted, analytic },
+          "*"
+        );
       }
     } catch (err) {
       console.error("Generation image Error:", err);
@@ -212,6 +290,23 @@ export default function ViewMobile() {
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
+    const analytic = {
+      data: {
+        type: "tryOn",
+        event: "initiated",
+        pageId: "imagePicker",
+        productIds: [endpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+
+    startTryOnDuration = Date.now();
+
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
 
     dispatch(generateSlice.actions.setIsStartGeneration(true));
@@ -258,21 +353,6 @@ export default function ViewMobile() {
           generationApiCallInterval = setInterval(() => {
             handleGetGeneratedImage(result.operation_id);
           }, 3000);
-
-          const analytic = {
-            data: {
-              type: "tryOn",
-              event: "initiated",
-              pageId: "imagePicker",
-              productIds: [endpointData?.skuId],
-            },
-            localDateTime: Date.now(),
-          };
-
-          window.parent.postMessage(
-            { action: AnalyticEventsEnum.tryOn, analytic },
-            "*"
-          );
         }
       } else {
         dispatch(generateSlice.actions.setIsStartGeneration(false));
@@ -406,6 +486,10 @@ export default function ViewMobile() {
     handleTryOn();
   };
 
+  const handleCloseAbortedMidal = () => {
+    setIsOpenAbortedModal(false);
+  };
+
   const handleGetWidnwInitiallySizes = () => {
     window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
   };
@@ -449,6 +533,16 @@ export default function ViewMobile() {
           className={styles.viewContainerMobile}
           {...initiallAnimationConfig}
         >
+          <AiutaModal isOpen={isOpenAbortedModal}>
+            <div className={styles.abortedModal}>
+              <p>We couldn't detect anyone in this photo</p>
+              <SecondaryButton
+                text="Change photo"
+                onClick={handleCloseAbortedMidal}
+                classNames={styles.abortedButton}
+              />
+            </div>
+          </AiutaModal>
           <Alert onClick={handleRegenerate} />
           <div />
           <div className={styles.viewContentMobile}>

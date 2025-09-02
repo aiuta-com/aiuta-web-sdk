@@ -109,7 +109,7 @@ function shareModal(imageUrl: string) {
   return `
     <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
       <p style="text-align: left; margin: 0">${SHARE_WITH_TEXT}</p>
-      <div style="cursor: pointer; position: absolute; right: 20px; top: 12px" onclick='window.parent.postMessage({ action: "close_share_modal", imageUrl: "${imageUrl}" }, "*");'>
+      <div style="cursor: pointer; position: absolute; right: 20px; top: 12px" onclick='window.parent.postMessage({ action: "close_share_modal", imageUrl: "${imageUrl}" }, "*");' id="share-modal-close">
         ${CLOSE_ICON}
       </div>
       <div style="display: flex; column-gap: 24px; align-items: center; margin: 25px 0px 30px 0px">
@@ -134,7 +134,12 @@ const closeShareModal = () => {
 };
 
 const openShareModal = (imageUrl: string) => {
+  const aiutaIframe = document.getElementById(
+    "aiuta-iframe"
+  ) as HTMLIFrameElement;
+
   let modalWrapper = document.getElementById("sdk-share-modal");
+
   if (modalWrapper) {
     modalWrapper.style.display = "flex";
     modalWrapper.innerHTML = shareModal(imageUrl);
@@ -160,26 +165,42 @@ const openShareModal = (imageUrl: string) => {
   const copyShare = document.getElementById("copy-share");
   const whatsappShare = document.getElementById("whatsapp-share");
   const messengerShare = document.getElementById("messenger-share");
+  const shareModalClose = document.getElementById("share-modal-close");
 
   whatsappShare?.addEventListener("click", () => {
-    window.parent.postMessage(
-      { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "whatsApp" },
-      "*"
-    );
+    if (aiutaIframe.contentWindow) {
+      aiutaIframe.contentWindow.postMessage(
+        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "whatsApp" },
+        "*"
+      );
+    }
   });
 
   messengerShare?.addEventListener("click", () => {
-    window.parent.postMessage(
-      { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "messenger" },
-      "*"
-    );
+    if (aiutaIframe.contentWindow) {
+      aiutaIframe.contentWindow.postMessage(
+        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "messenger" },
+        "*"
+      );
+    }
   });
 
   copyShare?.addEventListener("click", () => {
-    window.parent.postMessage(
-      { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "copy" },
-      "*"
-    );
+    if (aiutaIframe.contentWindow) {
+      aiutaIframe.contentWindow.postMessage(
+        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "copy" },
+        "*"
+      );
+    }
+  });
+
+  shareModalClose?.addEventListener("click", () => {
+    if (aiutaIframe.contentWindow) {
+      aiutaIframe.contentWindow.postMessage(
+        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "share_close" },
+        "*"
+      );
+    }
   });
 };
 
@@ -212,22 +233,9 @@ export default class Aiuta {
     "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
 
   trackEvent(eventName: string, data: Record<string, any>) {
-    const currentDate = new Date().toISOString();
-
-    const body: {
-      data: any;
-      eventName: string;
-      timestamp: string;
-      subscriptionId?: string;
-    } = {
-      data,
-      eventName,
-      timestamp: currentDate,
+    const body = {
+      ...data,
     };
-
-    if (this.subscriptionId) {
-      body.subscriptionId = this.subscriptionId;
-    }
 
     fetch(this.analyticOrigin, {
       method: "POST",

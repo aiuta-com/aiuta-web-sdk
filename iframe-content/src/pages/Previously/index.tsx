@@ -58,6 +58,8 @@ const initiallAnimationConfig = {
   },
 };
 
+let initiallAnalyticCompleted = false;
+
 export default function Previously() {
   const navigate = useNavigate();
 
@@ -214,20 +216,26 @@ export default function Previously() {
   }, [qrToken, dispatch, navigate]);
 
   const handleAnalytic = () => {
-    const analytic = {
-      data: {
-        type: "picker",
-        pageId: "imagePicker",
-        event: "uploadsHistoryOpened",
-        productIds: [aiutaEndpointData?.skuId],
-      },
-      localDateTime: Date.now(),
-    };
+    if (initiallAnalyticCompleted) return;
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.uploadsHistoryOpened, analytic },
-      "*"
-    );
+    if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+      initiallAnalyticCompleted = true;
+
+      const analytic = {
+        data: {
+          type: "picker",
+          pageId: "imagePicker",
+          event: "uploadsHistoryOpened",
+          productIds: [aiutaEndpointData?.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.uploadsHistoryOpened, analytic },
+        "*"
+      );
+    }
   };
 
   useEffect(() => {

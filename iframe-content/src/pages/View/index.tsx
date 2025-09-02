@@ -56,6 +56,8 @@ const initiallAnimationConfig = {
   },
 };
 
+let startTryOnDuration = 0;
+
 export default function View() {
   const navigate = useNavigate();
 
@@ -92,6 +94,24 @@ export default function View() {
     localStorage.setItem(storageKey, JSON.stringify(newPhotos));
   };
 
+  const handleTryOnFinishedAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "tryOn",
+        event: "tryOnFinished",
+        pageId: "results",
+        productIds: [endpointData?.skuId],
+        tryOnDuration: Math.floor((Date.now() - startTryOnDuration) / 1000),
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+  };
+
   const handleGetGeneratedImage = async (operation_id: string) => {
     try {
       const response = await fetch(
@@ -116,23 +136,9 @@ export default function View() {
           dispatch(generateSlice.actions.setIsStartGeneration(false));
         }, 500);
 
+        handleTryOnFinishedAnalytic();
+
         dispatch(generateSlice.actions.setGeneratedImage({ id, url }));
-
-        const analytic = {
-          data: {
-            type: "tryOn",
-            event: "initiated",
-            pageId: "imagePicker",
-            productIds: [endpointData?.skuId],
-          },
-          localDateTime: Date.now(),
-        };
-
-        window.parent.postMessage(
-          { action: AnalyticEventsEnum.tryOn, analytic },
-          "*"
-        );
-
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval);
           generationApiCallInterval = null;
@@ -157,7 +163,9 @@ export default function View() {
           data: {
             type: "tryOn",
             event: "tryOnError",
-            pageId: "tryOn",
+            pageId: "loading",
+            errorType: result.status,
+            errorMessage: result.error,
             productIds: [endpointData?.skuId],
           },
           localDateTime: Date.now(),
@@ -180,7 +188,8 @@ export default function View() {
           data: {
             type: "tryOn",
             event: "tryOnAborted",
-            pageId: "tryOn",
+            abortReason: result.error,
+            pageId: "result",
             productIds: [endpointData?.skuId],
           },
           localDateTime: Date.now(),
@@ -246,7 +255,7 @@ export default function View() {
               data: {
                 type: "tryOn",
                 event: "tryOnStarted",
-                pageId: "tryOn",
+                pageId: "loading",
                 productIds: [endpointData?.skuId],
               },
               localDateTime: Date.now(),
@@ -286,6 +295,23 @@ export default function View() {
 
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
+
+    const analytic = {
+      data: {
+        type: "tryOn",
+        event: "initiated",
+        pageId: "imagePicker",
+        productIds: [endpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+
+    startTryOnDuration = Date.now();
 
     dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
     dispatch(generateSlice.actions.setIsStartGeneration(true));
@@ -397,8 +423,6 @@ export default function View() {
         if (event.data.status === 200 && "userId" in event.data) {
           setEndpointData(event.data);
         }
-      } else {
-        console.error("Not found API data");
       }
     };
 

@@ -34,6 +34,8 @@ import { generateRandomString } from "@/helpers/generateRandomString";
 // styles
 import styles from "./token.module.scss";
 
+let initiallAnalyticCompleted = false;
+
 export default function Qr() {
   const navigate = useNavigate();
 
@@ -50,6 +52,9 @@ export default function Qr() {
   );
 
   const handleAnalytic = () => {
+    if (initiallAnalyticCompleted) return;
+    initiallAnalyticCompleted = true;
+
     const analytic = {
       data: {
         type: "page",
@@ -69,7 +74,7 @@ export default function Qr() {
   useEffect(() => {
     handleAnalytic();
     // eslint-disable-next-line
-  }, [aiutaEndpointData]);
+  }, []);
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return;

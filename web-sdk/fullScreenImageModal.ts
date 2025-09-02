@@ -168,8 +168,6 @@ export class ShowFullScreenModal {
   }
 
   private handleShareImage(): void {
-    console.log("handleShareImage", this.activeImage);
-
     if (this.activeImage) {
       const aiutaIframe = document.getElementById(
         "aiuta-iframe"
