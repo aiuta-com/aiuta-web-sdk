@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
@@ -27,7 +27,7 @@ import { AnalyticEventsEnum } from "@/types";
 // styles
 import styles from "./onboarding.module.scss";
 
-let initiallAnalyticCompleted = false;
+let sentAnalyticCount = 0;
 
 export const Onboarding = () => {
   const navigate = useNavigate();
@@ -111,16 +111,18 @@ export const Onboarding = () => {
       dispatch(configSlice.actions.setOnboardingSteps(null));
     } else {
       navigate("/qr");
+      onboardingAnalytic();
       handleOnboardAnalyticFinish();
       localStorage.setItem("isOnboarding", JSON.stringify(true));
     }
   };
 
   const initaillAnalytic = () => {
-    if (initiallAnalyticCompleted) return;
+    sentAnalyticCount++;
+
+    if (sentAnalyticCount === 1) return;
 
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      initiallAnalyticCompleted = true;
       const analytic = {
         data: {
           type: "page",
@@ -134,11 +136,19 @@ export const Onboarding = () => {
         { action: AnalyticEventsEnum.onboarding, analytic },
         "*"
       );
+
+      sentAnalyticCount = 0;
     }
   };
 
   useEffect(() => {
-    initaillAnalytic();
+    const isOnboarding = JSON.parse(
+      localStorage.getItem("isOnboarding") || "false"
+    );
+
+    if (!isOnboarding) {
+      initaillAnalytic();
+    }
     // eslint-disable-next-line
   }, [aiutaEndpointData]);
 
@@ -199,15 +209,7 @@ export const Onboarding = () => {
                 : ""
             }`}
           >
-            <Consent
-              setIsChecked={(val) => {
-                setIsChecked(val);
-
-                if (val) {
-                  onboardingAnalytic();
-                }
-              }}
-            />
+            <Consent setIsChecked={setIsChecked} />
           </div>
         </div>
       )}

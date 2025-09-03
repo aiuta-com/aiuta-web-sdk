@@ -215,7 +215,13 @@ export default class Aiuta {
       },
     };
 
-    this.trackEvent("configure", analytic);
+    setTimeout(() => {
+      if (typeof this.analytics === "function") {
+        this.analytics(analytic.data);
+      }
+
+      this.trackEvent("configure", analytic);
+    }, 1000);
   }
 
   private apiKey!: string;

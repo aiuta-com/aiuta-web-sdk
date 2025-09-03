@@ -82,6 +82,8 @@ export const SdkHeader = () => {
       } else if (onboardingSteps === 2) {
         analytic.data.pageId = "consent";
       }
+    } else if (pathName === "/view") {
+      return;
     } else if (pathName === "/qr") {
       analytic.data.pageId = "imagePicker";
     } else if (pathName === "/generated") {
@@ -188,6 +190,9 @@ export const SdkHeader = () => {
     } else {
       navigate(`/${path}`);
     }
+
+    dispatch(configSlice.actions.setIsSelectHistoryImages(false));
+    dispatch(configSlice.actions.setIsSelectPreviouselyImages(false));
   };
 
   useEffect(() => {
@@ -207,7 +212,7 @@ export const SdkHeader = () => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type) {
-        if (event.data.status === 200) {
+        if (event.data.status === 200 && event.data.type === "baseKeys") {
           dispatch(configSlice.actions.setAiutaEndpointData(event.data));
         }
       } else if (event.data.action === "ANALYTIC_SOCIAL_MEDIA") {

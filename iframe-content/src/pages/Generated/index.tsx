@@ -157,6 +157,21 @@ export default function Generated() {
 
         if (event.data.type === "REMOVE_HISTORY_IMAGES") {
           dispatch(generateSlice.actions.setGeneratedImage(event.data.images));
+
+          const analytic = {
+            data: {
+              type: "history",
+              event: "generatedImageDeleted",
+              pageId: "history",
+              productIds: [endpointData?.skuId],
+            },
+            localDateTime: Date.now(),
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
+            "*"
+          );
         }
 
         if (event.data.type === "ANALYTIC_SOCIAL_MEDIA") {
