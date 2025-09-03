@@ -1,7 +1,16 @@
+import {
+  AiutaConfiguration,
+  AiutaAuth,
+  AiutaUserInterface,
+  AiutaAnalytics,
+  AiutaIframePosition,
+  AiutaStylesConfiguration,
+  AiutaAnalyticsCallback,
+  AiutaJwtCallback,
+  INITIALLY_STYLES_CONFIGURATION
+} from "./configuration";
 import { ShowFullScreenModal } from "./fullScreenImageModal";
 import { ShareModal } from "./shareModal";
-
-type Position = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
 
 const SDK_POSITION = {
   topLeft: { top: "12px", left: "12px" },
@@ -27,83 +36,35 @@ enum AnalyticEventsEnum {
   "generatedImageDeleted" = "generatedImageDeleted",
 }
 
-type StylesConfiguration = {
-  stylesConfiguration: {
-    pages: {
-      qrPageClassName: string;
-      historyClassName: string;
-      viewPageClassName: string;
-      resultPageClassName: string;
-      onboardingPageClassName: string;
-      previouselyPageClassName: string;
-    };
-    components: {
-      swipClassName: string;
-      footerClassName: string;
-      headerClassName: string;
-      tryOnButtonClassName: string;
-      historyBannerClassName: string;
-      secondaryButtonClassName: string;
-      changePhotoButtonClassName: string;
-      resultButonsContentClassName: string;
-      historyImagesRemoveModalClassName: string;
-    };
-  };
-};
-
-type AnalyticsCallback = (
-  eventName: string,
-  data?: Record<string, any>
-) => void;
-
-type GetJwtCallback = (
-  params: Record<string, string>
-) => string | Promise<string>;
-
-interface JwtAuth {
-  subscriptionId: string;
-  position?: Position;
-  stylesConfiguration?: StylesConfiguration;
-  getJwt: GetJwtCallback;
-  analytics: AnalyticsCallback;
-}
-
-interface ApiAuth {
-  apiKey: string;
-  position?: Position;
-  stylesConfiguration?: StylesConfiguration;
-  analytics: AnalyticsCallback;
-}
-
-const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
-  stylesConfiguration: {
-    pages: {
-      qrPageClassName: "",
-      historyClassName: "",
-      viewPageClassName: "",
-      resultPageClassName: "",
-      onboardingPageClassName: "",
-      previouselyPageClassName: "",
-    },
-    components: {
-      swipClassName: "",
-      footerClassName: "",
-      headerClassName: "",
-      tryOnButtonClassName: "",
-      historyBannerClassName: "",
-      secondaryButtonClassName: "",
-      changePhotoButtonClassName: "",
-      resultButonsContentClassName: "",
-      historyImagesRemoveModalClassName: "",
-    },
-  },
-};
-
 export default class Aiuta {
-  private getJwt!: GetJwtCallback;
-  private analytics!: AnalyticsCallback;
+  // Authentication properties
+  private getJwt!: AiutaJwtCallback;
+  private apiKey!: string;
+  private userId!: string;
 
-  constructor() {
+  // User interface properties
+  private sdkPosition: AiutaIframePosition = "topRight";
+  private stylesConfiguration: AiutaStylesConfiguration =
+    INITIALLY_STYLES_CONFIGURATION;
+
+  // Analytics properties
+  private analytics!: AiutaAnalyticsCallback;
+
+  // Runtime properties
+  private productId!: string;
+  private isIframeOpen: boolean = false;
+  private iframe: HTMLIFrameElement | null = null;
+
+  constructor(configuration: AiutaConfiguration) {
+    // Initialize configuration
+    this.configureAuth(configuration.auth);
+    if (configuration.userInterface) {
+      this.configureUserInterface(configuration.userInterface);
+    }
+    if (configuration.analytics) {
+      this.configureAnalytics(configuration.analytics);
+    }
+
     const analytic: any = {
       data: {
         type: "configure",
@@ -118,16 +79,6 @@ export default class Aiuta {
       this.trackEvent("configure", analytic);
     }, 1000);
   }
-
-  private apiKey!: string;
-  private userId!: string;
-  private productId!: string;
-  private subscriptionId!: string;
-  private isIframeOpen: boolean = false;
-  private sdkPosition: Position = "topRight";
-  private iframe: HTMLIFrameElement | null = null;
-  private aiutaSdkStylesConfiguration: StylesConfiguration =
-    INITIALLY_STYLES_CONFIGURATION;
 
   readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
   readonly analyticOrigin =
@@ -145,58 +96,28 @@ export default class Aiuta {
     }).catch(console.error);
   }
 
-  // init methods
-  initWithApiKey({
-    apiKey,
-    position,
-    stylesConfiguration,
-    analytics,
-  }: ApiAuth) {
-    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
-      throw new Error("Aiuta is already initialized");
-
-    this.apiKey = apiKey;
-    this.subscriptionId = apiKey;
-
-    if (position && position.length > 0) {
-      this.sdkPosition = position;
-    }
-
-    if (stylesConfiguration) {
-      this.aiutaSdkStylesConfiguration = stylesConfiguration;
-    }
-
-    if (analytics && typeof analytics === "function") {
-      this.analytics = analytics;
+  private configureAuth(auth: AiutaAuth): void {
+    if ('apiKey' in auth) {
+      this.apiKey = auth.apiKey;
+    } else {
+      this.userId = auth.subscriptionId;
+      this.getJwt = auth.getJwt;
     }
   }
 
-  initWithJwt({
-    subscriptionId,
-    stylesConfiguration,
-    position,
-    getJwt,
-    analytics,
-  }: JwtAuth) {
-    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
-      throw new Error("Aiuta is already initialized");
-    this.userId = subscriptionId;
-    this.subscriptionId = subscriptionId;
-
-    if (stylesConfiguration) {
-      this.aiutaSdkStylesConfiguration = stylesConfiguration;
+  private configureUserInterface(userInterface: AiutaUserInterface): void {
+    if (userInterface.position && userInterface.position.length > 0) {
+      this.sdkPosition = userInterface.position;
     }
 
-    if (position && position.length > 0) {
-      this.sdkPosition = position;
+    if (userInterface.stylesConfiguration) {
+      this.stylesConfiguration = userInterface.stylesConfiguration;
     }
+  }
 
-    if (getJwt && typeof getJwt === "function") {
-      this.getJwt = getJwt;
-    }
-
-    if (analytics && typeof analytics === "function") {
-      this.analytics = analytics;
+  private configureAnalytics(analytics: AiutaAnalytics): void {
+    if (analytics.handler && typeof analytics.handler.onAnalyticsEvent === "function") {
+      this.analytics = analytics.handler.onAnalyticsEvent;
     }
   }
 
@@ -431,10 +352,10 @@ export default class Aiuta {
 
           case "GET_AIUTA_STYLES_CONFIGURATION":
             if (aiutaIframe.contentWindow) {
-              if (this.aiutaSdkStylesConfiguration) {
+              if (this.stylesConfiguration) {
                 this.postMessageToIframe({
                   type: "stylesConfiguration",
-                  stylesConfiguration: this.aiutaSdkStylesConfiguration,
+                  stylesConfiguration: this.stylesConfiguration,
                 });
               }
             }
@@ -788,6 +709,22 @@ export default class Aiuta {
     }
   }
 }
+
+// Re-export configuration types for external use
+export type {
+  AiutaConfiguration,
+  AiutaAuth,
+  AiutaApiKeyAuth,
+  AiutaJwtAuth,
+  AiutaUserInterface,
+  AiutaFeatures,
+  AiutaAnalytics,
+  AiutaDebugSettings,
+  AiutaIframePosition,
+  AiutaStylesConfiguration,
+  AiutaAnalyticsCallback,
+  AiutaJwtCallback
+} from "./configuration";
 
 if (typeof window !== "undefined") {
   (window as any).Aiuta = Aiuta;

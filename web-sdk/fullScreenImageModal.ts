@@ -68,7 +68,7 @@ export class ShowFullScreenModal {
     if (hasGeneratedImages && hasImageModalContent) {
       const allImages = generatedImages.children;
 
-      for (const item of allImages) {
+      for (const item of Array.from(allImages)) {
         const currentImg: any = item;
         const currentSpan = currentImg.lastElementChild;
 
