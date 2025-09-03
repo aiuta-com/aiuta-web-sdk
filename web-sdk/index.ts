@@ -1,13 +1,20 @@
-import { ShowFullScreenModal } from "./fullScreenImageModal";
 import {
-  MESSENGER,
-  WHATS_APP,
-  CLOSE_ICON,
-  COPY_BUTTON,
-  SHARE_WITH_TEXT,
-} from "./constants/socialIcons";
+  AiutaConfiguration,
+  AiutaAuth,
+  AiutaUserInterface,
+  AiutaAnalytics,
+  AiutaIframePosition,
+  AiutaStylesConfiguration,
+  AiutaAnalyticsCallback,
+  AiutaJwtCallback,
+  INITIALLY_STYLES_CONFIGURATION
+} from "./configuration";
+import { ShowFullScreenModal } from "./fullScreenImageModal";
+import { ShareModal } from "./shareModal";
 
-type Position = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
+// Global variables injected by Vite
+declare const __AIUTA_IFRAME_URL__: string;
+declare const __AIUTA_ANALYTICS_URL__: string;
 
 const SDK_POSITION = {
   topLeft: { top: "12px", left: "12px" },
@@ -33,275 +40,90 @@ enum AnalyticEventsEnum {
   "generatedImageDeleted" = "generatedImageDeleted",
 }
 
-type StylesConfiguration = {
-  stylesConfiguration: {
-    pages: {
-      qrPageClassName: string;
-      historyClassName: string;
-      viewPageClassName: string;
-      resultPageClassName: string;
-      onboardingPageClassName: string;
-      previouselyPageClassName: string;
-    };
-    components: {
-      swipClassName: string;
-      footerClassName: string;
-      headerClassName: string;
-      tryOnButtonClassName: string;
-      historyBannerClassName: string;
-      secondaryButtonClassName: string;
-      changePhotoButtonClassName: string;
-      resultButonsContentClassName: string;
-      historyImagesRemoveModalClassName: string;
-    };
-  };
-};
-
-type AnalyticsCallback = (
-  eventName: string,
-  data?: Record<string, any>
-) => void;
-
-type GetJwtCallback = (
-  params: Record<string, string>
-) => string | Promise<string>;
-
-interface JwtAuth {
-  subscriptionId: string;
-  position?: Position;
-  stylesConfiguration?: StylesConfiguration;
-  getJwt: GetJwtCallback;
-  analytics: AnalyticsCallback;
-}
-
-interface ApiAuth {
-  apiKey: string;
-  position?: Position;
-  stylesConfiguration?: StylesConfiguration;
-  analytics: AnalyticsCallback;
-}
-
-const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
-  stylesConfiguration: {
-    pages: {
-      qrPageClassName: "",
-      historyClassName: "",
-      viewPageClassName: "",
-      resultPageClassName: "",
-      onboardingPageClassName: "",
-      previouselyPageClassName: "",
-    },
-    components: {
-      swipClassName: "",
-      footerClassName: "",
-      headerClassName: "",
-      tryOnButtonClassName: "",
-      historyBannerClassName: "",
-      secondaryButtonClassName: "",
-      changePhotoButtonClassName: "",
-      resultButonsContentClassName: "",
-      historyImagesRemoveModalClassName: "",
-    },
-  },
-};
-
-function shareModal(imageUrl: string) {
-  return `
-    <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
-      <p style="text-align: left; margin: 0">${SHARE_WITH_TEXT}</p>
-      <div style="cursor: pointer; position: absolute; right: 20px; top: 12px" onclick='window.parent.postMessage({ action: "close_share_modal", imageUrl: "${imageUrl}" }, "*");' id="share-modal-close">
-        ${CLOSE_ICON}
-      </div>
-      <div style="display: flex; column-gap: 24px; align-items: center; margin: 25px 0px 30px 0px">
-        <a target="_blank" href="https://wa.me/?text=${imageUrl}" style="cursor: pointer; max-height: 74px;" id="whatsapp-share">${WHATS_APP}</a>
-        <a target="_blank" href="https://www.messenger.com/new?text=${imageUrl}" style="cursor: pointer; max-height: 74px;" id="messenger-share">${MESSENGER}</a>
-      </div>
-      <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; padding: 8px 12px 8px 16px; background: #F2F2F7;">
-        <p style="max-width: 300px; margin: 0; overflow: hidden; text-overflow: ellipsis; font-family: 'GT Maru', sans-serif; white-space: nowrap; font-size: 14px; font-weight: 500; letter-spacing: -0.49px;">${imageUrl}</p>
-        <div style="width: 70px; height: 36px; cursor: pointer" onclick="navigator.clipboard.writeText('${imageUrl}')" id="copy-share">
-          ${COPY_BUTTON}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-const closeShareModal = () => {
-  const shareModal = document.getElementById("sdk-share-modal");
-  if (shareModal) {
-    shareModal.style.display = "none";
-  }
-};
-
-const openShareModal = (imageUrl: string) => {
-  const aiutaIframe = document.getElementById(
-    "aiuta-iframe"
-  ) as HTMLIFrameElement;
-
-  let modalWrapper = document.getElementById("sdk-share-modal");
-
-  if (modalWrapper) {
-    modalWrapper.style.display = "flex";
-    modalWrapper.innerHTML = shareModal(imageUrl);
-  } else {
-    modalWrapper = document.createElement("div");
-
-    modalWrapper.id = "sdk-share-modal";
-    modalWrapper.style.minWidth = "100vw";
-    modalWrapper.style.minHeight = "100vh";
-    modalWrapper.style.position = "fixed";
-    modalWrapper.style.zIndex = "99999";
-    modalWrapper.style.top = "0px";
-    modalWrapper.style.left = "0px";
-    modalWrapper.style.display = "flex";
-    modalWrapper.style.alignItems = "center";
-    modalWrapper.style.justifyContent = "center";
-    modalWrapper.style.background = "#7b797980";
-    modalWrapper.innerHTML = shareModal(imageUrl);
-
-    document.body.appendChild(modalWrapper);
-  }
-
-  const copyShare = document.getElementById("copy-share");
-  const whatsappShare = document.getElementById("whatsapp-share");
-  const messengerShare = document.getElementById("messenger-share");
-  const shareModalClose = document.getElementById("share-modal-close");
-
-  whatsappShare?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "whatsApp" },
-        "*"
-      );
-    }
-  });
-
-  messengerShare?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "messenger" },
-        "*"
-      );
-    }
-  });
-
-  copyShare?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "copy" },
-        "*"
-      );
-    }
-  });
-
-  shareModalClose?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "share_close" },
-        "*"
-      );
-    }
-  });
-};
-
 export default class Aiuta {
-  private getJwt!: GetJwtCallback;
-  private analytics!: AnalyticsCallback;
+  // Authentication
+  private getJwt!: AiutaJwtCallback;
+  private apiKey!: string;
+  private userId!: string;
 
-  constructor() {
+  // User interface
+  private sdkPosition: AiutaIframePosition = "topRight";
+  private stylesConfiguration: AiutaStylesConfiguration =
+    INITIALLY_STYLES_CONFIGURATION;
+  private customCssUrl?: string;
+
+  // Analytics
+  private analytics?: AiutaAnalyticsCallback;
+
+  // Runtime
+  private productId!: string;
+  private isIframeOpen: boolean = false;
+  private iframe: HTMLIFrameElement | null = null;
+
+  // URLs
+  readonly iframeUrl = __AIUTA_IFRAME_URL__;
+  readonly analyticsUrl = __AIUTA_ANALYTICS_URL__;
+
+  constructor(configuration: AiutaConfiguration) {
+    this.configureAuth(configuration.auth);
+    if (configuration.userInterface) {
+      this.configureUserInterface(configuration.userInterface);
+    }
+    if (configuration.analytics) {
+      this.configureAnalytics(configuration.analytics);
+    }
+
     const analytic: any = {
       data: {
         type: "configure",
       },
     };
 
-    setTimeout(() => {
-      if (typeof this.analytics === "function") {
-        this.analytics(analytic.data);
-      }
+    if (typeof this.analytics === "function") {
+      this.analytics(analytic.data);
+    }
 
-      this.trackEvent("configure", analytic);
-    }, 1000);
+    this.trackEvent("configure", analytic);
   }
-
-  private apiKey!: string;
-  private userId!: string;
-  private productId!: string;
-  private subscriptionId!: string;
-  private isIframeOpen: boolean = false;
-  private sdkPosition: Position = "topRight";
-  private iframe: HTMLIFrameElement | null = null;
-  private aiutaSdkStylesConfiguration: StylesConfiguration =
-    INITIALLY_STYLES_CONFIGURATION;
-
-  readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
-  readonly analyticOrigin =
-    "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
 
   trackEvent(eventName: string, data: Record<string, any>) {
     const body = {
       ...data,
     };
 
-    fetch(this.analyticOrigin, {
+    fetch(this.analyticsUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     }).catch(console.error);
   }
 
-  // init methods
-  initWithApiKey({
-    apiKey,
-    position,
-    stylesConfiguration,
-    analytics,
-  }: ApiAuth) {
-    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
-      throw new Error("Aiuta is already initialized");
-
-    this.apiKey = apiKey;
-    this.subscriptionId = apiKey;
-
-    if (position && position.length > 0) {
-      this.sdkPosition = position;
-    }
-
-    if (stylesConfiguration) {
-      this.aiutaSdkStylesConfiguration = stylesConfiguration;
-    }
-
-    if (analytics && typeof analytics === "function") {
-      this.analytics = analytics;
+  private configureAuth(auth: AiutaAuth): void {
+    if ('apiKey' in auth) {
+      this.apiKey = auth.apiKey;
+    } else {
+      this.userId = auth.subscriptionId;
+      this.getJwt = auth.getJwt;
     }
   }
 
-  initWithJwt({
-    subscriptionId,
-    stylesConfiguration,
-    position,
-    getJwt,
-    analytics,
-  }: JwtAuth) {
-    if (this.apiKey || (this.getJwt as keyof typeof this.getJwt))
-      throw new Error("Aiuta is already initialized");
-    this.userId = subscriptionId;
-    this.subscriptionId = subscriptionId;
-
-    if (stylesConfiguration) {
-      this.aiutaSdkStylesConfiguration = stylesConfiguration;
+  private configureUserInterface(userInterface: AiutaUserInterface): void {
+    if (userInterface.position && userInterface.position.length > 0) {
+      this.sdkPosition = userInterface.position;
     }
 
-    if (position && position.length > 0) {
-      this.sdkPosition = position;
+    if (userInterface.stylesConfiguration) {
+      this.stylesConfiguration = userInterface.stylesConfiguration;
     }
 
-    if (getJwt && typeof getJwt === "function") {
-      this.getJwt = getJwt;
+    if (userInterface.customCssUrl) {
+      this.customCssUrl = userInterface.customCssUrl;
     }
+  }
 
-    if (analytics && typeof analytics === "function") {
-      this.analytics = analytics;
+  private configureAnalytics(analytics: AiutaAnalytics): void {
+    if (analytics.handler && typeof analytics.handler.onAnalyticsEvent === "function") {
+      this.analytics = analytics.handler.onAnalyticsEvent;
     }
   }
 
@@ -319,7 +141,14 @@ export default class Aiuta {
     const aiutaIframe: any = document.createElement("iframe");
     aiutaIframe.id = "aiuta-iframe";
     aiutaIframe.allow = "fullscreen";
-    aiutaIframe.src = this.iframeOrigin;
+    
+    let iframeSrc = this.iframeUrl;
+    if (this.customCssUrl) {
+      const separator = iframeSrc.includes('?') ? '&' : '?';
+      iframeSrc = `${iframeSrc}${separator}css=${encodeURIComponent(this.customCssUrl)}`;
+    }
+    
+    aiutaIframe.src = iframeSrc;
     aiutaIframe.style.transition = "all ease-in-out 0.5s";
     aiutaIframe.style.position = "fixed";
     aiutaIframe.style.width = "394px";
@@ -467,12 +296,9 @@ export default class Aiuta {
 
           case "open_share_modal":
             if (data.imageUrl) {
-              openShareModal(data.imageUrl);
+              const shareModal = new ShareModal(data.imageUrl);
+              shareModal.showModal();
             }
-            break;
-
-          case "close_share_modal":
-            closeShareModal();
             break;
 
           case "SHARE_IMAGE":
@@ -539,10 +365,10 @@ export default class Aiuta {
 
           case "GET_AIUTA_STYLES_CONFIGURATION":
             if (aiutaIframe.contentWindow) {
-              if (this.aiutaSdkStylesConfiguration) {
+              if (this.stylesConfiguration) {
                 this.postMessageToIframe({
                   type: "stylesConfiguration",
-                  stylesConfiguration: this.aiutaSdkStylesConfiguration,
+                  stylesConfiguration: this.stylesConfiguration,
                 });
               }
             }
@@ -896,6 +722,22 @@ export default class Aiuta {
     }
   }
 }
+
+// Re-export configuration types for external use
+export type {
+  AiutaConfiguration,
+  AiutaAuth,
+  AiutaApiKeyAuth,
+  AiutaJwtAuth,
+  AiutaUserInterface,
+  AiutaFeatures,
+  AiutaAnalytics,
+  AiutaDebugSettings,
+  AiutaIframePosition,
+  AiutaStylesConfiguration,
+  AiutaAnalyticsCallback,
+  AiutaJwtCallback
+} from "./configuration";
 
 if (typeof window !== "undefined") {
   (window as any).Aiuta = Aiuta;
