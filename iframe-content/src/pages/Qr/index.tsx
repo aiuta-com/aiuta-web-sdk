@@ -34,6 +34,8 @@ import { generateRandomString } from "@/helpers/generateRandomString";
 // styles
 import styles from "./token.module.scss";
 
+let calledAnalyticCount = 0;
+
 export default function Qr() {
   const navigate = useNavigate();
 
@@ -50,6 +52,9 @@ export default function Qr() {
   );
 
   const handleAnalytic = () => {
+    calledAnalyticCount++;
+    if (calledAnalyticCount === 2) return (calledAnalyticCount = 0);
+
     if (
       aiutaEndpointData &&
       aiutaEndpointData.skuId &&
