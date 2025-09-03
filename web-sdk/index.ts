@@ -50,6 +50,7 @@ export default class Aiuta {
   private sdkPosition: AiutaIframePosition = "topRight";
   private stylesConfiguration: AiutaStylesConfiguration =
     INITIALLY_STYLES_CONFIGURATION;
+  private customCssUrl?: string;
 
   // Analytics
   private analytics?: AiutaAnalyticsCallback;
@@ -114,6 +115,10 @@ export default class Aiuta {
     if (userInterface.stylesConfiguration) {
       this.stylesConfiguration = userInterface.stylesConfiguration;
     }
+
+    if (userInterface.customCssUrl) {
+      this.customCssUrl = userInterface.customCssUrl;
+    }
   }
 
   private configureAnalytics(analytics: AiutaAnalytics): void {
@@ -136,7 +141,14 @@ export default class Aiuta {
     const aiutaIframe: any = document.createElement("iframe");
     aiutaIframe.id = "aiuta-iframe";
     aiutaIframe.allow = "fullscreen";
-    aiutaIframe.src = this.iframeUrl;
+    
+    let iframeSrc = this.iframeUrl;
+    if (this.customCssUrl) {
+      const separator = iframeSrc.includes('?') ? '&' : '?';
+      iframeSrc = `${iframeSrc}${separator}css=${encodeURIComponent(this.customCssUrl)}`;
+    }
+    
+    aiutaIframe.src = iframeSrc;
     aiutaIframe.style.transition = "all ease-in-out 0.5s";
     aiutaIframe.style.position = "fixed";
     aiutaIframe.style.width = "394px";

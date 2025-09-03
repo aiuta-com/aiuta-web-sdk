@@ -36,6 +36,7 @@ export type AiutaJwtCallback = (
 export interface AiutaUserInterface {
   position?: AiutaIframePosition;
   stylesConfiguration?: AiutaStylesConfiguration;
+  customCssUrl?: string;
 }
 
 // TODO: Remove / refactor

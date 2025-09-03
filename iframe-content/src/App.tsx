@@ -38,6 +38,20 @@ function App() {
   useEffect(() => {
     handleGetStylesConfiguration();
 
+    const loadCustomCSS = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const cssUrl = urlParams.get('css');
+      
+      if (cssUrl) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = cssUrl;
+        link.onload = () => console.log('Custom CSS loaded from:', cssUrl);
+        link.onerror = () => console.error('Failed to load custom CSS from:', cssUrl);
+        document.head.appendChild(link);
+      }
+    };
+
     const handleMessage = (event: MessageEvent) => {
       if (
         event.data &&
@@ -51,6 +65,8 @@ function App() {
         );
       }
     };
+
+    loadCustomCSS();
 
     window.addEventListener("message", handleMessage);
 
