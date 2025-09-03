@@ -51,7 +51,7 @@ const initiallAnimationConfig = {
   },
 };
 
-let initiallAnalyticCompleted = false;
+let sentAnalyticCount = 0;
 
 export default function History() {
   const dispatch = useAppDispatch();
@@ -122,11 +122,11 @@ export default function History() {
   };
 
   const onboardingAnalytic = () => {
-    if (initiallAnalyticCompleted) return;
+    sentAnalyticCount++;
+
+    if (sentAnalyticCount === 1) return;
 
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      initiallAnalyticCompleted = true;
-
       const analytic = {
         data: {
           type: "page",
@@ -140,6 +140,7 @@ export default function History() {
         { action: AnalyticEventsEnum.history, analytic },
         "*"
       );
+      sentAnalyticCount = 0;
     }
   };
 
@@ -153,6 +154,21 @@ export default function History() {
       if (event.data && event.data.type) {
         if (event.data.type === "REMOVE_HISTORY_IMAGES") {
           dispatch(generateSlice.actions.setGeneratedImage(event.data.images));
+
+          const analytic = {
+            data: {
+              type: "history",
+              event: "generatedImageDeleted",
+              pageId: "history",
+              productIds: [aiutaEndpointData.skuId],
+            },
+            localDateTime: Date.now(),
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
+            "*"
+          );
         }
       }
     };

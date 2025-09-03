@@ -58,7 +58,7 @@ const initiallAnimationConfig = {
   },
 };
 
-let initiallAnalyticCompleted = false;
+let sentAnalyticCount = 0;
 
 export default function Previously() {
   const navigate = useNavigate();
@@ -155,6 +155,8 @@ export default function Previously() {
     } else {
       handleShowFullScreen({ id, url });
     }
+
+    dispatch(configSlice.actions.setIsSelectPreviouselyImages(false));
   };
 
   const handleRemovePhoto = (imageId: string) => {
@@ -216,11 +218,11 @@ export default function Previously() {
   }, [qrToken, dispatch, navigate]);
 
   const handleAnalytic = () => {
-    if (initiallAnalyticCompleted) return;
+    sentAnalyticCount++;
+
+    if (sentAnalyticCount === 1) return;
 
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      initiallAnalyticCompleted = true;
-
       const analytic = {
         data: {
           type: "picker",
@@ -235,6 +237,7 @@ export default function Previously() {
         { action: AnalyticEventsEnum.uploadsHistoryOpened, analytic },
         "*"
       );
+      sentAnalyticCount = 0;
     }
   };
 
@@ -250,17 +253,21 @@ export default function Previously() {
 
   useEffect(() => {
     if (!recentlyPhotos.length) {
-      qrApiInterval.current = setInterval(() => {
-        handleCheckQRUploadedPhoto();
-      }, 3000);
+      //TO DO may used in future
+      // qrApiInterval.current = setInterval(() => {
+      //   handleCheckQRUploadedPhoto();
+      // }, 3000);
+      navigate("/qr");
     }
 
-    return () => {
-      if (qrApiInterval.current) {
-        clearInterval(qrApiInterval.current);
-      }
-    };
-  }, [qrApiInterval, recentlyPhotos, handleCheckQRUploadedPhoto]);
+    //TO DO may used in future
+    // return () => {
+    //   if (qrApiInterval.current) {
+    //     clearInterval(qrApiInterval.current);
+    //   }
+    // };
+    // }, [qrApiInterval, recentlyPhotos, handleCheckQRUploadedPhoto]);
+  }, [recentlyPhotos]);
 
   useEffect(() => {
     handleGetWidnwInitiallySizes();
@@ -272,6 +279,7 @@ export default function Previously() {
         }
 
         if (event.data.type === "REMOVE_PREVIOUSELY_IMAGES") {
+          handleRemovePhoto(event.data.images.id);
           dispatch(generateSlice.actions.setRecentlyPhotos(event.data.images));
         }
       } else {
@@ -321,13 +329,13 @@ export default function Previously() {
                 />
               ))}
             </div>
-          ) : (
-            <div className={styles.qrContent}>
-              {endpointData ? (
-                <QrCode onChange={() => {}} isShowQrInfo={false} url={qrUrl} />
-              ) : null}
-            </div>
-          )}
+          ) : //TO DO may used in future
+          // <div className={styles.qrContent}>
+          //   {endpointData ? (
+          //     <QrCode onChange={() => {}} isShowQrInfo={false} url={qrUrl} />
+          //   ) : null}
+          // </div>
+          null}
 
           <TryOnButton onClick={() => handleNavigate("qr")}>
             <>

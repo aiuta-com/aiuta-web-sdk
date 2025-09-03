@@ -34,7 +34,7 @@ import { generateRandomString } from "@/helpers/generateRandomString";
 // styles
 import styles from "./token.module.scss";
 
-let initiallAnalyticCompleted = false;
+let sentAnalyticCount = 0;
 
 export default function Qr() {
   const navigate = useNavigate();
@@ -52,29 +52,40 @@ export default function Qr() {
   );
 
   const handleAnalytic = () => {
-    if (initiallAnalyticCompleted) return;
-    initiallAnalyticCompleted = true;
+    sentAnalyticCount++;
 
-    const analytic = {
-      data: {
-        type: "page",
-        event: "pickerEvent",
-        pageId: "imagePicker",
-        productIds: [aiutaEndpointData.skuId],
-      },
-      localDateTime: Date.now(),
-    };
+    if (sentAnalyticCount === 1) return;
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.newPhotoTaken, analytic },
-      "*"
-    );
+    if (
+      aiutaEndpointData &&
+      aiutaEndpointData.skuId &&
+      aiutaEndpointData.skuId.length > 0
+    ) {
+      const analytic = {
+        data: {
+          type: "page",
+          event: "pickerEvent",
+          pageId: "imagePicker",
+          productIds: [aiutaEndpointData.skuId],
+        },
+        localDateTime: Date.now(),
+      };
+
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.newPhotoTaken, analytic },
+        "*"
+      );
+    }
+
+    sentAnalyticCount = 0;
   };
 
   useEffect(() => {
-    handleAnalytic();
+    setTimeout(() => {
+      handleAnalytic();
+    }, 1000);
     // eslint-disable-next-line
-  }, []);
+  }, [aiutaEndpointData]);
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return;
