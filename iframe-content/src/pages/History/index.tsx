@@ -124,7 +124,9 @@ export default function History() {
   const onboardingAnalytic = () => {
     sentAnalyticCount++;
 
-    if (sentAnalyticCount === 1) return;
+    console.log("sentAnalyticCount???", sentAnalyticCount);
+
+    if (sentAnalyticCount < 2) return;
 
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
@@ -143,6 +145,8 @@ export default function History() {
       sentAnalyticCount = 0;
     }
   };
+
+  console.log("sentAnalyticCount", sentAnalyticCount);
 
   useEffect(() => {
     onboardingAnalytic();
