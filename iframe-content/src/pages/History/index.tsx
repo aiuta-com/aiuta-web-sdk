@@ -125,9 +125,7 @@ export default function History() {
     sentAnalyticCount++;
     console.log("sentAnalyticCount UP???", sentAnalyticCount);
 
-    if (sentAnalyticCount === 1) return;
-
-    sentAnalyticCount = 0;
+    // if (sentAnalyticCount === 2) return (sentAnalyticCount = 0);
 
     console.log("sentAnalyticCount DOWN???", sentAnalyticCount);
 
