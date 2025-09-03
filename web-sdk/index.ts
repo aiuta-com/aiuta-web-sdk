@@ -12,6 +12,10 @@ import {
 import { ShowFullScreenModal } from "./fullScreenImageModal";
 import { ShareModal } from "./shareModal";
 
+// Global variables injected by Vite
+declare const __AIUTA_IFRAME_URL__: string;
+declare const __AIUTA_ANALYTICS_URL__: string;
+
 const SDK_POSITION = {
   topLeft: { top: "12px", left: "12px" },
   topRight: { top: "12px", right: "12px" },
@@ -37,26 +41,29 @@ enum AnalyticEventsEnum {
 }
 
 export default class Aiuta {
-  // Authentication properties
+  // Authentication
   private getJwt!: AiutaJwtCallback;
   private apiKey!: string;
   private userId!: string;
 
-  // User interface properties
+  // User interface
   private sdkPosition: AiutaIframePosition = "topRight";
   private stylesConfiguration: AiutaStylesConfiguration =
     INITIALLY_STYLES_CONFIGURATION;
 
-  // Analytics properties
-  private analytics!: AiutaAnalyticsCallback;
+  // Analytics
+  private analytics?: AiutaAnalyticsCallback;
 
-  // Runtime properties
+  // Runtime
   private productId!: string;
   private isIframeOpen: boolean = false;
   private iframe: HTMLIFrameElement | null = null;
 
+  // URLs
+  readonly iframeUrl = __AIUTA_IFRAME_URL__;
+  readonly analyticsUrl = __AIUTA_ANALYTICS_URL__;
+
   constructor(configuration: AiutaConfiguration) {
-    // Initialize configuration
     this.configureAuth(configuration.auth);
     if (configuration.userInterface) {
       this.configureUserInterface(configuration.userInterface);
@@ -80,16 +87,12 @@ export default class Aiuta {
     }, 1000);
   }
 
-  readonly iframeOrigin = "https://static.aiuta.com/sdk/v0/index.html";
-  readonly analyticOrigin =
-    "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
-
   trackEvent(eventName: string, data: Record<string, any>) {
     const body = {
       ...data,
     };
 
-    fetch(this.analyticOrigin, {
+    fetch(this.analyticsUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -135,7 +138,7 @@ export default class Aiuta {
     const aiutaIframe: any = document.createElement("iframe");
     aiutaIframe.id = "aiuta-iframe";
     aiutaIframe.allow = "fullscreen";
-    aiutaIframe.src = this.iframeOrigin;
+    aiutaIframe.src = this.iframeUrl;
     aiutaIframe.style.transition = "all ease-in-out 0.5s";
     aiutaIframe.style.position = "fixed";
     aiutaIframe.style.width = "394px";
