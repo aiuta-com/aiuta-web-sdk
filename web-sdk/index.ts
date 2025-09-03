@@ -78,13 +78,11 @@ export default class Aiuta {
       },
     };
 
-    setTimeout(() => {
-      if (typeof this.analytics === "function") {
-        this.analytics(analytic.data);
-      }
+    if (typeof this.analytics === "function") {
+      this.analytics(analytic.data);
+    }
 
-      this.trackEvent("configure", analytic);
-    }, 1000);
+    this.trackEvent("configure", analytic);
   }
 
   trackEvent(eventName: string, data: Record<string, any>) {
