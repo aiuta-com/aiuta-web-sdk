@@ -65,7 +65,6 @@ export const Onboarding = () => {
       const analytic: any = {
         data: {
           type: "page",
-          pageId: "howItWorks",
           productIds: [aiutaEndpointData.skuId],
         },
         localDateTime: Date.now(),
@@ -139,10 +138,26 @@ export const Onboarding = () => {
     );
 
     if (!isOnboarding) {
-      initaillAnalytic();
+      if (!onboardingSteps) {
+        initaillAnalytic();
+      } else if (onboardingSteps === 2) {
+        const analytic = {
+          data: {
+            type: "page",
+            pageId: "consent",
+            productIds: [aiutaEndpointData.skuId],
+          },
+          localDateTime: Date.now(),
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.onboarding, analytic },
+          "*"
+        );
+      }
     }
     // eslint-disable-next-line
-  }, [aiutaEndpointData]);
+  }, [aiutaEndpointData, onboardingSteps]);
 
   return !isShowSpinner && isInitialized ? (
     <div className={styles.onboarding}>

@@ -250,21 +250,6 @@ export default function View() {
               handleGetGeneratedImage(result.operation_id);
               window.removeEventListener("message", handleGenerate);
             }, 3000);
-
-            const analytic = {
-              data: {
-                type: "tryOn",
-                event: "tryOnStarted",
-                pageId: "loading",
-                productIds: [endpointData?.skuId],
-              },
-              localDateTime: Date.now(),
-            };
-
-            window.parent.postMessage(
-              { action: AnalyticEventsEnum.tryOn, analytic },
-              "*"
-            );
           }
         } else {
           window.removeEventListener("message", handleGenerate);
@@ -293,6 +278,23 @@ export default function View() {
     }
   };
 
+  const handleTryOnStartedAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "tryOn",
+        event: "tryOnStarted",
+        pageId: "loading",
+        productIds: [endpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+  };
+
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
@@ -310,6 +312,8 @@ export default function View() {
       { action: AnalyticEventsEnum.tryOn, analytic },
       "*"
     );
+
+    handleTryOnStartedAnalytic();
 
     startTryOnDuration = Date.now();
 

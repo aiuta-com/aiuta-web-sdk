@@ -287,6 +287,23 @@ export default function ViewMobile() {
     }
   };
 
+  const handleTryOnStartedAnalytic = () => {
+    const analytic = {
+      data: {
+        type: "tryOn",
+        event: "tryOnStarted",
+        pageId: "loading",
+        productIds: [endpointData?.skuId],
+      },
+      localDateTime: Date.now(),
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+  };
+
   const handleTryOn = async () => {
     if (!endpointData) return console.error("Endpoints info is missing");
 
@@ -304,6 +321,8 @@ export default function ViewMobile() {
       { action: AnalyticEventsEnum.tryOn, analytic },
       "*"
     );
+
+    handleTryOnStartedAnalytic();
 
     startTryOnDuration = Date.now();
 
