@@ -494,7 +494,7 @@ const CLOSE_ICON_BOX = {
 const ACTIVE_IMAGE = {
   width: "660px",
   objectFit: "cover",
-  height: "calc(100% - 40px)",
+  height: "calc(100vh - 40px)",
 };
 
 const MIDDLE_CONTENT_STYLES = {

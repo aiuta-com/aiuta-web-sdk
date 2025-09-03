@@ -63,7 +63,6 @@ export default function Qr() {
       const analytic = {
         data: {
           type: "page",
-          event: "pickerEvent",
           pageId: "imagePicker",
           productIds: [aiutaEndpointData.skuId],
         },
