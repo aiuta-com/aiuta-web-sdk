@@ -58,8 +58,6 @@ const initiallAnimationConfig = {
   },
 };
 
-let sentAnalyticCount = 0;
-
 export default function Previously() {
   const navigate = useNavigate();
 
@@ -218,10 +216,6 @@ export default function Previously() {
   }, [qrToken, dispatch, navigate]);
 
   const handleAnalytic = () => {
-    sentAnalyticCount++;
-
-    if (sentAnalyticCount === 1) return;
-
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
         data: {
@@ -237,7 +231,6 @@ export default function Previously() {
         { action: AnalyticEventsEnum.uploadsHistoryOpened, analytic },
         "*"
       );
-      sentAnalyticCount = 0;
     }
   };
 
