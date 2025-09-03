@@ -1,11 +1,5 @@
 import { ShowFullScreenModal } from "./fullScreenImageModal";
-import {
-  MESSENGER,
-  WHATS_APP,
-  CLOSE_ICON,
-  COPY_BUTTON,
-  SHARE_WITH_TEXT,
-} from "./constants/socialIcons";
+import { ShareModal } from "./shareModal";
 
 type Position = "topLeft" | "topRight" | "bottomLeft" | "bottomRight";
 
@@ -103,105 +97,6 @@ const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
       historyImagesRemoveModalClassName: "",
     },
   },
-};
-
-function shareModal(imageUrl: string) {
-  return `
-    <div style="position: relative; width: 467px; height: 248px; padding: 20px; background: #fff; border-radius: 24px;">
-      <p style="text-align: left; margin: 0">${SHARE_WITH_TEXT}</p>
-      <div style="cursor: pointer; position: absolute; right: 20px; top: 12px" onclick='window.parent.postMessage({ action: "close_share_modal", imageUrl: "${imageUrl}" }, "*");' id="share-modal-close">
-        ${CLOSE_ICON}
-      </div>
-      <div style="display: flex; column-gap: 24px; align-items: center; margin: 25px 0px 30px 0px">
-        <a target="_blank" href="https://wa.me/?text=${imageUrl}" style="cursor: pointer; max-height: 74px;" id="whatsapp-share">${WHATS_APP}</a>
-        <a target="_blank" href="https://www.messenger.com/new?text=${imageUrl}" style="cursor: pointer; max-height: 74px;" id="messenger-share">${MESSENGER}</a>
-      </div>
-      <div style="display: flex; align-items: center; justify-content: space-between; border-radius: 16px; padding: 8px 12px 8px 16px; background: #F2F2F7;">
-        <p style="max-width: 300px; margin: 0; overflow: hidden; text-overflow: ellipsis; font-family: 'GT Maru', sans-serif; white-space: nowrap; font-size: 14px; font-weight: 500; letter-spacing: -0.49px;">${imageUrl}</p>
-        <div style="width: 70px; height: 36px; cursor: pointer" onclick="navigator.clipboard.writeText('${imageUrl}')" id="copy-share">
-          ${COPY_BUTTON}
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-const closeShareModal = () => {
-  const shareModal = document.getElementById("sdk-share-modal");
-  if (shareModal) {
-    shareModal.style.display = "none";
-  }
-};
-
-const openShareModal = (imageUrl: string) => {
-  const aiutaIframe = document.getElementById(
-    "aiuta-iframe"
-  ) as HTMLIFrameElement;
-
-  let modalWrapper = document.getElementById("sdk-share-modal");
-
-  if (modalWrapper) {
-    modalWrapper.style.display = "flex";
-    modalWrapper.innerHTML = shareModal(imageUrl);
-  } else {
-    modalWrapper = document.createElement("div");
-
-    modalWrapper.id = "sdk-share-modal";
-    modalWrapper.style.minWidth = "100vw";
-    modalWrapper.style.minHeight = "100vh";
-    modalWrapper.style.position = "fixed";
-    modalWrapper.style.zIndex = "99999";
-    modalWrapper.style.top = "0px";
-    modalWrapper.style.left = "0px";
-    modalWrapper.style.display = "flex";
-    modalWrapper.style.alignItems = "center";
-    modalWrapper.style.justifyContent = "center";
-    modalWrapper.style.background = "#7b797980";
-    modalWrapper.innerHTML = shareModal(imageUrl);
-
-    document.body.appendChild(modalWrapper);
-  }
-
-  const copyShare = document.getElementById("copy-share");
-  const whatsappShare = document.getElementById("whatsapp-share");
-  const messengerShare = document.getElementById("messenger-share");
-  const shareModalClose = document.getElementById("share-modal-close");
-
-  whatsappShare?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "whatsApp" },
-        "*"
-      );
-    }
-  });
-
-  messengerShare?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "messenger" },
-        "*"
-      );
-    }
-  });
-
-  copyShare?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "copy" },
-        "*"
-      );
-    }
-  });
-
-  shareModalClose?.addEventListener("click", () => {
-    if (aiutaIframe.contentWindow) {
-      aiutaIframe.contentWindow.postMessage(
-        { action: "ANALYTIC_SOCIAL_MEDIA", shareMethod: "share_close" },
-        "*"
-      );
-    }
-  });
 };
 
 export default class Aiuta {
@@ -467,12 +362,9 @@ export default class Aiuta {
 
           case "open_share_modal":
             if (data.imageUrl) {
-              openShareModal(data.imageUrl);
+              const shareModal = new ShareModal(data.imageUrl);
+              shareModal.showModal();
             }
-            break;
-
-          case "close_share_modal":
-            closeShareModal();
             break;
 
           case "SHARE_IMAGE":
