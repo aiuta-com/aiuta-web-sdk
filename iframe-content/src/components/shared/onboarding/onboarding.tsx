@@ -27,8 +27,6 @@ import { AnalyticEventsEnum } from "@/types";
 // styles
 import styles from "./onboarding.module.scss";
 
-let sentAnalyticCount = 0;
-
 export const Onboarding = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -118,10 +116,6 @@ export const Onboarding = () => {
   };
 
   const initaillAnalytic = () => {
-    sentAnalyticCount++;
-
-    if (sentAnalyticCount === 1) return;
-
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
         data: {
@@ -136,8 +130,6 @@ export const Onboarding = () => {
         { action: AnalyticEventsEnum.onboarding, analytic },
         "*"
       );
-
-      sentAnalyticCount = 0;
     }
   };
 
