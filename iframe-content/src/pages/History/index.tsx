@@ -123,10 +123,13 @@ export default function History() {
 
   const onboardingAnalytic = () => {
     sentAnalyticCount++;
+    console.log("sentAnalyticCount UP???", sentAnalyticCount);
 
-    console.log("sentAnalyticCount???", sentAnalyticCount);
+    if (sentAnalyticCount === 1) return;
 
-    if (sentAnalyticCount < 2) return;
+    sentAnalyticCount = 0;
+
+    console.log("sentAnalyticCount DOWN???", sentAnalyticCount);
 
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
@@ -142,7 +145,6 @@ export default function History() {
         { action: AnalyticEventsEnum.history, analytic },
         "*"
       );
-      sentAnalyticCount = 0;
     }
   };
 
