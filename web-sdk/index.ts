@@ -144,8 +144,23 @@ export default class Aiuta {
     
     let iframeSrc = this.iframeUrl;
     if (this.customCssUrl) {
+      let resolvedCssUrl = this.customCssUrl;
+      
+      if (!this.customCssUrl.startsWith('http')) {
+        try {
+          const currentOrigin = window.location.origin;
+          resolvedCssUrl = new URL(this.customCssUrl, currentOrigin).href;
+        } catch (error) {
+          // Fallback: try to construct the URL manually
+          const currentOrigin = window.location.origin;
+          resolvedCssUrl = this.customCssUrl.startsWith('/') 
+            ? `${currentOrigin}${this.customCssUrl}`
+            : `${currentOrigin}/${this.customCssUrl}`;
+        }
+      }
+      
       const separator = iframeSrc.includes('?') ? '&' : '?';
-      iframeSrc = `${iframeSrc}${separator}css=${encodeURIComponent(this.customCssUrl)}`;
+      iframeSrc = `${iframeSrc}${separator}css=${encodeURIComponent(resolvedCssUrl)}`;
     }
     
     aiutaIframe.src = iframeSrc;
