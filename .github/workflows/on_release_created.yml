@@ -23,27 +23,6 @@ jobs:
           # Update version in package.json
           npm version $VERSION --no-git-tag-version
 
-      - name: Commit version update
-        run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          
-          # Add and commit the changes
-          git add package.json package-lock.json
-          git commit -m "Update version to ${{ github.event.release.tag_name }}"
-          
-          # Fetch the latest changes from the default branch
-          git fetch origin main
-          
-          # Create a temporary branch from the current HEAD
-          git checkout -b temp-branch
-          
-          # Rebase on top of the latest changes from the default branch
-          git rebase origin/main
-          
-          # Push to the default branch with force-with-lease for safety
-          git push --force-with-lease origin temp-branch:main
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -59,54 +38,6 @@ jobs:
         run: |
           cd dist
           zip -r ../release.zip .
-
-      # Authenticate with GCP
-      - name: Set up GCP credentials Dev
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
-
-      # Upload dist/ to GCS
-      - name: Upload to GCS bucket Dev JS
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/sdk/
-          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      # Upload dist/ to GCS
-      - name: Upload to GCS bucket Dev Iframe
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/iframe/
-          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      # Authenticate with GCP
-      - name: Set up GCP credentials Preprod
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
-
-      # Upload dist/ to GCS
-      - name: Upload to GCS bucket Preprod JS
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/sdk/
-          destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      # Upload dist/ to GCS
-      - name: Upload to GCS bucket Preprod Iframe
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/iframe/
-          destination: aiuta_preprod_static/sdk/${{ github.ref_name }}/
-          parent: false
-          process_gcloudignore: 'false'
 
       # Authenticate with GCP
       - name: Set up GCP credentials Prod
@@ -182,6 +113,40 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ github.event.release.tag_name }} release.zip dist/sdk/* --clobber
+
+      - name: Commit next patch version
+        run: |
+          # Extract version from tag (remove 'v' prefix if present)
+          CURRENT_VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
+          
+          # Calculate next patch version
+          # Split version into major.minor.patch
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH"
+          
+          # Update version in package.json to next patch version
+          npm version $NEXT_VERSION --no-git-tag-version
+          
+          # Configure git
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Add and commit the changes
+          git add package.json package-lock.json
+          git commit -m "Update version to next patch $NEXT_VERSION"
+          
+          # Fetch the latest changes from the default branch
+          git fetch origin main
+          
+          # Create a temporary branch from the current HEAD
+          git checkout -b temp-branch
+          
+          # Rebase on top of the latest changes from the default branch
+          git rebase origin/main
+          
+          # Push to the default branch with force-with-lease for safety
+          git push --force-with-lease origin temp-branch:main
           
       - name: Update release description with file links
         env:
