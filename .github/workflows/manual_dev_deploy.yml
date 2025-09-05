@@ -2,12 +2,6 @@ name: Manual Dev Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy to dev'
-        required: true
-        default: 'main'
-        type: string
 
 jobs:
   manual-dev-deploy:
@@ -18,8 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.branch }}
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -32,7 +24,7 @@ jobs:
       - name: Build dev project
         run: npm run build:dev
         env:
-          AIUTA_IFRAME_BRANCH: ${{ inputs.branch }}
+          AIUTA_IFRAME_BRANCH: ${{ github.ref_name }}
 
       # Authenticate with GCP
       - name: Set up GCP credentials Dev
@@ -45,7 +37,7 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/sdk/
-          destination: aiuta_dev_static/sdk/${{ inputs.branch }}/
+          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
           parent: false
           process_gcloudignore: 'false'
 
@@ -54,19 +46,19 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/iframe/
-          destination: aiuta_dev_static/sdk/${{ inputs.branch }}/
+          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
           parent: false
           process_gcloudignore: 'false'
 
       - name: Deployment Summary
         run: |
           echo "✅ Dev deployment completed successfully!"
-          echo "📦 Branch: ${{ inputs.branch }}"
-          echo "📁 Uploaded to: aiuta_dev_static/sdk/${{ inputs.branch }}/"
+          echo "📦 Branch: ${{ github.ref_name }}"
+          echo "📁 Uploaded to: aiuta_dev_static/sdk/${{ github.ref_name }}/"
           echo ""
           echo "🔗 Files available at:"
           echo ""
           for file in dist/sdk/*; do
             filename=$(basename "$file")
-            echo "- https://static.dev.aiuta.com/sdk/${{ inputs.branch }}/${filename}"
+            echo "- https://static.dev.aiuta.com/sdk/${{ github.ref_name }}/${filename}"
           done
