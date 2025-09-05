@@ -2,28 +2,50 @@ import { defineConfig } from "vite";
 import path from "path";
 import pkg from "./package.json";
 
+const fullVersion = pkg.version;
+const majorVersion = fullVersion.split('.')[0];
+
+const DEFAULT_BRANCH = 'main';
+const ANALYTICS_PATH = 'analytics/v1/web-sdk-analytics';
+
+const API_DOMAIN_DEV = 'api.dev.aiuta.com';
+const API_DOMAIN_PREPROD = 'api.preprod.aiuta.com';
+const API_DOMAIN_PROD = 'api.aiuta.com';
+
+const STATIC_DOMAIN_DEV = 'static.dev.aiuta.com';
+const STATIC_DOMAIN_PREPROD = 'static.preprod.aiuta.com';
+const STATIC_DOMAIN_PROD = 'static.aiuta.com';
+
+const SDK_PATH = 'sdk';
+const INDEX_FILE = 'index.html';
+
+const buildUrl = (...parts: string[]): string => `https://${parts.join('/')}`;
+
 export default defineConfig(({ mode }) => {
   let iframeUrl: string;
   let analyticsUrl: string;
 
   switch (mode) {
-    case "debug":
-      iframeUrl = "/iframe/index.html";
-      analyticsUrl = "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
+    case 'debug':
+      iframeUrl = `/iframe/${INDEX_FILE}`;
+      analyticsUrl = buildUrl(API_DOMAIN_DEV, ANALYTICS_PATH);
       break;
-    case "dev":
-      const branch = process.env.AIUTA_IFRAME_BRANCH || "v0";
-      iframeUrl = `https://static.dev.aiuta.com/sdk/${branch}/index.html`;
-      analyticsUrl = "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
+    case 'dev':
+      const branch = process.env.AIUTA_IFRAME_BRANCH || DEFAULT_BRANCH;
+      iframeUrl = buildUrl(STATIC_DOMAIN_DEV, SDK_PATH, branch, INDEX_FILE);
+      analyticsUrl = buildUrl(API_DOMAIN_DEV, ANALYTICS_PATH);
       break;
-    case "preprod":
-      iframeUrl = "https://static.preprod.aiuta.com/sdk/main/index.html";
-      analyticsUrl =
-        "https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics";
+    case 'preprod':
+      iframeUrl = buildUrl(STATIC_DOMAIN_PREPROD, SDK_PATH, DEFAULT_BRANCH, INDEX_FILE);
+      analyticsUrl = buildUrl(API_DOMAIN_PREPROD, ANALYTICS_PATH);
+      break;
+    case 'strict':
+      iframeUrl = buildUrl(STATIC_DOMAIN_PROD, SDK_PATH, `v${fullVersion}`, INDEX_FILE);
+      analyticsUrl = buildUrl(API_DOMAIN_PROD, ANALYTICS_PATH);
       break;
     default:
-      iframeUrl = "https://static.aiuta.com/sdk/v0/index.html";
-      analyticsUrl = "https://api.aiuta.com/analytics/v1/web-sdk-analytics";
+      iframeUrl = buildUrl(STATIC_DOMAIN_PROD, SDK_PATH, `v${majorVersion}`, INDEX_FILE);
+      analyticsUrl = buildUrl(API_DOMAIN_PROD, ANALYTICS_PATH);
       break;
   }
 
@@ -40,7 +62,7 @@ export default defineConfig(({ mode }) => {
         formats: ["umd", "es", "cjs"],
         fileName: (format) => `index.${format}.js`,
       },
-      outDir: path.resolve(__dirname, "dist/sdk"),
+      outDir: path.resolve(__dirname, `dist/${SDK_PATH}`),
       emptyOutDir: false,
       rollupOptions: {
         output: {

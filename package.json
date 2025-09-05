@@ -9,10 +9,12 @@
     "build:sdk:debug": "vite build --config vite.config.sdk.ts --mode debug",
     "build:sdk:dev": "vite build --config vite.config.sdk.ts --mode dev",
     "build:sdk:preprod": "vite build --config vite.config.sdk.ts --mode preprod",
+    "build:sdk:strict": "vite build --config vite.config.sdk.ts --mode strict",
     "build:sdk": "vite build --config vite.config.sdk.ts",
     "build:debug": "npm run build:iframe && npm run build:sdk:debug",
     "build:dev": "npm run build:iframe && npm run build:sdk:dev",
     "build:preprod": "npm run build:iframe && npm run build:sdk:preprod",
+    "build:strict": "npm run build:iframe && npm run build:sdk:strict",
     "build": "npm run build:iframe && npm run build:sdk"
   },
   "dependencies": {
