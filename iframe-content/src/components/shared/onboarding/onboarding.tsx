@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 // redux
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
@@ -47,7 +47,6 @@ export const Onboarding = () => {
         event: "consentsGiven",
         productIds: [aiutaEndpointData.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -67,14 +66,9 @@ export const Onboarding = () => {
           type: "page",
           productIds: [aiutaEndpointData.skuId],
         },
-        localDateTime: Date.now(),
       };
 
-      if (onboardingSteps === 0) {
-        analytic.data.event = "welcomeStartClicked";
-      } else if (onboardingSteps === 1) {
-        analytic.data.pageId = "bestResults";
-      } else if (onboardingSteps === 2) {
+      if (onboardingSteps === 2) {
         analytic.data.pageId = "consent";
       }
 
@@ -93,7 +87,6 @@ export const Onboarding = () => {
         event: "onboardingFinished",
         productIds: [aiutaEndpointData.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -104,7 +97,6 @@ export const Onboarding = () => {
 
   const handleClickOnboardingButton = () => {
     if (onboardingSteps !== 2) {
-      onboardingAnalytics();
       dispatch(configSlice.actions.setOnboardingSteps(null));
     } else {
       navigate("/qr");
@@ -114,17 +106,8 @@ export const Onboarding = () => {
     }
   };
 
-  const initaillAnalytic = () => {
+  const initPageAnalytic = (analytic: any) => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      const analytic = {
-        data: {
-          type: "page",
-          pageId: "howItWorks",
-          productIds: [aiutaEndpointData.skuId],
-        },
-        localDateTime: Date.now(),
-      };
-
       window.parent.postMessage(
         { action: AnalyticEventsEnum.onboarding, analytic },
         "*"
@@ -138,8 +121,26 @@ export const Onboarding = () => {
     );
 
     if (!isOnboarding) {
-      if (!onboardingSteps) {
-        initaillAnalytic();
+      if (onboardingSteps === 0) {
+        const analytic = {
+          data: {
+            type: "page",
+            pageId: "howItWorks",
+            productIds: [aiutaEndpointData.skuId],
+          },
+        };
+
+        initPageAnalytic(analytic);
+      } else if (onboardingSteps === 1) {
+        const analytic = {
+          data: {
+            type: "page",
+            pageId: "bestResults",
+            productIds: [aiutaEndpointData.skuId],
+          },
+        };
+
+        initPageAnalytic(analytic);
       } else if (onboardingSteps === 2) {
         const analytic = {
           data: {
@@ -147,15 +148,12 @@ export const Onboarding = () => {
             pageId: "consent",
             productIds: [aiutaEndpointData.skuId],
           },
-          localDateTime: Date.now(),
         };
 
-        window.parent.postMessage(
-          { action: AnalyticEventsEnum.onboarding, analytic },
-          "*"
-        );
+        initPageAnalytic(analytic);
       }
     }
+
     // eslint-disable-next-line
   }, [aiutaEndpointData, onboardingSteps]);
 

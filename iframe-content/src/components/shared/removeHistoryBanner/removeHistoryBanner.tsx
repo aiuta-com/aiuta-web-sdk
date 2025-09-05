@@ -71,7 +71,6 @@ export const RemoveHistoryBanner = () => {
         pageId: "history",
         productIds: [aiutaEndpointData.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(

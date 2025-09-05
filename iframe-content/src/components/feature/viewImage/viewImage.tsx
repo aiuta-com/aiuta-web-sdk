@@ -53,33 +53,13 @@ export const ViewImage = (props: ViewImageTypes) => {
     if (typeof onClick === "function") onClick(event);
   };
 
-  const handleAnalytic = () => {
-    if (initialAnalyticCompleted) return;
-    initialAnalyticCompleted = true;
-
-    const analytic = {
-      data: {
-        type: "page",
-        pageId: "loading",
-        productIds: [aiutaEndpointData?.skuId],
-      },
-      localDateTime: Date.now(),
-    };
-
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.loading, analytic },
-      "*"
-    );
-  };
-
   useEffect(() => {
     if (isStartGeneration) {
       setTimeout(() => {
-        handleAnalytic();
         setGeneratingText("Generating outfit");
       }, 2000);
     }
-  }, [isStartGeneration, aiutaEndpointData]);
+  }, [isStartGeneration]);
 
   return (
     <div

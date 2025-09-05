@@ -22,6 +22,12 @@
     letter-spacing: -0.025em;
   }
 
+  .fullTextContent {
+    p {
+      max-width: 100%;
+    }
+  }
+
   .button {
     width: auto;
     padding: 9px 16px;

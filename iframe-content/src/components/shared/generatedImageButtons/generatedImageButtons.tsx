@@ -38,7 +38,6 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
         pageId: "results",
         productIds: [aiutaEndpointData.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -71,7 +70,6 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
         pageId: "results",
         productIds: [aiutaEndpointData.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(

@@ -143,7 +143,6 @@ export default function Previously() {
           event: "uploadedPhotoSelected",
           productIds: [aiutaEndpointData?.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(
@@ -169,7 +168,6 @@ export default function Previously() {
         event: "uploadedPhotoDeleted",
         productIds: [aiutaEndpointData?.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -224,7 +222,6 @@ export default function Previously() {
           event: "uploadsHistoryOpened",
           productIds: [aiutaEndpointData?.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(

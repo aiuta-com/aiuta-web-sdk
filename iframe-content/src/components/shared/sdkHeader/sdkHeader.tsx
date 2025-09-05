@@ -73,7 +73,6 @@ export const SdkHeader = () => {
         pageId: "howItWorks",
         productIds: [aiutaEndpointData?.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     if (pathName === "/") {
@@ -109,7 +108,6 @@ export const SdkHeader = () => {
             pageId: "loading",
             productIds: [aiutaEndpointData?.skuId],
           },
-          localDateTime: Date.now(),
         };
 
         window.parent.postMessage(
@@ -155,7 +153,6 @@ export const SdkHeader = () => {
           pageId: "history",
           productIds: [aiutaEndpointData?.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(
@@ -224,7 +221,6 @@ export const SdkHeader = () => {
             targetId: "whatsApp",
             productIds: [aiutaEndpointData?.skuId],
           },
-          localDateTime: Date.now(),
         };
 
         if (event.data.shareMethod === "whatsApp") {

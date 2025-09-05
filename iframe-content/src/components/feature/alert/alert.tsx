@@ -30,6 +30,7 @@ export const Alert = (props: AlertTypes) => {
   const hasCheckContentTyeps = typeof showAlertStates.content === "string";
 
   const hasError = type === "error";
+  const hasFullWidth = onClick && typeof onClick === "function";
   // const hasWarning = type === "warning"; TO DO For future
   // const hasSuccess = type === "success"; TO DO For future
 
@@ -46,12 +47,16 @@ export const Alert = (props: AlertTypes) => {
         isShow ? styles.activeAlert : ""
       }`}
     >
-      <div>{hasCheckContentTyeps ? <p>{content} </p> : content}</div>
-      <SecondaryButton
-        text={buttonText}
-        classNames={styles.button}
-        onClick={onClick}
-      />
+      <div className={!hasFullWidth ? styles.fullTextContent : ""}>
+        {hasCheckContentTyeps ? <p>{content} </p> : content}
+      </div>
+      {hasFullWidth && (
+        <SecondaryButton
+          text={buttonText}
+          classNames={styles.button}
+          onClick={onClick}
+        />
+      )}
     </div>
   );
 };
