@@ -40,29 +40,11 @@ function App() {
     const cssUrl = urlParams.get('css');
     
     if (cssUrl) {
-      // Resolve relative URLs relative to parent page's origin
-      let resolvedCssUrl = cssUrl;
-      
-      if (!cssUrl.startsWith('http')) {
-        try {
-          // Get parent page's origin
-          const parentOrigin = window.parent.location.origin;
-          resolvedCssUrl = new URL(cssUrl, parentOrigin).href;
-        } catch (error) {
-          // Fallback: try to construct the URL manually
-          console.warn('Could not resolve relative URL, trying fallback');
-          const parentOrigin = window.parent.location.origin;
-          resolvedCssUrl = cssUrl.startsWith('/') 
-            ? `${parentOrigin}${cssUrl}`
-            : `${parentOrigin}/${cssUrl}`;
-        }
-      }
-      
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = resolvedCssUrl;
-      link.onload = () => console.log('Custom CSS loaded from:', resolvedCssUrl);
-      link.onerror = () => console.error('Failed to load custom CSS from:', resolvedCssUrl);
+      link.href = cssUrl;
+      link.onload = () => console.log('Custom CSS loaded from:', cssUrl);
+      link.onerror = () => console.error('Failed to load custom CSS from:', cssUrl);
       document.head.appendChild(link);
     }
   };
