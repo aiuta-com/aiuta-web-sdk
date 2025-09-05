@@ -11,11 +11,12 @@ export default defineConfig(({ mode }) => {
       analyticsUrl = "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
       break;
     case 'dev':
-      iframeUrl = "https://static.dev.aiuta.com/sdk/v0/index.html";
+      const branch = process.env.AIUTA_IFRAME_BRANCH || 'v0';
+      iframeUrl = `https://static.dev.aiuta.com/sdk/${branch}/index.html`;
       analyticsUrl = "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
       break;
     case 'preprod':
-      iframeUrl = "https://static.preprod.aiuta.com/sdk/v0/index.html";
+      iframeUrl = "https://static.preprod.aiuta.com/sdk/main/index.html";
       analyticsUrl = "https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics";
       break;
     default:
