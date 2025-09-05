@@ -8,7 +8,8 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["iframe-content/src/*"],
-      "@lib/*": ["iframe-content/lib/*"]
+      "@lib/*": ["iframe-content/lib/*"],
+      "@shared/*": ["shared/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,7 +24,9 @@
   "include": [
     "web-sdk/**/*",
     "iframe-content/**/*",
-    "vite.config.iframe.ts"
-, "vite-env.d.ts"  ],
+    "shared/**/*",
+    "vite.config.iframe.ts",
+    "vite-env.d.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

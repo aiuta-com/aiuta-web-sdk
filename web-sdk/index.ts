@@ -8,7 +8,7 @@ import {
   AiutaAnalyticsCallback,
   AiutaStylesConfiguration,
   INITIALLY_STYLES_CONFIGURATION,
-} from "./configuration";
+} from "@shared/config";
 import { ShowFullScreenModal } from "./fullScreenImageModal";
 import { ShareModal } from "./shareModal";
 
@@ -847,7 +847,7 @@ export type {
   AiutaStylesConfiguration,
   AiutaAnalyticsCallback,
   AiutaJwtCallback,
-} from "./configuration";
+} from "@shared/config";
 
 if (typeof window !== "undefined") {
   (window as any).Aiuta = Aiuta;

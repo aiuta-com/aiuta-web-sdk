@@ -50,6 +50,11 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
+    resolve: {
+      alias: {
+        "@shared": path.resolve(__dirname, "shared/"),
+      },
+    },
     define: {
       __SDK_VERSION__: JSON.stringify(pkg.version),
       __AIUTA_IFRAME_URL__: JSON.stringify(iframeUrl),

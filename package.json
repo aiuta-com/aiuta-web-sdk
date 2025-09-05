@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "lint": "xo",
     "dev": "vite --config vite.config.iframe.ts",
     "build:iframe": "vite build --config vite.config.iframe.ts",
     "build:sdk:debug": "vite build --config vite.config.sdk.ts --mode debug",
@@ -38,6 +39,12 @@
     "sass-embedded": "^1.90.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.1",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-tsconfig-paths": "^5.1.4",
+    "xo": "^1.2.2"
+  },
+  "xo": {
+    "space": true,
+    "semicolon": false,
+    "prettier": true
   }
 }

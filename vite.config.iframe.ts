@@ -22,6 +22,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "iframe-content/src/"),
       "@lib": path.resolve(__dirname, "iframe-content/lib/"),
+      "@shared": path.resolve(__dirname, "shared/"),
     },
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
   },
