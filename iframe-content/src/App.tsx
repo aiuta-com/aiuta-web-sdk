@@ -23,6 +23,8 @@ import { SdkFooter } from "./components/shared";
 import { FullScreenImageModal } from "./components/feature";
 import { Spinner } from "./components/feature/spinner/spinner";
 
+declare const __IFRAME_VERSION__: string;
+
 function App() {
   const dispatch = useAppDispatch();
 
@@ -37,19 +39,28 @@ function App() {
 
   const loadCustomCSS = () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const cssUrl = urlParams.get('css');
-    
+    const cssUrl = urlParams.get("css");
+
     if (cssUrl) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
       link.href = cssUrl;
-      link.onload = () => console.log('Custom CSS loaded from:', cssUrl);
-      link.onerror = () => console.error('Failed to load custom CSS from:', cssUrl);
+      link.onload = () => console.log("Custom CSS loaded from:", cssUrl);
+      link.onerror = () =>
+        console.error("Failed to load custom CSS from:", cssUrl);
       document.head.appendChild(link);
     }
   };
 
+  const handleSendIframeVersion = () => {
+    window.parent.postMessage(
+      { action: "IFRAME_LOADED", version: __IFRAME_VERSION__ },
+      "*"
+    );
+  };
+
   useEffect(() => {
+    handleSendIframeVersion();
     handleGetStylesConfiguration();
 
     loadCustomCSS();

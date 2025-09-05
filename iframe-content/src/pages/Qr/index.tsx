@@ -102,38 +102,65 @@ export default function Qr() {
         headers["keys"] = endpointData.apiKey;
       }
 
-      const uploadedResponse = await fetch(
+      try {
+        const uploadedResponse = await fetch(
         "https://web-sdk.aiuta.com/api/upload-image",
-        {
-          method: "POST",
-          headers: headers,
-          body: file,
+          {
+            method: "POST",
+            headers: headers,
+            body: file,
+          }
+        );
+        const result = await uploadedResponse.json();
+
+        if (result.owner_type === "user") {
+          dispatch(
+            fileSlice.actions.setUploadViewFile({ file: file, ...result })
+          );
+          dispatch(configSlice.actions.setIsShowFooter(false));
+          navigate("/view");
+
+          const analytic = {
+            data: {
+              type: "tryOn",
+              source: "device",
+              event: "photoUploaded",
+              pageId: "imagePicker",
+              productIds: [aiutaEndpointData.skuId],
+            },
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.newPhotoTaken, analytic },
+            "*"
+          );
+        } else if (result.error) {
+          dispatch(
+            alertSlice.actions.setShowAlert({
+              type: "error",
+              isShow: true,
+              buttonText: "Try again",
+              content: "Something went wrong, please try again later.",
+            })
+          );
+
+          const analytic = {
+            data: {
+              event: "tryOnError",
+              pageId: "imagePicker",
+              type: "preparePhotoFailed",
+              errorType: result.error,
+              errorMessage: result.error,
+              productIds: [endpointData?.skuId],
+            },
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.tryOnError, analytic },
+            "*"
+          );
         }
-      );
-      const result = await uploadedResponse.json();
-
-      if (result.owner_type === "user") {
-        dispatch(
-          fileSlice.actions.setUploadViewFile({ file: file, ...result })
-        );
-        dispatch(configSlice.actions.setIsShowFooter(false));
-        navigate("/view");
-
-        const analytic = {
-          data: {
-            type: "tryOn",
-            source: "device",
-            event: "photoUploaded",
-            pageId: "imagePicker",
-            productIds: [aiutaEndpointData.skuId],
-          },
-        };
-
-        window.parent.postMessage(
-          { action: AnalyticEventsEnum.newPhotoTaken, analytic },
-          "*"
-        );
-      } else if (result.error) {
+      } catch (error: any) {
         dispatch(
           alertSlice.actions.setShowAlert({
             type: "error",
@@ -148,8 +175,8 @@ export default function Qr() {
             event: "tryOnError",
             pageId: "imagePicker",
             type: "uploadPhotoFailed",
-            errorType: result.error,
-            errorMessage: result.error,
+            errorType: error.message,
+            errorMessage: error.message,
             productIds: [endpointData?.skuId],
           },
         };

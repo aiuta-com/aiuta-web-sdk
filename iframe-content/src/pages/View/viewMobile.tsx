@@ -224,41 +224,52 @@ export default function ViewMobile() {
         typeof event.data.jwtToken === "string" &&
         event.data.jwtToken.length > 0
       ) {
-        const operationResponse = await fetch(
-          "https://web-sdk.aiuta.com/api/create-operation-id",
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({
-              uploaded_image_id: uploaded_image_id,
-              ...event.data,
-            }),
-          }
-        );
+        try {
+          const operationResponse = await fetch(
+            "https://web-sdk.aiuta.com/api/create-operation-id",
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              method: "POST",
+              body: JSON.stringify({
+                uploaded_image_id: uploaded_image_id,
+                ...event.data,
+              }),
+            }
+          );
 
-        setEndpointData(event.data);
+          setEndpointData(event.data);
 
-        if (operationResponse.ok) {
-          const result = await operationResponse.json();
+          if (operationResponse.ok) {
+            const result = await operationResponse.json();
 
-          if (isExistUploadedPhoto) {
-            handlePutRecentlyPhotos(
-              uploadedViewFile.id,
-              uploadedViewFile.url,
-              "tryon-recent-photos"
-            );
-          }
+            if (isExistUploadedPhoto) {
+              handlePutRecentlyPhotos(
+                uploadedViewFile.id,
+                uploadedViewFile.url,
+                "tryon-recent-photos"
+              );
+            }
 
-          if (result.operation_id) {
-            generationApiCallInterval = setInterval(() => {
-              handleGetGeneratedImage(result.operation_id);
+            if (result.operation_id) {
+              generationApiCallInterval = setInterval(() => {
+                handleGetGeneratedImage(result.operation_id);
+                window.removeEventListener("message", handleGenerates);
+              }, 3000);
+            } else {
               window.removeEventListener("message", handleGenerates);
-            }, 3000);
+              dispatch(generateSlice.actions.setIsStartGeneration(false));
+              dispatch(
+                alertSlice.actions.setShowAlert({
+                  type: "error",
+                  isShow: true,
+                  buttonText: "Try again",
+                  content: "Something went wrong, please try again later.",
+                })
+              );
+            }
           } else {
-            window.removeEventListener("message", handleGenerates);
-            dispatch(generateSlice.actions.setIsStartGeneration(false));
             dispatch(
               alertSlice.actions.setShowAlert({
                 type: "error",
@@ -267,59 +278,66 @@ export default function ViewMobile() {
                 content: "Something went wrong, please try again later.",
               })
             );
-          }
-        } else {
-          dispatch(
-            alertSlice.actions.setShowAlert({
-              type: "error",
-              isShow: true,
-              buttonText: "Try again",
-              content: "Something went wrong, please try again later.",
-            })
-          );
 
-          const data = await operationResponse.json();
+            const data = await operationResponse.json();
 
-          if (data && "error" in data && typeof data.error === "string") {
-            const errorMessage = JSON.parse(data.error);
+            if (data && "error" in data && typeof data.error === "string") {
+              const errorMessage = JSON.parse(data.error);
 
-            const hadDetailInErrorMessage = "detail" in errorMessage;
-            const hadMessageInErrorMessage = "message" in errorMessage;
+              const hadDetailInErrorMessage = "detail" in errorMessage;
+              const hadMessageInErrorMessage = "message" in errorMessage;
 
-            if (hadDetailInErrorMessage) {
-              const analytic = {
-                data: {
-                  type: "tryOn",
-                  event: "tryOnError",
-                  pageId: "loading",
-                  errorType: errorMessage.detail,
-                  errorMessage: errorMessage.detail,
-                  productIds: [endpointData?.skuId],
-                },
-              };
+              if (hadDetailInErrorMessage) {
+                const analytic = {
+                  data: {
+                    type: "tryOn",
+                    event: "tryOnError",
+                    pageId: "loading",
+                    errorType: errorMessage.detail,
+                    errorMessage: errorMessage.detail,
+                    productIds: [endpointData?.skuId],
+                  },
+                };
 
-              window.parent.postMessage(
-                { action: AnalyticEventsEnum.tryOnError, analytic },
-                "*"
-              );
-            } else if (hadMessageInErrorMessage) {
-              const analytic = {
-                data: {
-                  type: "tryOn",
-                  event: "tryOnError",
-                  pageId: "loading",
-                  errorType: errorMessage.message,
-                  errorMessage: JSON.stringify(errorMessage),
-                  productIds: [endpointData?.skuId],
-                },
-              };
+                window.parent.postMessage(
+                  { action: AnalyticEventsEnum.tryOnError, analytic },
+                  "*"
+                );
+              } else if (hadMessageInErrorMessage) {
+                const analytic = {
+                  data: {
+                    type: "tryOn",
+                    event: "tryOnError",
+                    pageId: "loading",
+                    errorType: errorMessage.message,
+                    errorMessage: JSON.stringify(errorMessage),
+                    productIds: [endpointData?.skuId],
+                  },
+                };
 
-              window.parent.postMessage(
-                { action: AnalyticEventsEnum.tryOnError, analytic },
-                "*"
-              );
+                window.parent.postMessage(
+                  { action: AnalyticEventsEnum.tryOnError, analytic },
+                  "*"
+                );
+              }
             }
           }
+        } catch (error: any) {
+          const analytic = {
+            data: {
+              type: "tryOn",
+              event: "tryOnError",
+              pageId: "loading",
+              errorType: "requestOperationFailed",
+              errorMessage: JSON.stringify(error.message),
+              productIds: [endpointData?.skuId],
+            },
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.tryOnError, analytic },
+            "*"
+          );
         }
       } else {
         window.removeEventListener("message", handleGenerates);
@@ -419,6 +437,115 @@ export default function ViewMobile() {
 
       window.addEventListener("message", handleGenerates);
     } else {
+      try {
+        const operationResponse = await fetch(
+          "https://web-sdk.aiuta.com/api/create-operation-id",
+          {
+            headers: {
+              "Content-Type": "application/json",
+            },
+            method: "POST",
+            body: JSON.stringify({
+              uploaded_image_id: uploaded_image_id,
+              ...endpointData,
+            }),
+          }
+        );
+
+        if (operationResponse.ok) {
+          const result = await operationResponse.json();
+
+          if (isExistUploadedPhoto) {
+            handlePutRecentlyPhotos(
+              uploadedViewFile.id,
+              uploadedViewFile.url,
+              "tryon-recent-photos"
+            );
+          }
+
+          if (result.operation_id) {
+            generationApiCallInterval = setInterval(() => {
+              handleGetGeneratedImage(result.operation_id);
+            }, 3000);
+          }
+        } else {
+          dispatch(generateSlice.actions.setIsStartGeneration(false));
+          dispatch(
+            alertSlice.actions.setShowAlert({
+              type: "error",
+              isShow: true,
+              buttonText: "Try again",
+              content: "Something went wrong, please try again later.",
+            })
+          );
+
+          const data = await operationResponse.json();
+
+          if (data && "error" in data && typeof data.error === "string") {
+            const errorMessage = JSON.parse(data.error);
+
+            const hadDetailInErrorMessage = "detail" in errorMessage;
+            const hadMessageInErrorMessage = "message" in errorMessage;
+
+            if (hadDetailInErrorMessage) {
+              const analytic = {
+                data: {
+                  type: "tryOn",
+                  event: "tryOnError",
+                  pageId: "loading",
+                  errorType: errorMessage.detail,
+                  errorMessage: errorMessage.detail,
+                  productIds: [endpointData?.skuId],
+                },
+              };
+
+              window.parent.postMessage(
+                { action: AnalyticEventsEnum.tryOnError, analytic },
+                "*"
+              );
+            } else if (hadMessageInErrorMessage) {
+              const analytic = {
+                data: {
+                  type: "tryOn",
+                  event: "tryOnError",
+                  pageId: "loading",
+                  errorType: errorMessage.message,
+                  errorMessage: JSON.stringify(errorMessage),
+                  productIds: [endpointData?.skuId],
+                },
+              };
+
+              window.parent.postMessage(
+                { action: AnalyticEventsEnum.tryOnError, analytic },
+                "*"
+              );
+            }
+          }
+        }
+      } catch (error: any) {
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnError",
+            pageId: "loading",
+            errorType: "requestOperationFailed",
+            errorMessage: JSON.stringify(error.message),
+            productIds: [endpointData?.skuId],
+          },
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
+          "*"
+        );
+      }
+    }
+  };
+
+  const handleGenerate = async (uploadedData: { id: string; url: string }) => {
+    const isExistUploadedPhoto = uploadedData.id.length;
+
+    try {
       const operationResponse = await fetch(
         "https://web-sdk.aiuta.com/api/create-operation-id",
         {
@@ -427,7 +554,7 @@ export default function ViewMobile() {
           },
           method: "POST",
           body: JSON.stringify({
-            uploaded_image_id: uploaded_image_id,
+            uploaded_image_id: uploadedData.id,
             ...endpointData,
           }),
         }
@@ -438,8 +565,8 @@ export default function ViewMobile() {
 
         if (isExistUploadedPhoto) {
           handlePutRecentlyPhotos(
-            uploadedViewFile.id,
-            uploadedViewFile.url,
+            uploadedData.id,
+            uploadedData.url,
             "tryon-recent-photos"
           );
         }
@@ -503,51 +630,21 @@ export default function ViewMobile() {
           }
         }
       }
-    }
-  };
-
-  const handleGenerate = async (uploadedData: { id: string; url: string }) => {
-    const isExistUploadedPhoto = uploadedData.id.length;
-
-    const operationResponse = await fetch(
-      "https://web-sdk.aiuta.com/api/create-operation-id",
-      {
-        headers: {
-          "Content-Type": "application/json",
+    } catch (error: any) {
+      const analytic = {
+        data: {
+          type: "tryOn",
+          event: "tryOnError",
+          pageId: "loading",
+          errorType: "requestOperationFailed",
+          errorMessage: JSON.stringify(error.message),
+          productIds: [endpointData?.skuId],
         },
-        method: "POST",
-        body: JSON.stringify({
-          uploaded_image_id: uploadedData.id,
-          ...endpointData,
-        }),
-      }
-    );
+      };
 
-    if (operationResponse.ok) {
-      const result = await operationResponse.json();
-
-      if (isExistUploadedPhoto) {
-        handlePutRecentlyPhotos(
-          uploadedData.id,
-          uploadedData.url,
-          "tryon-recent-photos"
-        );
-      }
-
-      if (result.operation_id) {
-        generationApiCallInterval = setInterval(() => {
-          handleGetGeneratedImage(result.operation_id);
-        }, 3000);
-      }
-    } else {
-      dispatch(generateSlice.actions.setIsStartGeneration(false));
-      dispatch(
-        alertSlice.actions.setShowAlert({
-          type: "error",
-          isShow: true,
-          buttonText: "Try again",
-          content: "Something went wrong, please try again later.",
-        })
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.tryOnError, analytic },
+        "*"
       );
     }
   };
@@ -598,23 +695,75 @@ export default function ViewMobile() {
         headers["keys"] = endpointData.apiKey;
       }
 
-      const uploadedResponse = await fetch(
-        "https://web-sdk.aiuta.com/api/upload-image",
-        {
-          method: "POST",
-          headers: headers,
-          body: file,
-        }
-      );
-      const result = await uploadedResponse.json();
-
-      if (result.owner_type === "user") {
-        dispatch(
-          fileSlice.actions.setUploadViewFile({ file: file, ...result })
+      try {
+        const uploadedResponse = await fetch(
+          "https://web-sdk.aiuta.com/api/upload-image",
+          {
+            method: "POST",
+            headers: headers,
+            body: file,
+          }
         );
-        handleGenerate(result);
+        const result = await uploadedResponse.json();
 
-        if (isOpenSwip) dispatch(configSlice.actions.setIsOpenSwip(false));
+        if (result.owner_type === "user") {
+          dispatch(
+            fileSlice.actions.setUploadViewFile({ file: file, ...result })
+          );
+          handleGenerate(result);
+
+          if (isOpenSwip) dispatch(configSlice.actions.setIsOpenSwip(false));
+        } else if (result.error) {
+          dispatch(
+            alertSlice.actions.setShowAlert({
+              type: "error",
+              isShow: true,
+              buttonText: "Try again",
+              content: "Something went wrong, please try again later.",
+            })
+          );
+
+          const analytic = {
+            data: {
+              event: "tryOnError",
+              pageId: "imagePicker",
+              type: "preparePhotoFailed",
+              errorType: result.error,
+              errorMessage: result.error,
+              productIds: [endpointData?.skuId],
+            },
+          };
+
+          window.parent.postMessage(
+            { action: AnalyticEventsEnum.tryOnError, analytic },
+            "*"
+          );
+        }
+      } catch (error: any) {
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong, please try again later.",
+          })
+        );
+
+        const analytic = {
+          data: {
+            event: "tryOnError",
+            pageId: "imagePicker",
+            type: "uploadPhotoFailed",
+            errorType: error.message,
+            errorMessage: error.message,
+            productIds: [endpointData?.skuId],
+          },
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
+          "*"
+        );
       }
     }
   };
