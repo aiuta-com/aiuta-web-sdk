@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import tsconfigPaths from "vite-tsconfig-paths";
+import pkg from "./package.json";
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
@@ -34,5 +35,6 @@ export default defineConfig({
   },
   define: {
     "process.env.NODE_ENV": JSON.stringify("production"),
+    __IFRAME_VERSION__: JSON.stringify(pkg.version),
   },
 });

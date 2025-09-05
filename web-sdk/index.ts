@@ -13,6 +13,7 @@ import { ShowFullScreenModal } from "./fullScreenImageModal";
 import { ShareModal } from "./shareModal";
 
 // Global variables injected by Vite
+declare const __SDK_VERSION__: string;
 declare const __AIUTA_IFRAME_URL__: string;
 declare const __AIUTA_ANALYTICS_URL__: string;
 
@@ -59,6 +60,7 @@ export default class Aiuta {
   // Runtime
   private productId!: string;
   private isIframeOpen: boolean = false;
+  private iframeVersion: string | null = null;
   private iframe: HTMLIFrameElement | null = null;
   private browserInfo: { name: string; version: string } = {
     name: "",
@@ -66,6 +68,7 @@ export default class Aiuta {
   };
 
   // URLs
+  readonly sdkVersion = __SDK_VERSION__;
   readonly iframeUrl = __AIUTA_IFRAME_URL__;
   readonly analyticsUrl = __AIUTA_ANALYTICS_URL__;
 
@@ -149,8 +152,9 @@ export default class Aiuta {
       ...data,
       env: {
         platform: "web",
-        sdkVersion: "v0.0.93",
         hostId: window.origin,
+        sdkVersion: this.sdkVersion,
+        iframeVersion: this.iframeVersion,
         browserType: this.browserInfo.name,
         browserVersion: this.browserInfo.version,
         installationId: this.userIdentifareToken,
@@ -471,6 +475,25 @@ export default class Aiuta {
               });
 
               fullScreenModal.showModal();
+            }
+            break;
+
+          case "IFRAME_LOADED":
+            if (aiutaIframe.contentWindow) {
+              this.iframeVersion = data.version;
+
+              const analytic: any = {
+                data: {
+                  type: "session",
+                  event: "iframeLoaded",
+                },
+              };
+
+              this.trackEvent("configure", analytic);
+
+              if (typeof this.analytics === "function") {
+                this.analytics(analytic.data);
+              }
             }
             break;
 

@@ -1,23 +1,25 @@
 import { defineConfig } from "vite";
 import path from "path";
+import pkg from "./package.json";
 
 export default defineConfig(({ mode }) => {
   let iframeUrl: string;
   let analyticsUrl: string;
-  
+
   switch (mode) {
-    case 'debug':
+    case "debug":
       iframeUrl = "/iframe/index.html";
       analyticsUrl = "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
       break;
-    case 'dev':
-      const branch = process.env.AIUTA_IFRAME_BRANCH || 'v0';
+    case "dev":
+      const branch = process.env.AIUTA_IFRAME_BRANCH || "v0";
       iframeUrl = `https://static.dev.aiuta.com/sdk/${branch}/index.html`;
       analyticsUrl = "https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics";
       break;
-    case 'preprod':
+    case "preprod":
       iframeUrl = "https://static.preprod.aiuta.com/sdk/main/index.html";
-      analyticsUrl = "https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics";
+      analyticsUrl =
+        "https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics";
       break;
     default:
       iframeUrl = "https://static.aiuta.com/sdk/v0/index.html";
@@ -27,6 +29,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     define: {
+      __SDK_VERSION__: JSON.stringify(pkg.version),
       __AIUTA_IFRAME_URL__: JSON.stringify(iframeUrl),
       __AIUTA_ANALYTICS_URL__: JSON.stringify(analyticsUrl),
     },
