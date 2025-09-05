@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
 import { configSlice } from "@lib/redux/slices/configSlice";
-import { onboardingStepsSelector } from "@lib/redux/slices/configSlice/selectors";
+import {
+  aiutaEndpointDataSelector,
+  onboardingStepsSelector,
+} from "@lib/redux/slices/configSlice/selectors";
 import { Consent } from "./components/consent/consent";
 import { TitleDescription, TryOnButton } from "@/components/feature";
 
@@ -35,6 +38,23 @@ export const OnboardingMobile = () => {
   const [initiallyOnboardingStep, setInitiallyOnboardingStep] = useState(0);
 
   const onboardingSteps = useAppSelector(onboardingStepsSelector);
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
+
+  const handleOnboardAnalyticFinish = () => {
+    const analytic = {
+      data: {
+        type: "onboarding",
+        pageId: "consent",
+        event: "onboardingFinished",
+        productIds: [aiutaEndpointData.skuId],
+      },
+    };
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.onboarding, analytic },
+      "*"
+    );
+  };
 
   const handleClickOnboardingButton = () => {
     if (initiallyOnboardingStep !== 2) {
@@ -44,6 +64,7 @@ export const OnboardingMobile = () => {
         dispatch(configSlice.actions.setOnboardingSteps(null));
       } else {
         navigate("/view");
+        handleOnboardAnalyticFinish();
         dispatch(configSlice.actions.setIsShowFooter(true));
         dispatch(configSlice.actions.setIsOnboardingDone(true));
         localStorage.setItem("isOnboarding", JSON.stringify(true));
@@ -51,26 +72,63 @@ export const OnboardingMobile = () => {
     }
   };
 
-  const onboardingAnalytic = useCallback(() => {
-    const analytic = {
-      data: {
-        type: "onboarding",
-        event: "welcomeStartClicked",
-        pageId: "onboarding",
-      },
-      localDateTime: Date.now(),
-    };
+  const initaillAnalytic = () => {
+    if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+      const analytic = {
+        data: {
+          type: "page",
+          pageId: "howItWorks",
+          productIds: [aiutaEndpointData.skuId],
+        },
+      };
 
+      window.parent.postMessage(
+        { action: AnalyticEventsEnum.onboarding, analytic },
+        "*"
+      );
+    }
+  };
+
+  const initPageAnalytic = (analytic: any) => {
     window.parent.postMessage(
       { action: AnalyticEventsEnum.onboarding, analytic },
       "*"
     );
-  }, []);
+  };
 
   useEffect(() => {
-    onboardingAnalytic();
+    const isOnboarding = JSON.parse(
+      localStorage.getItem("isOnboarding") || "false"
+    );
+
+    if (!isOnboarding) {
+      if (!onboardingSteps) {
+        initaillAnalytic();
+      } else if (onboardingSteps === 1) {
+        const analytic = {
+          data: {
+            type: "page",
+            pageId: "bestResults",
+            productIds: [aiutaEndpointData.skuId],
+          },
+        };
+
+        initPageAnalytic(analytic);
+      } else if (onboardingSteps === 2) {
+        const analytic = {
+          data: {
+            type: "page",
+            pageId: "consent",
+            productIds: [aiutaEndpointData.skuId],
+          },
+        };
+
+        initPageAnalytic(analytic);
+      }
+    }
+
     // eslint-disable-next-line
-  }, []);
+  }, [aiutaEndpointData, onboardingSteps]);
 
   return (
     <div className={styles.onboardingMobile}>

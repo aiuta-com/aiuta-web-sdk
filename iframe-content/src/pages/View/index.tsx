@@ -99,11 +99,10 @@ export default function View() {
       data: {
         type: "tryOn",
         event: "tryOnFinished",
-        pageId: "results",
+        pageId: "loading",
         productIds: [endpointData?.skuId],
         tryOnDuration: Math.floor((Date.now() - startTryOnDuration) / 1000),
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -168,7 +167,6 @@ export default function View() {
             errorMessage: result.error,
             productIds: [endpointData?.skuId],
           },
-          localDateTime: Date.now(),
         };
 
         window.parent.postMessage(
@@ -192,7 +190,6 @@ export default function View() {
             pageId: "result",
             productIds: [endpointData?.skuId],
           },
-          localDateTime: Date.now(),
         };
 
         window.parent.postMessage(
@@ -262,6 +259,49 @@ export default function View() {
               content: "Something went wrong, please try again later.",
             })
           );
+
+          const data = await operationResponse.json();
+
+          if (data && "error" in data && typeof data.error === "string") {
+            const errorMessage = JSON.parse(data.error);
+
+            const hadDetailInErrorMessage = "detail" in errorMessage;
+            const hadMessageInErrorMessage = "message" in errorMessage;
+
+            if (hadDetailInErrorMessage) {
+              const analytic = {
+                data: {
+                  type: "tryOn",
+                  event: "tryOnError",
+                  pageId: "loading",
+                  errorType: errorMessage.detail,
+                  errorMessage: errorMessage.detail,
+                  productIds: [endpointData?.skuId],
+                },
+              };
+
+              window.parent.postMessage(
+                { action: AnalyticEventsEnum.tryOnError, analytic },
+                "*"
+              );
+            } else if (hadMessageInErrorMessage) {
+              const analytic = {
+                data: {
+                  type: "tryOn",
+                  event: "tryOnError",
+                  pageId: "loading",
+                  errorType: errorMessage.message,
+                  errorMessage: JSON.stringify(errorMessage),
+                  productIds: [endpointData?.skuId],
+                },
+              };
+
+              window.parent.postMessage(
+                { action: AnalyticEventsEnum.tryOnError, analytic },
+                "*"
+              );
+            }
+          }
         }
       } else {
         window.removeEventListener("message", handleGenerate);
@@ -273,6 +313,22 @@ export default function View() {
             buttonText: "Try again",
             content: "Something went wrong, please try again later.",
           })
+        );
+
+        const analytic = {
+          data: {
+            type: "tryOn",
+            event: "tryOnError",
+            pageId: "loading",
+            errorType: "Unauthorized",
+            errorMessage: "Unauthorized",
+            productIds: [endpointData?.skuId],
+          },
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
+          "*"
         );
       }
     }
@@ -286,7 +342,6 @@ export default function View() {
         pageId: "loading",
         productIds: [endpointData?.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -305,11 +360,23 @@ export default function View() {
         pageId: "imagePicker",
         productIds: [endpointData?.skuId],
       },
-      localDateTime: Date.now(),
+    };
+
+    const analyticLoading = {
+      data: {
+        type: "page",
+        pageId: "loading",
+        productIds: [endpointData?.skuId],
+      },
     };
 
     window.parent.postMessage(
       { action: AnalyticEventsEnum.tryOn, analytic },
+      "*"
+    );
+
+    window.parent.postMessage(
+      { action: AnalyticEventsEnum.tryOn, analytic: analyticLoading },
       "*"
     );
 
@@ -381,6 +448,49 @@ export default function View() {
             content: "Something went wrong, please try again later.",
           })
         );
+
+        const data = await operationResponse.json();
+
+        if (data && "error" in data && typeof data.error === "string") {
+          const errorMessage = JSON.parse(data.error);
+
+          const hadDetailInErrorMessage = "detail" in errorMessage;
+          const hadMessageInErrorMessage = "message" in errorMessage;
+
+          if (hadDetailInErrorMessage) {
+            const analytic = {
+              data: {
+                type: "tryOn",
+                event: "tryOnError",
+                pageId: "loading",
+                errorType: errorMessage.detail,
+                errorMessage: errorMessage.detail,
+                productIds: [endpointData?.skuId],
+              },
+            };
+
+            window.parent.postMessage(
+              { action: AnalyticEventsEnum.tryOnError, analytic },
+              "*"
+            );
+          } else if (hadMessageInErrorMessage) {
+            const analytic = {
+              data: {
+                type: "tryOn",
+                event: "tryOnError",
+                pageId: "loading",
+                errorType: errorMessage.message,
+                errorMessage: JSON.stringify(errorMessage),
+                productIds: [endpointData?.skuId],
+              },
+            };
+
+            window.parent.postMessage(
+              { action: AnalyticEventsEnum.tryOnError, analytic },
+              "*"
+            );
+          }
+        }
       }
     }
   };

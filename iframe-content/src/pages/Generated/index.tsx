@@ -131,7 +131,6 @@ export default function Generated() {
           pageId: "results",
           productIds: [endpointData?.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(
@@ -165,7 +164,6 @@ export default function Generated() {
               pageId: "history",
               productIds: [endpointData?.skuId],
             },
-            localDateTime: Date.now(),
           };
 
           window.parent.postMessage(
@@ -183,7 +181,6 @@ export default function Generated() {
               targetId: "whatsApp",
               productIds: [endpointData?.skuId],
             },
-            localDateTime: Date.now(),
           };
 
           if (event.data.shareMethod === "whatsApp") {

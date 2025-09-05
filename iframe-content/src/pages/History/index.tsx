@@ -112,7 +112,6 @@ export default function History() {
         pageId: "history",
         productIds: [aiutaEndpointData.skuId],
       },
-      localDateTime: Date.now(),
     };
 
     window.parent.postMessage(
@@ -129,7 +128,6 @@ export default function History() {
           pageId: "history",
           productIds: [aiutaEndpointData.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(
@@ -157,7 +155,6 @@ export default function History() {
               pageId: "history",
               productIds: [aiutaEndpointData.skuId],
             },
-            localDateTime: Date.now(),
           };
 
           window.parent.postMessage(

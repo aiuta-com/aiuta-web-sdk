@@ -1,13 +1,13 @@
 import {
-  AiutaConfiguration,
   AiutaAuth,
-  AiutaUserInterface,
   AiutaAnalytics,
-  AiutaIframePosition,
-  AiutaStylesConfiguration,
-  AiutaAnalyticsCallback,
   AiutaJwtCallback,
-  INITIALLY_STYLES_CONFIGURATION
+  AiutaConfiguration,
+  AiutaUserInterface,
+  AiutaIframePosition,
+  AiutaAnalyticsCallback,
+  AiutaStylesConfiguration,
+  INITIALLY_STYLES_CONFIGURATION,
 } from "./configuration";
 import { ShowFullScreenModal } from "./fullScreenImageModal";
 import { ShareModal } from "./shareModal";
@@ -45,6 +45,7 @@ export default class Aiuta {
   private getJwt!: AiutaJwtCallback;
   private apiKey!: string;
   private userId!: string;
+  private userIdentifareToken!: string;
 
   // User interface
   private sdkPosition: AiutaIframePosition = "topRight";
@@ -59,13 +60,33 @@ export default class Aiuta {
   private productId!: string;
   private isIframeOpen: boolean = false;
   private iframe: HTMLIFrameElement | null = null;
+  private browserInfo: { name: string; version: string } = {
+    name: "",
+    version: "",
+  };
 
   // URLs
   readonly iframeUrl = __AIUTA_IFRAME_URL__;
   readonly analyticsUrl = __AIUTA_ANALYTICS_URL__;
 
   constructor(configuration: AiutaConfiguration) {
+    this.browserInfo = this.getBrowserInfo();
     this.configureAuth(configuration.auth);
+
+    const getUserIdentifareToken = localStorage.getItem(
+      "user_identifare_token"
+    );
+
+    if (!getUserIdentifareToken) {
+      const userIdentifareToken =
+        this.createUserIdentifareToken() + this.createUserIdentifareToken();
+      localStorage.setItem("user_identifare_token", userIdentifareToken);
+
+      this.userIdentifareToken = userIdentifareToken;
+    } else {
+      this.userIdentifareToken = getUserIdentifareToken;
+    }
+
     if (configuration.userInterface) {
       this.configureUserInterface(configuration.userInterface);
     }
@@ -86,9 +107,56 @@ export default class Aiuta {
     this.trackEvent("configure", analytic);
   }
 
+  createUserIdentifareToken = () => {
+    return Math.random().toString(36).substr(2);
+  };
+
+  getBrowserInfo() {
+    const ua: any = navigator.userAgent;
+
+    if (/chrome|crios|crmo/i.test(ua) && !/edge|edg/i.test(ua)) {
+      return { name: "Chrome", version: ua.match(/Chrome\/([\d.]+)/)[1] };
+    }
+    if (/firefox|fxios/i.test(ua)) {
+      return { name: "Firefox", version: ua.match(/Firefox\/([\d.]+)/)[1] };
+    }
+    if (/safari/i.test(ua) && !/chrome|crios|crmo/i.test(ua)) {
+      return { name: "Safari", version: ua.match(/Version\/([\d.]+)/)[1] };
+    }
+    if (/edg/i.test(ua)) {
+      return { name: "Edge", version: ua.match(/Edg\/([\d.]+)/)[1] };
+    }
+    return { name: "Unknown", version: "Unknown" };
+  }
+
+  getLocaleISODate() {
+    const now = new Date();
+    const localISOTime = now.toISOString().slice(0, -1); // removes trailing Z (UTC)
+
+    const tzOffsetMin = now.getTimezoneOffset();
+    const sign = tzOffsetMin > 0 ? "-" : "+";
+    const pad = (n: any) => String(Math.floor(Math.abs(n))).padStart(2, "0");
+
+    const offset = sign + pad(tzOffsetMin / 60) + ":" + pad(tzOffsetMin % 60);
+
+    return localISOTime + offset;
+  }
+
   trackEvent(eventName: string, data: Record<string, any>) {
+    const localDateTime = this.getLocaleISODate();
+
     const body = {
       ...data,
+      env: {
+        platform: "web",
+        sdkVersion: "v0.0.93",
+        hostId: window.origin,
+        browserType: this.browserInfo.name,
+        browserVersion: this.browserInfo.version,
+        installationId: this.userIdentifareToken,
+      },
+
+      localDateTime: localDateTime,
     };
 
     fetch(this.analyticsUrl, {
@@ -99,7 +167,7 @@ export default class Aiuta {
   }
 
   private configureAuth(auth: AiutaAuth): void {
-    if ('apiKey' in auth) {
+    if ("apiKey" in auth) {
       this.apiKey = auth.apiKey;
     } else {
       this.userId = auth.subscriptionId;
@@ -122,7 +190,10 @@ export default class Aiuta {
   }
 
   private configureAnalytics(analytics: AiutaAnalytics): void {
-    if (analytics.handler && typeof analytics.handler.onAnalyticsEvent === "function") {
+    if (
+      analytics.handler &&
+      typeof analytics.handler.onAnalyticsEvent === "function"
+    ) {
       this.analytics = analytics.handler.onAnalyticsEvent;
     }
   }
@@ -141,28 +212,30 @@ export default class Aiuta {
     const aiutaIframe: any = document.createElement("iframe");
     aiutaIframe.id = "aiuta-iframe";
     aiutaIframe.allow = "fullscreen";
-    
+
     let iframeSrc = this.iframeUrl;
     if (this.customCssUrl) {
       let resolvedCssUrl = this.customCssUrl;
-      
-      if (!this.customCssUrl.startsWith('http')) {
+
+      if (!this.customCssUrl.startsWith("http")) {
         try {
           const currentOrigin = window.location.origin;
           resolvedCssUrl = new URL(this.customCssUrl, currentOrigin).href;
         } catch (error) {
           // Fallback: try to construct the URL manually
           const currentOrigin = window.location.origin;
-          resolvedCssUrl = this.customCssUrl.startsWith('/') 
+          resolvedCssUrl = this.customCssUrl.startsWith("/")
             ? `${currentOrigin}${this.customCssUrl}`
             : `${currentOrigin}/${this.customCssUrl}`;
         }
       }
-      
-      const separator = iframeSrc.includes('?') ? '&' : '?';
-      iframeSrc = `${iframeSrc}${separator}css=${encodeURIComponent(resolvedCssUrl)}`;
+
+      const separator = iframeSrc.includes("?") ? "&" : "?";
+      iframeSrc = `${iframeSrc}${separator}css=${encodeURIComponent(
+        resolvedCssUrl
+      )}`;
     }
-    
+
     aiutaIframe.src = iframeSrc;
     aiutaIframe.style.transition = "all ease-in-out 0.5s";
     aiutaIframe.style.position = "fixed";
@@ -727,7 +800,6 @@ export default class Aiuta {
         flow: "tryOn",
         productIds: [productId],
       },
-      localDateTime: Date.now(),
     };
 
     this.trackEvent("configure", analytic);
@@ -751,7 +823,7 @@ export type {
   AiutaIframePosition,
   AiutaStylesConfiguration,
   AiutaAnalyticsCallback,
-  AiutaJwtCallback
+  AiutaJwtCallback,
 } from "./configuration";
 
 if (typeof window !== "undefined") {

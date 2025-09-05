@@ -13,6 +13,7 @@ import { useAppSelector, useAppDispatch } from "../../../lib/redux/store";
 
 // actions
 import { fileSlice } from "@lib/redux/slices/fileSlice";
+import { alertSlice } from "@lib/redux/slices/alertSlice";
 import { configSlice } from "@lib/redux/slices/configSlice";
 
 // selectors
@@ -23,7 +24,7 @@ import {
 } from "@lib/redux/slices/configSlice/selectors";
 
 // components
-import { QrCode } from "@/components/feature";
+import { Alert, QrCode } from "@/components/feature";
 
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
@@ -66,7 +67,6 @@ export default function Qr() {
           pageId: "imagePicker",
           productIds: [aiutaEndpointData.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(
@@ -122,15 +122,40 @@ export default function Qr() {
         const analytic = {
           data: {
             type: "tryOn",
+            source: "device",
             event: "photoUploaded",
             pageId: "imagePicker",
             productIds: [aiutaEndpointData.skuId],
           },
-          localDateTime: Date.now(),
         };
 
         window.parent.postMessage(
           { action: AnalyticEventsEnum.newPhotoTaken, analytic },
+          "*"
+        );
+      } else if (result.error) {
+        dispatch(
+          alertSlice.actions.setShowAlert({
+            type: "error",
+            isShow: true,
+            buttonText: "Try again",
+            content: "Something went wrong, please try again later.",
+          })
+        );
+
+        const analytic = {
+          data: {
+            event: "tryOnError",
+            pageId: "imagePicker",
+            type: "uploadPhotoFailed",
+            errorType: result.error,
+            errorMessage: result.error,
+            productIds: [endpointData?.skuId],
+          },
+        };
+
+        window.parent.postMessage(
+          { action: AnalyticEventsEnum.tryOnError, analytic },
           "*"
         );
       }
@@ -156,11 +181,11 @@ export default function Qr() {
       const analytic = {
         data: {
           type: "tryOn",
+          source: "QR",
           event: "photoUploaded",
           pageId: "imagePicker",
           productIds: [aiutaEndpointData.skuId],
         },
-        localDateTime: Date.now(),
       };
 
       window.parent.postMessage(
@@ -244,6 +269,7 @@ export default function Qr() {
           ease: "easeInOut",
         }}
       >
+        <Alert />
         {endpointData ? (
           <QrCode onChange={handleChoosePhoto} url={qrUrl} />
         ) : null}
