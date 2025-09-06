@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "lint": "xo",
+    "lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --report-unused-disable-directives",
+    "lint:fix": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
     "dev": "vite --config vite.config.iframe.ts",
     "build:iframe": "vite build --config vite.config.iframe.ts",
     "build:sdk:debug": "vite build --config vite.config.sdk.ts --mode debug",
@@ -34,17 +35,14 @@
     "@types/node": "^24.2.0",
     "@types/react": "^19.0.11",
     "@types/react-dom": "^19.0.11",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
     "@vitejs/plugin-react": "^5.0.0",
-    "eslint": "^9.0.0",
+    "eslint": "^9.35.0",
+    "prettier": "^3.6.2",
     "sass-embedded": "^1.90.0",
     "typescript": "^5.9.2",
     "vite": "^7.1.1",
-    "vite-tsconfig-paths": "^5.1.4",
-    "xo": "^1.2.2"
-  },
-  "xo": {
-    "space": true,
-    "semicolon": false,
-    "prettier": true
+    "vite-tsconfig-paths": "^5.1.4"
   }
 }
