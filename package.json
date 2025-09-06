@@ -4,6 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "fmt": "prettier . --check",
+    "fmt:fix": "prettier . --write",
     "lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --report-unused-disable-directives",
     "lint:fix": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
     "dev": "vite --config vite.config.iframe.ts",
