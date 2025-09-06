@@ -1,19 +1,19 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit'
 
 interface configSliceState {
-  showHistoryImagesModal: boolean;
+  showHistoryImagesModal: boolean
 }
 
 const initialState: configSliceState = {
   showHistoryImagesModal: false,
-};
+}
 
 export const modalSlice = createSlice({
-  name: "modal",
+  name: 'modal',
   initialState,
   reducers: {
     setShowHistoryImagesModal: (state, { payload }) => {
-      state.showHistoryImagesModal = payload;
+      state.showHistoryImagesModal = payload
     },
   },
-});
+})

@@ -1,34 +1,33 @@
-import React from "react";
+import React from 'react'
 
 // redux
-import { useAppSelector } from "@lib/redux/store";
+import { useAppSelector } from '@lib/redux/store'
 
 // selectors
-import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+import { stylesConfigurationSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // types
-import { TryOnButtonTypes } from "./types";
+import { TryOnButtonTypes } from './types'
 
 // styles
-import styles from "./tryOnButton.module.scss";
+import styles from './tryOnButton.module.scss'
 
 export const TryOnButton = (props: TryOnButtonTypes) => {
-  const { disabled, children, isShowTryOnIcon, onClick } = props;
+  const { disabled, children, isShowTryOnIcon, onClick } = props
 
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   return (
     <button
       disabled={disabled}
       className={`${styles.tryOnButton} ${
-        disabled ? styles.disabledButton : ""
+        disabled ? styles.disabledButton : ''
       } ${stylesConfiguration.components.tryOnButtonClassName}`}
       onClick={onClick}
     >
       <>
-        {isShowTryOnIcon && <img alt="Try On icon" src={"./icons/tryOn.svg"} />}{" "}
-        {children}
+        {isShowTryOnIcon && <img alt="Try On icon" src={'./icons/tryOn.svg'} />} {children}
       </>
     </button>
-  );
-};
+  )
+}

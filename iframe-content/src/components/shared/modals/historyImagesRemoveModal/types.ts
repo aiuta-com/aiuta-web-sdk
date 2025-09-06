@@ -1,4 +1,4 @@
 export type HistoryImagesRemoveModalTypes = {
-  onClickLeftButton: () => void;
-  onClickRightButton: () => void;
-};
+  onClickLeftButton: () => void
+  onClickRightButton: () => void
+}

@@ -1,6 +1,6 @@
-import { ReactElement } from "react";
+import { ReactElement } from 'react'
 
 export type SectionTypes = {
-  className?: string;
-  children: ReactElement;
-};
+  className?: string
+  children: ReactElement
+}

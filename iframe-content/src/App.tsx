@@ -1,90 +1,79 @@
-import React, { useEffect } from "react";
-import { Route, Routes, MemoryRouter } from "react-router-dom";
+import React, { useEffect } from 'react'
+import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
 // reudx
-import { useAppDispatch } from "@lib/redux/store";
+import { useAppDispatch } from '@lib/redux/store'
 
 // actions
-import { configSlice } from "@lib/redux/slices/configSlice";
+import { configSlice } from '@lib/redux/slices/configSlice'
 
 // pages
-import Qr from "./pages/Qr";
-import Home from "./pages/Home";
-import View from "./pages/View";
-import History from "./pages/History";
-import Generated from "./pages/Generated";
-import QRTokenPage from "./pages/Qr/token";
-import Previously from "./pages/Previously";
-import UploadImages from "./pages/UploadImages";
+import Qr from './pages/Qr'
+import Home from './pages/Home'
+import View from './pages/View'
+import History from './pages/History'
+import Generated from './pages/Generated'
+import QRTokenPage from './pages/Qr/token'
+import Previously from './pages/Previously'
+import UploadImages from './pages/UploadImages'
 
 // components
-import { SdkHeader } from "./components/shared";
-import { SdkFooter } from "./components/shared";
-import { FullScreenImageModal } from "./components/feature";
-import { Spinner } from "./components/feature/spinner/spinner";
+import { SdkHeader } from './components/shared'
+import { SdkFooter } from './components/shared'
+import { FullScreenImageModal } from './components/feature'
+import { Spinner } from './components/feature/spinner/spinner'
 
-declare const __IFRAME_VERSION__: string;
+declare const __IFRAME_VERSION__: string
 
 function App() {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const initialPath = window.location.hash.replace(/^#/, "") || "/";
+  const initialPath = window.location.hash.replace(/^#/, '') || '/'
 
   const handleGetStylesConfiguration = () => {
-    window.parent.postMessage(
-      { action: "GET_AIUTA_STYLES_CONFIGURATION" },
-      "*"
-    );
-  };
+    window.parent.postMessage({ action: 'GET_AIUTA_STYLES_CONFIGURATION' }, '*')
+  }
 
   const loadCustomCSS = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const cssUrl = urlParams.get("css");
+    const urlParams = new URLSearchParams(window.location.search)
+    const cssUrl = urlParams.get('css')
 
     if (cssUrl) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = cssUrl;
-      link.onload = () => console.log("Custom CSS loaded from:", cssUrl);
-      link.onerror = () =>
-        console.error("Failed to load custom CSS from:", cssUrl);
-      document.head.appendChild(link);
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = cssUrl
+      link.onload = () => console.log('Custom CSS loaded from:', cssUrl)
+      link.onerror = () => console.error('Failed to load custom CSS from:', cssUrl)
+      document.head.appendChild(link)
     }
-  };
+  }
 
   const handleSendIframeVersion = () => {
-    window.parent.postMessage(
-      { action: "IFRAME_LOADED", version: __IFRAME_VERSION__ },
-      "*"
-    );
-  };
+    window.parent.postMessage({ action: 'IFRAME_LOADED', version: __IFRAME_VERSION__ }, '*')
+  }
 
   useEffect(() => {
-    handleSendIframeVersion();
-    handleGetStylesConfiguration();
+    handleSendIframeVersion()
+    handleGetStylesConfiguration()
 
-    loadCustomCSS();
+    loadCustomCSS()
 
     const handleMessage = (event: MessageEvent) => {
-      if (
-        event.data &&
-        event.data.type &&
-        event.data.type === "stylesConfiguration"
-      ) {
+      if (event.data && event.data.type && event.data.type === 'stylesConfiguration') {
         dispatch(
           configSlice.actions.setStylesConfiguration(
-            event.data.stylesConfiguration.stylesConfiguration
-          )
-        );
+            event.data.stylesConfiguration.stylesConfiguration,
+          ),
+        )
       }
-    };
+    }
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage)
 
     return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [])
 
   return (
     <MemoryRouter initialEntries={[initialPath]}>
@@ -103,7 +92,7 @@ function App() {
       </Routes>
       <SdkFooter />
     </MemoryRouter>
-  );
+  )
 }
 
-export default App;
+export default App

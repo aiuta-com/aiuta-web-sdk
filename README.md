@@ -45,7 +45,7 @@ aiuta.initWithApiKey({
          resultButonsContentClassName: string,
          historyImagesRemoveModalClassNames: string,
       },
-   },   
+   },
 });
 
 // OR

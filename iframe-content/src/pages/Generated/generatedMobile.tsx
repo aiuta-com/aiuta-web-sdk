@@ -1,50 +1,50 @@
-import React, { MouseEvent } from "react";
+import React, { MouseEvent } from 'react'
 
 // redux
-import { useAppSelector, useAppDispatch } from "../../../lib/redux/store";
+import { useAppSelector, useAppDispatch } from '../../../lib/redux/store'
 
 // actions
-import { fileSlice } from "@lib/redux/slices/fileSlice";
+import { fileSlice } from '@lib/redux/slices/fileSlice'
 
 // selectors
-import { generatedImagesSelector } from "@lib/redux/slices/generateSlice/selectors";
-import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { stylesConfigurationSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { ViewImage } from "@/components/feature";
+import { ViewImage } from '@/components/feature'
 
 // styles
-import styles from "./generated.module.scss";
+import styles from './generated.module.scss'
 
 export default function GeneratedMobile() {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const generatedImages = useAppSelector(generatedImagesSelector);
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
+  const generatedImages = useAppSelector(generatedImagesSelector)
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleShare = async () => {
-    const imageUrl = generatedImages[0]?.url;
+    const imageUrl = generatedImages[0]?.url
 
     window.parent.postMessage(
       {
-        action: "SHARE_IMAGE",
+        action: 'SHARE_IMAGE',
         payload: {
           url: imageUrl,
-          title: "",
-          text: "",
+          title: '',
+          text: '',
         },
       },
-      "*"
-    );
-  };
+      '*',
+    )
+  }
 
   const handleFullScreenImage = (event: MouseEvent<HTMLImageElement>) => {
-    const target = event.target as HTMLElement;
+    const target = event.target as HTMLElement
 
     if (target instanceof HTMLImageElement) {
-      dispatch(fileSlice.actions.setFullScreenImageUrl(target.src));
+      dispatch(fileSlice.actions.setFullScreenImageUrl(target.src))
     }
-  };
+  }
 
   return (
     <>
@@ -62,15 +62,11 @@ export default function GeneratedMobile() {
               onClick={handleFullScreenImage}
             />
             <div className={styles.shareBox} onClick={handleShare}>
-              <img
-                src={"./icons/shareMobile.svg"}
-                alt="Share icon"
-                className={styles.shareIcon}
-              />
+              <img src={'./icons/shareMobile.svg'} alt="Share icon" className={styles.shareIcon} />
             </div>
           </div>
         ) : null}
       </div>
     </>
-  );
+  )
 }

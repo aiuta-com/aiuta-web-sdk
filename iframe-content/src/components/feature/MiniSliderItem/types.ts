@@ -1,5 +1,5 @@
 export type MiniSliderItemTypes = {
-  src: string;
-  isActive: boolean;
-  onClick: () => void;
-};
+  src: string
+  isActive: boolean
+  onClick: () => void
+}

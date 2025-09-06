@@ -1,281 +1,241 @@
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-  ChangeEvent,
-} from "react";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import React, { useRef, useState, useEffect, useCallback, ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 
 // redux
-import { useAppSelector, useAppDispatch } from "../../../lib/redux/store";
+import { useAppSelector, useAppDispatch } from '../../../lib/redux/store'
 
 // actions
-import { fileSlice } from "@lib/redux/slices/fileSlice";
-import { alertSlice } from "@lib/redux/slices/alertSlice";
-import { configSlice } from "@lib/redux/slices/configSlice";
+import { fileSlice } from '@lib/redux/slices/fileSlice'
+import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { configSlice } from '@lib/redux/slices/configSlice'
 
 // selectors
 import {
   qrTokenSelector,
   aiutaEndpointDataSelector,
   stylesConfigurationSelector,
-} from "@lib/redux/slices/configSlice/selectors";
+} from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { Alert, QrCode } from "@/components/feature";
+import { Alert, QrCode } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum, EndpointDataTypes } from "@/types";
+import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
 // helpers
-import { generateRandomString } from "@/helpers/generateRandomString";
+import { generateRandomString } from '@/helpers/generateRandomString'
 
 // styles
-import styles from "./token.module.scss";
+import styles from './token.module.scss'
 
-let calledAnalyticCount = 0;
+let calledAnalyticCount = 0
 
 export default function Qr() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const qrToken = useAppSelector(qrTokenSelector);
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
+  const qrToken = useAppSelector(qrTokenSelector)
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
-  const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(
-    null
-  );
+  const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
 
   const handleAnalytic = () => {
-    calledAnalyticCount++;
-    if (calledAnalyticCount === 2) return (calledAnalyticCount = 0);
+    calledAnalyticCount++
+    if (calledAnalyticCount === 2) return (calledAnalyticCount = 0)
 
-    if (
-      aiutaEndpointData &&
-      aiutaEndpointData.skuId &&
-      aiutaEndpointData.skuId.length > 0
-    ) {
+    if (aiutaEndpointData && aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
         data: {
-          type: "page",
-          pageId: "imagePicker",
+          type: 'page',
+          pageId: 'imagePicker',
           productIds: [aiutaEndpointData.skuId],
         },
-      };
+      }
 
-      window.parent.postMessage(
-        { action: AnalyticEventsEnum.newPhotoTaken, analytic },
-        "*"
-      );
+      window.parent.postMessage({ action: AnalyticEventsEnum.newPhotoTaken, analytic }, '*')
     }
-  };
+  }
 
   useEffect(() => {
     setTimeout(() => {
-      handleAnalytic();
-    }, 1000);
+      handleAnalytic()
+    }, 1000)
     // eslint-disable-next-line
-  }, [aiutaEndpointData]);
+  }, [aiutaEndpointData])
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
-    if (!endpointData) return;
+    if (!endpointData) return
 
     if (event.target && event.target.files) {
-      const file = event.target.files[0];
+      const file = event.target.files[0]
 
-      if (!file) return dispatch(configSlice.actions.setIsShowSpinner(false));
+      if (!file) return dispatch(configSlice.actions.setIsShowSpinner(false))
 
-      const hasUserId =
-        typeof endpointData.userId === "string" &&
-        endpointData.userId.length > 0;
-      let headers: any = { "Content-Type": file.type, "X-Filename": file.name };
+      const hasUserId = typeof endpointData.userId === 'string' && endpointData.userId.length > 0
+      let headers: any = { 'Content-Type': file.type, 'X-Filename': file.name }
 
       if (hasUserId) {
-        headers["userid"] = endpointData.userId;
+        headers['userid'] = endpointData.userId
       } else {
-        headers["keys"] = endpointData.apiKey;
+        headers['keys'] = endpointData.apiKey
       }
 
       try {
-        const uploadedResponse = await fetch(
-        "https://web-sdk.aiuta.com/api/upload-image",
-          {
-            method: "POST",
-            headers: headers,
-            body: file,
-          }
-        );
-        const result = await uploadedResponse.json();
+        const uploadedResponse = await fetch('https://web-sdk.aiuta.com/api/upload-image', {
+          method: 'POST',
+          headers: headers,
+          body: file,
+        })
+        const result = await uploadedResponse.json()
 
-        if (result.owner_type === "user") {
-          dispatch(
-            fileSlice.actions.setUploadViewFile({ file: file, ...result })
-          );
-          dispatch(configSlice.actions.setIsShowFooter(false));
-          navigate("/view");
+        if (result.owner_type === 'user') {
+          dispatch(fileSlice.actions.setUploadViewFile({ file: file, ...result }))
+          dispatch(configSlice.actions.setIsShowFooter(false))
+          navigate('/view')
 
           const analytic = {
             data: {
-              type: "tryOn",
-              source: "device",
-              event: "photoUploaded",
-              pageId: "imagePicker",
+              type: 'tryOn',
+              source: 'device',
+              event: 'photoUploaded',
+              pageId: 'imagePicker',
               productIds: [aiutaEndpointData.skuId],
             },
-          };
+          }
 
-          window.parent.postMessage(
-            { action: AnalyticEventsEnum.newPhotoTaken, analytic },
-            "*"
-          );
+          window.parent.postMessage({ action: AnalyticEventsEnum.newPhotoTaken, analytic }, '*')
         } else if (result.error) {
           dispatch(
             alertSlice.actions.setShowAlert({
-              type: "error",
+              type: 'error',
               isShow: true,
-              buttonText: "Try again",
-              content: "Something went wrong, please try again later.",
-            })
-          );
+              buttonText: 'Try again',
+              content: 'Something went wrong, please try again later.',
+            }),
+          )
 
           const analytic = {
             data: {
-              event: "tryOnError",
-              pageId: "imagePicker",
-              type: "preparePhotoFailed",
+              event: 'tryOnError',
+              pageId: 'imagePicker',
+              type: 'preparePhotoFailed',
               errorType: result.error,
               errorMessage: result.error,
               productIds: [endpointData?.skuId],
             },
-          };
+          }
 
-          window.parent.postMessage(
-            { action: AnalyticEventsEnum.tryOnError, analytic },
-            "*"
-          );
+          window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
         }
       } catch (error: any) {
         dispatch(
           alertSlice.actions.setShowAlert({
-            type: "error",
+            type: 'error',
             isShow: true,
-            buttonText: "Try again",
-            content: "Something went wrong, please try again later.",
-          })
-        );
+            buttonText: 'Try again',
+            content: 'Something went wrong, please try again later.',
+          }),
+        )
 
         const analytic = {
           data: {
-            event: "tryOnError",
-            pageId: "imagePicker",
-            type: "uploadPhotoFailed",
+            event: 'tryOnError',
+            pageId: 'imagePicker',
+            type: 'uploadPhotoFailed',
             errorType: error.message,
             errorMessage: error.message,
             productIds: [endpointData?.skuId],
           },
-        };
+        }
 
-        window.parent.postMessage(
-          { action: AnalyticEventsEnum.tryOnError, analytic },
-          "*"
-        );
+        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
       }
     }
-  };
+  }
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: "GET_AIUTA_API_KEYS" }, "*");
-  };
+    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
+  }
 
   const handleCheckQRUploadedPhoto = useCallback(async () => {
-    const getUploadedPhoto = await fetch(
-      `https://web-sdk.aiuta.com/api/get-photo?token=${qrToken}`
-    );
-    const result = await getUploadedPhoto.json();
+    const getUploadedPhoto = await fetch(`https://web-sdk.aiuta.com/api/get-photo?token=${qrToken}`)
+    const result = await getUploadedPhoto.json()
 
-    if (result.owner_type === "scanning") {
-      dispatch(configSlice.actions.setIsShowQrSpinner(true));
-    } else if (result.owner_type === "user") {
-      dispatch(configSlice.actions.setIsShowQrSpinner(false));
-      dispatch(fileSlice.actions.setUploadViewFile({ ...result }));
+    if (result.owner_type === 'scanning') {
+      dispatch(configSlice.actions.setIsShowQrSpinner(true))
+    } else if (result.owner_type === 'user') {
+      dispatch(configSlice.actions.setIsShowQrSpinner(false))
+      dispatch(fileSlice.actions.setUploadViewFile({ ...result }))
 
       const analytic = {
         data: {
-          type: "tryOn",
-          source: "QR",
-          event: "photoUploaded",
-          pageId: "imagePicker",
+          type: 'tryOn',
+          source: 'QR',
+          event: 'photoUploaded',
+          pageId: 'imagePicker',
           productIds: [aiutaEndpointData.skuId],
         },
-      };
+      }
 
-      window.parent.postMessage(
-        { action: AnalyticEventsEnum.newPhotoTaken, analytic },
-        "*"
-      );
+      window.parent.postMessage({ action: AnalyticEventsEnum.newPhotoTaken, analytic }, '*')
 
       const deleteQrToken = await fetch(
-        `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`
-      );
-      await deleteQrToken.json();
+        `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`,
+      )
+      await deleteQrToken.json()
 
-      navigate("/view");
+      navigate('/view')
     }
-  }, [qrToken, dispatch, navigate]);
+  }, [qrToken, dispatch, navigate])
 
   useEffect(() => {
-    handleGetWidnwInitiallySizes();
+    handleGetWidnwInitiallySizes()
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type) {
         if (event.data.status === 200) {
-          setEndpointData(event.data);
+          setEndpointData(event.data)
         }
       } else {
-        console.error("Not found API data");
+        console.error('Not found API data')
       }
-    };
+    }
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage)
 
     return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [])
 
   useEffect(() => {
-    dispatch(configSlice.actions.setQrToken(generateRandomString()));
-  }, [dispatch]);
+    dispatch(configSlice.actions.setQrToken(generateRandomString()))
+  }, [dispatch])
 
   useEffect(() => {
     qrApiInterval.current = setInterval(() => {
-      handleCheckQRUploadedPhoto();
-    }, 3000);
+      handleCheckQRUploadedPhoto()
+    }, 3000)
 
     return () => {
       if (qrApiInterval.current) {
-        clearInterval(qrApiInterval.current);
+        clearInterval(qrApiInterval.current)
       }
-    };
-  }, [qrApiInterval, handleCheckQRUploadedPhoto]);
+    }
+  }, [qrApiInterval, handleCheckQRUploadedPhoto])
 
   const hasUserId =
-    endpointData &&
-    typeof endpointData.userId === "string" &&
-    endpointData.userId.length > 0;
+    endpointData && typeof endpointData.userId === 'string' && endpointData.userId.length > 0
   const qrUrl = endpointData
     ? `https://static.aiuta.com/sdk/v0/index.html#/qr/${qrToken}?${
-        hasUserId
-          ? `userId=${endpointData.userId}`
-          : `apiKey=${endpointData.apiKey}`
+        hasUserId ? `userId=${endpointData.userId}` : `apiKey=${endpointData.apiKey}`
       }`
-    : "not-found";
+    : 'not-found'
 
   return (
     <>
@@ -293,14 +253,12 @@ export default function Qr() {
         }}
         transition={{
           duration: 0.3,
-          ease: "easeInOut",
+          ease: 'easeInOut',
         }}
       >
         <Alert />
-        {endpointData ? (
-          <QrCode onChange={handleChoosePhoto} url={qrUrl} />
-        ) : null}
+        {endpointData ? <QrCode onChange={handleChoosePhoto} url={qrUrl} /> : null}
       </motion.div>
     </>
-  );
+  )
 }

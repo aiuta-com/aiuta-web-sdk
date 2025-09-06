@@ -1,134 +1,123 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAppSelector, useAppDispatch } from "@lib/redux/store";
-import { configSlice } from "@lib/redux/slices/configSlice";
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { configSlice } from '@lib/redux/slices/configSlice'
 import {
   aiutaEndpointDataSelector,
   onboardingStepsSelector,
-} from "@lib/redux/slices/configSlice/selectors";
-import { Consent } from "./components/consent/consent";
-import { TitleDescription, TryOnButton } from "@/components/feature";
+} from '@lib/redux/slices/configSlice/selectors'
+import { Consent } from './components/consent/consent'
+import { TitleDescription, TryOnButton } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum } from "@/types";
+import { AnalyticEventsEnum } from '@/types'
 
 // styles
-import styles from "./onboarding.module.scss";
+import styles from './onboarding.module.scss'
 
 const INITIALLY_ONBOARDING = [
   {
-    imageUrl: "./images/mobileFirstOnboarding.png",
-    miniImageUrl: "./images/mobileFirstMini.png",
+    imageUrl: './images/mobileFirstOnboarding.png',
+    miniImageUrl: './images/mobileFirstMini.png',
   },
   {
-    imageUrl: "./images/mobileMiddleOnboarding.png",
-    miniImageUrl: "./images/mobileMiddleMini.png",
+    imageUrl: './images/mobileMiddleOnboarding.png',
+    miniImageUrl: './images/mobileMiddleMini.png',
   },
   {
-    imageUrl: "./images/mobileLastOnboarding.png",
-    miniImageUrl: "./images/mobileLastMini.png",
+    imageUrl: './images/mobileLastOnboarding.png',
+    miniImageUrl: './images/mobileLastMini.png',
   },
-];
+]
 
 export const OnboardingMobile = () => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
-  const [isChecked, setIsChecked] = useState(false);
-  const [initiallyOnboardingStep, setInitiallyOnboardingStep] = useState(0);
+  const [isChecked, setIsChecked] = useState(false)
+  const [initiallyOnboardingStep, setInitiallyOnboardingStep] = useState(0)
 
-  const onboardingSteps = useAppSelector(onboardingStepsSelector);
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
+  const onboardingSteps = useAppSelector(onboardingStepsSelector)
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
 
   const handleOnboardAnalyticFinish = () => {
     const analytic = {
       data: {
-        type: "onboarding",
-        pageId: "consent",
-        event: "onboardingFinished",
+        type: 'onboarding',
+        pageId: 'consent',
+        event: 'onboardingFinished',
         productIds: [aiutaEndpointData.skuId],
       },
-    };
+    }
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.onboarding, analytic },
-      "*"
-    );
-  };
+    window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
+  }
 
   const handleClickOnboardingButton = () => {
     if (initiallyOnboardingStep !== 2) {
-      setInitiallyOnboardingStep((prevState) => prevState + 1);
+      setInitiallyOnboardingStep((prevState) => prevState + 1)
     } else {
       if (onboardingSteps !== 2) {
-        dispatch(configSlice.actions.setOnboardingSteps(null));
+        dispatch(configSlice.actions.setOnboardingSteps(null))
       } else {
-        navigate("/view");
-        handleOnboardAnalyticFinish();
-        dispatch(configSlice.actions.setIsShowFooter(true));
-        dispatch(configSlice.actions.setIsOnboardingDone(true));
-        localStorage.setItem("isOnboarding", JSON.stringify(true));
+        navigate('/view')
+        handleOnboardAnalyticFinish()
+        dispatch(configSlice.actions.setIsShowFooter(true))
+        dispatch(configSlice.actions.setIsOnboardingDone(true))
+        localStorage.setItem('isOnboarding', JSON.stringify(true))
       }
     }
-  };
+  }
 
   const initaillAnalytic = () => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
         data: {
-          type: "page",
-          pageId: "howItWorks",
+          type: 'page',
+          pageId: 'howItWorks',
           productIds: [aiutaEndpointData.skuId],
         },
-      };
+      }
 
-      window.parent.postMessage(
-        { action: AnalyticEventsEnum.onboarding, analytic },
-        "*"
-      );
+      window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
     }
-  };
+  }
 
   const initPageAnalytic = (analytic: any) => {
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.onboarding, analytic },
-      "*"
-    );
-  };
+    window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
+  }
 
   useEffect(() => {
-    const isOnboarding = JSON.parse(
-      localStorage.getItem("isOnboarding") || "false"
-    );
+    const isOnboarding = JSON.parse(localStorage.getItem('isOnboarding') || 'false')
 
     if (!isOnboarding) {
       if (!onboardingSteps) {
-        initaillAnalytic();
+        initaillAnalytic()
       } else if (onboardingSteps === 1) {
         const analytic = {
           data: {
-            type: "page",
-            pageId: "bestResults",
+            type: 'page',
+            pageId: 'bestResults',
             productIds: [aiutaEndpointData.skuId],
           },
-        };
+        }
 
-        initPageAnalytic(analytic);
+        initPageAnalytic(analytic)
       } else if (onboardingSteps === 2) {
         const analytic = {
           data: {
-            type: "page",
-            pageId: "consent",
+            type: 'page',
+            pageId: 'consent',
             productIds: [aiutaEndpointData.skuId],
           },
-        };
+        }
 
-        initPageAnalytic(analytic);
+        initPageAnalytic(analytic)
       }
     }
 
     // eslint-disable-next-line
-  }, [aiutaEndpointData, onboardingSteps]);
+  }, [aiutaEndpointData, onboardingSteps])
 
   return (
     <div className={styles.onboardingMobile}>
@@ -136,7 +125,7 @@ export const OnboardingMobile = () => {
       <div className={styles.obboardingStepBox}>
         <div
           className={`${styles.step} ${styles.firstStep} ${
-            onboardingSteps > 0 ? styles.unactiveActiveStep : ""
+            onboardingSteps > 0 ? styles.unactiveActiveStep : ''
           }`}
         >
           <div className={styles.titlesBoxMobile}>
@@ -151,9 +140,7 @@ export const OnboardingMobile = () => {
                 <div
                   key={index}
                   className={`${styles.imageBanner} ${
-                    initiallyOnboardingStep === index
-                      ? styles.imageBannerActive
-                      : ""
+                    initiallyOnboardingStep === index ? styles.imageBannerActive : ''
                   }`}
                 >
                   <img
@@ -178,8 +165,8 @@ export const OnboardingMobile = () => {
             onboardingSteps === 1
               ? styles.activeStep
               : onboardingSteps > 1
-              ? styles.unactiveActiveStep
-              : ""
+                ? styles.unactiveActiveStep
+                : ''
           }`}
         >
           <div className={styles.titlesBoxMobile}>
@@ -201,8 +188,8 @@ export const OnboardingMobile = () => {
             onboardingSteps === 2
               ? styles.activeStep
               : onboardingSteps > 2
-              ? styles.unactiveActiveStep
-              : ""
+                ? styles.unactiveActiveStep
+                : ''
           }`}
         >
           <div className={styles.consentContent}>
@@ -214,8 +201,8 @@ export const OnboardingMobile = () => {
         disabled={onboardingSteps == 2 && !isChecked}
         onClick={handleClickOnboardingButton}
       >
-        {onboardingSteps === 2 ? "Start" : " Next"}
+        {onboardingSteps === 2 ? 'Start' : ' Next'}
       </TryOnButton>
     </div>
-  );
-};
+  )
+}

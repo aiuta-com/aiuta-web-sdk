@@ -1,4 +1,4 @@
-@import url("https://fonts.cdnfonts.com/css/gt-maru");
+@import url('https://fonts.cdnfonts.com/css/gt-maru');
 
 :root {
   --gray: #666666;
@@ -37,7 +37,9 @@ body {
 body {
   color: #171717;
   background: white;
-  font-family: GT Maru, sans-serif;
+  font-family:
+    GT Maru,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

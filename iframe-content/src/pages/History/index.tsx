@@ -1,39 +1,39 @@
-import React, { useCallback, useEffect } from "react";
-import { motion, easeInOut } from "framer-motion";
+import React, { useCallback, useEffect } from 'react'
+import { motion, easeInOut } from 'framer-motion'
 
 // redux
-import { useAppSelector, useAppDispatch } from "../../../lib/redux/store";
+import { useAppSelector, useAppDispatch } from '../../../lib/redux/store'
 
 // actions
-import { fileSlice } from "@lib/redux/slices/fileSlice";
-import { modalSlice } from "@lib/redux/slices/modalSlice";
-import { generateSlice } from "@lib/redux/slices/generateSlice";
+import { fileSlice } from '@lib/redux/slices/fileSlice'
+import { modalSlice } from '@lib/redux/slices/modalSlice'
+import { generateSlice } from '@lib/redux/slices/generateSlice'
 
 // selectors
 import {
   selectedImagesSelector,
   generatedImagesSelector,
-} from "@lib/redux/slices/generateSlice/selectors";
+} from '@lib/redux/slices/generateSlice/selectors'
 import {
   isMobileSelector,
   aiutaEndpointDataSelector,
   stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
-} from "@lib/redux/slices/configSlice/selectors";
+} from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { Section } from "@/components/feature";
-import { SelectableImage } from "@/components/feature";
-import { RemoveHistoryBanner } from "@/components/shared";
+import { Section } from '@/components/feature'
+import { SelectableImage } from '@/components/feature'
+import { RemoveHistoryBanner } from '@/components/shared'
 
 // components modal
-import { HistoryImagesRemoveModal } from "@/components/shared/modals";
+import { HistoryImagesRemoveModal } from '@/components/shared/modals'
 
 // types
-import { AnalyticEventsEnum } from "@/types";
+import { AnalyticEventsEnum } from '@/types'
 
 // styles
-import styles from "./history.module.scss";
+import styles from './history.module.scss'
 
 const initiallAnimationConfig = {
   initial: {
@@ -49,147 +49,135 @@ const initiallAnimationConfig = {
     duration: 0.3,
     ease: easeInOut,
   },
-};
+}
 
-let sentAnalyticCount = 0;
+let sentAnalyticCount = 0
 
 export default function History() {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const isMobile = useAppSelector(isMobileSelector);
-  const selectedImages = useAppSelector(selectedImagesSelector);
-  const generatedImages = useAppSelector(generatedImagesSelector);
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
-  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
+  const isMobile = useAppSelector(isMobileSelector)
+  const selectedImages = useAppSelector(selectedImagesSelector)
+  const generatedImages = useAppSelector(generatedImagesSelector)
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
+  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
     window.parent.postMessage(
       {
-        action: "OPEN_AIUTA_FULL_SCREEN_MODAL",
+        action: 'OPEN_AIUTA_FULL_SCREEN_MODAL',
         images: generatedImages,
-        modalType: "history",
+        modalType: 'history',
         activeImage: activeImage,
       },
-      "*"
-    );
-  };
+      '*',
+    )
+  }
 
   const handleSelectImage = (id: string, url: string) => {
     if (!isMobile) {
       if (isSelectHistoryImages) {
-        dispatch(generateSlice.actions.setSelectedImage(id));
+        dispatch(generateSlice.actions.setSelectedImage(id))
       } else {
-        handleShowFullScreen({ id, url });
+        handleShowFullScreen({ id, url })
       }
     } else {
       if (isSelectHistoryImages) {
-        dispatch(generateSlice.actions.setSelectedImage(id));
+        dispatch(generateSlice.actions.setSelectedImage(id))
       } else {
-        dispatch(fileSlice.actions.setFullScreenImageUrl(url));
+        dispatch(fileSlice.actions.setFullScreenImageUrl(url))
       }
     }
-  };
+  }
 
   const handleCloseHistoryImagesModal = () => {
-    dispatch(modalSlice.actions.setShowHistoryImagesModal(false));
-  };
+    dispatch(modalSlice.actions.setShowHistoryImagesModal(false))
+  }
 
   const handleDeleteSelectedImages = () => {
-    const deletedHistoryImages = generatedImages.filter(
-      ({ id }) => !selectedImages.includes(id)
-    );
+    const deletedHistoryImages = generatedImages.filter(({ id }) => !selectedImages.includes(id))
 
-    dispatch(generateSlice.actions.setSelectedImage([])); // Use for close history banner
-    dispatch(generateSlice.actions.setGeneratedImage(deletedHistoryImages));
+    dispatch(generateSlice.actions.setSelectedImage([])) // Use for close history banner
+    dispatch(generateSlice.actions.setGeneratedImage(deletedHistoryImages))
 
-    handleCloseHistoryImagesModal(); // Use for close history images model
+    handleCloseHistoryImagesModal() // Use for close history images model
 
     const analytic = {
       data: {
-        type: "history",
-        event: "generatedImageDeleted",
-        pageId: "history",
+        type: 'history',
+        event: 'generatedImageDeleted',
+        pageId: 'history',
         productIds: [aiutaEndpointData.skuId],
       },
-    };
+    }
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
-      "*"
-    );
-  };
+    window.parent.postMessage({ action: AnalyticEventsEnum.generatedImageDeleted, analytic }, '*')
+  }
 
   const onboardingAnalytic = () => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
       const analytic = {
         data: {
-          type: "page",
-          pageId: "history",
+          type: 'page',
+          pageId: 'history',
           productIds: [aiutaEndpointData.skuId],
         },
-      };
+      }
 
-      window.parent.postMessage(
-        { action: AnalyticEventsEnum.history, analytic },
-        "*"
-      );
+      window.parent.postMessage({ action: AnalyticEventsEnum.history, analytic }, '*')
     }
-  };
+  }
 
   useEffect(() => {
-    onboardingAnalytic();
+    onboardingAnalytic()
     // eslint-disable-next-line
-  }, [aiutaEndpointData]);
+  }, [aiutaEndpointData])
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.type) {
-        if (event.data.type === "REMOVE_HISTORY_IMAGES") {
-          dispatch(generateSlice.actions.setGeneratedImage(event.data.images));
+        if (event.data.type === 'REMOVE_HISTORY_IMAGES') {
+          dispatch(generateSlice.actions.setGeneratedImage(event.data.images))
 
           const analytic = {
             data: {
-              type: "history",
-              event: "generatedImageDeleted",
-              pageId: "history",
+              type: 'history',
+              event: 'generatedImageDeleted',
+              pageId: 'history',
               productIds: [aiutaEndpointData.skuId],
             },
-          };
+          }
 
           window.parent.postMessage(
             { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
-            "*"
-          );
+            '*',
+          )
         }
       }
-    };
+    }
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage)
 
     return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [])
 
-  const hasSelectedImages = selectedImages.length > 0;
+  const hasSelectedImages = selectedImages.length > 0
 
   const EmptyPage = () => {
     return (
       <div className={styles.emptyContent}>
-        <img src={"./icons/emptyhistory.svg"} alt="Empty icon" />
-        <p>
-          Once you try on first item your try-on history would be stored here
-        </p>
+        <img src={'./icons/emptyhistory.svg'} alt="Empty icon" />
+        <p>Once you try on first item your try-on history would be stored here</p>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <>
-      <Section
-        className={`${styles.sectionContent} ${stylesConfiguration.pages.historyClassName}`}
-      >
+      <Section className={`${styles.sectionContent} ${stylesConfiguration.pages.historyClassName}`}>
         <>
           <motion.div
             key="history-page"
@@ -199,9 +187,7 @@ export default function History() {
             {generatedImages.length > 0 ? (
               <>
                 <div
-                  className={`${styles.imageContent} ${
-                    isMobile ? styles.imageContentMobile : ""
-                  }`}
+                  className={`${styles.imageContent} ${isMobile ? styles.imageContentMobile : ''}`}
                 >
                   {generatedImages.map(({ id, url }) => (
                     <SelectableImage
@@ -209,7 +195,7 @@ export default function History() {
                       src={url}
                       imageId={id}
                       variant="history"
-                      classNames={isMobile ? styles.selectableImageMobile : ""}
+                      classNames={isMobile ? styles.selectableImageMobile : ''}
                       onClick={() => handleSelectImage(id, url)}
                     />
                   ))}
@@ -229,8 +215,8 @@ export default function History() {
               hasSelectedImages && isMobile
                 ? styles.activeHistoryBannerMobile
                 : hasSelectedImages
-                ? styles.activeHistoryBanner
-                : ""
+                  ? styles.activeHistoryBanner
+                  : ''
             }`}
           >
             <RemoveHistoryBanner />
@@ -238,5 +224,5 @@ export default function History() {
         </>
       </Section>
     </>
-  );
+  )
 }

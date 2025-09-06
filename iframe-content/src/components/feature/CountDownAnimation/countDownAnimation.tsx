@@ -1,34 +1,34 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React from 'react'
+import { useState, useEffect } from 'react'
 
 // types
-import { CountDownAnimationTypes } from "./types";
+import { CountDownAnimationTypes } from './types'
 
 // styles
-import styles from "./countDownAnimation.module.scss";
+import styles from './countDownAnimation.module.scss'
 
-const RADIUS = 16;
+const RADIUS = 16
 
 export const CountDownAnimation = (props: CountDownAnimationTypes) => {
-  const { timer, onClick } = props;
+  const { timer, onClick } = props
 
-  const [seconds, setSeconds] = useState(timer);
+  const [seconds, setSeconds] = useState(timer)
 
-  const handleCountDown = () => setSeconds((prev) => prev - 1);
+  const handleCountDown = () => setSeconds((prev) => prev - 1)
 
   useEffect(() => {
     if (seconds === 0) {
-      setTimeout(onClick, 1000);
-      return;
+      setTimeout(onClick, 1000)
+      return
     }
 
-    const timerInterval = setInterval(handleCountDown, 1000);
+    const timerInterval = setInterval(handleCountDown, 1000)
 
-    return () => clearInterval(timerInterval);
-  }, [seconds]);
+    return () => clearInterval(timerInterval)
+  }, [seconds])
 
-  const circumference = 2 * Math.PI * RADIUS;
-  const progress = ((timer + seconds) / timer) * circumference;
+  const circumference = 2 * Math.PI * RADIUS
+  const progress = ((timer + seconds) / timer) * circumference
 
   return (
     <svg viewBox="0 0 36 36" className={styles.circularChart}>
@@ -57,5 +57,5 @@ export const CountDownAnimation = (props: CountDownAnimationTypes) => {
         {seconds}s
       </text>
     </svg>
-  );
-};
+  )
+}

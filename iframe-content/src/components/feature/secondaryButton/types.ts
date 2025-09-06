@@ -1,8 +1,8 @@
-import { MouseEventHandler } from "react";
+import { MouseEventHandler } from 'react'
 
 export type SecondaryButtonTypes = {
-  text: string;
-  iconUrl?: string;
-  classNames?: string;
-  onClick: MouseEventHandler<HTMLButtonElement>;
-};
+  text: string
+  iconUrl?: string
+  classNames?: string
+  onClick: MouseEventHandler<HTMLButtonElement>
+}

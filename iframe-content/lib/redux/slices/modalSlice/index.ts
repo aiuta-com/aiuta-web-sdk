@@ -1,3 +1,3 @@
-import { modalSlice } from "./modalSlice";
+import { modalSlice } from './modalSlice'
 
-export { modalSlice };
+export { modalSlice }

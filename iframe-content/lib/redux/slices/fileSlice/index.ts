@@ -1,3 +1,3 @@
-import { fileSlice } from "./fileSlice";
+import { fileSlice } from './fileSlice'
 
-export { fileSlice };
+export { fileSlice }

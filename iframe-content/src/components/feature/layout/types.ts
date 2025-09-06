@@ -1,5 +1,5 @@
-import { ReactElement } from "react";
+import { ReactElement } from 'react'
 
 export type LayoutTypes = {
-  children: ReactElement;
-};
+  children: ReactElement
+}

@@ -1,9 +1,7 @@
 export interface AiutaAnalytics {
   handler: {
-    onAnalyticsEvent: AiutaAnalyticsCallback;
-  };
+    onAnalyticsEvent: AiutaAnalyticsCallback
+  }
 }
 
-export type AiutaAnalyticsCallback = (
-  event: Record<string, any>
-) => void;
+export type AiutaAnalyticsCallback = (event: Record<string, any>) => void

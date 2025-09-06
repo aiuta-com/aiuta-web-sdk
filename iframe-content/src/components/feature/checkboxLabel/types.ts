@@ -1,4 +1,4 @@
 export type CheckboxLabelTypes = {
-  labelText: string;
-  onClick?: (isChecked: boolean) => void;
-};
+  labelText: string
+  onClick?: (isChecked: boolean) => void
+}

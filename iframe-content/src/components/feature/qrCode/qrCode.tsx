@@ -1,26 +1,26 @@
-import React from "react";
-import { useQRCode } from "next-qrcode";
-import { QrSpinner } from "../animationIcons";
+import React from 'react'
+import { useQRCode } from 'next-qrcode'
+import { QrSpinner } from '../animationIcons'
 
 // redux
 
-import { useAppSelector } from "@lib/redux/store";
+import { useAppSelector } from '@lib/redux/store'
 
 // selectors
-import { isShowQrSpinnerSelector } from "@lib/redux/slices/configSlice/selectors";
+import { isShowQrSpinnerSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // types
-import { QrCodeTypes } from "./types";
+import { QrCodeTypes } from './types'
 
 // styles
-import styles from "./qrCode.module.scss";
+import styles from './qrCode.module.scss'
 
 export const QrCode = (props: QrCodeTypes) => {
-  const { url, isShowQrInfo = true, onChange } = props;
+  const { url, isShowQrInfo = true, onChange } = props
 
-  const { Canvas } = useQRCode();
+  const { Canvas } = useQRCode()
 
-  const isShowQrSpinner = useAppSelector(isShowQrSpinnerSelector);
+  const isShowQrSpinner = useAppSelector(isShowQrSpinnerSelector)
 
   return (
     <div className={styles.qrContent}>
@@ -34,14 +34,14 @@ export const QrCode = (props: QrCodeTypes) => {
           text={url}
           logo={{
             options: { width: 40 },
-            src: isShowQrSpinner ? "" : "./icons/aiutaLogo.svg",
+            src: isShowQrSpinner ? '' : './icons/aiutaLogo.svg',
           }}
           options={{
-            errorCorrectionLevel: "M",
+            errorCorrectionLevel: 'M',
             width: 220,
             color: {
-              dark: "#000000",
-              light: "#F2F2F7",
+              dark: '#000000',
+              light: '#F2F2F7',
             },
           }}
         />
@@ -50,15 +50,12 @@ export const QrCode = (props: QrCodeTypes) => {
         <div className={styles.infoContent}>
           <p className={styles.text}>Scan the QR code </p>
           <p className={`${styles.text} ${styles.secondaryText}`}>Or</p>
-          <label
-            htmlFor="upload-file"
-            className={`${styles.text} ${styles.primaryText}`}
-          >
+          <label htmlFor="upload-file" className={`${styles.text} ${styles.primaryText}`}>
             Click here to upload
             <input onChange={onChange} type="file" id="upload-file" />
           </label>
         </div>
       )}
     </div>
-  );
-};
+  )
+}

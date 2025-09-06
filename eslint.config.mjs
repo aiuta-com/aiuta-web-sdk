@@ -1,5 +1,5 @@
-import tseslint from '@typescript-eslint/eslint-plugin';
-import tsparser from '@typescript-eslint/parser';
+import tseslint from '@typescript-eslint/eslint-plugin'
+import tsparser from '@typescript-eslint/parser'
 
 export default [
   {
@@ -13,16 +13,16 @@ export default [
         project: './tsconfig.json',
         tsconfigRootDir: new URL('.', import.meta.url).pathname,
         ecmaVersion: 'latest',
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
         window: 'readonly',
         document: 'readonly',
-        console: 'readonly'
-      }
+        console: 'readonly',
+      },
     },
     plugins: {
-      '@typescript-eslint': tseslint
+      '@typescript-eslint': tseslint,
     },
     rules: {
       semi: ['error', 'never'],
@@ -31,7 +31,7 @@ export default [
 
       ...tseslint.configs.recommended.rules,
 
-      '@typescript-eslint/no-explicit-any': 'off'
-    }
-  }
-];
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
+]
