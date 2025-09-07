@@ -6,8 +6,8 @@
   "scripts": {
     "fmt": "prettier . --check",
     "fmt:fix": "prettier . --write",
-    "lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --report-unused-disable-directives",
-    "lint:fix": "eslint \"**/*.{ts,tsx,js,jsx}\" --fix",
+    "lint": "eslint --report-unused-disable-directives && tsc --noEmit",
+    "lint:fix": "eslint --fix",
     "dev": "vite --config vite.config.iframe.ts",
     "build:iframe": "vite build --config vite.config.iframe.ts",
     "build:sdk:debug": "vite build --config vite.config.sdk.ts --mode debug",
@@ -16,6 +16,7 @@
     "build:sdk:strict": "vite build --config vite.config.sdk.ts --mode strict",
     "build:sdk": "vite build --config vite.config.sdk.ts",
     "build:debug": "npm run build:iframe && npm run build:sdk:debug",
+    "build:local": "npm run build:debug && cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/iframe && cp -rf ./dist/iframe ../docs/docs",
     "build:dev": "npm run build:iframe && npm run build:sdk:dev",
     "build:preprod": "npm run build:iframe && npm run build:sdk:preprod",
     "build:strict": "npm run build:iframe && npm run build:sdk:strict",
@@ -23,6 +24,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
+    "@types/uuid": "^10.0.0",
     "bowser": "^2.12.1",
     "dayjs": "^1.11.18",
     "formidable": "^3.5.4",
@@ -32,7 +34,8 @@
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.8.0",
-    "tslib": "^2.8.1"
+    "tslib": "^2.8.1",
+    "uuid": "^12.0.0"
   },
   "devDependencies": {
     "@types/formidable": "^3.4.5",

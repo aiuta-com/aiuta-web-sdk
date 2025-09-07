@@ -13,6 +13,7 @@ import { ShowFullScreenModal } from './fullScreenImageModal'
 import { ShareModal } from './shareModal'
 import Bowser from 'bowser'
 import dayjs from 'dayjs'
+import { v4 as uuidv4 } from 'uuid'
 
 // Global variables injected by Vite
 declare const __SDK_VERSION__: string
@@ -48,7 +49,6 @@ export default class Aiuta {
   private getJwt!: AiutaJwtCallback
   private apiKey!: string
   private userId!: string
-  private userIdentifareToken!: string
 
   // User interface
   private sdkPosition: AiutaIframePosition = 'topRight'
@@ -61,28 +61,36 @@ export default class Aiuta {
   // Runtime
   private productId!: string
   private isIframeOpen: boolean = false
-  private iframeVersion: string | null = null
   private iframe: HTMLIFrameElement | null = null
-  private readonly bowser = Bowser.parse(navigator.userAgent)
+  private env: {
+    platform: string
+    hostId: string
+    sdkVersion: string
+    iframeVersion: string | null
+    browserType: string
+    browserVersion: string
+    os: string
+    installationId: string
+  }
 
   // URLs
-  readonly sdkVersion = __SDK_VERSION__
   readonly iframeUrl = __AIUTA_IFRAME_URL__
   readonly analyticsUrl = __AIUTA_ANALYTICS_URL__
 
   constructor(configuration: AiutaConfiguration) {
     this.configureAuth(configuration.auth)
 
-    const getUserIdentifareToken = localStorage.getItem('user_identifare_token')
+    const bowser = Bowser.parse(navigator.userAgent)
 
-    if (!getUserIdentifareToken) {
-      const userIdentifareToken =
-        this.createUserIdentifareToken() + this.createUserIdentifareToken()
-      localStorage.setItem('user_identifare_token', userIdentifareToken)
-
-      this.userIdentifareToken = userIdentifareToken
-    } else {
-      this.userIdentifareToken = getUserIdentifareToken
+    this.env = {
+      platform: 'web',
+      hostId: window.origin,
+      sdkVersion: __SDK_VERSION__,
+      iframeVersion: null,
+      browserType: bowser.browser.name || 'Unknown',
+      browserVersion: bowser.browser.version || 'Unknown',
+      os: bowser.os.name || 'Unknown',
+      installationId: this.getInstallationId(),
     }
 
     if (configuration.userInterface) {
@@ -102,29 +110,27 @@ export default class Aiuta {
       this.analytics(analytic.data)
     }
 
-    this.trackEvent('configure', analytic)
+    this.trackEvent(analytic)
   }
 
-  createUserIdentifareToken = () => {
-    return Math.random().toString(36).substr(2)
+  private getInstallationId(): string {
+    const INSTALLATION_ID_KEY = 'aiutaInstallationId'
+
+    const existingId = localStorage.getItem(INSTALLATION_ID_KEY)
+    if (existingId) {
+      return existingId
+    }
+
+    const newId = uuidv4()
+    localStorage.setItem(INSTALLATION_ID_KEY, newId)
+    return newId
   }
 
-  trackEvent(eventName: string, data: Record<string, any>) {
-    const localDateTime = dayjs().format()
-
+  trackEvent(data: Record<string, any>) {
     const body = {
       ...data,
-      env: {
-        platform: 'web',
-        hostId: window.origin,
-        sdkVersion: this.sdkVersion,
-        iframeVersion: this.iframeVersion,
-        browserType: this.bowser.browser.name || 'Unknown',
-        browserVersion: this.bowser.browser.version || 'Unknown',
-        installationId: this.userIdentifareToken,
-      },
-
-      localDateTime: localDateTime,
+      env: this.env,
+      localDateTime: dayjs().format(),
     }
 
     fetch(this.analyticsUrl, {
@@ -187,7 +193,6 @@ export default class Aiuta {
           const currentOrigin = window.location.origin
           resolvedCssUrl = new URL(this.customCssUrl, currentOrigin).href
         } catch {
-          // Fallback: try to construct the URL manually
           const currentOrigin = window.location.origin
           resolvedCssUrl = this.customCssUrl.startsWith('/')
             ? `${currentOrigin}${this.customCssUrl}`
@@ -434,7 +439,7 @@ export default class Aiuta {
 
           case 'IFRAME_LOADED':
             if (aiutaIframe.contentWindow) {
-              this.iframeVersion = data.version
+              this.env.iframeVersion = data.version
 
               const analytic: any = {
                 data: {
@@ -443,7 +448,7 @@ export default class Aiuta {
                 },
               }
 
-              this.trackEvent('configure', analytic)
+              this.trackEvent(analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(analytic.data)
@@ -453,7 +458,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.tryOn:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.tryOn, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -463,7 +468,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.share:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.share, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -473,7 +478,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.results:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.results, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -483,7 +488,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.history:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.history, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -493,7 +498,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.onboarding:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.onboarding, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -503,7 +508,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.newPhotoTaken:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.newPhotoTaken, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -513,7 +518,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.uploadedPhotoDeleted:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.uploadedPhotoDeleted, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -523,7 +528,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.uploadedPhotoSelected:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.uploadedPhotoSelected, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -533,7 +538,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.generatedImageDeleted:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.generatedImageDeleted, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -543,7 +548,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.tryOnError:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.tryOnError, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -553,7 +558,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.tryOnAborted:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.tryOnAborted, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -563,7 +568,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.closeModal:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.closeModal, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -573,7 +578,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.uploadsHistoryOpened:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.uploadsHistoryOpened, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -583,7 +588,7 @@ export default class Aiuta {
 
           case AnalyticEventsEnum.loading:
             if (aiutaIframe.contentWindow) {
-              this.trackEvent(AnalyticEventsEnum.loading, event.data.analytic)
+              this.trackEvent(event.data.analytic)
 
               if (typeof this.analytics === 'function') {
                 this.analytics(event.data.analytic.data)
@@ -752,7 +757,7 @@ export default class Aiuta {
       },
     }
 
-    this.trackEvent('configure', analytic)
+    this.trackEvent(analytic)
 
     if (typeof this.analytics === 'function') {
       this.analytics(analytic.data)
