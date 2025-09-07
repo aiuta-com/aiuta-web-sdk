@@ -12,6 +12,7 @@ import {
 import { ShowFullScreenModal } from './fullScreenImageModal'
 import { ShareModal } from './shareModal'
 import Bowser from 'bowser'
+import dayjs from 'dayjs'
 
 // Global variables injected by Vite
 declare const __SDK_VERSION__: string
@@ -108,21 +109,8 @@ export default class Aiuta {
     return Math.random().toString(36).substr(2)
   }
 
-  getLocaleISODate() {
-    const now = new Date()
-    const localISOTime = now.toISOString().slice(0, -1) // removes trailing Z (UTC)
-
-    const tzOffsetMin = now.getTimezoneOffset()
-    const sign = tzOffsetMin > 0 ? '-' : '+'
-    const pad = (n: any) => String(Math.floor(Math.abs(n))).padStart(2, '0')
-
-    const offset = sign + pad(tzOffsetMin / 60) + ':' + pad(tzOffsetMin % 60)
-
-    return localISOTime + offset
-  }
-
   trackEvent(eventName: string, data: Record<string, any>) {
-    const localDateTime = this.getLocaleISODate()
+    const localDateTime = dayjs().format()
 
     const body = {
       ...data,
