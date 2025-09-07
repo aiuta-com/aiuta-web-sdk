@@ -23,6 +23,9 @@ import { Alert, QrCode } from '@/components/feature'
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // helpers
 import { generateRandomString } from '@/helpers/generateRandomString'
 
@@ -57,7 +60,7 @@ export default function Qr() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.newPhotoTaken, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.newPhotoTaken, analytic })
     }
   }
 
@@ -65,7 +68,6 @@ export default function Qr() {
     setTimeout(() => {
       handleAnalytic()
     }, 1000)
-
   }, [aiutaEndpointData])
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -108,7 +110,7 @@ export default function Qr() {
             },
           }
 
-          window.parent.postMessage({ action: AnalyticEventsEnum.newPhotoTaken, analytic }, '*')
+          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.newPhotoTaken, analytic })
         } else if (result.error) {
           dispatch(
             alertSlice.actions.setShowAlert({
@@ -130,7 +132,7 @@ export default function Qr() {
             },
           }
 
-          window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
         }
       } catch (error: any) {
         dispatch(
@@ -153,13 +155,13 @@ export default function Qr() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       }
     }
   }
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
   }
 
   const handleCheckQRUploadedPhoto = useCallback(async () => {
@@ -182,7 +184,7 @@ export default function Qr() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.newPhotoTaken, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.newPhotoTaken, analytic })
 
       const deleteQrToken = await fetch(
         `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`,
@@ -197,9 +199,9 @@ export default function Qr() {
     handleGetWidnwInitiallySizes()
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.status === 200) {
-          setEndpointData(event.data)
+      if (event.data && event.data.action) {
+        if (event.data.data && event.data.data.status === 200) {
+          setEndpointData(event.data.data)
         }
       } else {
         console.error('Not found API data')

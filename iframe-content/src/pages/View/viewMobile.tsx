@@ -40,6 +40,9 @@ import { AiutaModal } from '@/components/shared/modals'
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './view.module.scss'
 
@@ -106,7 +109,7 @@ export default function ViewMobile() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
   }
 
   const handleGetGeneratedImage = async (operation_id: string) => {
@@ -162,7 +165,7 @@ export default function ViewMobile() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       } else if (result.status === 'ABORTED') {
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval)
@@ -182,7 +185,7 @@ export default function ViewMobile() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnAborted, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnAborted, analytic })
       }
     } catch (err) {
       console.error('Generation image Error:', err)
@@ -190,11 +193,15 @@ export default function ViewMobile() {
   }
 
   const handleGenerates = async (event: any) => {
-    if (event.data.status === 200 && event.data.type === 'jwt') {
+    if (
+      event.data.data &&
+      event.data.data.status === 200 &&
+      event.data.data.type === MESSAGE_ACTIONS.JWT_TOKEN
+    ) {
       const isExistUploadedPhoto = uploadedViewFile.id.length
       const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
 
-      if (typeof event.data.jwtToken === 'string' && event.data.jwtToken.length > 0) {
+      if (typeof event.data.data.jwtToken === 'string' && event.data.data.jwtToken.length > 0) {
         try {
           const operationResponse = await fetch(
             'https://web-sdk.aiuta.com/api/create-operation-id',
@@ -205,12 +212,12 @@ export default function ViewMobile() {
               method: 'POST',
               body: JSON.stringify({
                 uploaded_image_id: uploaded_image_id,
-                ...event.data,
+                ...event.data.data,
               }),
             },
           )
 
-          setEndpointData(event.data)
+          setEndpointData(event.data.data)
 
           if (operationResponse.ok) {
             const result = await operationResponse.json()
@@ -270,7 +277,7 @@ export default function ViewMobile() {
                   },
                 }
 
-                window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+                SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
               } else if (hadMessageInErrorMessage) {
                 const analytic = {
                   data: {
@@ -283,7 +290,7 @@ export default function ViewMobile() {
                   },
                 }
 
-                window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+                SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
               }
             }
           }
@@ -299,7 +306,7 @@ export default function ViewMobile() {
             },
           }
 
-          window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
         }
       } else {
         window.removeEventListener('message', handleGenerates)
@@ -324,7 +331,7 @@ export default function ViewMobile() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       }
     }
   }
@@ -339,7 +346,7 @@ export default function ViewMobile() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
   }
 
   const handleTryOn = async () => {
@@ -362,9 +369,9 @@ export default function ViewMobile() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic: analyticLoading }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic: analyticLoading })
 
     handleTryOnStartedAnalytic()
 
@@ -378,10 +385,10 @@ export default function ViewMobile() {
     const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
 
     if (endpointData.userId && endpointData.userId.length > 0) {
-      window.parent.postMessage(
-        { action: 'GET_AIUTA_JWT_TOKEN', uploaded_image_id: uploaded_image_id },
-        '*',
-      )
+      SecureMessenger.sendToParent({
+        action: MESSAGE_ACTIONS.GET_AIUTA_JWT_TOKEN,
+        uploaded_image_id: uploaded_image_id,
+      })
 
       window.addEventListener('message', handleGenerates)
     } else {
@@ -444,7 +451,7 @@ export default function ViewMobile() {
                 },
               }
 
-              window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+              SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
             } else if (hadMessageInErrorMessage) {
               const analytic = {
                 data: {
@@ -457,7 +464,7 @@ export default function ViewMobile() {
                 },
               }
 
-              window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+              SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
             }
           }
         }
@@ -473,7 +480,7 @@ export default function ViewMobile() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       }
     }
   }
@@ -536,7 +543,7 @@ export default function ViewMobile() {
               },
             }
 
-            window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+            SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
           } else if (hadMessageInErrorMessage) {
             const analytic = {
               data: {
@@ -549,7 +556,7 @@ export default function ViewMobile() {
               },
             }
 
-            window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+            SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
           }
         }
       }
@@ -565,7 +572,7 @@ export default function ViewMobile() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
     }
   }
 
@@ -647,7 +654,7 @@ export default function ViewMobile() {
             },
           }
 
-          window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
         }
       } catch (error: any) {
         dispatch(
@@ -670,7 +677,7 @@ export default function ViewMobile() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       }
     }
   }
@@ -685,16 +692,16 @@ export default function ViewMobile() {
   }
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
   }
 
   useEffect(() => {
     handleGetWidnwInitiallySizes()
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.status === 200 && 'userId' in event.data) {
-          setEndpointData(event.data)
+      if (event.data && event.data.action) {
+        if (event.data.data && event.data.data.status === 200 && 'userId' in event.data.data) {
+          setEndpointData(event.data.data)
         }
       } else {
         console.error('Not found API data')

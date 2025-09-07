@@ -16,6 +16,9 @@ import {
   stylesConfigurationSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
+
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 import {
   recentlyPhotosSelector,
   isStartGenerationSelector,
@@ -93,7 +96,7 @@ export default function View() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
   }
 
   const handleGetGeneratedImage = async (operation_id: string) => {
@@ -151,7 +154,7 @@ export default function View() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       } else if (result.status === 'ABORTED') {
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval)
@@ -171,7 +174,7 @@ export default function View() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnAborted, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnAborted, analytic })
       }
     } catch (err) {
       console.error('Generation image Error:', err)
@@ -179,11 +182,15 @@ export default function View() {
   }
 
   const handleGenerate = async (event: any) => {
-    if (event.data.status === 200 && event.data.type === 'jwt') {
+    if (
+      event.data.data &&
+      event.data.data.status === 200 &&
+      event.data.data.type === MESSAGE_ACTIONS.JWT_TOKEN
+    ) {
       const isExistUploadedPhoto = uploadedViewFile.id.length
       const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
 
-      if (typeof event.data.jwtToken === 'string' && event.data.jwtToken.length > 0) {
+      if (typeof event.data.data.jwtToken === 'string' && event.data.data.jwtToken.length > 0) {
         try {
           const operationResponse = await fetch(
             'https://web-sdk.aiuta.com/api/create-operation-id',
@@ -194,12 +201,12 @@ export default function View() {
               method: 'POST',
               body: JSON.stringify({
                 uploaded_image_id: uploaded_image_id,
-                ...event.data,
+                ...event.data.data,
               }),
             },
           )
 
-          setEndpointData(event.data)
+          setEndpointData(event.data.data)
 
           if (operationResponse.ok) {
             const result = await operationResponse.json()
@@ -252,7 +259,7 @@ export default function View() {
                   },
                 }
 
-                window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+                SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
               } else if (hadMessageInErrorMessage) {
                 const analytic = {
                   data: {
@@ -265,7 +272,7 @@ export default function View() {
                   },
                 }
 
-                window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+                SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
               }
             }
           }
@@ -281,7 +288,7 @@ export default function View() {
             },
           }
 
-          window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
         }
       } else {
         window.removeEventListener('message', handleGenerate)
@@ -306,7 +313,7 @@ export default function View() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       }
     }
   }
@@ -321,7 +328,7 @@ export default function View() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
   }
 
   const handleTryOn = async () => {
@@ -344,9 +351,9 @@ export default function View() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.tryOn, analytic: analyticLoading }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic: analyticLoading })
 
     handleTryOnStartedAnalytic()
 
@@ -359,13 +366,10 @@ export default function View() {
       const isExistUploadedPhoto = uploadedViewFile.id.length
       const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
 
-      window.parent.postMessage(
-        {
-          action: 'GET_AIUTA_JWT_TOKEN',
-          uploaded_image_id: uploaded_image_id,
-        },
-        '*',
-      )
+      SecureMessenger.sendToParent({
+        action: MESSAGE_ACTIONS.GET_AIUTA_JWT_TOKEN,
+        uploaded_image_id: uploaded_image_id,
+      })
 
       window.addEventListener('message', handleGenerate)
     } else {
@@ -431,7 +435,7 @@ export default function View() {
                 },
               }
 
-              window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+              SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
             } else if (hadMessageInErrorMessage) {
               const analytic = {
                 data: {
@@ -444,7 +448,7 @@ export default function View() {
                 },
               }
 
-              window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+              SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
             }
           }
         }
@@ -460,7 +464,7 @@ export default function View() {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.tryOnError, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
       }
     }
   }
@@ -475,19 +479,16 @@ export default function View() {
   }
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
-    window.parent.postMessage(
-      {
-        action: 'OPEN_AIUTA_FULL_SCREEN_MODAL',
-        images: [],
-        modalType: undefined,
-        activeImage: activeImage,
-      },
-      '*',
-    )
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+      images: [],
+      modalType: undefined,
+      activeImage: activeImage,
+    })
   }
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
   }
 
   const isExistUploadedPhoto = uploadedViewFile.localUrl.length > 0
@@ -503,9 +504,9 @@ export default function View() {
     handleGetWidnwInitiallySizes()
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.status === 200 && 'userId' in event.data) {
-          setEndpointData(event.data)
+      if (event.data && event.data.action) {
+        if (event.data.data.status === 200 && 'userId' in event.data.data) {
+          setEndpointData(event.data.data)
         }
       }
     }

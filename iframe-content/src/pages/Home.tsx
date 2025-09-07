@@ -19,6 +19,9 @@ import {
 import { Section } from '@/components/feature/'
 import { Onboarding } from '@/components/shared'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './index.module.scss'
 
@@ -54,23 +57,23 @@ export default function Home() {
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
-    window.parent.postMessage({ action: 'get_window_sizes' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_WINDOW_SIZES })
   }
 
   useEffect(() => {
     handleGetWidnwInitiallySizes()
 
     const handleMessage = (e: MessageEvent) => {
-      if (e.data && e.data.type) {
-        if (e.data.type === 'resize') {
-          if (e.data.width <= 992 && !isMobile) {
+      if (e.data && e.data.action) {
+        if (e.data.action === MESSAGE_ACTIONS.GET_WINDOW_SIZES) {
+          if (e.data.data.width <= 992 && !isMobile) {
             dispatch(configSlice.actions.setIsMobile(true))
           } else {
             dispatch(configSlice.actions.setIsMobile(false))
           }
-        } else if (e.data.type === 'baseKeys') {
-          dispatch(configSlice.actions.setAiutaEndpointData(e.data))
+        } else if (e.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
+          dispatch(configSlice.actions.setAiutaEndpointData(e.data.data))
         }
       }
     }

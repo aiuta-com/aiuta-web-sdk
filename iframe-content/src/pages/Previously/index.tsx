@@ -27,6 +27,9 @@ import { Section, TryOnButton, SelectableImage } from '@/components/feature'
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './previously.module.scss'
 
@@ -119,7 +122,7 @@ export default function Previously() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.uploadedPhotoSelected, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.uploadedPhotoSelected, analytic })
     } else {
       handleShowFullScreen({ id, url })
     }
@@ -141,23 +144,20 @@ export default function Previously() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.uploadedPhotoDeleted, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.uploadedPhotoDeleted, analytic })
   }
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
   }
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
-    window.parent.postMessage(
-      {
-        action: 'OPEN_AIUTA_FULL_SCREEN_MODAL',
-        images: recentlyPhotos,
-        modalType: 'previously',
-        activeImage: activeImage,
-      },
-      '*',
-    )
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+      images: recentlyPhotos,
+      modalType: 'previously',
+      activeImage: activeImage,
+    })
   }
 
   // Removed unused handleCheckQRUploadedPhoto function
@@ -173,7 +173,7 @@ export default function Previously() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.uploadsHistoryOpened, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.uploadsHistoryOpened, analytic })
     }
   }
 
@@ -209,14 +209,14 @@ export default function Previously() {
     handleGetWidnwInitiallySizes()
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.status === 200) {
-          setEndpointData(event.data)
+      if (event.data && event.data.action) {
+        if (event.data.data && event.data.data.status === 200) {
+          setEndpointData(event.data.data)
         }
 
-        if (event.data.type === 'REMOVE_PREVIOUSELY_IMAGES') {
-          handleRemovePhoto(event.data.images.id)
-          dispatch(generateSlice.actions.setRecentlyPhotos(event.data.images))
+        if (event.data.action === MESSAGE_ACTIONS.REMOVE_PREVIOUSELY_IMAGES) {
+          handleRemovePhoto(event.data.data.images.id)
+          dispatch(generateSlice.actions.setRecentlyPhotos(event.data.data.images))
         }
       } else {
         console.error('Not found API data')

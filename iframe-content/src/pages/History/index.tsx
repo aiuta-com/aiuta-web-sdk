@@ -32,6 +32,9 @@ import { HistoryImagesRemoveModal } from '@/components/shared/modals'
 // types
 import { AnalyticEventsEnum } from '@/types'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './history.module.scss'
 
@@ -64,15 +67,12 @@ export default function History() {
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
-    window.parent.postMessage(
-      {
-        action: 'OPEN_AIUTA_FULL_SCREEN_MODAL',
-        images: generatedImages,
-        modalType: 'history',
-        activeImage: activeImage,
-      },
-      '*',
-    )
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+      images: generatedImages,
+      modalType: 'history',
+      activeImage: activeImage,
+    })
   }
 
   const handleSelectImage = (id: string, url: string) => {
@@ -112,7 +112,7 @@ export default function History() {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.generatedImageDeleted, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.generatedImageDeleted, analytic })
   }
 
   const onboardingAnalytic = () => {
@@ -125,7 +125,7 @@ export default function History() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.history, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.history, analytic })
     }
   }
 
@@ -135,9 +135,9 @@ export default function History() {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.type === 'REMOVE_HISTORY_IMAGES') {
-          dispatch(generateSlice.actions.setGeneratedImage(event.data.images))
+      if (event.data && event.data.action) {
+        if (event.data.action === MESSAGE_ACTIONS.REMOVE_HISTORY_IMAGES) {
+          dispatch(generateSlice.actions.setGeneratedImage(event.data.data.images))
 
           const analytic = {
             data: {
@@ -148,10 +148,10 @@ export default function History() {
             },
           }
 
-          window.parent.postMessage(
-            { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
-            '*',
-          )
+          SecureMessenger.sendToParent({
+            action: AnalyticEventsEnum.generatedImageDeleted,
+            analytic,
+          })
         }
       }
     }

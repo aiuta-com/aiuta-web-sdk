@@ -30,6 +30,9 @@ import {
 // types
 import { AnalyticEventsEnum } from '@/types'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './sdkHeader.module.scss'
 
@@ -86,7 +89,7 @@ export const SdkHeader = () => {
       analytic.data.pageId = 'results'
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.closeModal, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.closeModal, analytic })
   }
 
   const handleCloseModal = () => {
@@ -102,9 +105,9 @@ export const SdkHeader = () => {
           },
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.closeModal, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.closeModal, analytic })
 
-        window.parent.postMessage({ action: 'close_modal' }, '*')
+        SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
         return
       }
 
@@ -113,7 +116,7 @@ export const SdkHeader = () => {
           navigate('/view')
         }, 500)
       }
-      window.parent.postMessage({ action: 'close_modal' }, '*')
+      SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
     }
 
     handleAnalytic()
@@ -138,7 +141,7 @@ export const SdkHeader = () => {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.history, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.history, analytic })
     }
 
     if (iasNavigatePath) {
@@ -188,11 +191,11 @@ export const SdkHeader = () => {
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.status === 200 && event.data.type === 'baseKeys') {
-          dispatch(configSlice.actions.setAiutaEndpointData(event.data))
+      if (event.data && event.data.action) {
+        if (event.data.data.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
+          dispatch(configSlice.actions.setAiutaEndpointData(event.data.data))
         }
-      } else if (event.data.action === 'ANALYTIC_SOCIAL_MEDIA') {
+      } else if (event.data.action === MESSAGE_ACTIONS.ANALYTIC_SOCIAL_MEDIA) {
         const analytic: any = {
           data: {
             type: 'share',
@@ -214,7 +217,7 @@ export const SdkHeader = () => {
           analytic.data.event = 'canceled'
         }
 
-        window.parent.postMessage({ action: AnalyticEventsEnum.results, analytic }, '*')
+        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.results, analytic })
       } else {
         console.error('Not found API data')
       }

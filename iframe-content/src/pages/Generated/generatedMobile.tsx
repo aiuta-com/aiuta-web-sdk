@@ -13,6 +13,9 @@ import { stylesConfigurationSelector } from '@lib/redux/slices/configSlice/selec
 // components
 import { ViewImage } from '@/components/feature'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './generated.module.scss'
 
@@ -25,17 +28,14 @@ export default function GeneratedMobile() {
   const handleShare = async () => {
     const imageUrl = generatedImages[0]?.url
 
-    window.parent.postMessage(
-      {
-        action: 'SHARE_IMAGE',
-        payload: {
-          url: imageUrl,
-          title: '',
-          text: '',
-        },
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.SHARE_IMAGE,
+      payload: {
+        url: imageUrl,
+        title: '',
+        text: '',
       },
-      '*',
-    )
+    })
   }
 
   const handleFullScreenImage = (event: MouseEvent<HTMLImageElement>) => {

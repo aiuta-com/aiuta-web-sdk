@@ -11,6 +11,8 @@ import {
 } from '@shared/config'
 import { ShowFullScreenModal } from './fullScreenImageModal'
 import { ShareModal } from './shareModal'
+import { SecurePostMessageHandler } from './security'
+import { MESSAGE_ACTIONS } from '@shared/messaging'
 import Bowser from 'bowser'
 import dayjs from 'dayjs'
 import { v4 as uuidv4 } from 'uuid'
@@ -62,6 +64,7 @@ export default class Aiuta {
   private productId!: string
   private isIframeOpen: boolean = false
   private iframe: HTMLIFrameElement | null = null
+  private secureMessageHandler: SecurePostMessageHandler | null = null
   private env: {
     platform: string
     hostId: string
@@ -92,6 +95,8 @@ export default class Aiuta {
       os: bowser.os.name || 'Unknown',
       installationId: this.getInstallationId(),
     }
+
+    this.initializeSecureMessageHandler()
 
     if (configuration.userInterface) {
       this.configureUserInterface(configuration.userInterface)
@@ -124,6 +129,77 @@ export default class Aiuta {
     const newId = uuidv4()
     localStorage.setItem(INSTALLATION_ID_KEY, newId)
     return newId
+  }
+
+  private initializeSecureMessageHandler(): void {
+    try {
+      // Extract iframe origin from URL
+      let iframeOrigin: string
+
+      if (this.iframeUrl.startsWith('/')) {
+        // Handle relative paths (local debug mode)
+        iframeOrigin = window.location.origin
+      } else {
+        // Handle full URLs
+        const iframeUrl = new URL(this.iframeUrl)
+        iframeOrigin = `${iframeUrl.protocol}//${iframeUrl.host}`
+      }
+
+      // Initialize secure message handler
+      this.secureMessageHandler = new SecurePostMessageHandler(iframeOrigin)
+
+      // Register message handlers
+      this.registerMessageHandlers()
+    } catch (error) {
+      console.error('Failed to initialize secure message handler:', error)
+    }
+  }
+
+  private registerMessageHandlers(): void {
+    if (!this.secureMessageHandler) return
+
+    // Register all message handlers
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.CLOSE_MODAL,
+      this.handleCloseModal.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.OPEN_SHARE_MODAL,
+      this.handleOpenShareModal.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.SHARE_IMAGE,
+      this.handleShareImage.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.GET_WINDOW_SIZES,
+      this.handleGetWindowSizes.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.GET_AIUTA_JWT_TOKEN,
+      this.handleGetJwtToken.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.GET_AIUTA_API_KEYS,
+      this.handleGetApiKeys.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION,
+      this.handleGetStylesConfiguration.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+      this.handleOpenFullScreenModal.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.IFRAME_LOADED,
+      this.handleIframeLoaded.bind(this),
+    )
+
+    // Register analytics event handlers
+    Object.values(AnalyticEventsEnum).forEach((event) => {
+      this.secureMessageHandler!.registerHandler(event, this.handleAnalyticsEvent.bind(this))
+    })
   }
 
   trackEvent(data: Record<string, any>) {
@@ -179,12 +255,15 @@ export default class Aiuta {
     throw new Error('Aiuta SDK is not initialized with API key or JWT')
   }
 
-  private createIframe(apiKey: string, productId: string) {
+  private createIframe() {
     const aiutaIframe: any = document.createElement('iframe')
     aiutaIframe.id = 'aiuta-iframe'
     aiutaIframe.allow = 'fullscreen'
 
-    let iframeSrc = this.iframeUrl
+    let iframeSrc = this.iframeUrl.startsWith('/')
+      ? `${window.location.origin}${this.iframeUrl}`
+      : this.iframeUrl
+
     if (this.customCssUrl) {
       let resolvedCssUrl = this.customCssUrl
 
@@ -241,18 +320,6 @@ export default class Aiuta {
 
     this.iframe = aiutaIframe
 
-    aiutaIframe.onload = () => {
-      aiutaIframe.contentWindow.postMessage(
-        {
-          status: 200,
-          skuId: productId,
-          apiKey: apiKey,
-          type: 'baseKeys',
-        },
-        '*',
-      )
-    }
-
     setTimeout(() => {
       if (window.innerWidth <= 992) {
         switch (this.sdkPosition) {
@@ -291,361 +358,212 @@ export default class Aiuta {
       }
     }, 1000)
 
-    window.addEventListener('resize', () => this.adjustIframeForViewport())
+    window.addEventListener('resize', () => {
+      this.adjustIframeForViewport()
+      this.handleResizeEvent()
+    })
   }
 
-  private postMessageToIframe(message: any) {
-    if (!this.iframe?.contentWindow) return
+  private async postMessageToIframe(message: any): Promise<any> {
+    if (!this.iframe?.contentWindow || !this.secureMessageHandler) {
+      throw new Error('Iframe or secure message handler not available')
+    }
 
-    this.iframe.contentWindow.postMessage(message, '*')
+    try {
+      // Extract action from message (could be 'action' or 'type' field)
+      const action = message.action || message.type
+      const data = message.data || message
+
+      // Use events for messages that don't need responses
+      if (
+        action === MESSAGE_ACTIONS.BASE_KEYS ||
+        action === MESSAGE_ACTIONS.GET_WINDOW_SIZES ||
+        action === MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION ||
+        action === MESSAGE_ACTIONS.JWT_TOKEN
+      ) {
+        this.secureMessageHandler.sendEventToIframe(this.iframe, action, data)
+        return Promise.resolve() // Return resolved promise for events
+      } else {
+        return await this.secureMessageHandler.sendToIframe(this.iframe, action, data)
+      }
+    } catch (error) {
+      console.error(
+        `Failed to send secure message to iframe: ${message.action || message.type}`,
+        error,
+      )
+      throw error
+    }
   }
 
-  private handleMessage() {
-    const aiutaIframe = document.getElementById('aiuta-iframe') as HTMLIFrameElement
-    if (!aiutaIframe) return
+  // Individual secure message handlers
+  private handleCloseModal(): void {
+    if (!this.iframe) return
 
-    if (aiutaIframe) {
-      this.postMessageToIframe({
+    this.isIframeOpen = false
+
+    switch (this.sdkPosition) {
+      case 'topLeft':
+        this.iframe.style.left = '-1000%'
+        break
+      case 'bottomRight':
+        this.iframe.style.right = '-1000%'
+        break
+      case 'bottomLeft':
+        this.iframe.style.left = '-1000%'
+        break
+      case 'topRight':
+        this.iframe.style.right = '-1000%'
+        break
+    }
+
+    if (
+      document &&
+      document.body &&
+      document.body.parentElement &&
+      document.body.parentElement.style.overflow === 'hidden'
+    ) {
+      document.body.parentElement.style.overflow = ''
+    }
+  }
+
+  private handleOpenShareModal(message: any): void {
+    if (message.data?.imageUrl) {
+      const shareModal = new ShareModal(message.data.imageUrl)
+      shareModal.showModal()
+    }
+  }
+
+  private handleShareImage(message: any): void {
+    if (navigator.share && message.data?.payload?.url) {
+      navigator.share({
+        url: message.data.payload.url,
+        title: 'Check out this image',
+        text: "Here's an image I generated!",
+      })
+    }
+  }
+
+  private async handleGetWindowSizes(): Promise<void> {
+    try {
+      const message = {
+        action: MESSAGE_ACTIONS.GET_WINDOW_SIZES,
+        width: window.innerWidth,
+        height: window.innerHeight,
+      }
+      await this.postMessageToIframe(message)
+    } catch (error) {
+      console.error('Failed to send window sizes:', error)
+    }
+  }
+
+  private async handleGetJwtToken(message: any): Promise<void> {
+    try {
+      const token = await this.getToken(message.data?.uploaded_image_id, this.productId)
+
+      const responseMessage = {
+        status: 200,
+        skuId: this.productId,
+        jwtToken: token,
+        userId: this.userId,
+        type: MESSAGE_ACTIONS.JWT_TOKEN,
+      }
+      await this.postMessageToIframe(responseMessage)
+    } catch (error) {
+      console.error('Failed to get JWT token:', error)
+      try {
+        const errorMessage = {
+          status: 200,
+          skuId: this.productId,
+          jwtToken: undefined,
+          userId: this.userId,
+          type: MESSAGE_ACTIONS.JWT_TOKEN,
+        }
+        await this.postMessageToIframe(errorMessage)
+      } catch (responseError) {
+        console.error('Failed to send JWT error response:', responseError)
+      }
+    }
+  }
+
+  private async handleGetApiKeys(): Promise<void> {
+    try {
+      const message = {
         status: 200,
         skuId: this.productId,
         apiKey: this.apiKey,
         userId: this.userId,
-        type: 'baseKeys',
-      })
+        type: MESSAGE_ACTIONS.BASE_KEYS,
+      }
+      await this.postMessageToIframe(message)
+    } catch (error) {
+      console.error('Failed to send API keys:', error)
+    }
+  }
+
+  private async handleGetStylesConfiguration(): Promise<void> {
+    try {
+      console.log('Sending styles configuration:', this.stylesConfiguration)
+      const message = {
+        action: MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION,
+        data: {
+          stylesConfiguration: this.stylesConfiguration.stylesConfiguration,
+        },
+      }
+      await this.postMessageToIframe(message)
+    } catch (error) {
+      console.error('Failed to send styles configuration:', error)
+    }
+  }
+
+  private handleOpenFullScreenModal(message: any): void {
+    const fullScreenModal = new ShowFullScreenModal({
+      activeImage: message.data?.activeImage,
+      modalType: message.data?.modalType,
+      images: message.data?.images,
+    })
+
+    fullScreenModal.showModal()
+  }
+
+  private handleIframeLoaded(message: any): void {
+    this.env.iframeVersion = message.data?.version
+
+    const analytic: any = {
+      data: {
+        type: 'session',
+        event: 'iframeLoaded',
+      },
     }
 
-    aiutaIframe.onload = () => {
-      const messages = async (event: any) => {
-        const data = event.data
-        switch (data.action) {
-          case 'close_modal':
-            if (aiutaIframe) {
-              this.isIframeOpen = false
+    this.trackEvent(analytic)
 
-              switch (this.sdkPosition) {
-                case 'topLeft':
-                  aiutaIframe.style.left = '-1000%'
-                  break
-                case 'bottomRight':
-                  aiutaIframe.style.right = '-1000%'
-                  break
-                case 'bottomLeft':
-                  aiutaIframe.style.left = '-1000%'
-                  break
-                case 'topRight':
-                  aiutaIframe.style.right = '-1000%'
-                  break
-              }
+    if (typeof this.analytics === 'function') {
+      this.analytics(analytic.data)
+    }
+  }
 
-              if (
-                document &&
-                document.body &&
-                document.body.parentElement &&
-                document.body.parentElement.style.overflow === 'hidden'
-              ) {
-                document.body.parentElement.style.overflow = ''
-              }
-            }
-            break
+  private handleAnalyticsEvent(message: any): void {
+    if (message.data?.analytic) {
+      this.trackEvent(message.data.analytic)
 
-          case 'open_share_modal':
-            if (data.imageUrl) {
-              const shareModal = new ShareModal(data.imageUrl)
-              shareModal.showModal()
-            }
-            break
-
-          case 'SHARE_IMAGE':
-            if (navigator.share && data.payload?.url) {
-              navigator.share({
-                url: data.payload.url,
-                title: 'Check out this image',
-                text: "Here's an image I generated!",
-              })
-            }
-            break
-
-          case 'get_window_sizes':
-            this.postMessageToIframe({
-              type: 'resize',
-              width: window.innerWidth,
-              height: window.innerHeight,
-            })
-            break
-
-          case 'GET_AIUTA_JWT_TOKEN':
-            if (aiutaIframe.contentWindow) {
-              try {
-                const token = await this.getToken(data.uploaded_image_id, this.productId)
-
-                console.log('JWT token: ', token, 'PRODUCT ID', this.productId)
-
-                this.postMessageToIframe({
-                  status: 200,
-                  skuId: this.productId,
-                  jwtToken: token,
-                  userId: this.userId,
-                  type: 'jwt',
-                })
-              } catch {
-                this.postMessageToIframe({
-                  status: 200,
-                  skuId: this.productId,
-                  jwtToken: undefined,
-                  userId: this.userId,
-                  type: 'jwt',
-                })
-                console.error('Aiuta get JWT token error')
-              }
-            }
-            break
-
-          case 'GET_AIUTA_API_KEYS':
-            console.log('PRODUCT ID', this.productId)
-
-            if (aiutaIframe.contentWindow) {
-              this.postMessageToIframe({
-                status: 200,
-                skuId: this.productId,
-                apiKey: this.apiKey,
-                userId: this.userId,
-                type: 'baseKeys',
-              })
-            }
-            break
-
-          case 'GET_AIUTA_STYLES_CONFIGURATION':
-            if (aiutaIframe.contentWindow) {
-              if (this.stylesConfiguration) {
-                this.postMessageToIframe({
-                  type: 'stylesConfiguration',
-                  stylesConfiguration: this.stylesConfiguration,
-                })
-              }
-            }
-            break
-
-          case 'OPEN_AIUTA_FULL_SCREEN_MODAL':
-            if (aiutaIframe.contentWindow) {
-              const fullScreenModal = new ShowFullScreenModal({
-                activeImage: data.activeImage,
-                modalType: data.modalType,
-                images: data.images,
-              })
-
-              fullScreenModal.showModal()
-            }
-            break
-
-          case 'IFRAME_LOADED':
-            if (aiutaIframe.contentWindow) {
-              this.env.iframeVersion = data.version
-
-              const analytic: any = {
-                data: {
-                  type: 'session',
-                  event: 'iframeLoaded',
-                },
-              }
-
-              this.trackEvent(analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.tryOn:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.share:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.results:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.history:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.onboarding:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.newPhotoTaken:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.uploadedPhotoDeleted:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.uploadedPhotoSelected:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.generatedImageDeleted:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.tryOnError:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.tryOnAborted:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.closeModal:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.uploadsHistoryOpened:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-
-          case AnalyticEventsEnum.loading:
-            if (aiutaIframe.contentWindow) {
-              this.trackEvent(event.data.analytic)
-
-              if (typeof this.analytics === 'function') {
-                this.analytics(event.data.analytic.data)
-              }
-            }
-            break
-        }
+      if (typeof this.analytics === 'function') {
+        this.analytics(message.data.analytic.data)
       }
+    }
+  }
 
-      if (window.innerWidth <= 992) {
-        aiutaIframe.style.top = '0px'
-        aiutaIframe.style.width = '100%'
-        aiutaIframe.style.height = '100%'
-        aiutaIframe.style.borderRadius = '0px'
-        aiutaIframe.style.border = '1px solid #ffffff'
-
-        switch (this.sdkPosition) {
-          case 'topLeft':
-            aiutaIframe.style.left = SDK_POSITION.topLeft.left
-            break
-          case 'topRight':
-            aiutaIframe.style.right = SDK_POSITION.topRight.right
-            break
-          case 'bottomLeft':
-            aiutaIframe.style.left = SDK_POSITION.bottomLeft.left
-            break
-          case 'bottomRight':
-            aiutaIframe.style.right = SDK_POSITION.bottomRight.right
-            break
+  private async handleResizeEvent(): Promise<void> {
+    if (this.iframe && this.isIframeOpen) {
+      try {
+        const message = {
+          action: MESSAGE_ACTIONS.GET_WINDOW_SIZES,
+          width: window.innerWidth,
+          height: window.innerHeight,
         }
-
-        if (aiutaIframe && aiutaIframe.contentWindow) {
-          aiutaIframe.contentWindow.postMessage(
-            {
-              type: 'resize',
-              width: window.innerWidth,
-              height: window.innerHeight,
-            },
-            '*',
-          )
-        }
+        await this.postMessageToIframe(message)
+      } catch (error) {
+        console.error('Failed to send resize event to iframe:', error)
       }
-
-      window.addEventListener('message', messages)
-
-      window.addEventListener('resize', () => {
-        if (aiutaIframe && aiutaIframe.contentWindow) {
-          aiutaIframe.contentWindow.postMessage(
-            {
-              type: 'resize',
-              width: window.innerWidth,
-              height: window.innerHeight,
-            },
-            '*',
-          )
-        }
-      })
     }
   }
 
@@ -742,11 +660,8 @@ export default class Aiuta {
             break
         }
       }
-
-      this.handleMessage()
     } else {
-      this.createIframe(this.apiKey, productId)
-      this.handleMessage()
+      this.createIframe()
     }
 
     const analytic: any = {

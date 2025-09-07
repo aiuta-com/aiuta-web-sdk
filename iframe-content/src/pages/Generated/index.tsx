@@ -23,6 +23,9 @@ import { Section, ViewImage, MiniSliderItem } from '@/components/feature'
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // styles
 import styles from './generated.module.scss'
 
@@ -92,19 +95,16 @@ export default function Generated() {
   }
 
   const handleGetWidnwInitiallySizes = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_API_KEYS' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
   }
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
-    window.parent.postMessage(
-      {
-        action: 'OPEN_AIUTA_FULL_SCREEN_MODAL',
-        images: generatedImages,
-        modalType: 'history',
-        activeImage: activeImage,
-      },
-      '*',
-    )
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+      images: generatedImages,
+      modalType: 'history',
+      activeImage: activeImage,
+    })
   }
 
   const handleAnalytic = () => {
@@ -121,7 +121,7 @@ export default function Generated() {
         },
       }
 
-      window.parent.postMessage({ action: AnalyticEventsEnum.results, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.results, analytic })
     }
   }
 
@@ -133,13 +133,13 @@ export default function Generated() {
     handleGetWidnwInitiallySizes()
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type) {
-        if (event.data.status === 200) {
-          setEndpointData(event.data)
+      if (event.data && event.data.action) {
+        if (event.data.data.status === 200) {
+          setEndpointData(event.data.data)
         }
 
-        if (event.data.type === 'REMOVE_HISTORY_IMAGES') {
-          dispatch(generateSlice.actions.setGeneratedImage(event.data.images))
+        if (event.data.action === MESSAGE_ACTIONS.REMOVE_HISTORY_IMAGES) {
+          dispatch(generateSlice.actions.setGeneratedImage(event.data.data.images))
 
           const analytic = {
             data: {
@@ -150,13 +150,13 @@ export default function Generated() {
             },
           }
 
-          window.parent.postMessage(
-            { action: AnalyticEventsEnum.generatedImageDeleted, analytic },
-            '*',
-          )
+          SecureMessenger.sendToParent({
+            action: AnalyticEventsEnum.generatedImageDeleted,
+            analytic,
+          })
         }
 
-        if (event.data.type === 'ANALYTIC_SOCIAL_MEDIA') {
+        if (event.data.action === MESSAGE_ACTIONS.ANALYTIC_SOCIAL_MEDIA) {
           const analytic: any = {
             data: {
               type: 'share',
@@ -178,7 +178,7 @@ export default function Generated() {
             analytic.data.event = 'canceled'
           }
 
-          window.parent.postMessage({ action: AnalyticEventsEnum.results, analytic }, '*')
+          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.results, analytic })
         }
       }
     }

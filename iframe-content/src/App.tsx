@@ -7,6 +7,9 @@ import { useAppDispatch } from '@lib/redux/store'
 // actions
 import { configSlice } from '@lib/redux/slices/configSlice'
 
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
 // pages
 import Qr from './pages/Qr'
 import Home from './pages/Home'
@@ -31,7 +34,7 @@ function App() {
   const initialPath = window.location.hash.replace(/^#/, '') || '/'
 
   const handleGetStylesConfiguration = () => {
-    window.parent.postMessage({ action: 'GET_AIUTA_STYLES_CONFIGURATION' }, '*')
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION })
   }
 
   const loadCustomCSS = () => {
@@ -49,7 +52,10 @@ function App() {
   }
 
   const handleSendIframeVersion = () => {
-    window.parent.postMessage({ action: 'IFRAME_LOADED', version: __IFRAME_VERSION__ }, '*')
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.IFRAME_LOADED,
+      version: __IFRAME_VERSION__,
+    })
   }
 
   useEffect(() => {
@@ -59,12 +65,19 @@ function App() {
     loadCustomCSS()
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.type && event.data.type === 'stylesConfiguration') {
-        dispatch(
-          configSlice.actions.setStylesConfiguration(
-            event.data.stylesConfiguration.stylesConfiguration,
-          ),
-        )
+      console.log('Received message:', event.data)
+      if (
+        event.data &&
+        event.data.action &&
+        event.data.action === MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION
+      ) {
+        console.log('Setting styles configuration:', event.data.data.stylesConfiguration)
+        const stylesConfig = event.data.data.stylesConfiguration
+        if (stylesConfig && stylesConfig.components && stylesConfig.pages) {
+          dispatch(configSlice.actions.setStylesConfiguration(stylesConfig))
+        } else {
+          console.error('Invalid styles configuration structure:', stylesConfig)
+        }
       }
     }
 

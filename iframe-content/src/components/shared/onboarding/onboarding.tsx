@@ -24,6 +24,9 @@ import { TitleDescription, TryOnButton } from '@/components/feature'
 // types
 import { AnalyticEventsEnum } from '@/types'
 
+// messaging
+import { SecureMessenger } from '@shared/messaging'
+
 // styles
 import styles from './onboarding.module.scss'
 
@@ -49,7 +52,7 @@ export const Onboarding = () => {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
   }
 
   const handleOnboardAnalyticFinish = () => {
@@ -62,7 +65,7 @@ export const Onboarding = () => {
       },
     }
 
-    window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
+    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
   }
 
   const handleClickOnboardingButton = () => {
@@ -78,7 +81,7 @@ export const Onboarding = () => {
 
   const initPageAnalytic = (analytic: any) => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
+      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
     }
   }
 

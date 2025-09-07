@@ -4,6 +4,7 @@ import {
   DESKTOP_MODAL_TRASH,
   DESKTOP_MODAL_DOWNLOAD,
 } from './constants/socialIcons'
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
 type ImageType = {
   id: string
@@ -157,10 +158,13 @@ export class ShowFullScreenModal {
   private handleShareImage(): void {
     if (this.activeImage) {
       const aiutaIframe = document.getElementById('aiuta-iframe') as HTMLIFrameElement
-      if (!aiutaIframe) return
+      if (!aiutaIframe?.contentWindow) return
 
-      window.postMessage({ action: 'open_share_modal', imageUrl: this.activeImage.url }, '*')
-
+      // Send secure message to parent window
+      SecureMessenger.sendToParent({
+        action: MESSAGE_ACTIONS.OPEN_SHARE_MODAL,
+        imageUrl: this.activeImage.url,
+      })
       this.closeModal()
     }
   }
@@ -200,19 +204,20 @@ export class ShowFullScreenModal {
       if (aiutaIframe.contentWindow) {
         const type =
           this.modalType === 'history'
-            ? 'REMOVE_HISTORY_IMAGES'
+            ? MESSAGE_ACTIONS.REMOVE_HISTORY_IMAGES
             : this.modalType === 'previously'
-              ? 'REMOVE_PREVIOUSELY_IMAGES'
+              ? MESSAGE_ACTIONS.REMOVE_PREVIOUSELY_IMAGES
               : null
 
-        aiutaIframe.contentWindow.postMessage(
-          {
-            type: type,
-            status: 200,
-            images: deleteActiveImage,
-          },
-          '*',
-        )
+        const message = {
+          action:
+            type === MESSAGE_ACTIONS.REMOVE_HISTORY_IMAGES
+              ? MESSAGE_ACTIONS.REMOVE_HISTORY_IMAGES
+              : MESSAGE_ACTIONS.REMOVE_PREVIOUSELY_IMAGES,
+          images: deleteActiveImage,
+        }
+
+        aiutaIframe.contentWindow.postMessage(message, '*')
       }
     }
   }

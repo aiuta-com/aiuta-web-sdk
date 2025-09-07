@@ -5,6 +5,7 @@ import {
   COPY_BUTTON,
   SHARE_WITH_TEXT,
 } from './constants/socialIcons'
+import { MESSAGE_ACTIONS, SecureMessenger } from '@shared/messaging'
 
 type ShareMethod = 'whatsApp' | 'messenger' | 'copy' | 'share_close'
 
@@ -269,8 +270,9 @@ export class ShareModal {
 
   private sendAnalytics(shareMethod: ShareMethod): void {
     const aiutaIframe = this.getAiutaIframe()
-    if (aiutaIframe?.contentWindow) {
-      aiutaIframe.contentWindow.postMessage({ action: 'ANALYTIC_SOCIAL_MEDIA', shareMethod }, '*')
+    if (aiutaIframe) {
+      const message = { action: MESSAGE_ACTIONS.ANALYTIC_SOCIAL_MEDIA, shareMethod }
+      SecureMessenger.sendToIframe(aiutaIframe, message, '*')
     }
   }
 
