@@ -30,7 +30,6 @@ import { RemoveHistoryBanner } from '@/components/shared'
 import { HistoryImagesRemoveModal } from '@/components/shared/modals'
 
 // types
-import { AnalyticEventsEnum } from '@/types'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
@@ -112,7 +111,7 @@ export default function History() {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.generatedImageDeleted, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const onboardingAnalytic = () => {
@@ -125,7 +124,7 @@ export default function History() {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.history, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
   }
 
@@ -148,10 +147,7 @@ export default function History() {
             },
           }
 
-          SecureMessenger.sendToParent({
-            action: AnalyticEventsEnum.generatedImageDeleted,
-            analytic,
-          })
+          SecureMessenger.sendAnalyticsEvent(analytic)
         }
       }
     }

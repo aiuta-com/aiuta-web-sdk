@@ -29,23 +29,6 @@ const SDK_POSITION = {
   bottomRight: { bottom: '12px', right: '12px' },
 }
 
-enum AnalyticEventsEnum {
-  'tryOn' = 'tryOn',
-  'share' = 'share',
-  'loading' = 'loading',
-  'results' = 'results',
-  'history' = 'history',
-  'onboarding' = 'onboarding',
-  'tryOnError' = 'tryOnError',
-  'closeModal' = 'closeModal',
-  'tryOnAborted' = 'tryOnAborted',
-  'newPhotoTaken' = 'newPhotoTaken',
-  'uploadedPhotoDeleted' = 'uploadedPhotoDeleted',
-  'uploadsHistoryOpened' = 'uploadsHistoryOpened',
-  'uploadedPhotoSelected' = 'uploadedPhotoSelected',
-  'generatedImageDeleted' = 'generatedImageDeleted',
-}
-
 export default class Aiuta {
   // Authentication
   private getJwt!: AiutaJwtCallback
@@ -111,10 +94,6 @@ export default class Aiuta {
       },
     }
 
-    if (typeof this.analytics === 'function') {
-      this.analytics(analytic.data)
-    }
-
     this.trackEvent(analytic)
   }
 
@@ -158,7 +137,6 @@ export default class Aiuta {
   private registerMessageHandlers(): void {
     if (!this.secureMessageHandler) return
 
-    // Register all message handlers
     this.secureMessageHandler.registerHandler(
       MESSAGE_ACTIONS.CLOSE_MODAL,
       this.handleCloseModal.bind(this),
@@ -196,10 +174,10 @@ export default class Aiuta {
       this.handleIframeLoaded.bind(this),
     )
 
-    // Register analytics event handlers
-    Object.values(AnalyticEventsEnum).forEach((event) => {
-      this.secureMessageHandler!.registerHandler(event, this.handleAnalyticsEvent.bind(this))
-    })
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.ANALYTICS_EVENT,
+      this.handleAnalyticsEvent.bind(this),
+    )
   }
 
   trackEvent(data: Record<string, any>) {
@@ -209,11 +187,17 @@ export default class Aiuta {
       localDateTime: dayjs().format(),
     }
 
+    // Send to analytics service
     fetch(this.analyticsUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     }).catch(console.error)
+
+    // Call analytics callback if provided
+    if (typeof this.analytics === 'function') {
+      this.analytics(data.data || data)
+    }
   }
 
   private configureAuth(auth: AiutaAuth): void {
@@ -428,7 +412,7 @@ export default class Aiuta {
 
   private handleOpenShareModal(message: any): void {
     if (message.data?.imageUrl) {
-      const shareModal = new ShareModal(message.data.imageUrl)
+      const shareModal = new ShareModal(message.data.imageUrl, this.trackEvent.bind(this))
       shareModal.showModal()
     }
   }
@@ -520,6 +504,7 @@ export default class Aiuta {
       activeImage: message.data?.activeImage,
       modalType: message.data?.modalType,
       images: message.data?.images,
+      trackEvent: this.trackEvent.bind(this),
     })
 
     fullScreenModal.showModal()
@@ -536,19 +521,11 @@ export default class Aiuta {
     }
 
     this.trackEvent(analytic)
-
-    if (typeof this.analytics === 'function') {
-      this.analytics(analytic.data)
-    }
   }
 
   private handleAnalyticsEvent(message: any): void {
     if (message.data?.analytic) {
       this.trackEvent(message.data.analytic)
-
-      if (typeof this.analytics === 'function') {
-        this.analytics(message.data.analytic.data)
-      }
     }
   }
 
@@ -673,10 +650,6 @@ export default class Aiuta {
     }
 
     this.trackEvent(analytic)
-
-    if (typeof this.analytics === 'function') {
-      this.analytics(analytic.data)
-    }
   }
 }
 

@@ -9,6 +9,7 @@ export interface SecureMessage {
   timestamp: number
   type: MessageType
   action?: MessageAction
+  correlationId?: string
   data?: any
 }
 
@@ -35,7 +36,7 @@ export interface RequestMessage extends SecureMessage {
 
 export interface ResponseMessage extends SecureMessage {
   type: 'response'
-  id: string // Must match request ID
+  correlationId: string // Links to original request ID
 }
 
 export interface EventMessage extends SecureMessage {

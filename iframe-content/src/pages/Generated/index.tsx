@@ -21,10 +21,10 @@ import { GeneratedImageButtons } from '@/components/shared'
 import { Section, ViewImage, MiniSliderItem } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { EndpointDataTypes } from '@/types'
 
 // styles
 import styles from './generated.module.scss'
@@ -121,7 +121,7 @@ export default function Generated() {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.results, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
   }
 
@@ -134,7 +134,7 @@ export default function Generated() {
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.action) {
-        if (event.data.data.status === 200) {
+        if (event.data.data.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
           setEndpointData(event.data.data)
         }
 
@@ -150,35 +150,7 @@ export default function Generated() {
             },
           }
 
-          SecureMessenger.sendToParent({
-            action: AnalyticEventsEnum.generatedImageDeleted,
-            analytic,
-          })
-        }
-
-        if (event.data.action === MESSAGE_ACTIONS.ANALYTIC_SOCIAL_MEDIA) {
-          const analytic: any = {
-            data: {
-              type: 'share',
-              pageId: 'results',
-              event: 'succeded',
-              targetId: 'whatsApp',
-              productIds: [endpointData?.skuId],
-            },
-          }
-
-          if (event.data.shareMethod === 'whatsApp') {
-            analytic.data.targetId = 'whatsApp'
-          } else if (event.data.shareMethod === 'messenger') {
-            analytic.data.targetId = 'messenger'
-          } else if (event.data.shareMethod === 'copy') {
-            analytic.data.targetId = 'copy'
-          } else if (event.data.shareMethod === 'share_close') {
-            delete analytic.data['targetId']
-            analytic.data.event = 'canceled'
-          }
-
-          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.results, analytic })
+          SecureMessenger.sendAnalyticsEvent(analytic)
         }
       }
     }

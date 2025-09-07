@@ -22,7 +22,6 @@ import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum } from '@/types'
 
 // messaging
 import { SecureMessenger } from '@shared/messaging'
@@ -52,7 +51,7 @@ export const Onboarding = () => {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleOnboardAnalyticFinish = () => {
@@ -65,7 +64,7 @@ export const Onboarding = () => {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleClickOnboardingButton = () => {
@@ -81,7 +80,7 @@ export const Onboarding = () => {
 
   const initPageAnalytic = (analytic: any) => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
   }
 

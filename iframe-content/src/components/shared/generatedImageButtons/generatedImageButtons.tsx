@@ -13,7 +13,6 @@ import {
 import { SecondaryButton } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum } from '@/types'
 import { GeneratedImageButtonsTypes } from './types'
 
 // messaging
@@ -29,7 +28,10 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleShare = async () => {
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.OPEN_SHARE_MODAL, imageUrl: activeGeneratedImageUrl })
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.OPEN_SHARE_MODAL,
+      imageUrl: activeGeneratedImageUrl,
+    })
 
     const analytic = {
       data: {
@@ -40,7 +42,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.share, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleDownload = async () => {
@@ -69,7 +71,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.share, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   return (

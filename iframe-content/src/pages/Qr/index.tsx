@@ -21,10 +21,10 @@ import {
 import { Alert, QrCode } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { EndpointDataTypes } from '@/types'
 
 // helpers
 import { generateRandomString } from '@/helpers/generateRandomString'
@@ -60,7 +60,7 @@ export default function Qr() {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.newPhotoTaken, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
   }
 
@@ -110,7 +110,7 @@ export default function Qr() {
             },
           }
 
-          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.newPhotoTaken, analytic })
+          SecureMessenger.sendAnalyticsEvent(analytic)
         } else if (result.error) {
           dispatch(
             alertSlice.actions.setShowAlert({
@@ -132,7 +132,7 @@ export default function Qr() {
             },
           }
 
-          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+          SecureMessenger.sendAnalyticsEvent(analytic)
         }
       } catch (error: any) {
         dispatch(
@@ -155,7 +155,7 @@ export default function Qr() {
           },
         }
 
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+        SecureMessenger.sendAnalyticsEvent(analytic)
       }
     }
   }
@@ -184,7 +184,7 @@ export default function Qr() {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.newPhotoTaken, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
 
       const deleteQrToken = await fetch(
         `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`,
@@ -200,11 +200,13 @@ export default function Qr() {
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.action) {
-        if (event.data.data && event.data.data.status === 200) {
+        if (
+          event.data.data &&
+          event.data.data.status === 200 &&
+          event.data.action === MESSAGE_ACTIONS.BASE_KEYS
+        ) {
           setEndpointData(event.data.data)
         }
-      } else {
-        console.error('Not found API data')
       }
     }
 

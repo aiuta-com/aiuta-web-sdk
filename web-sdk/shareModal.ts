@@ -5,9 +5,8 @@ import {
   COPY_BUTTON,
   SHARE_WITH_TEXT,
 } from './constants/socialIcons'
-import { MESSAGE_ACTIONS, SecureMessenger } from '@shared/messaging'
 
-type ShareMethod = 'whatsApp' | 'messenger' | 'copy' | 'share_close'
+type ShareMethod = 'whatsApp' | 'messenger' | 'copy'
 
 interface ShareButton {
   id: string
@@ -18,6 +17,7 @@ interface ShareButton {
 
 export class ShareModal {
   private imageUrl: string
+  private trackEvent: (data: Record<string, any>) => void
   private modalWrapper: HTMLElement | null = null
   private readonly modalId = 'aiuta-sdk-share-modal'
   private hasShared: boolean = false
@@ -39,8 +39,9 @@ export class ShareModal {
     ]
   }
 
-  constructor(imageUrl: string) {
+  constructor(imageUrl: string, trackEvent: (data: Record<string, any>) => void) {
     this.imageUrl = imageUrl
+    this.trackEvent = trackEvent
   }
 
   showModal(): void {
@@ -263,20 +264,33 @@ export class ShareModal {
 
   private handleCloseButtonClick(): void {
     if (!this.hasShared) {
-      this.sendAnalytics('share_close')
+      this.sendCancelAnalytics()
     }
     this.closeModal()
   }
 
   private sendAnalytics(shareMethod: ShareMethod): void {
-    const aiutaIframe = this.getAiutaIframe()
-    if (aiutaIframe) {
-      const message = { action: MESSAGE_ACTIONS.ANALYTIC_SOCIAL_MEDIA, shareMethod }
-      SecureMessenger.sendToIframe(aiutaIframe, message, '*')
+    const analytic = {
+      data: {
+        type: 'share',
+        event: 'succeded',
+        pageId: 'results',
+        targetId: shareMethod,
+      },
     }
+
+    this.trackEvent(analytic)
   }
 
-  private getAiutaIframe(): HTMLIFrameElement | null {
-    return document.getElementById('aiuta-iframe') as HTMLIFrameElement
+  private sendCancelAnalytics(): void {
+    const analytic = {
+      data: {
+        type: 'share',
+        event: 'canceled',
+        pageId: 'results',
+      },
+    }
+
+    this.trackEvent(analytic)
   }
 }

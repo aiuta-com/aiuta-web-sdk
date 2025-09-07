@@ -25,10 +25,10 @@ import { generateRandomString } from '@/helpers/generateRandomString'
 import { Section, TryOnButton, SelectableImage } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { EndpointDataTypes } from '@/types'
 
 // styles
 import styles from './previously.module.scss'
@@ -122,7 +122,7 @@ export default function Previously() {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.uploadedPhotoSelected, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     } else {
       handleShowFullScreen({ id, url })
     }
@@ -144,7 +144,7 @@ export default function Previously() {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.uploadedPhotoDeleted, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleGetWidnwInitiallySizes = () => {
@@ -173,7 +173,7 @@ export default function Previously() {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.uploadsHistoryOpened, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
   }
 
@@ -210,7 +210,11 @@ export default function Previously() {
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.action) {
-        if (event.data.data && event.data.data.status === 200) {
+        if (
+          event.data.data &&
+          event.data.data.status === 200 &&
+          event.data.action === MESSAGE_ACTIONS.BASE_KEYS
+        ) {
           setEndpointData(event.data.data)
         }
 
@@ -218,8 +222,6 @@ export default function Previously() {
           handleRemovePhoto(event.data.data.images.id)
           dispatch(generateSlice.actions.setRecentlyPhotos(event.data.data.images))
         }
-      } else {
-        console.error('Not found API data')
       }
     }
 

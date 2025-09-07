@@ -154,6 +154,13 @@ export class SecurePostMessageHandler {
   }
 
   /**
+   * Get iframe origin for secure communication
+   */
+  getIframeOrigin(): string {
+    return this.validator.getIframeOrigin()
+  }
+
+  /**
    * Send secure message to iframe
    */
   sendToIframe(iframe: HTMLIFrameElement, action: string, data?: any): Promise<any> {

@@ -16,11 +16,12 @@
     "build:sdk:strict": "vite build --config vite.config.sdk.ts --mode strict",
     "build:sdk": "vite build --config vite.config.sdk.ts",
     "build:debug": "npm run build:iframe && npm run build:sdk:debug",
-    "build:local": "npm run build:debug && cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/iframe && cp -rf ./dist/iframe ../docs/docs",
     "build:dev": "npm run build:iframe && npm run build:sdk:dev",
     "build:preprod": "npm run build:iframe && npm run build:sdk:preprod",
     "build:strict": "npm run build:iframe && npm run build:sdk:strict",
-    "build": "npm run build:iframe && npm run build:sdk"
+    "build": "npm run build:iframe && npm run build:sdk",
+    "install": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/iframe && cp -rf ./dist/iframe ../docs/docs",
+    "local": "npm run lint && npm run build:debug && npm run install"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",

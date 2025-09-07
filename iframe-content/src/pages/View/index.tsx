@@ -19,6 +19,7 @@ import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { EndpointDataTypes } from '@/types'
 import {
   recentlyPhotosSelector,
   isStartGenerationSelector,
@@ -30,7 +31,6 @@ import ViewMobile from './viewMobile'
 import { AiutaModal } from '@/components/shared/modals'
 
 // types
-import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
 
 // styles
 import styles from './view.module.scss'
@@ -96,7 +96,7 @@ export default function View() {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleGetGeneratedImage = async (operation_id: string) => {
@@ -154,7 +154,7 @@ export default function View() {
           },
         }
 
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+        SecureMessenger.sendAnalyticsEvent(analytic)
       } else if (result.status === 'ABORTED') {
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval)
@@ -174,7 +174,7 @@ export default function View() {
           },
         }
 
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnAborted, analytic })
+        SecureMessenger.sendAnalyticsEvent(analytic)
       }
     } catch (err) {
       console.error('Generation image Error:', err)
@@ -259,7 +259,7 @@ export default function View() {
                   },
                 }
 
-                SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+                SecureMessenger.sendAnalyticsEvent(analytic)
               } else if (hadMessageInErrorMessage) {
                 const analytic = {
                   data: {
@@ -272,7 +272,7 @@ export default function View() {
                   },
                 }
 
-                SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+                SecureMessenger.sendAnalyticsEvent(analytic)
               }
             }
           }
@@ -288,7 +288,7 @@ export default function View() {
             },
           }
 
-          SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+          SecureMessenger.sendAnalyticsEvent(analytic)
         }
       } else {
         window.removeEventListener('message', handleGenerate)
@@ -313,7 +313,7 @@ export default function View() {
           },
         }
 
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+        SecureMessenger.sendAnalyticsEvent(analytic)
       }
     }
   }
@@ -328,7 +328,7 @@ export default function View() {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleTryOn = async () => {
@@ -351,9 +351,9 @@ export default function View() {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOn, analytic: analyticLoading })
+    SecureMessenger.sendAnalyticsEvent(analyticLoading)
 
     handleTryOnStartedAnalytic()
 
@@ -435,7 +435,7 @@ export default function View() {
                 },
               }
 
-              SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+              SecureMessenger.sendAnalyticsEvent(analytic)
             } else if (hadMessageInErrorMessage) {
               const analytic = {
                 data: {
@@ -448,7 +448,7 @@ export default function View() {
                 },
               }
 
-              SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+              SecureMessenger.sendAnalyticsEvent(analytic)
             }
           }
         }
@@ -464,7 +464,7 @@ export default function View() {
           },
         }
 
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.tryOnError, analytic })
+        SecureMessenger.sendAnalyticsEvent(analytic)
       }
     }
   }
@@ -505,7 +505,7 @@ export default function View() {
 
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.action) {
-        if (event.data.data.status === 200 && 'userId' in event.data.data) {
+        if (event.data.data.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
           setEndpointData(event.data.data)
         }
       }

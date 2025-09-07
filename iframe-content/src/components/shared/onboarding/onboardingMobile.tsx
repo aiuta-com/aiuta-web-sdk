@@ -10,7 +10,6 @@ import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum } from '@/types'
 
 // messaging
 import { SecureMessenger } from '@shared/messaging'
@@ -53,7 +52,7 @@ export const OnboardingMobile = () => {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleClickOnboardingButton = () => {
@@ -82,12 +81,12 @@ export const OnboardingMobile = () => {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
   }
 
   const initPageAnalytic = (analytic: any) => {
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.onboarding, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   useEffect(() => {

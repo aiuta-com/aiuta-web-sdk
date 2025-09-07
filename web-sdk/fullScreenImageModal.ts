@@ -4,7 +4,8 @@ import {
   DESKTOP_MODAL_TRASH,
   DESKTOP_MODAL_DOWNLOAD,
 } from './constants/socialIcons'
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { MESSAGE_ACTIONS } from '@shared/messaging'
+import { ShareModal } from './shareModal'
 
 type ImageType = {
   id: string
@@ -17,18 +18,22 @@ export class ShowFullScreenModal {
   private activeImage: ImageType
   private images?: Array<ImageType>
   private modalType: ModalTypes | undefined
+  private trackEvent: (data: Record<string, any>) => void
 
   constructor({
     images,
     modalType,
     activeImage,
+    trackEvent,
   }: {
     activeImage: ImageType
     modalType?: ModalTypes
     images: Array<ImageType>
+    trackEvent: (data: Record<string, any>) => void
   }) {
     this.activeImage = activeImage
     this.modalType = modalType
+    this.trackEvent = trackEvent
 
     if (!images) this.images = []
     else this.images = images
@@ -157,14 +162,8 @@ export class ShowFullScreenModal {
 
   private handleShareImage(): void {
     if (this.activeImage) {
-      const aiutaIframe = document.getElementById('aiuta-iframe') as HTMLIFrameElement
-      if (!aiutaIframe?.contentWindow) return
-
-      // Send secure message to parent window
-      SecureMessenger.sendToParent({
-        action: MESSAGE_ACTIONS.OPEN_SHARE_MODAL,
-        imageUrl: this.activeImage.url,
-      })
+      const shareModal = new ShareModal(this.activeImage.url, this.trackEvent)
+      shareModal.showModal()
       this.closeModal()
     }
   }

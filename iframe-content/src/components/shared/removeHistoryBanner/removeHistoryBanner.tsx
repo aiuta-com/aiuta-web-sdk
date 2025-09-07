@@ -21,7 +21,6 @@ import { SecondaryButton } from '@/components/feature'
 
 // styles
 import styles from './removeHistoryBanner.module.scss'
-import { AnalyticEventsEnum } from '@/types'
 
 // messaging
 import { SecureMessenger } from '@shared/messaging'
@@ -76,7 +75,7 @@ export const RemoveHistoryBanner = () => {
       },
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.generatedImageDeleted, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   return (

@@ -28,7 +28,6 @@ import {
 } from '@lib/redux/slices/generateSlice/selectors'
 
 // types
-import { AnalyticEventsEnum } from '@/types'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
@@ -89,7 +88,7 @@ export const SdkHeader = () => {
       analytic.data.pageId = 'results'
     }
 
-    SecureMessenger.sendToParent({ action: AnalyticEventsEnum.closeModal, analytic })
+    SecureMessenger.sendAnalyticsEvent(analytic)
   }
 
   const handleCloseModal = () => {
@@ -105,7 +104,7 @@ export const SdkHeader = () => {
           },
         }
 
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.closeModal, analytic })
+        SecureMessenger.sendAnalyticsEvent(analytic)
 
         SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
         return
@@ -141,7 +140,7 @@ export const SdkHeader = () => {
         },
       }
 
-      SecureMessenger.sendToParent({ action: AnalyticEventsEnum.history, analytic })
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
 
     if (iasNavigatePath) {
@@ -192,34 +191,9 @@ export const SdkHeader = () => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.action) {
-        if (event.data.data.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
+        if (event.data.data?.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
           dispatch(configSlice.actions.setAiutaEndpointData(event.data.data))
         }
-      } else if (event.data.action === MESSAGE_ACTIONS.ANALYTIC_SOCIAL_MEDIA) {
-        const analytic: any = {
-          data: {
-            type: 'share',
-            pageId: 'results',
-            event: 'succeded',
-            targetId: 'whatsApp',
-            productIds: [aiutaEndpointData?.skuId],
-          },
-        }
-
-        if (event.data.shareMethod === 'whatsApp') {
-          analytic.data.targetId = 'whatsApp'
-        } else if (event.data.shareMethod === 'messenger') {
-          analytic.data.targetId = 'messenger'
-        } else if (event.data.shareMethod === 'copy') {
-          analytic.data.targetId = 'copy'
-        } else if (event.data.shareMethod === 'share_close') {
-          delete analytic.data['targetId']
-          analytic.data.event = 'canceled'
-        }
-
-        SecureMessenger.sendToParent({ action: AnalyticEventsEnum.results, analytic })
-      } else {
-        console.error('Not found API data')
       }
     }
 
