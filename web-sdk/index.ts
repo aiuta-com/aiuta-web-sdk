@@ -11,6 +11,7 @@ import {
 } from '@shared/config'
 import { ShowFullScreenModal } from './fullScreenImageModal'
 import { ShareModal } from './shareModal'
+import Bowser from 'bowser'
 
 // Global variables injected by Vite
 declare const __SDK_VERSION__: string
@@ -61,10 +62,7 @@ export default class Aiuta {
   private isIframeOpen: boolean = false
   private iframeVersion: string | null = null
   private iframe: HTMLIFrameElement | null = null
-  private browserInfo: { name: string; version: string } = {
-    name: '',
-    version: '',
-  }
+  private readonly bowser = Bowser.parse(navigator.userAgent)
 
   // URLs
   readonly sdkVersion = __SDK_VERSION__
@@ -72,7 +70,6 @@ export default class Aiuta {
   readonly analyticsUrl = __AIUTA_ANALYTICS_URL__
 
   constructor(configuration: AiutaConfiguration) {
-    this.browserInfo = this.getBrowserInfo()
     this.configureAuth(configuration.auth)
 
     const getUserIdentifareToken = localStorage.getItem('user_identifare_token')
@@ -111,24 +108,6 @@ export default class Aiuta {
     return Math.random().toString(36).substr(2)
   }
 
-  getBrowserInfo() {
-    const ua: any = navigator.userAgent
-
-    if (/chrome|crios|crmo/i.test(ua) && !/edge|edg/i.test(ua)) {
-      return { name: 'Chrome', version: ua.match(/Chrome\/([\d.]+)/)[1] }
-    }
-    if (/firefox|fxios/i.test(ua)) {
-      return { name: 'Firefox', version: ua.match(/Firefox\/([\d.]+)/)[1] }
-    }
-    if (/safari/i.test(ua) && !/chrome|crios|crmo/i.test(ua)) {
-      return { name: 'Safari', version: ua.match(/Version\/([\d.]+)/)[1] }
-    }
-    if (/edg/i.test(ua)) {
-      return { name: 'Edge', version: ua.match(/Edg\/([\d.]+)/)[1] }
-    }
-    return { name: 'Unknown', version: 'Unknown' }
-  }
-
   getLocaleISODate() {
     const now = new Date()
     const localISOTime = now.toISOString().slice(0, -1) // removes trailing Z (UTC)
@@ -152,8 +131,8 @@ export default class Aiuta {
         hostId: window.origin,
         sdkVersion: this.sdkVersion,
         iframeVersion: this.iframeVersion,
-        browserType: this.browserInfo.name,
-        browserVersion: this.browserInfo.version,
+        browserType: this.bowser.browser.name || 'Unknown',
+        browserVersion: this.bowser.browser.version || 'Unknown',
         installationId: this.userIdentifareToken,
       },
 

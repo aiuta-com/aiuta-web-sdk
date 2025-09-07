@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
+    "bowser": "^2.12.1",
     "formidable": "^3.5.4",
     "framer-motion": "^12.23.12",
     "next-qrcode": "^2.5.1",
