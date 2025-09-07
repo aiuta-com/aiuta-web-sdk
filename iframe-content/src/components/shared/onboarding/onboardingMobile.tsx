@@ -116,7 +116,7 @@ export const OnboardingMobile = () => {
       }
     }
 
-    // eslint-disable-next-line
+
   }, [aiutaEndpointData, onboardingSteps])
 
   return (

@@ -120,7 +120,7 @@ export default function Home() {
 
   return (
     <>
-      {/* 
+      {/*
         React apps typically manage <head> via react-helmet or similar libraries.
         You should remove <head> here and add these meta tags in index.html or via react-helmet.
       */}

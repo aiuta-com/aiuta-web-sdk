@@ -65,7 +65,7 @@ export default function Qr() {
     setTimeout(() => {
       handleAnalytic()
     }, 1000)
-    // eslint-disable-next-line
+
   }, [aiutaEndpointData])
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {

@@ -22,7 +22,7 @@ export default function UploadImages() {
         formData.append('image_data', blob, 'image.jpg')
 
         const uploadedData = await fetch(
-          `https://api.aiuta.com/digital-try-on/v1/uploaded_images`,
+          'https://api.aiuta.com/digital-try-on/v1/uploaded_images',
           {
             method: 'POST',
             headers: { 'x-user-id': '67f4cfd450d2205dd03bcf02' },
@@ -65,7 +65,7 @@ export default function UploadImages() {
     }
 
     const response = await fetch(
-      `https://api.aiuta.com/digital-try-on/v1/sku_items/aiuta-demo-store`,
+      'https://api.aiuta.com/digital-try-on/v1/sku_items/aiuta-demo-store',
       {
         method: 'POST',
         headers: {

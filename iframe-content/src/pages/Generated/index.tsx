@@ -127,7 +127,7 @@ export default function Generated() {
 
   useEffect(() => {
     handleAnalytic()
-    // eslint-disable-next-line
+
   }, [endpointData])
 
   useEffect(() => {

@@ -131,7 +131,7 @@ export default function History() {
 
   useEffect(() => {
     onboardingAnalytic()
-    // eslint-disable-next-line
+
   }, [aiutaEndpointData])
 
   useEffect(() => {

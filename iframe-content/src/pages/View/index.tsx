@@ -98,7 +98,7 @@ export default function View() {
 
   const handleGetGeneratedImage = async (operation_id: string) => {
     try {
-      const response = await fetch(`https://web-sdk.aiuta.com/api/sku-image-operation`, {
+      const response = await fetch('https://web-sdk.aiuta.com/api/sku-image-operation', {
         method: 'POST',
         body: JSON.stringify({ ...endpointData, operation_id: operation_id }),
       })

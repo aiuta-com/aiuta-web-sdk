@@ -138,7 +138,7 @@ export const Onboarding = () => {
       }
     }
 
-    // eslint-disable-next-line
+
   }, [aiutaEndpointData, onboardingSteps])
 
   return !isShowSpinner && isInitialized ? (
