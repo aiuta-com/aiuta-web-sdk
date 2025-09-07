@@ -26,6 +26,7 @@
     "iframe-content/**/*",
     "shared/**/*",
     "vite.config.iframe.ts",
+    "vite.config.sdk.ts",
     "vite-env.d.ts"
   ],
   "exclude": ["node_modules", "dist"]

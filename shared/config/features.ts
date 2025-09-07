@@ -1,3 +1,3 @@
 export interface AiutaFeatures {
-  // Placeholder for future configuration
+  [key: string]: unknown
 }

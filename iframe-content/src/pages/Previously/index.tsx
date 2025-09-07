@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback, ChangeEvent } from 'react'
+import React, { useState, useEffect, ChangeEvent } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 
@@ -12,7 +12,6 @@ import { generateSlice } from '@lib/redux/slices/generateSlice'
 
 // selectors
 import {
-  qrTokenSelector,
   aiutaEndpointDataSelector,
   stylesConfigurationSelector,
   isSelectPreviouselyImagesSelector,
@@ -23,7 +22,7 @@ import { recentlyPhotosSelector } from '@lib/redux/slices/generateSlice/selector
 import { generateRandomString } from '@/helpers/generateRandomString'
 
 // components
-import { QrCode, Section, TryOnButton, SelectableImage } from '@/components/feature'
+import { Section, TryOnButton, SelectableImage } from '@/components/feature'
 
 // types
 import { AnalyticEventsEnum, EndpointDataTypes } from '@/types'
@@ -52,13 +51,10 @@ export default function Previously() {
 
   const dispatch = useAppDispatch()
 
-  const qrToken = useAppSelector(qrTokenSelector)
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
   const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
-
-  const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
 
@@ -164,24 +160,7 @@ export default function Previously() {
     )
   }
 
-  const handleCheckQRUploadedPhoto = useCallback(async () => {
-    const getUploadedPhoto = await fetch(`https://web-sdk.aiuta.com/api/get-photo?token=${qrToken}`)
-    const result = await getUploadedPhoto.json()
-
-    if (result.owner_type === 'scanning') {
-      dispatch(configSlice.actions.setIsShowQrSpinner(true))
-    } else if (result.owner_type === 'user') {
-      dispatch(configSlice.actions.setIsShowQrSpinner(false))
-      dispatch(fileSlice.actions.setUploadViewFile({ ...result }))
-
-      const deleteQrToken = await fetch(
-        `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`,
-      )
-      await deleteQrToken.json()
-
-      navigate('/view')
-    }
-  }, [qrToken, dispatch, navigate])
+  // Removed unused handleCheckQRUploadedPhoto function
 
   const handleAnalytic = () => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
@@ -250,14 +229,6 @@ export default function Previously() {
       window.removeEventListener('message', handleMessage)
     }
   }, [])
-
-  const hasUserId =
-    endpointData && typeof endpointData.userId === 'string' && endpointData.userId.length > 0
-  const qrUrl = endpointData
-    ? `https://static.aiuta.com/sdk/v0/index.html#/qr/${qrToken}?${
-        hasUserId ? `userId=${endpointData.userId}` : `apiKey=${endpointData.apiKey}`
-      }`
-    : 'not-found'
 
   return (
     <>

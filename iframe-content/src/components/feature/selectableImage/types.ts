@@ -1,4 +1,4 @@
-enum VariantEnum {
+export enum VariantEnum {
   'history' = 'history',
   'previously' = 'previously',
 }

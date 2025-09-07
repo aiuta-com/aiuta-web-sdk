@@ -2,22 +2,16 @@ import React, { useState, MouseEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppDispatch } from '@lib/redux/store'
 
 // actions
 import { alertSlice } from '@lib/redux/slices/alertSlice'
 
-// selectors
-import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
-
 // types
 import { ViewImageTypes } from './types'
-import { AnalyticEventsEnum } from '@/types'
 
 // styles
 import styles from './viewImage.module.scss'
-
-let initialAnalyticCompleted = false
 
 export const ViewImage = (props: ViewImageTypes) => {
   const {
@@ -31,8 +25,6 @@ export const ViewImage = (props: ViewImageTypes) => {
   } = props
 
   const dispatch = useAppDispatch()
-
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
 
   const [generatingText, setGeneratingText] = useState('Scanning your body')
 

@@ -219,7 +219,7 @@ export default class Aiuta {
         try {
           const currentOrigin = window.location.origin
           resolvedCssUrl = new URL(this.customCssUrl, currentOrigin).href
-        } catch (error) {
+        } catch {
           // Fallback: try to construct the URL manually
           const currentOrigin = window.location.origin
           resolvedCssUrl = this.customCssUrl.startsWith('/')
@@ -415,7 +415,7 @@ export default class Aiuta {
                   userId: this.userId,
                   type: 'jwt',
                 })
-              } catch (error) {
+              } catch {
                 this.postMessageToIframe({
                   status: 200,
                   skuId: this.productId,
@@ -423,7 +423,7 @@ export default class Aiuta {
                   userId: this.userId,
                   type: 'jwt',
                 })
-                console.error('Aiuta get JWT token error', error)
+                console.error('Aiuta get JWT token error')
               }
             }
             break

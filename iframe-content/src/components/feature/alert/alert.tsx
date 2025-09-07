@@ -1,10 +1,7 @@
 import React from 'react'
 
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-
-// actions
-import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { useAppSelector } from '@lib/redux/store'
 
 // selectors
 import { showAlertStatesSelector } from '@lib/redux/slices/alertSlice/selectors'
@@ -21,8 +18,6 @@ import styles from './/alert.module.scss'
 export const Alert = (props: AlertTypes) => {
   const { onClick } = props
 
-  const dispatch = useAppDispatch()
-
   const showAlertStates = useAppSelector(showAlertStatesSelector)
 
   const { type, content, isShow, buttonText } = showAlertStates
@@ -33,13 +28,6 @@ export const Alert = (props: AlertTypes) => {
   const hasFullWidth = onClick && typeof onClick === 'function'
   // const hasWarning = type === "warning"; TO DO For future
   // const hasSuccess = type === "success"; TO DO For future
-
-  const onClickEvents = {
-    onClose: () => dispatch(alertSlice.actions.setShowAlert({ isShow: false })),
-    regenerate: () => {
-      dispatch(alertSlice.actions.setShowAlert({ isShow: false }))
-    },
-  }
 
   return (
     <div

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 
 // redux
@@ -51,7 +51,7 @@ const initiallAnimationConfig = {
   },
 }
 
-let sentAnalyticCount = 0
+// Removed unused sentAnalyticCount variable
 
 export default function History() {
   const dispatch = useAppDispatch()
@@ -131,7 +131,6 @@ export default function History() {
 
   useEffect(() => {
     onboardingAnalytic()
-
   }, [aiutaEndpointData])
 
   useEffect(() => {

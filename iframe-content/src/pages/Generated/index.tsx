@@ -1,4 +1,4 @@
-import React, { UIEvent, useCallback, useEffect, useRef, useState } from 'react'
+import React, { UIEvent, useEffect, useRef, useState } from 'react'
 
 import { motion, easeInOut } from 'framer-motion'
 
@@ -127,7 +127,6 @@ export default function Generated() {
 
   useEffect(() => {
     handleAnalytic()
-
   }, [endpointData])
 
   useEffect(() => {

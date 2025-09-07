@@ -52,25 +52,6 @@ export const Onboarding = () => {
     window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
   }
 
-  const onboardingAnalytics = () => {
-    const isOnboarding = JSON.parse(localStorage.getItem('isOnboarding') || 'false')
-
-    if (!isOnboarding) {
-      const analytic: any = {
-        data: {
-          type: 'page',
-          productIds: [aiutaEndpointData.skuId],
-        },
-      }
-
-      if (onboardingSteps === 2) {
-        analytic.data.pageId = 'consent'
-      }
-
-      window.parent.postMessage({ action: AnalyticEventsEnum.onboarding, analytic }, '*')
-    }
-  }
-
   const handleOnboardAnalyticFinish = () => {
     const analytic = {
       data: {
@@ -137,8 +118,6 @@ export const Onboarding = () => {
         initPageAnalytic(analytic)
       }
     }
-
-
   }, [aiutaEndpointData, onboardingSteps])
 
   return !isShowSpinner && isInitialized ? (
