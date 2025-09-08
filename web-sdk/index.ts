@@ -9,8 +9,6 @@ import {
   AiutaStylesConfiguration,
   INITIALLY_STYLES_CONFIGURATION,
 } from '@shared/config'
-import { ShowFullScreenModal } from './fullScreenImageModal'
-import { ShareModal } from './shareModal'
 import { SecurePostMessageHandler } from './security'
 import { MESSAGE_ACTIONS } from '@shared/messaging'
 import Bowser from 'bowser'
@@ -27,6 +25,38 @@ const SDK_POSITION = {
   topRight: { top: '12px', right: '12px' },
   bottomLeft: { bottom: '12px', left: '12px' },
   bottomRight: { bottom: '12px', right: '12px' },
+}
+
+interface FullScreenModalData {
+  activeImage: {
+    id: string
+    url: string
+  }
+  images: Array<{
+    id: string
+    url: string
+  }>
+  modalType?: string
+}
+
+interface ShareModalData {
+  imageUrl: string
+}
+
+interface FullscreenModalIframeConfig {
+  id: string
+  src: string
+  styles: {
+    position: string
+    top: string
+    left: string
+    width: string
+    height: string
+    zIndex: string
+    border: string
+    background: string
+  }
+  allow: string
 }
 
 export default class Aiuta {
@@ -48,6 +78,13 @@ export default class Aiuta {
   private isIframeOpen: boolean = false
   private iframe: HTMLIFrameElement | null = null
   private secureMessageHandler: SecurePostMessageHandler | null = null
+  private originalIframeStyles: any = null
+  private originalIframeParent: Element | null = null
+  private fullscreenModalIframe: HTMLIFrameElement | null = null
+  private pendingModalData: FullScreenModalData | null = null
+  private shareModalIframe: HTMLIFrameElement | null = null
+  private pendingShareData: ShareModalData | null = null
+  private iframeOrigin: string = ''
   private env: {
     platform: string
     hostId: string
@@ -113,19 +150,17 @@ export default class Aiuta {
   private initializeSecureMessageHandler(): void {
     try {
       // Extract iframe origin from URL
-      let iframeOrigin: string
-
       if (this.iframeUrl.startsWith('/')) {
         // Handle relative paths (local debug mode)
-        iframeOrigin = window.location.origin
+        this.iframeOrigin = window.location.origin
       } else {
         // Handle full URLs
         const iframeUrl = new URL(this.iframeUrl)
-        iframeOrigin = `${iframeUrl.protocol}//${iframeUrl.host}`
+        this.iframeOrigin = `${iframeUrl.protocol}//${iframeUrl.host}`
       }
 
       // Initialize secure message handler
-      this.secureMessageHandler = new SecurePostMessageHandler(iframeOrigin)
+      this.secureMessageHandler = new SecurePostMessageHandler(this.iframeOrigin)
 
       // Register message handlers
       this.registerMessageHandlers()
@@ -177,6 +212,10 @@ export default class Aiuta {
     this.secureMessageHandler.registerHandler(
       MESSAGE_ACTIONS.ANALYTICS_EVENT,
       this.handleAnalyticsEvent.bind(this),
+    )
+    this.secureMessageHandler.registerHandler(
+      MESSAGE_ACTIONS.REQUEST_FULLSCREEN_IFRAME,
+      this.handleRequestFullscreenIframe.bind(this),
     )
   }
 
@@ -363,7 +402,8 @@ export default class Aiuta {
         action === MESSAGE_ACTIONS.BASE_KEYS ||
         action === MESSAGE_ACTIONS.GET_WINDOW_SIZES ||
         action === MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION ||
-        action === MESSAGE_ACTIONS.JWT_TOKEN
+        action === MESSAGE_ACTIONS.JWT_TOKEN ||
+        action === MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL
       ) {
         this.secureMessageHandler.sendEventToIframe(this.iframe, action, data)
         return Promise.resolve() // Return resolved promise for events
@@ -381,10 +421,30 @@ export default class Aiuta {
 
   // Individual secure message handlers
   private handleCloseModal(): void {
+    // Check if fullscreen modal iframe is open
+    if (this.fullscreenModalIframe) {
+      this.removeFullscreenModalIframe()
+      return
+    }
+
+    // Check if share modal iframe is open
+    if (this.shareModalIframe) {
+      this.removeShareModalIframe()
+      return
+    }
+
+    // Check if iframe is currently fullscreen
+    if (this.originalIframeStyles) {
+      this.restoreIframeFromFullscreen()
+      return
+    }
+
+    // Handle normal iframe close
     if (!this.iframe) return
 
     this.isIframeOpen = false
 
+    // Hide iframe normally
     switch (this.sdkPosition) {
       case 'topLeft':
         this.iframe.style.left = '-1000%'
@@ -410,10 +470,33 @@ export default class Aiuta {
     }
   }
 
+  private restoreIframeFromFullscreen(): void {
+    if (!this.iframe) return
+
+    console.log('Restoring iframe from fullscreen...')
+
+    // Restore original iframe styles
+    if (this.originalIframeStyles) {
+      Object.assign(this.iframe.style, this.originalIframeStyles)
+      this.originalIframeStyles = null
+    }
+
+    // Move iframe back to original parent
+    if (this.originalIframeParent && this.originalIframeParent !== document.body) {
+      this.originalIframeParent.appendChild(this.iframe)
+    }
+    this.originalIframeParent = null
+
+    // Restore body scroll
+    if (document.body.parentElement) {
+      document.body.parentElement.style.overflow = ''
+    }
+  }
+
   private handleOpenShareModal(message: any): void {
-    if (message.data?.imageUrl) {
-      const shareModal = new ShareModal(message.data.imageUrl, this.trackEvent.bind(this))
-      shareModal.showModal()
+    if (message.data?.data?.imageUrl) {
+      // Create a separate iframe for the share modal
+      this.createShareModalIframe(message.data.data)
     }
   }
 
@@ -500,14 +583,251 @@ export default class Aiuta {
   }
 
   private handleOpenFullScreenModal(message: any): void {
-    const fullScreenModal = new ShowFullScreenModal({
-      activeImage: message.data?.activeImage,
-      modalType: message.data?.modalType,
-      images: message.data?.images,
-      trackEvent: this.trackEvent.bind(this),
+    // Create a separate fullscreen iframe for the modal
+    this.createFullscreenModalIframe(message.data as FullScreenModalData)
+  }
+
+  private createFullscreenModalIframe(modalData: FullScreenModalData): void {
+    try {
+      // Remove existing fullscreen iframe if any
+      this.removeFullscreenModalIframe()
+
+      // Store modal data for later transmission
+      this.pendingModalData = modalData
+
+      // Create and configure iframe (without modal data in URL)
+      const iframeConfig = this.createFullscreenModalIframeConfig()
+      const fullscreenIframe = this.createFullscreenIframeElement(iframeConfig)
+
+      // Add to body and store reference
+      document.body.appendChild(fullscreenIframe)
+      this.fullscreenModalIframe = fullscreenIframe
+
+      // Add load event listener to send modal data
+      fullscreenIframe.addEventListener('load', () => {
+        // Small delay to ensure iframe is ready
+        setTimeout(() => {
+          this.sendModalDataToFullscreenIframe()
+        }, 100)
+      })
+    } catch (error) {
+      console.error('Failed to create fullscreen modal iframe:', error)
+    }
+  }
+
+  private createFullscreenModalIframeConfig(): FullscreenModalIframeConfig {
+    const modalUrl = this.buildModalUrl()
+
+    return {
+      id: 'aiuta-fullscreen-modal',
+      src: modalUrl.toString(),
+      styles: {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        zIndex: '10001',
+        border: 'none',
+        background: 'transparent',
+      },
+      allow: 'fullscreen',
+    }
+  }
+
+  private buildModalUrl(): URL {
+    const baseUrl = window.location.origin
+    const absoluteIframeUrl = this.iframeUrl.startsWith('http')
+      ? this.iframeUrl
+      : `${baseUrl}${this.iframeUrl}`
+
+    const modalUrl = new URL(absoluteIframeUrl)
+    modalUrl.searchParams.set('modal', 'true')
+    modalUrl.searchParams.set('modalType', 'fullscreen')
+
+    return modalUrl
+  }
+
+  private createFullscreenIframeElement(config: FullscreenModalIframeConfig): HTMLIFrameElement {
+    const iframe = document.createElement('iframe')
+
+    // Set basic attributes
+    iframe.id = config.id
+    iframe.src = config.src
+    iframe.allow = config.allow
+
+    // Apply styles
+    Object.assign(iframe.style, config.styles)
+
+    return iframe
+  }
+
+  private sendModalDataToFullscreenIframe(): void {
+    if (this.fullscreenModalIframe && this.pendingModalData) {
+      try {
+        const message = {
+          action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+          data: this.pendingModalData,
+        }
+
+        this.fullscreenModalIframe.contentWindow?.postMessage(message, this.iframeOrigin)
+        this.pendingModalData = null // Clear after sending
+      } catch (error) {
+        console.error('Failed to send modal data to fullscreen iframe:', error)
+      }
+    }
+  }
+
+  private removeFullscreenModalIframe(): void {
+    if (this.fullscreenModalIframe) {
+      this.fullscreenModalIframe.remove()
+      this.fullscreenModalIframe = null
+    }
+
+    // Ensure page is interactive
+    this.ensurePageInteractivity()
+  }
+
+  private createShareModalIframe(shareData: ShareModalData): void {
+    try {
+      // Remove existing share modal iframe if any
+      this.removeShareModalIframe()
+
+      // Store share data for later transmission
+      this.pendingShareData = shareData
+
+      // Create and configure iframe
+      const iframeConfig = this.createShareModalIframeConfig()
+      const shareIframe = this.createShareIframeElement(iframeConfig)
+
+      // Add to body and store reference
+      document.body.appendChild(shareIframe)
+      this.shareModalIframe = shareIframe
+
+      // Prevent body scroll
+      this.setBodyScroll(false)
+    } catch (error) {
+      console.error('Failed to create share modal iframe:', error)
+    }
+  }
+
+  private createShareModalIframeConfig(): FullscreenModalIframeConfig {
+    const modalUrl = this.buildShareModalUrl()
+
+    return {
+      id: 'aiuta-share-modal',
+      src: modalUrl.toString(),
+      styles: {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100vw',
+        height: '100vh',
+        zIndex: '10000',
+        border: 'none',
+        background: 'transparent',
+      },
+      allow: 'fullscreen',
+    }
+  }
+
+  private buildShareModalUrl(): URL {
+    const baseUrl = window.location.origin
+    const absoluteIframeUrl = this.iframeUrl.startsWith('http')
+      ? this.iframeUrl
+      : `${baseUrl}${this.iframeUrl}`
+
+    const modalUrl = new URL(absoluteIframeUrl)
+    modalUrl.searchParams.set('modal', 'true')
+    modalUrl.searchParams.set('modalType', 'share')
+
+    return modalUrl
+  }
+
+  private createShareIframeElement(config: FullscreenModalIframeConfig): HTMLIFrameElement {
+    const iframe = document.createElement('iframe')
+
+    // Set basic attributes
+    iframe.id = config.id
+    iframe.src = config.src
+    iframe.allow = config.allow
+
+    // Apply styles
+    Object.assign(iframe.style, config.styles)
+
+    // Add load event listener to send share data
+    iframe.addEventListener('load', () => {
+      // Small delay to ensure iframe is ready
+      setTimeout(() => {
+        this.sendShareDataToIframe()
+      }, 100)
     })
 
-    fullScreenModal.showModal()
+    return iframe
+  }
+
+  private sendShareDataToIframe(): void {
+    if (this.shareModalIframe && this.pendingShareData) {
+      try {
+        const message = {
+          action: MESSAGE_ACTIONS.OPEN_AIUTA_SHARE_MODAL,
+          data: this.pendingShareData,
+        }
+
+        this.shareModalIframe.contentWindow?.postMessage(message, this.iframeOrigin)
+        this.pendingShareData = null // Clear after sending
+      } catch (error) {
+        console.error('Failed to send share data to iframe:', error)
+      }
+    }
+  }
+
+  private removeShareModalIframe(): void {
+    if (this.shareModalIframe) {
+      this.shareModalIframe.remove()
+      this.shareModalIframe = null
+    }
+
+    // Restore body scroll
+    this.setBodyScroll(true)
+
+    // Ensure page is interactive
+    this.ensurePageInteractivity()
+  }
+
+  private setBodyScroll(enabled: boolean): void {
+    if (document.body.parentElement) {
+      // Only restore scroll if no modals are open
+      const hasModals = this.fullscreenModalIframe || this.shareModalIframe
+      if (enabled && !hasModals) {
+        document.body.parentElement.style.overflow = ''
+      } else if (!enabled) {
+        document.body.parentElement.style.overflow = 'hidden'
+      }
+    }
+  }
+
+  private ensurePageInteractivity(): void {
+    // Remove any remaining modal overlays (except main iframe, fullscreen modal, and share modal)
+    const modalOverlays = document.querySelectorAll('[id^="aiuta-"]')
+    modalOverlays.forEach((overlay) => {
+      if (
+        overlay.id !== 'aiuta-iframe' &&
+        overlay.id !== 'aiuta-fullscreen-modal' &&
+        overlay.id !== 'aiuta-share-modal'
+      ) {
+        overlay.remove()
+      }
+    })
+
+    // Ensure body scroll is restored
+    if (document.body.parentElement) {
+      document.body.parentElement.style.overflow = ''
+    }
+
+    // Remove any event listeners that might be blocking interaction
+    document.body.style.pointerEvents = ''
+    document.body.style.userSelect = ''
   }
 
   private handleIframeLoaded(message: any): void {
@@ -527,6 +847,76 @@ export default class Aiuta {
     if (message.data?.analytic) {
       this.trackEvent(message.data.analytic)
     }
+  }
+
+  private handleRequestFullscreenIframe(message: any): void {
+    // Instead of creating a separate iframe, make the main iframe fullscreen
+    this.makeIframeFullscreen(message.data)
+  }
+
+  private makeIframeFullscreen(modalData: any): void {
+    if (!this.iframe) return
+
+    console.log('Making iframe fullscreen...')
+
+    // Store original iframe styles
+    this.originalIframeStyles = {
+      position: this.iframe.style.position,
+      top: this.iframe.style.top,
+      left: this.iframe.style.left,
+      right: this.iframe.style.right,
+      bottom: this.iframe.style.bottom,
+      width: this.iframe.style.width,
+      height: this.iframe.style.height,
+      zIndex: this.iframe.style.zIndex,
+      borderRadius: this.iframe.style.borderRadius,
+      border: this.iframe.style.border,
+      boxShadow: this.iframe.style.boxShadow,
+    }
+
+    // Move iframe to body to ensure it's not constrained by parent containers
+    this.originalIframeParent = this.iframe.parentElement
+    if (this.iframe.parentElement && this.iframe.parentElement !== document.body) {
+      document.body.appendChild(this.iframe)
+    }
+
+    // Make iframe fullscreen using CSS
+    this.iframe.style.position = 'fixed'
+    this.iframe.style.top = '0'
+    this.iframe.style.left = '0'
+    this.iframe.style.right = '0'
+    this.iframe.style.bottom = '0'
+    this.iframe.style.width = '100vw'
+    this.iframe.style.height = '100vh'
+    this.iframe.style.zIndex = '10000'
+    this.iframe.style.borderRadius = '0'
+    this.iframe.style.border = 'none'
+    this.iframe.style.boxShadow = 'none'
+    this.iframe.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
+
+    console.log('Iframe fullscreen applied:', {
+      position: this.iframe.style.position,
+      width: this.iframe.style.width,
+      height: this.iframe.style.height,
+      zIndex: this.iframe.style.zIndex,
+      top: this.iframe.style.top,
+      left: this.iframe.style.left,
+      right: this.iframe.style.right,
+      bottom: this.iframe.style.bottom,
+    })
+
+    // Prevent body scroll
+    if (document.body.parentElement) {
+      document.body.parentElement.style.overflow = 'hidden'
+    }
+
+    // Send modal data to iframe
+    this.postMessageToIframe({
+      action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
+      data: modalData,
+    }).catch((error) => {
+      console.error('Failed to send fullscreen modal data:', error)
+    })
   }
 
   private async handleResizeEvent(): Promise<void> {

@@ -11,6 +11,7 @@ import { SecondaryButton } from './secondaryButton/secondaryButton'
 import { TitleDescription } from './titleDescription/titleDescription'
 import { CountDownAnimation } from './CountDownAnimation/countDownAnimation'
 import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
+import { ShareModal } from './shareModal/shareModal'
 
 export {
   Swip,
@@ -26,4 +27,5 @@ export {
   TitleDescription,
   CountDownAnimation,
   FullScreenImageModal,
+  ShareModal,
 }

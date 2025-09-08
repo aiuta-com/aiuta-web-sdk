@@ -30,7 +30,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const handleShare = async () => {
     SecureMessenger.sendToParent({
       action: MESSAGE_ACTIONS.OPEN_SHARE_MODAL,
-      imageUrl: activeGeneratedImageUrl,
+      data: { imageUrl: activeGeneratedImageUrl },
     })
 
     const analytic = {

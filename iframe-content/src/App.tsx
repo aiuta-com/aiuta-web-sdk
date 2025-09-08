@@ -24,6 +24,7 @@ import UploadImages from './pages/UploadImages'
 import { SdkHeader } from './components/shared'
 import { SdkFooter } from './components/shared'
 import { FullScreenImageModal } from './components/feature'
+import { ShareModal } from './components/feature'
 import { Spinner } from './components/feature/spinner/spinner'
 
 declare const __IFRAME_VERSION__: string
@@ -32,6 +33,11 @@ function App() {
   const dispatch = useAppDispatch()
 
   const initialPath = window.location.hash.replace(/^#/, '') || '/'
+
+  // Check if this is a modal-only iframe and what type
+  const urlParams = new URLSearchParams(window.location.search)
+  const isModalOnly = urlParams.get('modal') === 'true'
+  const modalType = urlParams.get('modalType') || 'fullscreen'
 
   const handleGetStylesConfiguration = () => {
     SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION })
@@ -78,6 +84,14 @@ function App() {
         } else {
           console.error('Invalid styles configuration structure:', stylesConfig)
         }
+      } else if (
+        event.data &&
+        event.data.action &&
+        event.data.action === MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL
+      ) {
+        // Handle fullscreen modal data from postMessage
+        console.log('Received fullscreen modal data:', event.data.data)
+        // The FullScreenImageModal component will handle this via its own message listener
       }
     }
 
@@ -88,11 +102,52 @@ function App() {
     }
   }, [])
 
+  // Add modal-only class to root element and body for transparent background
+  useEffect(() => {
+    if (isModalOnly) {
+      const rootElement = document.getElementById('__next')
+      const bodyElement = document.body
+
+      if (rootElement) {
+        rootElement.classList.add('modal-only')
+      }
+      if (bodyElement) {
+        bodyElement.classList.add('modal-only')
+      }
+
+      return () => {
+        if (rootElement) {
+          rootElement.classList.remove('modal-only')
+        }
+        if (bodyElement) {
+          bodyElement.classList.remove('modal-only')
+        }
+      }
+    }
+  }, [isModalOnly])
+
+  // Render appropriate modal based on type
+  const renderModal = () => {
+    switch (modalType) {
+      case 'share':
+        return <ShareModal />
+      case 'fullscreen':
+      default:
+        return <FullScreenImageModal />
+    }
+  }
+
+  // If this is a modal-only iframe, only show the appropriate modal
+  if (isModalOnly) {
+    return renderModal()
+  }
+
   return (
     <MemoryRouter initialEntries={[initialPath]}>
       <Spinner />
       <SdkHeader />
       <FullScreenImageModal />
+      <ShareModal />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/generated" element={<Generated />} />
