@@ -1,3 +1,3 @@
-import { alertSlice } from "./alertSlice";
+import { alertSlice } from './alertSlice'
 
-export { alertSlice };
+export { alertSlice }

@@ -1,3 +1,3 @@
 export type EmptyViewImageTypes = {
-  onClick: () => void;
-};
+  onClick: () => void
+}

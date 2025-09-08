@@ -1,4 +1,4 @@
-@import url("https://fonts.cdnfonts.com/css/gt-maru");
+@import url('https://fonts.cdnfonts.com/css/gt-maru');
 
 :root {
   --gray: #666666;
@@ -31,15 +31,27 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: #fff;
+  background-color: transparent;
+}
+
+/* Modal-only mode - transparent background */
+#__next.modal-only {
+  background-color: transparent;
 }
 
 body {
   color: #171717;
-  background: white;
-  font-family: GT Maru, sans-serif;
+  background: transparent;
+  font-family:
+    GT Maru,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Modal-only mode - transparent background for body too */
+body.modal-only {
+  background: transparent;
 }
 
 * {

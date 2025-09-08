@@ -1,23 +1,17 @@
-import React, { useState, MouseEvent, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, MouseEvent, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 // redux
-import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+import { useAppDispatch } from '@lib/redux/store'
 
 // actions
-import { alertSlice } from "@lib/redux/slices/alertSlice";
-
-// selectors
-import { aiutaEndpointDataSelector } from "@lib/redux/slices/configSlice/selectors";
+import { alertSlice } from '@lib/redux/slices/alertSlice'
 
 // types
-import { ViewImageTypes } from "./types";
-import { AnalyticEventsEnum } from "@/types";
+import { ViewImageTypes } from './types'
 
 // styles
-import styles from "./viewImage.module.scss";
-
-let initialAnalyticCompleted = false;
+import styles from './viewImage.module.scss'
 
 export const ViewImage = (props: ViewImageTypes) => {
   const {
@@ -28,46 +22,44 @@ export const ViewImage = (props: ViewImageTypes) => {
     isShowChangeImageBtn,
     onChange,
     onClick,
-  } = props;
+  } = props
 
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
+  const [generatingText, setGeneratingText] = useState('Scanning your body')
 
-  const [generatingText, setGeneratingText] = useState("Scanning your body");
-
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleNavigate = (path: string) => {
-    navigate(`/${path}`);
-  };
+    navigate(`/${path}`)
+  }
 
   const handleOnChange = () => {
-    if (typeof onChange === "function") return onChange();
-    handleNavigate("previously");
+    if (typeof onChange === 'function') return onChange()
+    handleNavigate('previously')
 
-    dispatch(alertSlice.actions.setShowAlert({ isShow: false }));
-  };
+    dispatch(alertSlice.actions.setShowAlert({ isShow: false }))
+  }
 
   const handleClickOnImage = (event: MouseEvent<HTMLImageElement>) => {
-    if (typeof onClick === "function") onClick(event);
-  };
+    if (typeof onClick === 'function') onClick(event)
+  }
 
   useEffect(() => {
     if (isStartGeneration) {
       setTimeout(() => {
-        setGeneratingText("Generating outfit");
-      }, 2000);
+        setGeneratingText('Generating outfit')
+      }, 2000)
     }
-  }, [isStartGeneration]);
+  }, [isStartGeneration])
 
   return (
     <div
       className={`
         ${styles.viewImageBox} 
-        ${isStartGeneration ? styles.startGeneration : ""}
-        ${generatedImageUrl ? styles.startShowGeneratedImage : ""}
-        ${className ?? ""}
+        ${isStartGeneration ? styles.startGeneration : ''}
+        ${generatedImageUrl ? styles.startShowGeneratedImage : ''}
+        ${className ?? ''}
        `}
     >
       {isShowChangeImageBtn && (
@@ -109,5 +101,5 @@ export const ViewImage = (props: ViewImageTypes) => {
         onClick={handleClickOnImage}
       />
     </div>
-  );
-};
+  )
+}

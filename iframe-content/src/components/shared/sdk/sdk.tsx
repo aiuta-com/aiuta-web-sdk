@@ -1,20 +1,20 @@
-import React from "react";
+import React from 'react'
 
 // redux
-import { useAppSelector } from "@lib/redux/store";
+import { useAppSelector } from '@lib/redux/store'
 
 // selectors
-import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+import { stylesConfigurationSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { Layout } from "@/components/feature";
-import { Onboarding } from "@/components/shared";
-import { Section } from "@/components/feature/section/section";
+import { Layout } from '@/components/feature'
+import { Onboarding } from '@/components/shared'
+import { Section } from '@/components/feature/section/section'
 
-import styles from "./sdk.module.scss";
+import styles from './sdk.module.scss'
 
 export const Sdk = () => {
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   return (
     <Layout>
@@ -24,5 +24,5 @@ export const Sdk = () => {
         <Onboarding />
       </Section>
     </Layout>
-  );
-};
+  )
+}

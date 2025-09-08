@@ -1,4 +1,4 @@
 export type ImagesTypes = {
-  id: string;
-  url: string;
-};
+  id: string
+  url: string
+}

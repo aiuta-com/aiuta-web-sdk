@@ -1,3 +1,3 @@
-import { generateSlice } from "./generateSlice";
+import { generateSlice } from './generateSlice'
 
-export { generateSlice };
+export { generateSlice }

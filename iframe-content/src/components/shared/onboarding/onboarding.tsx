@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 // redux
-import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 
 // actions
-import { configSlice } from "@lib/redux/slices/configSlice";
+import { configSlice } from '@lib/redux/slices/configSlice'
 
 // selectors
 import {
@@ -14,148 +14,113 @@ import {
   isShowSpinnerSelector,
   onboardingStepsSelector,
   aiutaEndpointDataSelector,
-} from "@lib/redux/slices/configSlice/selectors";
+} from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { OnboardingMobile } from "./onboardingMobile";
-import { Consent } from "./components/consent/consent";
-import { TitleDescription, TryOnButton } from "@/components/feature";
+import { OnboardingMobile } from './onboardingMobile'
+import { Consent } from './components/consent/consent'
+import { TitleDescription, TryOnButton } from '@/components/feature'
 
 // types
-import { AnalyticEventsEnum } from "@/types";
+
+// messaging
+import { SecureMessenger } from '@shared/messaging'
 
 // styles
-import styles from "./onboarding.module.scss";
+import styles from './onboarding.module.scss'
 
 export const Onboarding = () => {
-  const navigate = useNavigate();
-  const dispatch = useAppDispatch();
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState(false)
 
-  const isMobile = useAppSelector(isMobileSelector);
-  const isShowSpinner = useAppSelector(isShowSpinnerSelector);
-  const isInitialized = useAppSelector(isInitializedSelector);
-  const onboardingSteps = useAppSelector(onboardingStepsSelector);
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector);
+  const isMobile = useAppSelector(isMobileSelector)
+  const isShowSpinner = useAppSelector(isShowSpinnerSelector)
+  const isInitialized = useAppSelector(isInitializedSelector)
+  const onboardingSteps = useAppSelector(onboardingStepsSelector)
+  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
 
   const onboardingAnalytic = () => {
     const analytic = {
       data: {
-        type: "onboarding",
-        pageId: "consent",
-        event: "consentsGiven",
+        type: 'onboarding',
+        pageId: 'consent',
+        event: 'consentsGiven',
         productIds: [aiutaEndpointData.skuId],
       },
-    };
-
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.onboarding, analytic },
-      "*"
-    );
-  };
-
-  const onboardingAnalytics = () => {
-    const isOnboarding = JSON.parse(
-      localStorage.getItem("isOnboarding") || "false"
-    );
-
-    if (!isOnboarding) {
-      const analytic: any = {
-        data: {
-          type: "page",
-          productIds: [aiutaEndpointData.skuId],
-        },
-      };
-
-      if (onboardingSteps === 2) {
-        analytic.data.pageId = "consent";
-      }
-
-      window.parent.postMessage(
-        { action: AnalyticEventsEnum.onboarding, analytic },
-        "*"
-      );
     }
-  };
+
+    SecureMessenger.sendAnalyticsEvent(analytic)
+  }
 
   const handleOnboardAnalyticFinish = () => {
     const analytic = {
       data: {
-        type: "onboarding",
-        pageId: "consent",
-        event: "onboardingFinished",
+        type: 'onboarding',
+        pageId: 'consent',
+        event: 'onboardingFinished',
         productIds: [aiutaEndpointData.skuId],
       },
-    };
+    }
 
-    window.parent.postMessage(
-      { action: AnalyticEventsEnum.onboarding, analytic },
-      "*"
-    );
-  };
+    SecureMessenger.sendAnalyticsEvent(analytic)
+  }
 
   const handleClickOnboardingButton = () => {
     if (onboardingSteps !== 2) {
-      dispatch(configSlice.actions.setOnboardingSteps(null));
+      dispatch(configSlice.actions.setOnboardingSteps(null))
     } else {
-      navigate("/qr");
-      onboardingAnalytic();
-      handleOnboardAnalyticFinish();
-      localStorage.setItem("isOnboarding", JSON.stringify(true));
+      navigate('/qr')
+      onboardingAnalytic()
+      handleOnboardAnalyticFinish()
+      localStorage.setItem('isOnboarding', JSON.stringify(true))
     }
-  };
+  }
 
   const initPageAnalytic = (analytic: any) => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      window.parent.postMessage(
-        { action: AnalyticEventsEnum.onboarding, analytic },
-        "*"
-      );
+      SecureMessenger.sendAnalyticsEvent(analytic)
     }
-  };
+  }
 
   useEffect(() => {
-    const isOnboarding = JSON.parse(
-      localStorage.getItem("isOnboarding") || "false"
-    );
+    const isOnboarding = JSON.parse(localStorage.getItem('isOnboarding') || 'false')
 
     if (!isOnboarding) {
       if (onboardingSteps === 0) {
         const analytic = {
           data: {
-            type: "page",
-            pageId: "howItWorks",
+            type: 'page',
+            pageId: 'howItWorks',
             productIds: [aiutaEndpointData.skuId],
           },
-        };
+        }
 
-        initPageAnalytic(analytic);
+        initPageAnalytic(analytic)
       } else if (onboardingSteps === 1) {
         const analytic = {
           data: {
-            type: "page",
-            pageId: "bestResults",
+            type: 'page',
+            pageId: 'bestResults',
             productIds: [aiutaEndpointData.skuId],
           },
-        };
+        }
 
-        initPageAnalytic(analytic);
+        initPageAnalytic(analytic)
       } else if (onboardingSteps === 2) {
         const analytic = {
           data: {
-            type: "page",
-            pageId: "consent",
+            type: 'page',
+            pageId: 'consent',
             productIds: [aiutaEndpointData.skuId],
           },
-        };
+        }
 
-        initPageAnalytic(analytic);
+        initPageAnalytic(analytic)
       }
     }
-
-    // eslint-disable-next-line
-  }, [aiutaEndpointData, onboardingSteps]);
+  }, [aiutaEndpointData, onboardingSteps])
 
   return !isShowSpinner && isInitialized ? (
     <div className={styles.onboarding}>
@@ -165,7 +130,7 @@ export const Onboarding = () => {
         <div className={styles.obboardingStepBox}>
           <div
             className={`${styles.step} ${styles.firstStep} ${
-              onboardingSteps > 0 ? styles.unactiveActiveStep : ""
+              onboardingSteps > 0 ? styles.unactiveActiveStep : ''
             }`}
           >
             <>
@@ -188,8 +153,8 @@ export const Onboarding = () => {
               onboardingSteps === 1
                 ? styles.activeStep
                 : onboardingSteps > 1
-                ? styles.unactiveActiveStep
-                : ""
+                  ? styles.unactiveActiveStep
+                  : ''
             }`}
           >
             <img
@@ -210,8 +175,8 @@ export const Onboarding = () => {
               onboardingSteps === 2
                 ? styles.activeStep
                 : onboardingSteps > 2
-                ? styles.unactiveActiveStep
-                : ""
+                  ? styles.unactiveActiveStep
+                  : ''
             }`}
           >
             <Consent setIsChecked={setIsChecked} />
@@ -223,11 +188,11 @@ export const Onboarding = () => {
           disabled={onboardingSteps == 2 && !isChecked}
           onClick={handleClickOnboardingButton}
         >
-          {onboardingSteps === 2 ? "Start" : " Next"}
+          {onboardingSteps === 2 ? 'Start' : ' Next'}
         </TryOnButton>
       )}
     </div>
   ) : (
     <></>
-  );
-};
+  )
+}

@@ -1,25 +1,25 @@
-import React from "react";
+import React from 'react'
 
 // redux
-import { useAppSelector } from "@lib/redux/store";
+import { useAppSelector } from '@lib/redux/store'
 
 // selectors
-import { stylesConfigurationSelector } from "@lib/redux/slices/configSlice/selectors";
+import { stylesConfigurationSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // types
-import { SecondaryButtonTypes } from "./types";
+import { SecondaryButtonTypes } from './types'
 
 // styles
-import styles from "./secondaryButton.module.scss";
+import styles from './secondaryButton.module.scss'
 
 export const SecondaryButton = (props: SecondaryButtonTypes) => {
-  const { text, iconUrl, classNames, onClick } = props;
+  const { text, iconUrl, classNames, onClick } = props
 
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector);
+  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   return (
     <button
-      className={`${styles.secondaryButton} ${classNames ?? ""} ${
+      className={`${styles.secondaryButton} ${classNames ?? ''} ${
         stylesConfiguration.components.secondaryButtonClassName
       }`}
       onClick={onClick}
@@ -27,5 +27,5 @@ export const SecondaryButton = (props: SecondaryButtonTypes) => {
       {iconUrl && <img src={iconUrl} alt="Secondary button icon" />}
       <p>{text}</p>
     </button>
-  );
-};
+  )
+}

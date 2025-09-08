@@ -1,3 +1,3 @@
-import { QrSpinner } from "./qrSpinner";
+import { QrSpinner } from './qrSpinner'
 
-export { QrSpinner };
+export { QrSpinner }

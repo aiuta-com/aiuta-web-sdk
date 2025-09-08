@@ -89,7 +89,7 @@ jobs:
           MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
           echo "Major version: $MAJOR_VERSION"
           echo "major_version=$MAJOR_VERSION" >> $GITHUB_OUTPUT
-          
+
       # Upload dist/ to GCS major version folder
       - name: Upload to GCS bucket Prod (major version) JS
         uses: google-github-actions/upload-cloud-storage@v2
@@ -118,74 +118,74 @@ jobs:
         run: |
           # Extract version from tag (remove 'v' prefix if present)
           CURRENT_VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
-          
+
           # Calculate next patch version
           # Split version into major.minor.patch
           IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
           NEXT_PATCH=$((PATCH + 1))
           NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH"
-          
+
           # Update version in package.json to next patch version
           npm version $NEXT_VERSION --no-git-tag-version
-          
+
           # Configure git
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
           # Add and commit the changes
           git add package.json package-lock.json
           git commit -m "Update version to next patch $NEXT_VERSION"
-          
+
           # Fetch the latest changes from the default branch
           git fetch origin main
-          
+
           # Create a temporary branch from the current HEAD
           git checkout -b temp-branch
-          
+
           # Rebase on top of the latest changes from the default branch
           git rebase origin/main
-          
+
           # Push to the default branch with force-with-lease for safety
           git push --force-with-lease origin temp-branch:main
-          
+
       - name: Update release description with file links
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Get the current release description
           CURRENT_DESCRIPTION=$(gh release view ${{ github.event.release.tag_name }} --json body -q .body)
-          
+
           # Create a temporary file for the updated description
           echo "$CURRENT_DESCRIPTION" > updated_description.md
-        
+
           # Add a section header for the links
           echo -e "\n## SDK Files" >> updated_description.md
           echo "The following files are available at:" >> updated_description.md
           echo "" >> updated_description.md
-          
+
           # Generate links for versioned files
           echo "### Versioned Files (specific to this release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/${{ github.event.release.tag_name }}/${filename}" >> updated_description.md
           done
-          
+
           # Generate links for latest files
           echo -e "\n### Latest Files (always points to the most recent release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/latest/${filename}" >> updated_description.md
           done
-          
+
           # Extract major version for links
           MAJOR_VERSION=$(echo ${{ github.event.release.tag_name }} | grep -o "^v[0-9]*" || echo "v1")
-          
+
           # Generate links for major version files
           echo -e "\n### Major Version Files (stable version for your major release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/${MAJOR_VERSION}/${filename}" >> updated_description.md
           done
-          
+
           # Update the release description
           gh release edit ${{ github.event.release.tag_name }} --notes "$(cat updated_description.md)"

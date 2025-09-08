@@ -1,30 +1,30 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { ReactNode } from "react";
+import { createSlice } from '@reduxjs/toolkit'
+import { ReactNode } from 'react'
 
 interface alertSliceState {
   showAlertStates: {
-    type: string;
-    isShow: boolean;
-    buttonText: string;
-    content: string | ReactNode;
-  };
+    type: string
+    isShow: boolean
+    buttonText: string
+    content: string | ReactNode
+  }
 }
 
 const initialState: alertSliceState = {
   showAlertStates: {
-    type: "",
-    content: "",
+    type: '',
+    content: '',
     isShow: false,
-    buttonText: "",
+    buttonText: '',
   },
-};
+}
 
 export const alertSlice = createSlice({
-  name: "alert",
+  name: 'alert',
   initialState,
   reducers: {
     setShowAlert: (state, { payload }) => {
-      state.showAlertStates = payload;
+      state.showAlertStates = payload
     },
   },
-});
+})

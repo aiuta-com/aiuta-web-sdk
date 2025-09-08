@@ -1,3 +1,3 @@
-import { configSlice } from "./configSlice";
+import { configSlice } from './configSlice'
 
-export { configSlice };
+export { configSlice }

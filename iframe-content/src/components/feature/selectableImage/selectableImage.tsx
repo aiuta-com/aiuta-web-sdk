@@ -1,101 +1,91 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react'
 
 // redux
-import { useAppSelector, useAppDispatch } from "@lib/redux/store";
+import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 
 // actions
-import { generateSlice } from "@lib/redux/slices/generateSlice";
+import { generateSlice } from '@lib/redux/slices/generateSlice'
 
 // selectors
-import { selectedImagesSelector } from "@lib/redux/slices/generateSlice/selectors";
+import { selectedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
 import {
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
-} from "@lib/redux/slices/configSlice/selectors";
+} from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { SecondaryButton } from "../secondaryButton/secondaryButton";
-import { CountDownAnimation } from "../CountDownAnimation/countDownAnimation";
+import { SecondaryButton } from '../secondaryButton/secondaryButton'
+import { CountDownAnimation } from '../CountDownAnimation/countDownAnimation'
 
 // types
-import { SelectableImageTypes } from "./types";
+import { SelectableImageTypes } from './types'
 
 // styles
-import styles from "./selectableImage.module.scss";
+import styles from './selectableImage.module.scss'
 
 export const SelectableImage = (props: SelectableImageTypes) => {
-  const {
-    src,
-    imageId,
-    variant,
-    classNames,
-    isShowTrashIcon,
-    onClick,
-    onDelete,
-  } = props;
+  const { src, imageId, variant, classNames, isShowTrashIcon, onClick, onDelete } = props
 
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const [isSelect, setIsSelect] = useState<boolean>(false);
-  const [isActiveHover, setIsActiveHover] = useState<boolean>(false);
-  const [isStartCountdown, setIsStartCountDown] = useState<boolean>(false);
+  const [isSelect, setIsSelect] = useState<boolean>(false)
+  const [isActiveHover, setIsActiveHover] = useState<boolean>(false)
+  const [isStartCountdown, setIsStartCountDown] = useState<boolean>(false)
 
-  const selectedImages = useAppSelector(selectedImagesSelector);
-  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector);
-  const isSelectPreviouselyImages = useAppSelector(
-    isSelectPreviouselyImagesSelector
-  );
+  const selectedImages = useAppSelector(selectedImagesSelector)
+  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
+  const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
 
   const handleClick = () => {
-    if (typeof onClick === "function") onClick();
+    if (typeof onClick === 'function') onClick()
 
     if (isSelectHistoryImages) {
-      setIsSelect((prevState) => !prevState);
+      setIsSelect((prevState) => !prevState)
     }
-  };
+  }
 
   const handleToggleCountDown = () => {
-    setIsStartCountDown((prevState) => !prevState);
-  };
+    setIsStartCountDown((prevState) => !prevState)
+  }
 
-  const handleRejectDeleteProcess = () => setIsStartCountDown(false);
+  const handleRejectDeleteProcess = () => setIsStartCountDown(false)
 
   const handleDelete = () => {
-    if (typeof onDelete === "function") {
-      onDelete(imageId);
-      handleToggleCountDown();
+    if (typeof onDelete === 'function') {
+      onDelete(imageId)
+      handleToggleCountDown()
     }
-  };
+  }
 
   useEffect(() => {
     if (selectedImages.length > 0) {
       for (const id of selectedImages) {
         if (id === imageId) {
-          setIsSelect(true);
+          setIsSelect(true)
         }
       }
     } else {
-      setIsSelect(false);
+      setIsSelect(false)
     }
-  }, [selectedImages]);
+  }, [selectedImages])
 
   useEffect(() => {
-    if (isSelectHistoryImages) setIsActiveHover(isSelectHistoryImages);
+    if (isSelectHistoryImages) setIsActiveHover(isSelectHistoryImages)
     else {
-      setIsActiveHover(isSelectHistoryImages);
-      dispatch(generateSlice.actions.setSelectedImage([]));
+      setIsActiveHover(isSelectHistoryImages)
+      dispatch(generateSlice.actions.setSelectedImage([]))
     }
-  }, [isSelectHistoryImages]);
+  }, [isSelectHistoryImages])
 
-  const isHistory = variant === "history";
-  const isPreviously = variant === "previously";
+  const isHistory = variant === 'history'
+  const isPreviously = variant === 'previously'
 
   return (
     <div
       className={`${styles.selectableImage} 
-      ${isHistory ? styles.selectableImagehistory : ""}
-      ${isHistory && isSelect ? styles.selectableImageActive : ""}
-      ${classNames ?? ""}
+      ${isHistory ? styles.selectableImagehistory : ''}
+      ${isHistory && isSelect ? styles.selectableImageActive : ''}
+      ${classNames ?? ''}
       `}
       onClick={handleClick}
     >
@@ -106,8 +96,8 @@ export const SelectableImage = (props: SelectableImageTypes) => {
         <div
           className={styles.deleteimage}
           onClick={(e) => {
-            e.stopPropagation();
-            handleToggleCountDown();
+            e.stopPropagation()
+            handleToggleCountDown()
           }}
         >
           <span />
@@ -118,22 +108,17 @@ export const SelectableImage = (props: SelectableImageTypes) => {
         <div
           className={styles.previouslyTrashIcon}
           onClick={(e) => {
-            e.stopPropagation();
-            handleToggleCountDown();
+            e.stopPropagation()
+            handleToggleCountDown()
           }}
         >
-          <img
-            src={"./icons/redTrash.svg"}
-            alt="Red Trash"
-            width={18}
-            height={19}
-          />
+          <img src={'./icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
         </div>
       )}
       {isSelectPreviouselyImages && isStartCountdown && (
         <div
           className={`${styles.countDownContent} ${
-            isShowTrashIcon ? styles.countDownContentCentered : ""
+            isShowTrashIcon ? styles.countDownContentCentered : ''
           }`}
         >
           <CountDownAnimation timer={5} onClick={handleDelete} />
@@ -142,19 +127,13 @@ export const SelectableImage = (props: SelectableImageTypes) => {
             text="Cancel"
             classNames={styles.countDownBtn}
             onClick={(e) => {
-              e.stopPropagation();
-              handleRejectDeleteProcess();
+              e.stopPropagation()
+              handleRejectDeleteProcess()
             }}
           />
         </div>
       )}
-      <img
-        src={src}
-        width={115}
-        height={180}
-        loading="lazy"
-        alt="Selectable image"
-      />
+      <img src={src} width={115} height={180} loading="lazy" alt="Selectable image" />
     </div>
-  );
-};
+  )
+}

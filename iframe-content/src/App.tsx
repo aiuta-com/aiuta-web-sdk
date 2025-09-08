@@ -1,96 +1,153 @@
-import React, { useEffect } from "react";
-import { Route, Routes, MemoryRouter } from "react-router-dom";
+import React, { useEffect } from 'react'
+import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
 // reudx
-import { useAppDispatch } from "@lib/redux/store";
+import { useAppDispatch } from '@lib/redux/store'
 
 // actions
-import { configSlice } from "@lib/redux/slices/configSlice";
+import { configSlice } from '@lib/redux/slices/configSlice'
+
+// messaging
+import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
 // pages
-import Qr from "./pages/Qr";
-import Home from "./pages/Home";
-import View from "./pages/View";
-import History from "./pages/History";
-import Generated from "./pages/Generated";
-import QRTokenPage from "./pages/Qr/token";
-import Previously from "./pages/Previously";
-import UploadImages from "./pages/UploadImages";
+import Qr from './pages/Qr'
+import Home from './pages/Home'
+import View from './pages/View'
+import History from './pages/History'
+import Generated from './pages/Generated'
+import QRTokenPage from './pages/Qr/token'
+import Previously from './pages/Previously'
+import UploadImages from './pages/UploadImages'
 
 // components
-import { SdkHeader } from "./components/shared";
-import { SdkFooter } from "./components/shared";
-import { FullScreenImageModal } from "./components/feature";
-import { Spinner } from "./components/feature/spinner/spinner";
+import { SdkHeader } from './components/shared'
+import { SdkFooter } from './components/shared'
+import { FullScreenImageModal } from './components/feature'
+import { ShareModal } from './components/feature'
+import { Spinner } from './components/feature/spinner/spinner'
 
-declare const __IFRAME_VERSION__: string;
+declare const __IFRAME_VERSION__: string
 
 function App() {
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const initialPath = window.location.hash.replace(/^#/, "") || "/";
+  const initialPath = window.location.hash.replace(/^#/, '') || '/'
+
+  // Check if this is a modal-only iframe and what type
+  const urlParams = new URLSearchParams(window.location.search)
+  const isModalOnly = urlParams.get('modal') === 'true'
+  const modalType = urlParams.get('modalType') || 'fullscreen'
 
   const handleGetStylesConfiguration = () => {
-    window.parent.postMessage(
-      { action: "GET_AIUTA_STYLES_CONFIGURATION" },
-      "*"
-    );
-  };
+    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION })
+  }
 
   const loadCustomCSS = () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const cssUrl = urlParams.get("css");
+    const urlParams = new URLSearchParams(window.location.search)
+    const cssUrl = urlParams.get('css')
 
     if (cssUrl) {
-      const link = document.createElement("link");
-      link.rel = "stylesheet";
-      link.href = cssUrl;
-      link.onload = () => console.log("Custom CSS loaded from:", cssUrl);
-      link.onerror = () =>
-        console.error("Failed to load custom CSS from:", cssUrl);
-      document.head.appendChild(link);
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = cssUrl
+      link.onload = () => console.log('Custom CSS loaded from:', cssUrl)
+      link.onerror = () => console.error('Failed to load custom CSS from:', cssUrl)
+      document.head.appendChild(link)
     }
-  };
+  }
 
   const handleSendIframeVersion = () => {
-    window.parent.postMessage(
-      { action: "IFRAME_LOADED", version: __IFRAME_VERSION__ },
-      "*"
-    );
-  };
+    SecureMessenger.sendToParent({
+      action: MESSAGE_ACTIONS.IFRAME_LOADED,
+      version: __IFRAME_VERSION__,
+    })
+  }
 
   useEffect(() => {
-    handleSendIframeVersion();
-    handleGetStylesConfiguration();
+    handleSendIframeVersion()
+    handleGetStylesConfiguration()
 
-    loadCustomCSS();
+    loadCustomCSS()
 
     const handleMessage = (event: MessageEvent) => {
+      console.log('Received message:', event.data)
       if (
         event.data &&
-        event.data.type &&
-        event.data.type === "stylesConfiguration"
+        event.data.action &&
+        event.data.action === MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION
       ) {
-        dispatch(
-          configSlice.actions.setStylesConfiguration(
-            event.data.stylesConfiguration.stylesConfiguration
-          )
-        );
+        console.log('Setting styles configuration:', event.data.data.stylesConfiguration)
+        const stylesConfig = event.data.data.stylesConfiguration
+        if (stylesConfig && stylesConfig.components && stylesConfig.pages) {
+          dispatch(configSlice.actions.setStylesConfiguration(stylesConfig))
+        } else {
+          console.error('Invalid styles configuration structure:', stylesConfig)
+        }
+      } else if (
+        event.data &&
+        event.data.action &&
+        event.data.action === MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL
+      ) {
+        // Handle fullscreen modal data from postMessage
+        console.log('Received fullscreen modal data:', event.data.data)
+        // The FullScreenImageModal component will handle this via its own message listener
       }
-    };
+    }
 
-    window.addEventListener("message", handleMessage);
+    window.addEventListener('message', handleMessage)
 
     return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [])
+
+  // Add modal-only class to root element and body for transparent background
+  useEffect(() => {
+    if (isModalOnly) {
+      const rootElement = document.getElementById('__next')
+      const bodyElement = document.body
+
+      if (rootElement) {
+        rootElement.classList.add('modal-only')
+      }
+      if (bodyElement) {
+        bodyElement.classList.add('modal-only')
+      }
+
+      return () => {
+        if (rootElement) {
+          rootElement.classList.remove('modal-only')
+        }
+        if (bodyElement) {
+          bodyElement.classList.remove('modal-only')
+        }
+      }
+    }
+  }, [isModalOnly])
+
+  // Render appropriate modal based on type
+  const renderModal = () => {
+    switch (modalType) {
+      case 'share':
+        return <ShareModal />
+      case 'fullscreen':
+      default:
+        return <FullScreenImageModal />
+    }
+  }
+
+  // If this is a modal-only iframe, only show the appropriate modal
+  if (isModalOnly) {
+    return renderModal()
+  }
 
   return (
     <MemoryRouter initialEntries={[initialPath]}>
       <Spinner />
       <SdkHeader />
       <FullScreenImageModal />
+      <ShareModal />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/generated" element={<Generated />} />
@@ -103,7 +160,7 @@ function App() {
       </Routes>
       <SdkFooter />
     </MemoryRouter>
-  );
+  )
 }
 
-export default App;
+export default App

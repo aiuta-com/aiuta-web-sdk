@@ -1,15 +1,15 @@
-import React from "react";
+import React from 'react'
 // components
-import { TryOnButton } from "@/components/feature";
+import { TryOnButton } from '@/components/feature'
 
 // types
-import { EmptyViewImageTypes } from "./types";
+import { EmptyViewImageTypes } from './types'
 
 // styles
-import styles from "./emptyViewImage.module.scss";
+import styles from './emptyViewImage.module.scss'
 
 export const EmptyViewImage = (props: EmptyViewImageTypes) => {
-  const { onClick } = props;
+  const { onClick } = props
 
   return (
     <div className={styles.banner}>
@@ -18,5 +18,5 @@ export const EmptyViewImage = (props: EmptyViewImageTypes) => {
         <TryOnButton onClick={onClick}>Upload a photo of you</TryOnButton>
       </div>
     </div>
-  );
-};
+  )
+}

@@ -1,12 +1,12 @@
-import React from "react";
+import React from 'react'
 // types
-import { LayoutTypes } from "./types";
+import { LayoutTypes } from './types'
 
 // styles
-import styles from "./layout.module.scss";
+import styles from './layout.module.scss'
 
 export const Layout = (props: LayoutTypes) => {
-  const { children } = props;
+  const { children } = props
 
-  return <div className={styles.layoutConteiner}>{children} </div>;
-};
+  return <div className={styles.layoutConteiner}>{children} </div>
+}

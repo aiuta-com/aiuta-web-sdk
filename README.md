@@ -1,79 +1,26 @@
-# Aiuta Web SDK
+![aiuta_banner](https://docs.aiuta.com/media/about.png)
 
-A lightweight JavaScript SDK to embed the Aiuta image generation iframe.
+# Aiuta Virtual Try On SDK for Web
 
----
+This repo distributes the [Aiuta Virtual Try-On](https://aiuta.com/virtual-try-on)
+SDK as a script and iframe content.
 
-## Features
+## Documentation
 
-- Embed Aiuta image generation experience via iframe.
-- Share generated images via **WhatsApp**, **Messenger**, or by copying the URL.
+Full documentation can be found [here](https://docs.aiuta.com/sdk/web/).
 
----
+## License
 
-## Quick Start
+    Copyright 2024 Aiuta USA, Inc
 
-```js
-<script src="https://static.aiuta.com/sdk/v0.0.65/index.umd.js"></script>
-```
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-## Basic usage
+           http://www.apache.org/licenses/LICENSE-2.0
 
-```ts
-var aiuta = new Aiuta();
-
-// Option 1: Initialize with API Key
-aiuta.initWithApiKey({
-   apiKey: "your_api_key_here",
-   analytics: (eventName: string, data:any) => Promise<{eventName, data}>,
-   stylesConfiguration: {
-      pages: {
-         qrPageClassName: string,
-         historyClassName: string,
-         viewPageClassName: string,
-         esultPageClassName: string,
-         onboardingPageClassName: string,
-         previouselyPageClassName: string,
-      },
-      components: {
-         headerClassName: string,
-         footerClassName: string,
-         tryOnButtonClassName: string,
-         historyBannerClassName: string,
-         secondaryButtonClassName: string,
-         changePhotoButtonClassName: string,
-         resultButonsContentClassName: string,
-         historyImagesRemoveModalClassNames: string,
-      },
-   },   
-});
-
-// OR
-
-// Option 2: Initialize with JWT
-aiuta.initWithJwt({
-   subscriptionId: string;
-   getJwt: (params: Record<string, string>) => string | Promise<string>;
-   analytics: (eventName: string, data:any) => Promise<{eventName, data}>;
-   stylesConfiguration: {
-      pages: {
-         qrPageClassName: string,
-         historyClassName: string,
-         viewPageClassName: string,
-         esultPageClassName: string,
-         onboardingPageClassName: string,
-         previouselyPageClassName: string,
-      },
-      components: {
-         headerClassName: string,
-         footerClassName: string,
-         tryOnButtonClassName: string,
-         historyBannerClassName: string,
-         secondaryButtonClassName: string,
-         changePhotoButtonClassName: string,
-         resultButonsContentClassName: string,
-         historyImagesRemoveModalClassNames: string,
-      },
-   },
-});
-```
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
