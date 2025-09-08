@@ -71,7 +71,7 @@ function App() {
     loadCustomCSS()
 
     const handleMessage = (event: MessageEvent) => {
-      console.log('Received message:', event.data)
+      console.log('Message from SDK:', event.data.action, event.data)
       if (
         event.data &&
         event.data.action &&
