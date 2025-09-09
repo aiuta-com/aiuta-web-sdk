@@ -1,4 +1,3 @@
-// shared/aiuta-rpc.ts
 import type { AiutaConfiguration } from '@shared/config'
 
 type AnyFn = (...args: any[]) => any
@@ -23,11 +22,12 @@ function extractFunctionPaths(obj: unknown, prefix = ''): string[] {
   return out
 }
 
-function jsonSafeClone<T>(v: T): any {
+function jsonSafeClone<T>(v: T): T | null {
   try {
-    return JSON.parse(JSON.stringify(v ?? {}))
-  } catch {
-    return {}
+    return JSON.parse(JSON.stringify(v ?? null))
+  } catch (error) {
+    console.warn('JSON serialization failed:', error)
+    return null
   }
 }
 
@@ -45,9 +45,11 @@ function setByPath(obj: Record<string, any>, path: string, value: any) {
 
 function createRpcClient<TApi extends object>(port: MessagePort, timeoutMs = 15_000) {
   let seq = 0
+  let isClosed = false
   const pending = new Map<number, { res: (v: any) => void; rej: (e: any) => void; t: number }>()
 
   port.onmessage = (ev: MessageEvent<RpcRes>) => {
+    if (isClosed) return
     const m = ev.data
     if (!m || m.t !== 'resp') return
     const p = pending.get(m.id)
@@ -60,6 +62,10 @@ function createRpcClient<TApi extends object>(port: MessagePort, timeoutMs = 15_
 
   const call = (method: string, ...args: any[]) =>
     new Promise((res, rej) => {
+      if (isClosed) {
+        rej(new Error('RPC client is closed'))
+        return
+      }
       const id = ++seq
       const timer = window.setTimeout(() => {
         pending.delete(id)
@@ -67,7 +73,13 @@ function createRpcClient<TApi extends object>(port: MessagePort, timeoutMs = 15_
       }, timeoutMs)
       pending.set(id, { res, rej, t: timer })
       const msg: RpcReq = { t: 'call', id, m: method, a: args }
-      port.postMessage(msg)
+      try {
+        port.postMessage(msg)
+      } catch (error) {
+        clearTimeout(timer)
+        pending.delete(id)
+        rej(new Error(`Failed to send RPC message: ${error}`))
+      }
     })
 
   const api = new Proxy(
@@ -81,6 +93,8 @@ function createRpcClient<TApi extends object>(port: MessagePort, timeoutMs = 15_
     api,
     call,
     close: () => {
+      if (isClosed) return
+      isClosed = true
       port.close()
       pending.forEach((p) => clearTimeout(p.t))
       pending.clear()
@@ -153,6 +167,7 @@ abstract class AiutaRpcBase<
 
   close() {
     this._client?.close()
+    // Override in subclasses for additional cleanup
   }
 }
 
@@ -169,17 +184,39 @@ type SdkContext = { cfg: AiutaConfiguration; sdkVersion: string }
 export class AiutaRpcSDK extends AiutaRpcBase<SdkHandlers, AppApi, SdkContext> {
   private appClient?: ReturnType<typeof createRpcClient<AppApi>>
   private appVersion?: string
+  private expectedIframeOrigin?: string
+  private handshakeListener?: (event: MessageEvent) => void
 
-  async connect(iframeEl: HTMLIFrameElement): Promise<this> {
+  async connect(iframeEl: HTMLIFrameElement, expectedIframeOrigin?: string): Promise<this> {
     if (!iframeEl.contentWindow) throw new Error('Iframe has no contentWindow')
+
+    this.expectedIframeOrigin = expectedIframeOrigin || this.inferIframeOrigin(iframeEl)
+    if (!this.expectedIframeOrigin) {
+      throw new Error('Unable to determine expected iframe origin')
+    }
 
     const ch = new MessageChannel()
     const port1 = ch.port1
     const port2 = ch.port2
 
-    await new Promise<void>((resolve) => {
-      const onMsg = (e: MessageEvent) => {
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        if (this.handshakeListener) {
+          window.removeEventListener('message', this.handshakeListener)
+        }
+        reject(new Error('SDK handshake timeout'))
+      }, 10000)
+
+      this.handshakeListener = (e: MessageEvent) => {
+        // Validate source and origin
         if (e.source !== iframeEl.contentWindow) return
+        if (e.origin !== this.expectedIframeOrigin) {
+          console.warn(
+            `Rejected handshake from unexpected origin: ${e.origin}, expected: ${this.expectedIframeOrigin}`,
+          )
+          return
+        }
+
         const d = e.data as { type: 'app:hello'; nonce: string; appVersion?: string } | any
         if (!d || d.type !== 'app:hello') return
         this.appVersion = d.appVersion
@@ -217,23 +254,57 @@ export class AiutaRpcSDK extends AiutaRpcBase<SdkHandlers, AppApi, SdkContext> {
           sdkVersion: this._context.sdkVersion,
           methods,
         }
-        iframeEl.contentWindow!.postMessage(ack, e.origin, [port2])
+
+        try {
+          iframeEl.contentWindow!.postMessage(ack, this.expectedIframeOrigin!, [port2])
+        } catch (error) {
+          clearTimeout(timeout)
+          reject(new Error(`Failed to send handshake ack: ${error}`))
+          return
+        }
 
         createRpcServer(port1, registry)
         this.appClient = createRpcClient<AppApi>(port1)
 
-        window.removeEventListener('message', onMsg)
+        clearTimeout(timeout)
+        if (this.handshakeListener) {
+          window.removeEventListener('message', this.handshakeListener)
+          this.handshakeListener = undefined
+        }
         resolve()
       }
-      window.addEventListener('message', onMsg)
+      window.addEventListener('message', this.handshakeListener)
     })
 
     return this
   }
 
+  private inferIframeOrigin(iframeEl: HTMLIFrameElement): string | undefined {
+    try {
+      const iframeSrc = iframeEl.src
+      if (iframeSrc) {
+        const url = new URL(iframeSrc)
+        return url.origin
+      }
+    } catch (error) {
+      console.warn('Failed to infer iframe origin:', error)
+    }
+    return undefined
+  }
+
   get app() {
     if (!this.appClient) throw new Error('AiutaRpcSDK: not connected')
     return this.appClient.api
+  }
+
+  close() {
+    super.close()
+    if (this.handshakeListener) {
+      window.removeEventListener('message', this.handshakeListener)
+      this.handshakeListener = undefined
+    }
+    this.appClient?.close()
+    this.appClient = undefined
   }
 }
 
@@ -246,40 +317,17 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
   sdk!: SdkApi
   config!: AiutaConfiguration
   sdkInfo!: { protocolVersion: string; sdkVersion: string }
+  private expectedParentOrigin?: string
+  private handshakeListener?: (event: MessageEvent) => void
 
   async connect(): Promise<this> {
-    const nonce = rand()
-    const { port, sdkVersion, methodsFromAck } = await new Promise<{
-      port: MessagePort
-      sdkVersion: string
-      methodsFromAck?: string[]
-    }>((resolve, reject) => {
-      const onMsg = (e: MessageEvent) => {
-        const d = e.data as
-          | { type: 'sdk:ack'; nonce: string; sdkVersion?: string; methods?: string[] }
-          | any
-        if (!d || d.type !== 'sdk:ack') return
-        if (d.nonce !== nonce) return
-        const p = e.ports?.[0]
-        if (!p) {
-          reject(new Error('No port'))
-          return
-        }
-        window.removeEventListener('message', onMsg)
-        resolve({ port: p, sdkVersion: d.sdkVersion ?? 'unknown', methodsFromAck: d.methods })
-      }
-      window.addEventListener('message', onMsg)
-      window.parent.postMessage(
-        {
-          type: 'app:hello',
-          nonce,
-          version: PROTOCOL_VERSION,
-          appVersion: this._context.appVersion,
-        },
-        '*',
-      )
-    })
+    // 1. Get expected parent origin from URL parameters
+    this.expectedParentOrigin = this.getExpectedParentOriginFromUrl()
 
+    // 2. Perform secure handshake with origin validation
+    const { port, sdkVersion, methodsFromAck } = await this.performSecureHandshake()
+
+    // 3. Setup RPC connection
     createRpcServer(port, this.buildRegistry())
     this._client = createRpcClient<SdkApi>(port)
     this.sdk = this._client.api
@@ -288,12 +336,107 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
     this._supports = new Set(methodsFromAck ?? [])
 
     const snap = await this.sdk.getConfigurationSnapshot()
-    const cfg = jsonSafeClone(snap.data) as AiutaConfiguration
+    const cfg = jsonSafeClone(snap.data) as AiutaConfiguration | null
+    if (!cfg) {
+      throw new Error('Failed to clone configuration data')
+    }
+
     for (const path of snap.functionKeys) {
       setByPath(cfg as any, path, (...args: any[]) => this.sdk.invokeConfigFunction(path, ...args))
     }
     this.config = cfg
 
     return this
+  }
+
+  private getExpectedParentOriginFromUrl(): string {
+    const urlParams = new URLSearchParams(window.location.search)
+    const parentOrigin = urlParams.get('parentOrigin')
+
+    if (!parentOrigin) {
+      throw new Error('parentOrigin parameter is required in iframe URL')
+    }
+
+    try {
+      return new URL(parentOrigin).origin
+    } catch {
+      throw new Error(`Invalid parentOrigin format: ${parentOrigin}`)
+    }
+  }
+
+  private async performSecureHandshake(): Promise<{
+    port: MessagePort
+    sdkVersion: string
+    methodsFromAck?: string[]
+  }> {
+    const nonce = rand()
+
+    return new Promise<{
+      port: MessagePort
+      sdkVersion: string
+      methodsFromAck?: string[]
+    }>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        if (this.handshakeListener) {
+          window.removeEventListener('message', this.handshakeListener)
+        }
+        reject(new Error('App handshake timeout'))
+      }, 10000)
+
+      this.handshakeListener = (e: MessageEvent) => {
+        // Validate origin
+        if (e.origin !== this.expectedParentOrigin) {
+          console.warn(
+            `Rejected handshake from unexpected origin: ${e.origin}, expected: ${this.expectedParentOrigin}`,
+          )
+          return
+        }
+
+        const d = e.data as
+          | { type: 'sdk:ack'; nonce: string; sdkVersion?: string; methods?: string[] }
+          | any
+        if (!d || d.type !== 'sdk:ack') return
+        if (d.nonce !== nonce) return
+
+        const p = e.ports?.[0]
+        if (!p) {
+          clearTimeout(timeout)
+          reject(new Error('No port in handshake response'))
+          return
+        }
+
+        clearTimeout(timeout)
+        if (this.handshakeListener) {
+          window.removeEventListener('message', this.handshakeListener)
+          this.handshakeListener = undefined
+        }
+        resolve({ port: p, sdkVersion: d.sdkVersion ?? 'unknown', methodsFromAck: d.methods })
+      }
+
+      window.addEventListener('message', this.handshakeListener)
+
+      try {
+        window.parent.postMessage(
+          {
+            type: 'app:hello',
+            nonce,
+            version: PROTOCOL_VERSION,
+            appVersion: this._context.appVersion,
+          },
+          this.expectedParentOrigin!,
+        )
+      } catch (error) {
+        clearTimeout(timeout)
+        reject(new Error(`Failed to send handshake: ${error}`))
+      }
+    })
+  }
+
+  close() {
+    super.close()
+    if (this.handshakeListener) {
+      window.removeEventListener('message', this.handshakeListener)
+      this.handshakeListener = undefined
+    }
   }
 }
