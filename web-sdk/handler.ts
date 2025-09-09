@@ -3,22 +3,65 @@ import { SecurePostMessageHandler } from './security'
 import AuthManager from './auth'
 import IframeManager from './iframe'
 import AnalyticsTracker from './analytics'
+import { AiutaRpcSdk } from '@shared/rpc'
+import type { SdkHandlers, SdkContext } from '@shared/rpc'
+import type { AiutaConfiguration } from '@shared/config'
+
+declare const __SDK_VERSION__: string
 
 export default class MessageHandler {
   private secure: SecurePostMessageHandler
   private productId?: string
+  private rpcSdk!: AiutaRpcSdk<AiutaConfiguration>
 
   constructor(
     private readonly auth: AuthManager,
     private readonly analytics: AnalyticsTracker,
     private readonly iframeManager: IframeManager,
+    private readonly configuration: AiutaConfiguration,
   ) {
     this.secure = new SecurePostMessageHandler(iframeManager.getIframeOrigin())
+    this.initializeRpc()
     this.registerHandlersAndListeners()
+  }
+
+  private initializeRpc() {
+    // Initialize RPC SDK
+    const handlers: SdkHandlers = {
+      trackEvent: (event, ctx) => {
+        console.log('[RPC SDK] Received trackEvent:', event, 'from context:', ctx)
+        this.analytics.track({ data: event })
+      },
+    }
+
+    const context: SdkContext<AiutaConfiguration> = {
+      cfg: this.configuration,
+      sdkVersion: __SDK_VERSION__,
+    }
+
+    this.rpcSdk = new AiutaRpcSdk<AiutaConfiguration>({
+      context,
+      handlers,
+    })
   }
 
   setProductId(productId: string) {
     this.productId = productId
+  }
+
+  async tryOnViaRpc(productId: string) {
+    try {
+      const iframe = this.iframeManager.getIframe()
+      if (iframe) {
+        await this.rpcSdk.connect(iframe)
+        await this.rpcSdk.app.tryOn(productId)
+      }
+    } catch (error) {
+      console.error('RPC tryOn failed:', error)
+      // Fallback: set product ID directly for iframe to pick up
+      this.setProductId(productId)
+      throw error // Re-throw so caller can handle fallback
+    }
   }
 
   private registerHandlersAndListeners() {

@@ -22,7 +22,11 @@ type SdkConnectionInfo = ConnectionInfo & {
  * Aiuta RPC SDK - manages communication with iframe applications
  * Supports multiple iframe connections with independent management
  */
-export class AiutaRpcSdk extends AiutaRpcBase<SdkHandlers, AppApi, SdkContext> {
+export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase<
+  SdkHandlers,
+  AppApi,
+  SdkContext<TConfig>
+> {
   private connections = new Map<string, SdkConnectionInfo>()
   private handshakeListeners = new Map<string, (event: MessageEvent) => void>()
 

@@ -102,23 +102,17 @@ function App() {
 
         await rpcApp.connect()
 
-        // Test config access (commented out for now)
-        // console.log('[RPC APP] Testing config access...')
-        // const capabilities = await rpcApp.sdk.getCapabilities()
-        // console.log('[RPC APP] SDK capabilities:', capabilities)
+        console.log('[RPC APP] Testing config access...')
+        const capabilities = await rpcApp.sdk.getCapabilities()
+        console.log('[RPC APP] SDK capabilities:', capabilities)
 
-        // Test analytics (commented out for now)
-        // console.log('[RPC APP] Sending test analytics event...')
-        // await rpcApp.sdk.trackEvent({
-        //   action: 'iframe_initialized',
-        //   version: __IFRAME_VERSION__,
-        //   timestamp: Date.now(),
-        // })
-        // console.log('[RPC APP] Analytics event sent!')
-
-        // Store rpcApp reference globally for debugging
-        ;(window as any).rpcApp = rpcApp
-        ;(window as any).rpcAppReady = true
+        console.log('[RPC APP] Sending test analytics event...')
+        await rpcApp.sdk.trackEvent({
+          action: 'iframe_initialized',
+          version: __IFRAME_VERSION__,
+          timestamp: Date.now(),
+        })
+        console.log('[RPC APP] Analytics event sent!')
       } catch (error) {
         console.log(
           '[RPC APP] Failed to initialize RPC, falling back to legacy PostMessage:',

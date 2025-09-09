@@ -63,7 +63,7 @@ export type SdkHandlers = {
 /**
  * SDK context passed during initialization
  */
-export interface SdkContext {
-  cfg: Record<string, unknown> // AiutaConfiguration - avoiding circular import
+export interface SdkContext<TConfig = Record<string, unknown>> {
+  cfg: TConfig
   sdkVersion: string
 }
