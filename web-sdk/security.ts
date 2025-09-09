@@ -50,14 +50,20 @@ export class SecurePostMessageHandler {
         return
       }
 
-      // Validate message structure
+      // Allow RPC messages to pass through (they use 'type' field instead of 'action')
+      if (event.data && event.data.type && typeof event.data.type === 'string') {
+        // This is an RPC message, let it pass through to RPC handlers
+        return
+      }
+
+      // Validate legacy message structure
       if (!event.data || typeof event.data.action !== 'string') {
         console.warn('Rejected malformed message:', event.data)
         return
       }
 
       const message = event.data as SimpleMessage
-      console.log('Message from APP:', message.action, message)
+      // console.log('Message from APP:', message.action, message)
 
       // Handle message
       if (this.messageHandlers.has(message.action)) {

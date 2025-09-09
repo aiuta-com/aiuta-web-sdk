@@ -79,10 +79,6 @@ export class AiutaRpcSdk extends AiutaRpcBase<SdkHandlers, AppApi, SdkContext> {
       throw new Error('Unable to determine expected iframe origin')
     }
 
-    const ch = new MessageChannel()
-    const port1 = ch.port1
-    const port2 = ch.port2
-
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
         const listener = this.handshakeListeners.get(connectionId)
@@ -94,23 +90,30 @@ export class AiutaRpcSdk extends AiutaRpcBase<SdkHandlers, AppApi, SdkContext> {
       }, DEFAULT_HANDSHAKE_TIMEOUT)
 
       const handshakeListener = (e: MessageEvent) => {
-        // Validate source and origin
-        if (e.source !== iframeEl.contentWindow) return
-        if (e.origin !== resolvedOrigin) {
-          console.warn(
-            `Rejected handshake from unexpected origin: ${e.origin}, expected: ${resolvedOrigin}`,
-          )
+        // Quick filter: only process messages from correct iframe
+        if (e.source !== iframeEl.contentWindow || e.origin !== resolvedOrigin) {
           return
         }
 
         const d = e.data as { type: 'app:hello'; nonce: string; appVersion?: string } | any
-        if (!d || d.type !== 'app:hello') return
+
+        // Quick filter: only process RPC handshake messages
+        if (!d || d.type !== 'app:hello') {
+          return
+        }
+
+        const ch = new MessageChannel()
+        const port1 = ch.port1
+        const port2 = ch.port2
 
         const extra: Record<string, AnyFn> = {
-          getConfigurationSnapshot: async () => ({
-            data: jsonSafeClone(this._context.cfg),
-            functionKeys: extractFunctionPaths(this._context.cfg),
-          }),
+          getConfigurationSnapshot: async () => {
+            const result = {
+              data: jsonSafeClone(this._context.cfg),
+              functionKeys: extractFunctionPaths(this._context.cfg),
+            }
+            return result
+          },
           invokeConfigFunction: async (path: string, ...args: any[]) => {
             const parts = path.split('.')
             let cur: any = this._context.cfg
@@ -140,16 +143,18 @@ export class AiutaRpcSdk extends AiutaRpcBase<SdkHandlers, AppApi, SdkContext> {
           methods,
         }
 
+        // Create RPC server BEFORE sending ack so it's ready for incoming calls
+        createRpcServer(port1, registry)
+        const client = createRpcClient<AppApi>(port1)
+
         try {
           iframeEl.contentWindow!.postMessage(ack, resolvedOrigin, [port2])
         } catch (error) {
+          console.error('[RPC SDK] Failed to send ack message:', error)
           clearTimeout(timeout)
           reject(new Error(`Failed to send handshake ack: ${error}`))
           return
         }
-
-        createRpcServer(port1, registry)
-        const client = createRpcClient<AppApi>(port1)
 
         // Store connection
         this.connections.set(connectionId, {

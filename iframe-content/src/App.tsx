@@ -10,6 +10,10 @@ import { configSlice } from '@lib/redux/slices/configSlice'
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
+// RPC
+import { AiutaRpcApp } from '@shared/rpc'
+import type { AppHandlers } from '@shared/rpc'
+
 // pages
 import Qr from './pages/Qr'
 import Home from './pages/Home'
@@ -70,8 +74,63 @@ function App() {
 
     loadCustomCSS()
 
+    // Initialize RPC App
+    const initializeRpc = async () => {
+      try {
+        const handlers: AppHandlers = {
+          tryOn: async (productId: string) => {
+            try {
+              // TODO: Implement actual tryOn logic
+              // For now, just log and maybe navigate to appropriate page
+              console.log('APP: Product ID:', productId)
+
+              // Simulate some async work
+              await new Promise((resolve) => setTimeout(resolve, 100))
+
+              return // Explicitly return to complete the Promise
+            } catch (error) {
+              console.error('[RPC APP] Error in tryOn handler:', error)
+              throw error // Re-throw so RPC can handle the error
+            }
+          },
+        }
+
+        const rpcApp = new AiutaRpcApp({
+          context: { appVersion: __IFRAME_VERSION__ },
+          handlers,
+        })
+
+        await rpcApp.connect()
+
+        // Test config access (commented out for now)
+        // console.log('[RPC APP] Testing config access...')
+        // const capabilities = await rpcApp.sdk.getCapabilities()
+        // console.log('[RPC APP] SDK capabilities:', capabilities)
+
+        // Test analytics (commented out for now)
+        // console.log('[RPC APP] Sending test analytics event...')
+        // await rpcApp.sdk.trackEvent({
+        //   action: 'iframe_initialized',
+        //   version: __IFRAME_VERSION__,
+        //   timestamp: Date.now(),
+        // })
+        // console.log('[RPC APP] Analytics event sent!')
+
+        // Store rpcApp reference globally for debugging
+        ;(window as any).rpcApp = rpcApp
+        ;(window as any).rpcAppReady = true
+      } catch (error) {
+        console.log(
+          '[RPC APP] Failed to initialize RPC, falling back to legacy PostMessage:',
+          error,
+        )
+      }
+    }
+
+    initializeRpc()
+
     const handleMessage = (event: MessageEvent) => {
-      console.log('Message from SDK:', event.data.action, event.data)
+      // Legacy postMessage handler for non-RPC functionality
       if (
         event.data &&
         event.data.action &&

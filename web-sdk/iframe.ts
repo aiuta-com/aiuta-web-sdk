@@ -59,6 +59,12 @@ export default class IframeManager {
 
   private buildIframeSrc(baseUrl: string, customCssUrl?: string) {
     let src = baseUrl.startsWith('/') ? `${window.location.origin}${baseUrl}` : baseUrl
+
+    // Add parentOrigin parameter for RPC security
+    const parentOrigin = window.location.origin
+    const sep1 = src.includes('?') ? '&' : '?'
+    src = `${src}${sep1}parentOrigin=${encodeURIComponent(parentOrigin)}`
+
     if (!customCssUrl) return src
     let resolvedCssUrl = customCssUrl
     if (!customCssUrl.startsWith('http')) {
@@ -71,8 +77,8 @@ export default class IframeManager {
           : `${origin}/${customCssUrl}`
       }
     }
-    const sep = src.includes('?') ? '&' : '?'
-    return `${src}${sep}css=${encodeURIComponent(resolvedCssUrl)}`
+    const sep2 = '&' // src already has ? from parentOrigin
+    return `${src}${sep2}css=${encodeURIComponent(resolvedCssUrl)}`
   }
 
   createMainIframe() {
@@ -375,6 +381,8 @@ export default class IframeManager {
     const url = new URL(absoluteIframeUrl)
     url.searchParams.set('modal', 'true')
     url.searchParams.set('modalType', modalType)
+    // Add parentOrigin parameter for RPC security
+    url.searchParams.set('parentOrigin', encodeURIComponent(window.location.origin))
     return url
   }
 

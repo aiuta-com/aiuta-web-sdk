@@ -20,7 +20,11 @@ export function createRpcClient<TApi extends object>(
   let isClosed = false
   const pending = new Map<number, { res: (v: any) => void; rej: (e: any) => void; t: number }>()
 
-  port.onmessage = (ev: MessageEvent<RpcRes>) => {
+  // Start MessagePort to enable message reception
+  port.start()
+
+  // Use addEventListener instead of onmessage (onmessage doesn't work reliably)
+  port.addEventListener('message', (ev: MessageEvent<RpcRes>) => {
     if (isClosed) return
     const m = ev.data
     if (!m || m.t !== 'resp') return
@@ -30,7 +34,7 @@ export function createRpcClient<TApi extends object>(
     pending.delete(m.id)
     if (m.ok) p.res(m.r)
     else p.rej(new Error(m.e))
-  }
+  })
 
   const call = (method: string, ...args: any[]) =>
     new Promise((res, rej) => {
@@ -84,9 +88,15 @@ export function createRpcServer(
   port: MessagePort,
   registry: Record<string, AnyFn>,
 ): RpcServerResult {
-  port.onmessage = async (ev: MessageEvent<RpcReq>) => {
+  // Start MessagePort to enable message reception
+  port.start()
+
+  // Use addEventListener instead of onmessage (onmessage doesn't work reliably)
+  port.addEventListener('message', async (ev: MessageEvent<RpcReq>) => {
     const m = ev.data
-    if (!m || m.t !== 'call') return
+    if (!m || m.t !== 'call') {
+      return
+    }
     const fn = registry[m.m]
     if (!fn) {
       port.postMessage({ t: 'resp', id: m.id, ok: false, e: `Unknown method: ${m.m}` })
@@ -98,6 +108,6 @@ export function createRpcServer(
     } catch (e: any) {
       port.postMessage({ t: 'resp', id: m.id, ok: false, e: String(e?.message ?? e) })
     }
-  }
+  })
   return { close: () => port.close() }
 }

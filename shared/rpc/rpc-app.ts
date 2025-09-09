@@ -32,8 +32,11 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
     // 2. Perform secure handshake with origin validation
     const { port, sdkVersion, methodsFromAck } = await this.performSecureHandshake()
 
-    // 3. Setup RPC connection
+    // 3. Setup RPC connection (both client and server for bidirectional communication)
+    // Create server for handling calls from SDK (e.g., tryOn)
     createRpcServer(port, this.buildRegistry())
+
+    // Create client for calling SDK methods (e.g., getConfigurationSnapshot)
     this._client = createRpcClient<SdkApi>(port)
     this.sdk = this._client.api
 
@@ -99,7 +102,7 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
         // Validate origin
         if (e.origin !== this.expectedParentOrigin) {
           console.warn(
-            `Rejected handshake from unexpected origin: ${e.origin}, expected: ${this.expectedParentOrigin}`,
+            `[RPC APP] Rejected handshake from unexpected origin: ${e.origin}, expected: ${this.expectedParentOrigin}`,
           )
           return
         }
@@ -111,6 +114,7 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
         if (d.nonce !== nonce) return
 
         const p = e.ports?.[0]
+
         if (!p) {
           clearTimeout(timeout)
           reject(new Error('No port in handshake response'))
@@ -128,15 +132,13 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
       window.addEventListener('message', this.handshakeListener)
 
       try {
-        window.parent.postMessage(
-          {
-            type: 'app:hello',
-            nonce,
-            version: PROTOCOL_VERSION,
-            appVersion: this._context.appVersion,
-          },
-          this.expectedParentOrigin!,
-        )
+        const helloMessage = {
+          type: 'app:hello',
+          nonce,
+          version: PROTOCOL_VERSION,
+          appVersion: this._context.appVersion,
+        }
+        window.parent.postMessage(helloMessage, this.expectedParentOrigin!)
       } catch (error) {
         clearTimeout(timeout)
         reject(new Error(`Failed to send handshake: ${error}`))
