@@ -12,7 +12,9 @@ import { TitleDescription, TryOnButton } from '@/components/feature'
 // types
 
 // messaging
-import { SecureMessenger } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 
 // styles
 import styles from './onboarding.module.scss'
@@ -35,6 +37,7 @@ const INITIALLY_ONBOARDING = [
 export const OnboardingMobile = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const [isChecked, setIsChecked] = useState(false)
   const [initiallyOnboardingStep, setInitiallyOnboardingStep] = useState(0)
@@ -52,7 +55,7 @@ export const OnboardingMobile = () => {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleClickOnboardingButton = () => {
@@ -81,12 +84,12 @@ export const OnboardingMobile = () => {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
   const initPageAnalytic = (analytic: any) => {
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   useEffect(() => {

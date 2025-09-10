@@ -25,8 +25,6 @@ const onboardingStepsSelector = (state: RootState) => state.config.onboardingSte
 
 const aiutaEndpointDataSelector = (state: RootState) => state.config.aiutaEndpointData
 
-const stylesConfigurationSelector = (state: RootState) => state.config.stylesConfiguration
-
 export {
   qrTokenSelector,
   isMobileSelector,
@@ -38,7 +36,6 @@ export {
   onboardingStepsSelector,
   isOnboardingDoneSelector,
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
 }

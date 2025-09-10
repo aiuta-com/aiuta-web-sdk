@@ -9,18 +9,11 @@ import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { configSlice } from '@lib/redux/slices/configSlice'
 
 // selectors
-import {
-  isMobileSelector,
-  onboardingStepsSelector,
-  stylesConfigurationSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { isMobileSelector, onboardingStepsSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
 import { Section } from '@/components/feature/'
 import { Onboarding } from '@/components/shared'
-
-// messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
 // styles
 import styles from './index.module.scss'
@@ -49,41 +42,9 @@ const initiallAnimationConfig = {
 
 export default function Home() {
   const navigate = useNavigate()
-
   const dispatch = useAppDispatch()
-
   const isMobile = useAppSelector(isMobileSelector)
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
-
-  const handleGetWidnwInitiallySizes = () => {
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_WINDOW_SIZES })
-  }
-
-  useEffect(() => {
-    handleGetWidnwInitiallySizes()
-
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data && e.data.action) {
-        if (e.data.action === MESSAGE_ACTIONS.GET_WINDOW_SIZES) {
-          if (e.data.data.width <= 992 && !isMobile) {
-            dispatch(configSlice.actions.setIsMobile(true))
-          } else {
-            dispatch(configSlice.actions.setIsMobile(false))
-          }
-        } else if (e.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
-          dispatch(configSlice.actions.setAiutaEndpointData(e.data.data))
-        }
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-
-    return () => {
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [dispatch])
 
   useEffect(() => {
     if (!globalThis) return
@@ -128,11 +89,7 @@ export default function Home() {
         You should remove <head> here and add these meta tags in index.html or via react-helmet.
       */}
       <motion.div key="home-page" {...initiallAnimationConfig}>
-        <Section
-          className={`${
-            isMobile && onboardingSteps === 2 ? styles.sectionMobile : ''
-          } ${stylesConfiguration.pages.onboardingPageClassName}`}
-        >
+        <Section className={`${isMobile && onboardingSteps === 2 ? styles.sectionMobile : ''}`}>
           <Onboarding />
         </Section>
       </motion.div>

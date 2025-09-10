@@ -1,14 +1,24 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
-// reudx
-import { useAppDispatch } from '@lib/redux/store'
+// redux
+import { useAppDispatch, store } from '@lib/redux/store'
+
+// contexts
+import { RpcProvider } from './contexts'
 
 // actions
 import { configSlice } from '@lib/redux/slices/configSlice'
 
+// selectors
+import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
+// RPC
+import { AiutaRpcApp } from '@shared/rpc'
+import type { AppHandlers } from '@shared/rpc'
 
 // pages
 import Qr from './pages/Qr'
@@ -31,6 +41,7 @@ declare const __IFRAME_VERSION__: string
 
 function App() {
   const dispatch = useAppDispatch()
+  const [rpcApp, setRpcApp] = useState<AiutaRpcApp | null>(null)
 
   const initialPath = window.location.hash.replace(/^#/, '') || '/'
 
@@ -70,21 +81,87 @@ function App() {
 
     loadCustomCSS()
 
-    const handleMessage = (event: MessageEvent) => {
-      console.log('Received message:', event.data)
-      if (
-        event.data &&
-        event.data.action &&
-        event.data.action === MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION
-      ) {
-        console.log('Setting styles configuration:', event.data.data.stylesConfiguration)
-        const stylesConfig = event.data.data.stylesConfiguration
-        if (stylesConfig && stylesConfig.components && stylesConfig.pages) {
-          dispatch(configSlice.actions.setStylesConfiguration(stylesConfig))
-        } else {
-          console.error('Invalid styles configuration structure:', stylesConfig)
+    // Initialize RPC App
+    const initializeRpc = async () => {
+      try {
+        const handlers: AppHandlers = {
+          tryOn: async (productId: string) => {
+            try {
+              // Update endpoint data with the product ID
+              const currentState = store.getState()
+              const currentEndpointData = currentState.config.aiutaEndpointData
+
+              const updatedEndpointData = {
+                ...currentEndpointData,
+                skuId: productId,
+              }
+
+              dispatch(configSlice.actions.setAiutaEndpointData(updatedEndpointData))
+              return // Explicitly return to complete the Promise
+            } catch (error) {
+              console.error('[RPC APP] Error in tryOn handler:', error)
+              throw error // Re-throw so RPC can handle the error
+            }
+          },
+
+          updateWindowSizes: async (sizes: { width: number; height: number }) => {
+            try {
+              // Get current isMobile state from store (not from closure)
+              const state = store.getState()
+              const currentIsMobile = isMobileSelector(state)
+
+              // Update mobile state based on window width
+              if (sizes.width <= 992 && !currentIsMobile) {
+                dispatch(configSlice.actions.setIsMobile(true))
+              } else if (sizes.width > 992 && currentIsMobile) {
+                dispatch(configSlice.actions.setIsMobile(false))
+              }
+            } catch (error) {
+              console.error('[RPC APP] Error handling updateWindowSizes:', error)
+              throw error
+            }
+          },
         }
-      } else if (
+
+        const rpcAppInstance = new AiutaRpcApp({
+          context: { appVersion: __IFRAME_VERSION__ },
+          handlers,
+        })
+
+        await rpcAppInstance.connect()
+        setRpcApp(rpcAppInstance)
+
+        // Initialize auth data once RPC is connected
+        try {
+          const auth = rpcAppInstance.config.auth
+
+          let endpointData: any = {
+            status: 200,
+            skuId: '', // Will be set by SDK via tryOn
+          }
+
+          if ('apiKey' in auth) {
+            // API Key auth
+            endpointData.apiKey = auth.apiKey
+          } else if ('subscriptionId' in auth) {
+            // JWT auth
+            endpointData.userId = auth.subscriptionId
+          }
+
+          dispatch(configSlice.actions.setAiutaEndpointData(endpointData))
+        } catch (error) {
+          console.error('Failed to initialize auth data:', error)
+        }
+      } catch (error) {
+        console.log('[RPC APP] Failed to initialize RPC', error)
+      }
+    }
+
+    initializeRpc()
+
+    const handleMessage = (event: MessageEvent) => {
+      // Legacy postMessage handler for non-RPC functionality
+      if (
         event.data &&
         event.data.action &&
         event.data.action === MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL
@@ -143,23 +220,25 @@ function App() {
   }
 
   return (
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Spinner />
-      <SdkHeader />
-      <FullScreenImageModal />
-      <ShareModal />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/generated" element={<Generated />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/previously" element={<Previously />} />
-        <Route path="/qr" element={<Qr />} />
-        <Route path="/uploadImages" element={<UploadImages />} />
-        <Route path="/view" element={<View />} />
-        <Route path="/qr/:token" element={<QRTokenPage />} />
-      </Routes>
-      <SdkFooter />
-    </MemoryRouter>
+    <RpcProvider rpcApp={rpcApp}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Spinner />
+        <SdkHeader />
+        <FullScreenImageModal />
+        <ShareModal />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/generated" element={<Generated />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/previously" element={<Previously />} />
+          <Route path="/qr" element={<Qr />} />
+          <Route path="/uploadImages" element={<UploadImages />} />
+          <Route path="/view" element={<View />} />
+          <Route path="/qr/:token" element={<QRTokenPage />} />
+        </Routes>
+        <SdkFooter />
+      </MemoryRouter>
+    </RpcProvider>
   )
 }
 

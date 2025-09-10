@@ -8,7 +8,6 @@ import { fileSlice } from '@lib/redux/slices/fileSlice'
 
 // selectors
 import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
-import { stylesConfigurationSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
 import { ViewImage } from '@/components/feature'
@@ -23,7 +22,6 @@ export default function GeneratedMobile() {
   const dispatch = useAppDispatch()
 
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleShare = async () => {
     const imageUrl = generatedImages[0]?.url
@@ -49,7 +47,7 @@ export default function GeneratedMobile() {
   return (
     <>
       <div
-        className={`${styles.generatedImagesScrollableViewMobile} ${stylesConfiguration.pages.resultPageClassName}`}
+        className={`${styles.generatedImagesScrollableViewMobile} `}
       >
         {generatedImages ? (
           <div className={styles.viewContent}>

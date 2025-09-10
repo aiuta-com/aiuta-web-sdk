@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => {
     define: {
       __SDK_VERSION__: JSON.stringify(pkg.version),
       __AIUTA_IFRAME_URL__: JSON.stringify(iframeUrl),
-      __AIUTA_ANALYTICS_URL__: JSON.stringify(analyticsUrl),
+      __ANALYTICS_URL__: JSON.stringify(analyticsUrl),
     },
     build: {
       lib: {

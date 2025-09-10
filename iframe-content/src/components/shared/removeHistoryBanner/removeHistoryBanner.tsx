@@ -11,10 +11,7 @@ import {
   selectedImagesSelector,
   generatedImagesSelector,
 } from '@lib/redux/slices/generateSlice/selectors'
-import {
-  aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
 import { SecondaryButton } from '@/components/feature'
@@ -23,15 +20,17 @@ import { SecondaryButton } from '@/components/feature'
 import styles from './removeHistoryBanner.module.scss'
 
 // messaging
-import { SecureMessenger } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 
 export const RemoveHistoryBanner = () => {
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleSelectAll = () => {
     const generatedImagesId = generatedImages.map(({ id }) => id)
@@ -75,13 +74,11 @@ export const RemoveHistoryBanner = () => {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   return (
-    <div
-      className={`${styles.removeHistoryBanner} ${stylesConfiguration.components.historyBannerClassName}`}
-    >
+    <div className={`${styles.removeHistoryBanner} `}>
       <div className={styles.buttonLine}>
         <SecondaryButton text="Cancel" onClick={handleClose} classNames={styles.cancelBtn} />
         <p className={styles.text} onClick={handleSelectAll}>

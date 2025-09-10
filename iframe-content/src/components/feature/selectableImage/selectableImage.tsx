@@ -82,7 +82,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
 
   return (
     <div
-      className={`${styles.selectableImage} 
+      className={`${styles.selectableImage}
       ${isHistory ? styles.selectableImagehistory : ''}
       ${isHistory && isSelect ? styles.selectableImageActive : ''}
       ${classNames ?? ''}

@@ -9,7 +9,6 @@ import { configSlice } from '@lib/redux/slices/configSlice'
 // selectors
 import {
   isOpenSwipSelector,
-  stylesConfigurationSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 
 // components
@@ -33,7 +32,6 @@ export const Swip = (props: SwipTypes) => {
   const swipRef = useRef<HTMLDivElement | null>(null)
 
   const isOpenSwip = useAppSelector(isOpenSwipSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const onTouchStart = () => {
     if (swipRef && swipRef.current) {
@@ -83,7 +81,7 @@ export const Swip = (props: SwipTypes) => {
       onClick={handleCloseSwip}
       className={`${styles.swipConteiner} ${
         isOpenSwip ? styles.swipConteinerActive : ''
-      } ${stylesConfiguration.components.swipClassName}`}
+      } `}
     >
       <div className={styles.swipContent} ref={swipRef}>
         <div

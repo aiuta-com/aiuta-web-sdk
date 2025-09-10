@@ -3,28 +3,6 @@ import { createSlice } from '@reduxjs/toolkit'
 const isOnboardingDone =
   typeof window !== 'undefined' && JSON.parse(localStorage.getItem('isOnboarding') || 'false')
 
-type StylesConfiguration = {
-  pages: {
-    qrPageClassName: string
-    historyClassName: string
-    viewPageClassName: string
-    resultPageClassName: string
-    onboardingPageClassName: string
-    previouselyPageClassName: string
-  }
-  components: {
-    swipClassName: string
-    footerClassName: string
-    headerClassName: string
-    tryOnButtonClassName: string
-    historyBannerClassName: string
-    secondaryButtonClassName: string
-    changePhotoButtonClassName: string
-    resultButonsContentClassName: string
-    historyImagesRemoveModalClassName: string
-  }
-}
-
 interface configSliceState {
   qrToken: string
   isMobile: boolean
@@ -37,35 +15,12 @@ interface configSliceState {
   isOnboardingDone: boolean
   isSelectHistoryImages: boolean
   isSelectPreviouselyImages: boolean
-  stylesConfiguration: StylesConfiguration
   aiutaEndpointData: {
     skuId: string
     apiKey: string
     userId: string
     jwtToken: string
   }
-}
-
-const INITIALLY_STYLES_CONFIGURATION: StylesConfiguration = {
-  pages: {
-    qrPageClassName: '',
-    historyClassName: '',
-    viewPageClassName: '',
-    resultPageClassName: '',
-    onboardingPageClassName: '',
-    previouselyPageClassName: '',
-  },
-  components: {
-    swipClassName: '',
-    footerClassName: '',
-    headerClassName: '',
-    tryOnButtonClassName: '',
-    historyBannerClassName: '',
-    secondaryButtonClassName: '',
-    changePhotoButtonClassName: '',
-    resultButonsContentClassName: '',
-    historyImagesRemoveModalClassName: '',
-  },
 }
 
 const initialState: configSliceState = {
@@ -80,7 +35,6 @@ const initialState: configSliceState = {
   isSelectHistoryImages: false,
   isSelectPreviouselyImages: false,
   isOnboardingDone: isOnboardingDone,
-  stylesConfiguration: INITIALLY_STYLES_CONFIGURATION,
   aiutaEndpointData: {
     skuId: '',
     apiKey: '',
@@ -126,9 +80,6 @@ export const configSlice = createSlice({
       } else {
         state.onboardingSteps++
       }
-    },
-    setStylesConfiguration: (state, { payload }) => {
-      state.stylesConfiguration = payload
     },
     setIsSelectHistoryImages: (state, { payload }) => {
       state.isSelectHistoryImages = payload

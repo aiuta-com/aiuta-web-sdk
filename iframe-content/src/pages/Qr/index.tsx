@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback, ChangeEvent } from 'react'
+import React, { useRef, useEffect, useCallback, ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
@@ -11,20 +11,15 @@ import { alertSlice } from '@lib/redux/slices/alertSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 
 // selectors
-import {
-  qrTokenSelector,
-  aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { qrTokenSelector, aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
 import { Alert, QrCode } from '@/components/feature'
 
 // types
 
-// messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
-import { EndpointDataTypes } from '@/types'
+// rpc
+import { useRpcProxy } from '@/contexts'
 
 // helpers
 import { generateRandomString } from '@/helpers/generateRandomString'
@@ -35,32 +30,31 @@ import styles from './token.module.scss'
 let calledAnalyticCount = 0
 
 export default function Qr() {
+  const rpc = useRpcProxy()
+
   const navigate = useNavigate()
 
   const dispatch = useAppDispatch()
 
   const qrToken = useAppSelector(qrTokenSelector)
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
+  const endpointData = useAppSelector(aiutaEndpointDataSelector)
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
 
   const handleAnalytic = () => {
     calledAnalyticCount++
     if (calledAnalyticCount === 2) return (calledAnalyticCount = 0)
 
-    if (aiutaEndpointData && aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+    if (endpointData && endpointData.skuId && endpointData.skuId.length > 0) {
       const analytic = {
         data: {
           type: 'page',
           pageId: 'imagePicker',
-          productIds: [aiutaEndpointData.skuId],
+          productIds: [endpointData.skuId],
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -68,7 +62,7 @@ export default function Qr() {
     setTimeout(() => {
       handleAnalytic()
     }, 1000)
-  }, [aiutaEndpointData])
+  }, [endpointData])
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (!endpointData) return
@@ -106,11 +100,11 @@ export default function Qr() {
               source: 'device',
               event: 'photoUploaded',
               pageId: 'imagePicker',
-              productIds: [aiutaEndpointData.skuId],
+              productIds: [endpointData.skuId],
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         } else if (result.error) {
           dispatch(
             alertSlice.actions.setShowAlert({
@@ -132,7 +126,7 @@ export default function Qr() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       } catch (error: any) {
         dispatch(
@@ -155,13 +149,9 @@ export default function Qr() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       }
     }
-  }
-
-  const handleGetWidnwInitiallySizes = () => {
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
   }
 
   const handleCheckQRUploadedPhoto = useCallback(async () => {
@@ -180,11 +170,11 @@ export default function Qr() {
           source: 'QR',
           event: 'photoUploaded',
           pageId: 'imagePicker',
-          productIds: [aiutaEndpointData.skuId],
+          productIds: [endpointData.skuId],
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
 
       const deleteQrToken = await fetch(
         `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`,
@@ -195,27 +185,7 @@ export default function Qr() {
     }
   }, [qrToken, dispatch, navigate])
 
-  useEffect(() => {
-    handleGetWidnwInitiallySizes()
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.action) {
-        if (
-          event.data.data &&
-          event.data.data.status === 200 &&
-          event.data.action === MESSAGE_ACTIONS.BASE_KEYS
-        ) {
-          setEndpointData(event.data.data)
-        }
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-
-    return () => {
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [])
+  // Endpoint data is now available directly from Redux store (initialized in App.tsx via RPC)
 
   useEffect(() => {
     dispatch(configSlice.actions.setQrToken(generateRandomString()))
@@ -244,7 +214,7 @@ export default function Qr() {
   return (
     <>
       <motion.div
-        className={`${styles.qrContainer} ${stylesConfiguration.pages.qrPageClassName}`}
+        className={`${styles.qrContainer} `}
         key="qr-page"
         initial={{
           opacity: 0,

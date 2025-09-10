@@ -17,7 +17,6 @@ import {
 import {
   isMobileSelector,
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 
@@ -33,6 +32,9 @@ import { HistoryImagesRemoveModal } from '@/components/shared/modals'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 
 // styles
 import styles from './history.module.scss'
@@ -56,13 +58,14 @@ const initiallAnimationConfig = {
 // Removed unused sentAnalyticCount variable
 
 export default function History() {
+  const rpc = useRpcProxy()
+
   const dispatch = useAppDispatch()
 
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
@@ -111,7 +114,7 @@ export default function History() {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const onboardingAnalytic = () => {
@@ -124,7 +127,7 @@ export default function History() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -147,7 +150,7 @@ export default function History() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       }
     }
@@ -172,7 +175,7 @@ export default function History() {
 
   return (
     <>
-      <Section className={`${styles.sectionContent} ${stylesConfiguration.pages.historyClassName}`}>
+      <Section className={`${styles.sectionContent} `}>
         <>
           <motion.div
             key="history-page"

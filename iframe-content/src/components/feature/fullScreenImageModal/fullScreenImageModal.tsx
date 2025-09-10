@@ -10,6 +10,7 @@ import { fullScreenImageUrlSelector } from '@lib/redux/slices/fileSlice/selector
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { useRpcProxy } from '../../../contexts'
 
 // components
 import { ShareModal } from '../shareModal/shareModal'
@@ -34,6 +35,7 @@ export const FullScreenImageModal = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
   const [shareModalData, setShareModalData] = useState<{ imageUrl: string } | null>(null)
+  const rpc = useRpcProxy()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
 
@@ -53,11 +55,9 @@ export const FullScreenImageModal = () => {
     setModalData(null)
     dispatch(fileSlice.actions.setFullScreenImageUrl(null))
 
-    // Notify parent to close modal
-    SecureMessenger.sendToParent({
-      action: MESSAGE_ACTIONS.CLOSE_MODAL,
-    })
-  }, [dispatch])
+    // Notify parent to close modal via RPC
+    rpc.sdk.closeModal()
+  }, [dispatch, rpc])
 
   const handleDownloadImage = useCallback(async () => {
     if (!modalData?.activeImage) return

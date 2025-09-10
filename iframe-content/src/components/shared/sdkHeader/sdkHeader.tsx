@@ -16,7 +16,6 @@ import {
   onboardingStepsSelector,
   isOnboardingDoneSelector,
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
 } from '@lib/redux/slices/configSlice/selectors'
@@ -30,7 +29,8 @@ import {
 // types
 
 // messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { MESSAGE_ACTIONS } from '@shared/messaging'
+import { useRpcProxy } from '../../../contexts'
 
 // styles
 import styles from './sdkHeader.module.scss'
@@ -38,6 +38,7 @@ import styles from './sdkHeader.module.scss'
 export const SdkHeader = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const location = useLocation()
 
@@ -50,7 +51,6 @@ export const SdkHeader = () => {
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
   const isStartGeneration = useAppSelector(isStartGenerationSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
   const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
 
@@ -88,7 +88,7 @@ export const SdkHeader = () => {
       analytic.data.pageId = 'results'
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleCloseModal = () => {
@@ -104,9 +104,9 @@ export const SdkHeader = () => {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
 
-        SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
+        rpc.sdk.closeModal()
         return
       }
 
@@ -115,7 +115,7 @@ export const SdkHeader = () => {
           navigate('/view')
         }, 500)
       }
-      SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
+      rpc.sdk.closeModal()
     }
 
     handleAnalytic()
@@ -140,7 +140,7 @@ export const SdkHeader = () => {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
 
     if (iasNavigatePath) {
@@ -210,7 +210,7 @@ export const SdkHeader = () => {
     <header
       className={`${styles.sdkHeader} ${
         isMobile ? styles.sdkHeaderMobile : ''
-      } ${stylesConfiguration.components.headerClassName}`}
+      } `}
     >
       {!isMobile && !isCheckQrTokenPage ? (
         hasHistoryImages ? (

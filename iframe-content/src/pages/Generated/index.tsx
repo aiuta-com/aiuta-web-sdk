@@ -9,10 +9,7 @@ import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 
 // selectors
-import {
-  isMobileSelector,
-  stylesConfigurationSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
 import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
 
 // components
@@ -25,6 +22,9 @@ import { Section, ViewImage, MiniSliderItem } from '@/components/feature'
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 import { EndpointDataTypes } from '@/types'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 
 // styles
 import styles from './generated.module.scss'
@@ -55,13 +55,13 @@ export default function Generated() {
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
 
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const miniSliderContentRef = useRef<HTMLDivElement | null>(null)
   const generatedImagesContentRef = useRef<HTMLDivElement | null>(null)
 
   const isMobile = useAppSelector(isMobileSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleClickOnSliderItem = (index: number) => {
     setSlideItemIndex(index)
@@ -121,7 +121,7 @@ export default function Generated() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -150,7 +150,7 @@ export default function Generated() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       }
     }
@@ -164,11 +164,7 @@ export default function Generated() {
 
   return (
     <>
-      <Section
-        className={`${isMobile ? styles.sectionMobile : ''} ${
-          stylesConfiguration.pages.resultPageClassName
-        }`}
-      >
+      <Section className={`${isMobile ? styles.sectionMobile : ''} ${''}`}>
         <motion.div
           key="generated-page"
           className={styles.viewContent}
