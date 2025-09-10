@@ -57,30 +57,34 @@ export default class MessageHandler {
     try {
       const iframe = this.iframeManager.getIframe()
       if (iframe) {
-        // Only connect if not already connected
         if (!this.rpcSdk.hasConnection()) {
           await this.rpcSdk.connect(iframe)
+          await this.sendWindowSizesViaRpc()
         }
         await this.rpcSdk.app.tryOn(productId)
       }
     } catch (error) {
       console.error('RPC tryOn failed:', error)
-      // Fallback: set product ID directly for iframe to pick up
-      this.setProductId(productId)
-      throw error // Re-throw so caller can handle fallback
+    }
+  }
+
+  private async sendWindowSizesViaRpc() {
+    try {
+      if (this.rpcSdk.hasConnection()) {
+        const sizes = {
+          width: window.innerWidth,
+          height: window.innerHeight,
+        }
+        await this.rpcSdk.app.updateWindowSizes(sizes)
+      }
+    } catch (error) {
+      console.error('[RPC SDK] sendWindowSizes failed:', error)
     }
   }
 
   private registerHandlersAndListeners() {
     window.addEventListener('resize', () => {
-      this.sendToIframe(MESSAGE_ACTIONS.GET_WINDOW_SIZES, {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.CLOSE_MODAL, () => {
-      this.iframeManager.closeOrHide()
+      this.sendWindowSizesViaRpc()
     })
 
     this.secure.registerHandler(MESSAGE_ACTIONS.OPEN_SHARE_MODAL, (data) => {
@@ -96,13 +100,6 @@ export default class MessageHandler {
           title: 'Check out this image',
           text: "Here's an image I generated!",
         })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.GET_WINDOW_SIZES, () => {
-      this.sendToIframe(MESSAGE_ACTIONS.GET_WINDOW_SIZES, {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      })
     })
 
     this.secure.registerHandler(MESSAGE_ACTIONS.GET_AIUTA_JWT_TOKEN, async (data) => {

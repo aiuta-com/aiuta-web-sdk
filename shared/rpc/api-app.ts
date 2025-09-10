@@ -13,17 +13,19 @@ export interface AppApi {
    * @param productId - ID of the product to try on
    */
   tryOn(productId: string): Promise<void>
+
+  /**
+   * Update window dimensions from SDK
+   * @param sizes - Window width and height
+   */
+  updateWindowSizes(sizes: { width: number; height: number }): Promise<void>
 }
 
 /**
  * App-side handlers (methods that App implements for SDK to call)
  */
 export type AppHandlers = {
-  /**
-   * Handle try-on request from SDK
-   * @param productId - ID of the product to try on
-   */
-  tryOn: (productId: string) => Promise<void> | void
+  [K in keyof AppApi]: AppApi[K]
 }
 
 /**

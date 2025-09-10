@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
 // redux
-import { useAppDispatch } from '@lib/redux/store'
+import { useAppDispatch, store } from '@lib/redux/store'
 
 // contexts
 import { RpcProvider } from './contexts'
 
 // actions
 import { configSlice } from '@lib/redux/slices/configSlice'
+
+// selectors
+import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
@@ -95,6 +98,24 @@ function App() {
             } catch (error) {
               console.error('[RPC APP] Error in tryOn handler:', error)
               throw error // Re-throw so RPC can handle the error
+            }
+          },
+
+          updateWindowSizes: async (sizes: { width: number; height: number }) => {
+            try {
+              // Get current isMobile state from store (not from closure)
+              const state = store.getState()
+              const currentIsMobile = isMobileSelector(state)
+
+              // Update mobile state based on window width
+              if (sizes.width <= 992 && !currentIsMobile) {
+                dispatch(configSlice.actions.setIsMobile(true))
+              } else if (sizes.width > 992 && currentIsMobile) {
+                dispatch(configSlice.actions.setIsMobile(false))
+              }
+            } catch (error) {
+              console.error('[RPC APP] Error handling updateWindowSizes:', error)
+              throw error
             }
           },
         }

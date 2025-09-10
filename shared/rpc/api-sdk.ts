@@ -47,13 +47,21 @@ export interface SdkApi {
   /**
    * Request SDK to close modal/iframe
    */
-  closeModal(): Promise<void>
+  closeModal(): void | Promise<void>
 }
 
 /**
- * SDK-side handlers (methods that SDK implements for App to call)
+ * Methods that shouldn't be included in SdkHandlers (App calls these on SDK)
  */
-export type SdkHandlers = {
+type SdkMethodsNotInHandlers =
+  | 'invokeConfigFunction'
+  | 'getCapabilities'
+  | 'getConfigurationSnapshot'
+
+/**
+ * Methods that have different signatures in handlers vs API
+ */
+type SdkHandlerOverrides = {
   /**
    * Handle analytics events from the App
    * @param event - Analytics event data
@@ -63,11 +71,13 @@ export type SdkHandlers = {
     event: Record<string, unknown>,
     ctx: { appVersion?: string },
   ) => void | Promise<void>
+}
 
-  /**
-   * Close modal/iframe (called by App to request SDK to close)
-   */
-  closeModal?: () => void | Promise<void>
+/**
+ * SDK-side handlers (methods that SDK implements for App to call)
+ */
+export type SdkHandlers = SdkHandlerOverrides & {
+  [K in Exclude<keyof SdkApi, keyof SdkHandlerOverrides | SdkMethodsNotInHandlers>]?: SdkApi[K]
 }
 
 /**

@@ -125,6 +125,7 @@ export default class IframeManager {
     const iframe = this.iframe
     if (!iframe) return
     this.isOpen = true
+    this.adjustForViewport()
     if (window.innerWidth <= 992) {
       switch (this.position) {
         case 'topLeft':

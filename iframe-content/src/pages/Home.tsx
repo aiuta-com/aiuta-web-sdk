@@ -55,23 +55,18 @@ export default function Home() {
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
   const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
-  const handleGetWidnwInitiallySizes = () => {
+  const handleGetInitialData = () => {
     SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_WINDOW_SIZES })
+    // Window sizes now handled via RPC automatically
   }
 
   useEffect(() => {
-    handleGetWidnwInitiallySizes()
+    handleGetInitialData()
 
     const handleMessage = (e: MessageEvent) => {
       if (e.data && e.data.action) {
-        if (e.data.action === MESSAGE_ACTIONS.GET_WINDOW_SIZES) {
-          if (e.data.data.width <= 992 && !isMobile) {
-            dispatch(configSlice.actions.setIsMobile(true))
-          } else {
-            dispatch(configSlice.actions.setIsMobile(false))
-          }
-        } else if (e.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
+        // GET_WINDOW_SIZES is now handled via RPC in App.tsx
+        if (e.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
           dispatch(configSlice.actions.setAiutaEndpointData(e.data.data))
         }
       }
