@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
-// reudx
+// redux
 import { useAppDispatch } from '@lib/redux/store'
+
+// contexts
+import { RpcProvider } from './contexts'
 
 // actions
 import { configSlice } from '@lib/redux/slices/configSlice'
@@ -35,6 +38,7 @@ declare const __IFRAME_VERSION__: string
 
 function App() {
   const dispatch = useAppDispatch()
+  const [rpcApp, setRpcApp] = useState<AiutaRpcApp | null>(null)
 
   const initialPath = window.location.hash.replace(/^#/, '') || '/'
 
@@ -95,29 +99,15 @@ function App() {
           },
         }
 
-        const rpcApp = new AiutaRpcApp({
+        const rpcAppInstance = new AiutaRpcApp({
           context: { appVersion: __IFRAME_VERSION__ },
           handlers,
         })
 
-        await rpcApp.connect()
-
-        console.log('[RPC APP] Testing config access...')
-        const capabilities = await rpcApp.sdk.getCapabilities()
-        console.log('[RPC APP] SDK capabilities:', capabilities)
-
-        console.log('[RPC APP] Sending test analytics event...')
-        await rpcApp.sdk.trackEvent({
-          action: 'iframe_initialized',
-          version: __IFRAME_VERSION__,
-          timestamp: Date.now(),
-        })
-        console.log('[RPC APP] Analytics event sent!')
+        await rpcAppInstance.connect()
+        setRpcApp(rpcAppInstance)
       } catch (error) {
-        console.log(
-          '[RPC APP] Failed to initialize RPC, falling back to legacy PostMessage:',
-          error,
-        )
+        console.log('[RPC APP] Failed to initialize RPC', error)
       }
     }
 
@@ -196,23 +186,25 @@ function App() {
   }
 
   return (
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Spinner />
-      <SdkHeader />
-      <FullScreenImageModal />
-      <ShareModal />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/generated" element={<Generated />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/previously" element={<Previously />} />
-        <Route path="/qr" element={<Qr />} />
-        <Route path="/uploadImages" element={<UploadImages />} />
-        <Route path="/view" element={<View />} />
-        <Route path="/qr/:token" element={<QRTokenPage />} />
-      </Routes>
-      <SdkFooter />
-    </MemoryRouter>
+    <RpcProvider rpcApp={rpcApp}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Spinner />
+        <SdkHeader />
+        <FullScreenImageModal />
+        <ShareModal />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/generated" element={<Generated />} />
+          <Route path="/history" element={<History />} />
+          <Route path="/previously" element={<Previously />} />
+          <Route path="/qr" element={<Qr />} />
+          <Route path="/uploadImages" element={<UploadImages />} />
+          <Route path="/view" element={<View />} />
+          <Route path="/qr/:token" element={<QRTokenPage />} />
+        </Routes>
+        <SdkFooter />
+      </MemoryRouter>
+    </RpcProvider>
   )
 }
 

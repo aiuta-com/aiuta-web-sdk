@@ -233,7 +233,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
   /**
    * Check if connection exists
    */
-  hasConnection(connectionId: string): boolean {
+  hasConnection(connectionId: string = 'default'): boolean {
     return this.connections.has(connectionId)
   }
 

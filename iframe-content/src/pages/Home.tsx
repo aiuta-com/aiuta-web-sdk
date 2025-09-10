@@ -49,7 +49,6 @@ const initiallAnimationConfig = {
 
 export default function Home() {
   const navigate = useNavigate()
-
   const dispatch = useAppDispatch()
 
   const isMobile = useAppSelector(isMobileSelector)
@@ -83,7 +82,7 @@ export default function Home() {
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [dispatch])
+  }, [])
 
   useEffect(() => {
     if (!globalThis) return

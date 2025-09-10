@@ -26,11 +26,15 @@ export default class MessageHandler {
   }
 
   private initializeRpc() {
-    // Initialize RPC SDK
     const handlers: SdkHandlers = {
       trackEvent: (event, ctx) => {
-        console.log('[RPC SDK] Received trackEvent:', event, 'from context:', ctx)
+        if (ctx.appVersion) {
+          this.analytics.setIframeVersion(ctx.appVersion)
+        }
         this.analytics.track({ data: event })
+      },
+      closeModal: () => {
+        this.iframeManager.closeOrHide()
       },
     }
 
@@ -53,7 +57,10 @@ export default class MessageHandler {
     try {
       const iframe = this.iframeManager.getIframe()
       if (iframe) {
-        await this.rpcSdk.connect(iframe)
+        // Only connect if not already connected
+        if (!this.rpcSdk.hasConnection()) {
+          await this.rpcSdk.connect(iframe)
+        }
         await this.rpcSdk.app.tryOn(productId)
       }
     } catch (error) {

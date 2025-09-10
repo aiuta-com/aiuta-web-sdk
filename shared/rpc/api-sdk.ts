@@ -43,6 +43,11 @@ export interface SdkApi {
    * Get SDK capabilities and available methods
    */
   getCapabilities(): Promise<SdkCapabilities>
+
+  /**
+   * Request SDK to close modal/iframe
+   */
+  closeModal(): Promise<void>
 }
 
 /**
@@ -58,6 +63,11 @@ export type SdkHandlers = {
     event: Record<string, unknown>,
     ctx: { appVersion?: string },
   ) => void | Promise<void>
+
+  /**
+   * Close modal/iframe (called by App to request SDK to close)
+   */
+  closeModal?: () => void | Promise<void>
 }
 
 /**

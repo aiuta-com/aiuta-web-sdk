@@ -31,6 +31,7 @@ import {
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { useRpcProxy } from '../../../contexts'
 
 // styles
 import styles from './sdkHeader.module.scss'
@@ -38,6 +39,7 @@ import styles from './sdkHeader.module.scss'
 export const SdkHeader = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const location = useLocation()
 
@@ -106,7 +108,7 @@ export const SdkHeader = () => {
 
         SecureMessenger.sendAnalyticsEvent(analytic)
 
-        SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
+        rpc.sdk.closeModal()
         return
       }
 
@@ -115,7 +117,7 @@ export const SdkHeader = () => {
           navigate('/view')
         }, 500)
       }
-      SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
+      rpc.sdk.closeModal()
     }
 
     handleAnalytic()

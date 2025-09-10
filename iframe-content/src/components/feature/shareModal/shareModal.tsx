@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { MESSAGE_ACTIONS, SecureMessenger } from '@shared/messaging'
+import { useRpcProxy } from '../../../contexts'
 import {
   MESSENGER,
   WHATS_APP,
@@ -30,6 +31,7 @@ interface ShareModalProps {
 export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => {
   const [modalData, setModalData] = useState<ShareModalData | null>(null)
   const [hasShared, setHasShared] = useState(false)
+  const rpc = useRpcProxy()
 
   // Use props if provided, otherwise listen for messages (for standalone usage)
   useEffect(() => {
@@ -76,7 +78,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
     if (onClose) {
       onClose()
     } else {
-      SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.CLOSE_MODAL })
+      rpc.sdk.closeModal()
     }
   }
 
