@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { MESSAGE_ACTIONS, SecureMessenger } from '@shared/messaging'
+import { MESSAGE_ACTIONS} from '@shared/messaging'
 import { useRpcProxy } from '../../../contexts'
 import {
   MESSENGER,
@@ -109,7 +109,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const sendCancelAnalytics = () => {
@@ -121,7 +121,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   if (!modalData) {

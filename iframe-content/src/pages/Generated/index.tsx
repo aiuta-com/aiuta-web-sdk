@@ -23,6 +23,9 @@ import { Section, ViewImage, MiniSliderItem } from '@/components/feature'
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 import { EndpointDataTypes } from '@/types'
 
+// rpc
+import { useRpcProxy } from '@/contexts'
+
 // styles
 import styles from './generated.module.scss'
 
@@ -52,6 +55,7 @@ export default function Generated() {
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
 
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const miniSliderContentRef = useRef<HTMLDivElement | null>(null)
   const generatedImagesContentRef = useRef<HTMLDivElement | null>(null)
@@ -117,7 +121,7 @@ export default function Generated() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -146,7 +150,7 @@ export default function Generated() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       }
     }

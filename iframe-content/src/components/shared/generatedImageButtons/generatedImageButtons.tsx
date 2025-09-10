@@ -4,9 +4,7 @@ import React from 'react'
 import { useAppSelector } from '@lib/redux/store'
 
 // selectors
-import {
-  aiutaEndpointDataSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
 import { SecondaryButton } from '@/components/feature'
@@ -17,11 +15,15 @@ import { GeneratedImageButtonsTypes } from './types'
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
+// rpc
+import { useRpcProxy } from '@/contexts'
+
 // styles
 import styles from './generatedImageButtons.module.scss'
 
 export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const { activeGeneratedImageUrl } = props
+  const rpc = useRpcProxy()
 
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
 
@@ -40,7 +42,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleDownload = async () => {
@@ -69,13 +71,11 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   return (
-    <div
-      className={`${styles.generatedImageButtons} `}
-    >
+    <div className={`${styles.generatedImageButtons} `}>
       <SecondaryButton text="Share" onClick={handleShare} />
       <SecondaryButton text="Download" onClick={handleDownload} />
     </div>

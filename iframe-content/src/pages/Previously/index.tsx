@@ -27,6 +27,9 @@ import { Section, TryOnButton, SelectableImage } from '@/components/feature'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 import { EndpointDataTypes } from '@/types'
 
 // styles
@@ -49,6 +52,8 @@ const initiallAnimationConfig = {
 }
 
 export default function Previously() {
+  const rpc = useRpcProxy()
+
   const navigate = useNavigate()
 
   const dispatch = useAppDispatch()
@@ -120,7 +125,7 @@ export default function Previously() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     } else {
       handleShowFullScreen({ id, url })
     }
@@ -142,7 +147,7 @@ export default function Previously() {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleGetWidnwInitiallySizes = () => {
@@ -171,7 +176,7 @@ export default function Previously() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 

@@ -23,6 +23,9 @@ import { Alert, QrCode } from '@/components/feature'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 import { EndpointDataTypes } from '@/types'
 
 // helpers
@@ -34,6 +37,8 @@ import styles from './token.module.scss'
 let calledAnalyticCount = 0
 
 export default function Qr() {
+  const rpc = useRpcProxy()
+
   const navigate = useNavigate()
 
   const dispatch = useAppDispatch()
@@ -58,7 +63,7 @@ export default function Qr() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -108,7 +113,7 @@ export default function Qr() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         } else if (result.error) {
           dispatch(
             alertSlice.actions.setShowAlert({
@@ -130,7 +135,7 @@ export default function Qr() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       } catch (error: any) {
         dispatch(
@@ -153,7 +158,7 @@ export default function Qr() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       }
     }
   }
@@ -182,7 +187,7 @@ export default function Qr() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
 
       const deleteQrToken = await fetch(
         `https://web-sdk.aiuta.com/api/delete-qr-token?token=${qrToken}`,

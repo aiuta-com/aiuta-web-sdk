@@ -60,7 +60,13 @@ export default class MessageHandler {
         if (!this.rpcSdk.hasConnection()) {
           await this.rpcSdk.connect(iframe)
           await this.sendWindowSizesViaRpc()
+          const sdkVersion = this.rpcSdk.context.sdkVersion
+          if (sdkVersion) {
+            this.analytics.setIframeVersion(sdkVersion)
+          }
+          this.analytics.track({ data: { type: 'session', event: 'iframeLoaded' } })
         }
+
         await this.rpcSdk.app.tryOn(productId)
       }
     } catch (error) {
@@ -143,17 +149,6 @@ export default class MessageHandler {
 
     this.secure.registerHandler(MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL, (data) => {
       this.iframeManager.openFullscreenModal(data)
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.IFRAME_LOADED, (data) => {
-      if (data?.version) {
-        this.analytics.setIframeVersion(data.version)
-      }
-      this.analytics.track({ data: { type: 'session', event: 'iframeLoaded' } })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.ANALYTICS_EVENT, (data) => {
-      if (data?.analytic) this.analytics.track(data.analytic)
     })
 
     this.secure.registerHandler(MESSAGE_ACTIONS.REQUEST_FULLSCREEN_IFRAME, (data) => {

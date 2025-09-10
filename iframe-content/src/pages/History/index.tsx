@@ -33,6 +33,9 @@ import { HistoryImagesRemoveModal } from '@/components/shared/modals'
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
+// rpc
+import { useRpcProxy } from '@/contexts'
+
 // styles
 import styles from './history.module.scss'
 
@@ -55,6 +58,8 @@ const initiallAnimationConfig = {
 // Removed unused sentAnalyticCount variable
 
 export default function History() {
+  const rpc = useRpcProxy()
+
   const dispatch = useAppDispatch()
 
   const isMobile = useAppSelector(isMobileSelector)
@@ -109,7 +114,7 @@ export default function History() {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const onboardingAnalytic = () => {
@@ -122,7 +127,7 @@ export default function History() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -145,7 +150,7 @@ export default function History() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       }
     }

@@ -24,7 +24,9 @@ import { TitleDescription, TryOnButton } from '@/components/feature'
 // types
 
 // messaging
-import { SecureMessenger } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 
 // styles
 import styles from './onboarding.module.scss'
@@ -32,6 +34,7 @@ import styles from './onboarding.module.scss'
 export const Onboarding = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
 
   const [isChecked, setIsChecked] = useState(false)
 
@@ -51,7 +54,7 @@ export const Onboarding = () => {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleOnboardAnalyticFinish = () => {
@@ -64,7 +67,7 @@ export const Onboarding = () => {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleClickOnboardingButton = () => {
@@ -80,7 +83,7 @@ export const Onboarding = () => {
 
   const initPageAnalytic = (analytic: any) => {
     if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 

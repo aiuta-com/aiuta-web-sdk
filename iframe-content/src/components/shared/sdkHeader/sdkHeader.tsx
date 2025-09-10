@@ -29,7 +29,7 @@ import {
 // types
 
 // messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+import { MESSAGE_ACTIONS } from '@shared/messaging'
 import { useRpcProxy } from '../../../contexts'
 
 // styles
@@ -88,7 +88,7 @@ export const SdkHeader = () => {
       analytic.data.pageId = 'results'
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleCloseModal = () => {
@@ -104,7 +104,7 @@ export const SdkHeader = () => {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
 
         rpc.sdk.closeModal()
         return
@@ -140,7 +140,7 @@ export const SdkHeader = () => {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
 
     if (iasNavigatePath) {

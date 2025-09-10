@@ -53,6 +53,14 @@ export abstract class AiutaRpcBase<
   }
 
   /**
+   * Get the context of the RPC instance
+   * @returns The context of the RPC instance
+   */
+  get context() {
+    return this._context
+  }
+
+  /**
    * Build registry of methods that can be called by remote side
    * @param extra - Additional methods to include in registry
    * @returns Complete method registry

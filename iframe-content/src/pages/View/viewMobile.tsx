@@ -40,6 +40,9 @@ import { AiutaModal } from '@/components/shared/modals'
 
 // messaging
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+
+// rpc
+import { useRpcProxy } from '@/contexts'
 import { EndpointDataTypes } from '@/types'
 
 // styles
@@ -65,6 +68,8 @@ const initiallAnimationConfig = {
 }
 
 export default function ViewMobile() {
+  const rpc = useRpcProxy()
+
   const navigate = useNavigate()
 
   const dispatch = useAppDispatch()
@@ -107,7 +112,7 @@ export default function ViewMobile() {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleGetGeneratedImage = async (operation_id: string) => {
@@ -163,7 +168,7 @@ export default function ViewMobile() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       } else if (result.status === 'ABORTED') {
         if (generationApiCallInterval) {
           clearInterval(generationApiCallInterval)
@@ -183,7 +188,7 @@ export default function ViewMobile() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       }
     } catch (err) {
       console.error('Generation image Error:', err)
@@ -275,7 +280,7 @@ export default function ViewMobile() {
                   },
                 }
 
-                SecureMessenger.sendAnalyticsEvent(analytic)
+                rpc.sdk.trackEvent(analytic)
               } else if (hadMessageInErrorMessage) {
                 const analytic = {
                   data: {
@@ -288,7 +293,7 @@ export default function ViewMobile() {
                   },
                 }
 
-                SecureMessenger.sendAnalyticsEvent(analytic)
+                rpc.sdk.trackEvent(analytic)
               }
             }
           }
@@ -304,7 +309,7 @@ export default function ViewMobile() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       } else {
         window.removeEventListener('message', handleGenerates)
@@ -329,7 +334,7 @@ export default function ViewMobile() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       }
     }
   }
@@ -344,7 +349,7 @@ export default function ViewMobile() {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
   }
 
   const handleTryOn = async () => {
@@ -367,9 +372,9 @@ export default function ViewMobile() {
       },
     }
 
-    SecureMessenger.sendAnalyticsEvent(analytic)
+    rpc.sdk.trackEvent(analytic)
 
-    SecureMessenger.sendAnalyticsEvent(analyticLoading)
+    rpc.sdk.trackEvent(analyticLoading)
 
     handleTryOnStartedAnalytic()
 
@@ -449,7 +454,7 @@ export default function ViewMobile() {
                 },
               }
 
-              SecureMessenger.sendAnalyticsEvent(analytic)
+              rpc.sdk.trackEvent(analytic)
             } else if (hadMessageInErrorMessage) {
               const analytic = {
                 data: {
@@ -462,7 +467,7 @@ export default function ViewMobile() {
                 },
               }
 
-              SecureMessenger.sendAnalyticsEvent(analytic)
+              rpc.sdk.trackEvent(analytic)
             }
           }
         }
@@ -478,7 +483,7 @@ export default function ViewMobile() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       }
     }
   }
@@ -541,7 +546,7 @@ export default function ViewMobile() {
               },
             }
 
-            SecureMessenger.sendAnalyticsEvent(analytic)
+            rpc.sdk.trackEvent(analytic)
           } else if (hadMessageInErrorMessage) {
             const analytic = {
               data: {
@@ -554,7 +559,7 @@ export default function ViewMobile() {
               },
             }
 
-            SecureMessenger.sendAnalyticsEvent(analytic)
+            rpc.sdk.trackEvent(analytic)
           }
         }
       }
@@ -570,7 +575,7 @@ export default function ViewMobile() {
         },
       }
 
-      SecureMessenger.sendAnalyticsEvent(analytic)
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -652,7 +657,7 @@ export default function ViewMobile() {
             },
           }
 
-          SecureMessenger.sendAnalyticsEvent(analytic)
+          rpc.sdk.trackEvent(analytic)
         }
       } catch (error: any) {
         dispatch(
@@ -675,7 +680,7 @@ export default function ViewMobile() {
           },
         }
 
-        SecureMessenger.sendAnalyticsEvent(analytic)
+        rpc.sdk.trackEvent(analytic)
       }
     }
   }
