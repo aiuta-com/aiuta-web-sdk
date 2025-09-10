@@ -87,8 +87,6 @@ function App() {
         const handlers: AppHandlers = {
           tryOn: async (productId: string) => {
             try {
-              console.log('APP: Received tryOn for product ID:', productId)
-
               // Update endpoint data with the product ID
               const currentState = store.getState()
               const currentEndpointData = currentState.config.aiutaEndpointData
@@ -99,11 +97,6 @@ function App() {
               }
 
               dispatch(configSlice.actions.setAiutaEndpointData(updatedEndpointData))
-
-              // Navigate to the View page to start try-on flow
-              // This simulates what happens when user clicks try-on
-              console.log('APP: Updated endpoint data and ready for try-on')
-
               return // Explicitly return to complete the Promise
             } catch (error) {
               console.error('[RPC APP] Error in tryOn handler:', error)
@@ -156,7 +149,6 @@ function App() {
           }
 
           dispatch(configSlice.actions.setAiutaEndpointData(endpointData))
-          console.log('APP: Initialized auth data via RPC:', endpointData)
         } catch (error) {
           console.error('Failed to initialize auth data:', error)
         }

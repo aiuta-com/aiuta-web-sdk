@@ -108,9 +108,9 @@ function createRpcProxy(rpc: AiutaRpcApp | null): AiutaRpcApp {
         if (typeof value === 'function') {
           return value.bind(rpc)
         }
-        // For nested objects (like rpc.sdk), create nested proxy
+        // For nested objects (like rpc.sdk), return the real object directly
         if (typeof value === 'object' && value !== null) {
-          return createRpcProxy(value)
+          return value
         }
         return value
       }

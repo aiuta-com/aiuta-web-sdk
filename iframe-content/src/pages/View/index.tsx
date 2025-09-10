@@ -11,7 +11,10 @@ import { alertSlice } from '@lib/redux/slices/alertSlice'
 import { generateSlice } from '../../../lib/redux/slices/generateSlice'
 
 // selectors
-import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+import {
+  isMobileSelector,
+  aiutaEndpointDataSelector,
+} from '@lib/redux/slices/configSlice/selectors'
 import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 
 // messaging
@@ -19,7 +22,6 @@ import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
 // rpc
 import { useRpcProxy } from '@/contexts'
-import { EndpointDataTypes } from '@/types'
 import {
   recentlyPhotosSelector,
   isStartGenerationSelector,
@@ -65,7 +67,8 @@ export default function View() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState('')
   const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false)
   const [recentlyPhoto, setRecentlyPhoto] = useState({ id: '', url: '' })
-  const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
+  // Use endpoint data from Redux store (initialized via RPC in App.tsx)
+  const endpointData = useAppSelector(aiutaEndpointDataSelector)
 
   const isMobile = useAppSelector(isMobileSelector)
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
@@ -182,140 +185,164 @@ export default function View() {
     }
   }
 
-  const handleGenerate = async (event: any) => {
-    if (
-      event.data.data &&
-      event.data.data.status === 200 &&
-      event.data.data.type === MESSAGE_ACTIONS.JWT_TOKEN
-    ) {
-      const isExistUploadedPhoto = uploadedViewFile.id.length
-      const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
+  const handleGenerateWithJwt = async () => {
+    if (!endpointData) return
 
-      if (typeof event.data.data.jwtToken === 'string' && event.data.data.jwtToken.length > 0) {
-        try {
-          const operationResponse = await fetch(
-            'https://web-sdk.aiuta.com/api/create-operation-id',
-            {
-              headers: {
-                'Content-Type': 'application/json',
+    const isExistUploadedPhoto = uploadedViewFile.id.length
+    const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
+
+    try {
+      // Use RPC to get JWT token instead of PostMessage
+      if (rpc && 'getJwt' in rpc.config.auth) {
+        const jwtToken = await rpc.config.auth.getJwt({
+          uploaded_image_id: uploaded_image_id,
+        })
+
+        if (typeof jwtToken === 'string' && jwtToken.length > 0) {
+          try {
+            const operationResponse = await fetch(
+              'https://web-sdk.aiuta.com/api/create-operation-id',
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                  uploaded_image_id: uploaded_image_id,
+                  ...endpointData,
+                  jwtToken: jwtToken,
+                }),
               },
-              method: 'POST',
-              body: JSON.stringify({
-                uploaded_image_id: uploaded_image_id,
-                ...event.data.data,
-              }),
-            },
-          )
-
-          setEndpointData(event.data.data)
-
-          if (operationResponse.ok) {
-            const result = await operationResponse.json()
-
-            dispatch(generateSlice.actions.setIsStartGeneration(true))
-
-            if (isExistUploadedPhoto) {
-              handlePutRecentlyPhotos(
-                uploadedViewFile.id,
-                uploadedViewFile.url,
-                'tryon-recent-photos',
-              )
-            }
-
-            if (result.operation_id) {
-              generationApiCallInterval = setInterval(() => {
-                handleGetGeneratedImage(result.operation_id)
-                window.removeEventListener('message', handleGenerate)
-              }, 3000)
-            }
-          } else {
-            window.removeEventListener('message', handleGenerate)
-            dispatch(generateSlice.actions.setIsStartGeneration(false))
-            dispatch(
-              alertSlice.actions.setShowAlert({
-                type: 'error',
-                isShow: true,
-                buttonText: 'Try again',
-                content: 'Something went wrong, please try again later.',
-              }),
             )
 
-            const data = await operationResponse.json()
+            if (operationResponse.ok) {
+              const result = await operationResponse.json()
 
-            if (data && 'error' in data && typeof data.error === 'string') {
-              const errorMessage = JSON.parse(data.error)
+              dispatch(generateSlice.actions.setIsStartGeneration(true))
 
-              const hadDetailInErrorMessage = 'detail' in errorMessage
-              const hadMessageInErrorMessage = 'message' in errorMessage
+              if (isExistUploadedPhoto) {
+                handlePutRecentlyPhotos(
+                  uploadedViewFile.id,
+                  uploadedViewFile.url,
+                  'tryon-recent-photos',
+                )
+              }
 
-              if (hadDetailInErrorMessage) {
-                const analytic = {
-                  data: {
-                    type: 'tryOn',
-                    event: 'tryOnError',
-                    pageId: 'loading',
-                    errorType: errorMessage.detail,
-                    errorMessage: errorMessage.detail,
-                    productIds: [endpointData?.skuId],
-                  },
+              if (result.operation_id) {
+                generationApiCallInterval = setInterval(() => {
+                  handleGetGeneratedImage(result.operation_id)
+                }, 3000)
+              }
+            } else {
+              dispatch(generateSlice.actions.setIsStartGeneration(false))
+              dispatch(
+                alertSlice.actions.setShowAlert({
+                  type: 'error',
+                  isShow: true,
+                  buttonText: 'Try again',
+                  content: 'Something went wrong, please try again later.',
+                }),
+              )
+
+              const data = await operationResponse.json()
+
+              if (data && 'error' in data && typeof data.error === 'string') {
+                const errorMessage = JSON.parse(data.error)
+
+                const hadDetailInErrorMessage = 'detail' in errorMessage
+                const hadMessageInErrorMessage = 'message' in errorMessage
+
+                if (hadDetailInErrorMessage) {
+                  const analytic = {
+                    data: {
+                      type: 'tryOn',
+                      event: 'tryOnError',
+                      pageId: 'loading',
+                      errorType: errorMessage.detail,
+                      errorMessage: errorMessage.detail,
+                      productIds: [endpointData?.skuId],
+                    },
+                  }
+
+                  rpc.sdk.trackEvent(analytic)
+                } else if (hadMessageInErrorMessage) {
+                  const analytic = {
+                    data: {
+                      type: 'tryOn',
+                      event: 'tryOnError',
+                      pageId: 'loading',
+                      errorType: errorMessage.message,
+                      errorMessage: JSON.stringify(errorMessage),
+                      productIds: [endpointData?.skuId],
+                    },
+                  }
+
+                  rpc.sdk.trackEvent(analytic)
                 }
-
-                rpc.sdk.trackEvent(analytic)
-              } else if (hadMessageInErrorMessage) {
-                const analytic = {
-                  data: {
-                    type: 'tryOn',
-                    event: 'tryOnError',
-                    pageId: 'loading',
-                    errorType: errorMessage.message,
-                    errorMessage: JSON.stringify(errorMessage),
-                    productIds: [endpointData?.skuId],
-                  },
-                }
-
-                rpc.sdk.trackEvent(analytic)
               }
             }
+          } catch (error: any) {
+            const analytic = {
+              data: {
+                type: 'tryOn',
+                event: 'tryOnError',
+                pageId: 'loading',
+                errorType: 'requestOperationFailed',
+                errorMessage: JSON.stringify(error.message),
+                productIds: [endpointData?.skuId],
+              },
+            }
+
+            rpc.sdk.trackEvent(analytic)
           }
-        } catch (error: any) {
+        } else {
+          dispatch(generateSlice.actions.setIsStartGeneration(false))
+          dispatch(
+            alertSlice.actions.setShowAlert({
+              type: 'error',
+              isShow: true,
+              buttonText: 'Try again',
+              content: 'Something went wrong, please try again later.',
+            }),
+          )
+
           const analytic = {
             data: {
               type: 'tryOn',
               event: 'tryOnError',
               pageId: 'loading',
-              errorType: 'requestOperationFailed',
-              errorMessage: JSON.stringify(error.message),
+              errorType: 'authorizationFailed',
+              errorMessage: 'authorizationFailed',
               productIds: [endpointData?.skuId],
             },
           }
 
           rpc.sdk.trackEvent(analytic)
         }
-      } else {
-        window.removeEventListener('message', handleGenerate)
-        dispatch(generateSlice.actions.setIsStartGeneration(false))
-        dispatch(
-          alertSlice.actions.setShowAlert({
-            type: 'error',
-            isShow: true,
-            buttonText: 'Try again',
-            content: 'Something went wrong, please try again later.',
-          }),
-        )
-
-        const analytic = {
-          data: {
-            type: 'tryOn',
-            event: 'tryOnError',
-            pageId: 'loading',
-            errorType: 'authorizationFailed',
-            errorMessage: 'authorizationFailed',
-            productIds: [endpointData?.skuId],
-          },
-        }
-
-        rpc.sdk.trackEvent(analytic)
       }
+    } catch (error: any) {
+      dispatch(generateSlice.actions.setIsStartGeneration(false))
+      dispatch(
+        alertSlice.actions.setShowAlert({
+          type: 'error',
+          isShow: true,
+          buttonText: 'Try again',
+          content: 'Something went wrong, please try again later.',
+        }),
+      )
+
+      const analytic = {
+        data: {
+          type: 'tryOn',
+          event: 'tryOnError',
+          pageId: 'loading',
+          errorType: 'authFailed',
+          errorMessage: error.message,
+          productIds: [endpointData?.skuId],
+        },
+      }
+
+      rpc.sdk.trackEvent(analytic)
     }
   }
 
@@ -364,15 +391,8 @@ export default function View() {
     dispatch(generateSlice.actions.setIsStartGeneration(true))
 
     if (endpointData.userId && endpointData.userId.length > 0) {
-      const isExistUploadedPhoto = uploadedViewFile.id.length
-      const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
-
-      SecureMessenger.sendToParent({
-        action: MESSAGE_ACTIONS.GET_AIUTA_JWT_TOKEN,
-        uploaded_image_id: uploaded_image_id,
-      })
-
-      window.addEventListener('message', handleGenerate)
+      // Use RPC instead of PostMessage for JWT auth
+      await handleGenerateWithJwt()
     } else {
       const isExistUploadedPhoto = uploadedViewFile.id.length
       const uploaded_image_id = isExistUploadedPhoto ? uploadedViewFile.id : recentlyPhoto.id
@@ -488,10 +508,6 @@ export default function View() {
     })
   }
 
-  const handleGetWidnwInitiallySizes = () => {
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
-  }
-
   const isExistUploadedPhoto = uploadedViewFile.localUrl.length > 0
   const isCheckRecentlyPhotos = recentlyPhotos && recentlyPhotos.length > 0
 
@@ -501,23 +517,7 @@ export default function View() {
     }
   }, [recentlyPhotos, uploadedViewFile])
 
-  useEffect(() => {
-    handleGetWidnwInitiallySizes()
-
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data && event.data.action) {
-        if (event.data.data.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
-          setEndpointData(event.data.data)
-        }
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-
-    return () => {
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [])
+  // Endpoint data is now available directly from Redux store (initialized in App.tsx via RPC)
 
   return (
     <div>

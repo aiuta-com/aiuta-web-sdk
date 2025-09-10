@@ -129,6 +129,7 @@ export default class IframeManager {
       iframe.style.borderRadius = '24px'
       iframe.style.border = '1px solid #0000001A'
       iframe.style.top = '12px'
+      iframe.style.right = '12px'
     }
   }
 
