@@ -1,7 +1,6 @@
 import { MESSAGE_ACTIONS } from '@shared/messaging'
 import type { FullScreenModalData, FullscreenModalIframeConfig, ShareModalData } from './types'
-import type { AiutaIframePosition, AiutaUserInterface } from '@shared/config'
-import { SDK_POSITION } from './constants'
+import type { AiutaUserInterface } from '@shared/config'
 
 declare const __AIUTA_IFRAME_URL__: string
 
@@ -13,7 +12,6 @@ export default class IframeManager {
   private fullscreenModalIframe: HTMLIFrameElement | null = null
   private shareModalIframe: HTMLIFrameElement | null = null
 
-  position: AiutaIframePosition = 'topRight'
   customCssUrl?: string
 
   constructor(userInterface: AiutaUserInterface | undefined) {
@@ -35,8 +33,6 @@ export default class IframeManager {
   }
 
   private applyUserInterface(userInterface: AiutaUserInterface) {
-    if (userInterface.position && userInterface.position.length > 0)
-      this.position = userInterface.position
     if (userInterface.customCssUrl) this.customCssUrl = userInterface.customCssUrl
   }
 
@@ -87,24 +83,8 @@ export default class IframeManager {
     iframe.style.zIndex = '9999'
     iframe.style.border = '1px solid #0000001A'
     iframe.style.boxShadow = '0px 8px 28px -6px #0000001F'
-    switch (this.position) {
-      case 'topLeft':
-        iframe.style.top = SDK_POSITION.topLeft.top
-        iframe.style.left = '-1000%'
-        break
-      case 'topRight':
-        iframe.style.top = SDK_POSITION.topRight.top
-        iframe.style.right = '-1000%'
-        break
-      case 'bottomLeft':
-        iframe.style.bottom = SDK_POSITION.bottomLeft.bottom
-        iframe.style.left = '-1000%'
-        break
-      case 'bottomRight':
-        iframe.style.bottom = SDK_POSITION.bottomRight.bottom
-        iframe.style.right = '-1000%'
-        break
-    }
+    iframe.style.top = '12px'
+    iframe.style.right = '-1000%'
     document.body.append(iframe)
     this.iframe = iframe
     setTimeout(() => this.reveal(), 1000)
@@ -119,32 +99,10 @@ export default class IframeManager {
     this.isOpen = true
     this.adjustForViewport()
     if (window.innerWidth <= 992) {
-      switch (this.position) {
-        case 'topLeft':
-        case 'bottomLeft':
-          iframe.style.left = '0px'
-          break
-        case 'topRight':
-        case 'bottomRight':
-          iframe.style.right = '0px'
-          break
-      }
+      iframe.style.right = '0px'
       if (document.body.parentElement) document.body.parentElement.style.overflow = 'hidden'
     } else {
-      switch (this.position) {
-        case 'topLeft':
-          iframe.style.left = SDK_POSITION.topLeft.left
-          break
-        case 'topRight':
-          iframe.style.right = SDK_POSITION.topRight.right
-          break
-        case 'bottomLeft':
-          iframe.style.left = SDK_POSITION.bottomLeft.left
-          break
-        case 'bottomRight':
-          iframe.style.right = SDK_POSITION.bottomRight.right
-          break
-      }
+      iframe.style.right = '12px'
     }
   }
 
@@ -152,16 +110,7 @@ export default class IframeManager {
     const iframe = this.iframe
     if (!iframe) return
     this.isOpen = false
-    switch (this.position) {
-      case 'topLeft':
-      case 'bottomLeft':
-        iframe.style.left = '-1000%'
-        break
-      case 'topRight':
-      case 'bottomRight':
-        iframe.style.right = '-1000%'
-        break
-    }
+    iframe.style.right = '-1000%'
   }
 
   adjustForViewport() {
@@ -172,43 +121,14 @@ export default class IframeManager {
       iframe.style.height = '100%'
       iframe.style.borderRadius = '0px'
       iframe.style.border = '1px solid #ffffff'
-      switch (this.position) {
-        case 'topLeft':
-          iframe.style.top = '0px'
-          iframe.style.left = '0px'
-          break
-        case 'topRight':
-          iframe.style.top = '0px'
-          iframe.style.right = '0px'
-          break
-        case 'bottomLeft':
-          iframe.style.left = '0px'
-          iframe.style.bottom = '0px'
-          break
-        case 'bottomRight':
-          iframe.style.right = '0px'
-          iframe.style.bottom = '0px'
-          break
-      }
+      iframe.style.top = '0px'
+      iframe.style.right = '0px'
     } else {
       iframe.style.width = '394px'
       iframe.style.height = '632px'
       iframe.style.borderRadius = '24px'
       iframe.style.border = '1px solid #0000001A'
-      switch (this.position) {
-        case 'topLeft':
-          iframe.style.top = SDK_POSITION.topLeft.top
-          break
-        case 'topRight':
-          iframe.style.top = SDK_POSITION.topRight.top
-          break
-        case 'bottomLeft':
-          iframe.style.bottom = SDK_POSITION.bottomLeft.bottom
-          break
-        case 'bottomRight':
-          iframe.style.bottom = SDK_POSITION.bottomRight.bottom
-          break
-      }
+      iframe.style.top = '12px'
     }
   }
 
@@ -374,7 +294,6 @@ export default class IframeManager {
     const url = new URL(absoluteIframeUrl)
     url.searchParams.set('modal', 'true')
     url.searchParams.set('modalType', modalType)
-    // Add parentOrigin parameter for RPC security
     url.searchParams.set('parentOrigin', encodeURIComponent(window.location.origin))
     return url
   }
