@@ -15,9 +15,6 @@ import { isMobileSelector, onboardingStepsSelector } from '@lib/redux/slices/con
 import { Section } from '@/components/feature/'
 import { Onboarding } from '@/components/shared'
 
-// messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
-
 // styles
 import styles from './index.module.scss'
 
@@ -46,33 +43,8 @@ const initiallAnimationConfig = {
 export default function Home() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-
   const isMobile = useAppSelector(isMobileSelector)
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
-
-  const handleGetInitialData = () => {
-    SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
-    // Window sizes now handled via RPC automatically
-  }
-
-  useEffect(() => {
-    handleGetInitialData()
-
-    const handleMessage = (e: MessageEvent) => {
-      if (e.data && e.data.action) {
-        // GET_WINDOW_SIZES is now handled via RPC in App.tsx
-        if (e.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
-          dispatch(configSlice.actions.setAiutaEndpointData(e.data.data))
-        }
-      }
-    }
-
-    window.addEventListener('message', handleMessage)
-
-    return () => {
-      window.removeEventListener('message', handleMessage)
-    }
-  }, [])
 
   useEffect(() => {
     if (!globalThis) return

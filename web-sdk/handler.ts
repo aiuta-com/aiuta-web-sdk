@@ -1,5 +1,4 @@
-import { MESSAGE_ACTIONS } from '@shared/messaging'
-import { SecurePostMessageHandler } from './security'
+// import { SecurePostMessageHandler } from './security' // TODO: Remove if not needed
 import AuthManager from './auth'
 import IframeManager from './iframe'
 import AnalyticsTracker from './analytics'
@@ -10,19 +9,16 @@ import type { AiutaConfiguration } from '@shared/config'
 declare const __SDK_VERSION__: string
 
 export default class MessageHandler {
-  private secure: SecurePostMessageHandler
-  private productId?: string
   private rpcSdk!: AiutaRpcSdk<AiutaConfiguration>
 
   constructor(
-    private readonly auth: AuthManager,
+    _auth: AuthManager, // TODO: Remove if not needed
     private readonly analytics: AnalyticsTracker,
     private readonly iframeManager: IframeManager,
     private readonly configuration: AiutaConfiguration,
   ) {
-    this.secure = new SecurePostMessageHandler(iframeManager.getIframeOrigin())
     this.initializeRpc()
-    this.registerHandlersAndListeners()
+    this.setupResizeListener()
   }
 
   private initializeRpc() {
@@ -49,8 +45,8 @@ export default class MessageHandler {
     })
   }
 
-  setProductId(productId: string) {
-    this.productId = productId
+  setProductId() {
+    // TODO: Remove this method if not needed
   }
 
   async tryOnViaRpc(productId: string) {
@@ -88,76 +84,9 @@ export default class MessageHandler {
     }
   }
 
-  private registerHandlersAndListeners() {
+  private setupResizeListener() {
     window.addEventListener('resize', () => {
       this.sendWindowSizesViaRpc()
     })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.OPEN_SHARE_MODAL, (data) => {
-      const url = data?.data?.imageUrl
-      if (url) this.iframeManager.openShareModal({ imageUrl: url })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.SHARE_IMAGE, (data) => {
-      const url = data?.payload?.url
-      if (navigator.share && url)
-        navigator.share({
-          url,
-          title: 'Check out this image',
-          text: "Here's an image I generated!",
-        })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.GET_AIUTA_JWT_TOKEN, async (data) => {
-      if (!this.productId) {
-        console.error('Product ID not set')
-        this.sendToIframe(MESSAGE_ACTIONS.JWT_TOKEN, {
-          status: 400,
-          error: 'Product ID not set',
-          type: MESSAGE_ACTIONS.JWT_TOKEN,
-        })
-        return
-      }
-      const token = await this.auth.getToken(data?.uploaded_image_id, this.productId)
-      this.sendToIframe(MESSAGE_ACTIONS.JWT_TOKEN, {
-        status: 200,
-        skuId: this.productId,
-        jwtToken: token,
-        userId: this.auth.getUserId?.(),
-        type: MESSAGE_ACTIONS.JWT_TOKEN,
-      })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.GET_AIUTA_API_KEYS, async () => {
-      if (!this.productId) {
-        console.error('Product ID not set')
-        this.sendToIframe(MESSAGE_ACTIONS.BASE_KEYS, {
-          status: 400,
-          error: 'Product ID not set',
-          type: MESSAGE_ACTIONS.BASE_KEYS,
-        })
-        return
-      }
-      this.sendToIframe(MESSAGE_ACTIONS.BASE_KEYS, {
-        status: 200,
-        skuId: this.productId,
-        apiKey: this.auth.getApiKey?.(),
-        userId: this.auth.getUserId?.(),
-        type: MESSAGE_ACTIONS.BASE_KEYS,
-      })
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL, (data) => {
-      this.iframeManager.openFullscreenModal(data)
-    })
-
-    this.secure.registerHandler(MESSAGE_ACTIONS.REQUEST_FULLSCREEN_IFRAME, (data) => {
-      this.iframeManager.makeMainIframeFullscreen(data)
-    })
-  }
-
-  private sendToIframe(action: string, data?: any) {
-    const iframe = this.iframeManager.getIframe()
-    if (iframe) this.secure.sendToIframe(iframe, action as any, data)
   }
 }

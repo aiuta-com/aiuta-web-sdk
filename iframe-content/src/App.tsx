@@ -87,12 +87,22 @@ function App() {
         const handlers: AppHandlers = {
           tryOn: async (productId: string) => {
             try {
-              // TODO: Implement actual tryOn logic
-              // For now, just log and maybe navigate to appropriate page
-              console.log('APP: Product ID:', productId)
+              console.log('APP: Received tryOn for product ID:', productId)
 
-              // Simulate some async work
-              await new Promise((resolve) => setTimeout(resolve, 100))
+              // Update endpoint data with the product ID
+              const currentState = store.getState()
+              const currentEndpointData = currentState.config.aiutaEndpointData
+
+              const updatedEndpointData = {
+                ...currentEndpointData,
+                skuId: productId,
+              }
+
+              dispatch(configSlice.actions.setAiutaEndpointData(updatedEndpointData))
+
+              // Navigate to the View page to start try-on flow
+              // This simulates what happens when user clicks try-on
+              console.log('APP: Updated endpoint data and ready for try-on')
 
               return // Explicitly return to complete the Promise
             } catch (error) {
@@ -127,6 +137,29 @@ function App() {
 
         await rpcAppInstance.connect()
         setRpcApp(rpcAppInstance)
+
+        // Initialize auth data once RPC is connected
+        try {
+          const auth = rpcAppInstance.config.auth
+
+          let endpointData: any = {
+            status: 200,
+            skuId: '', // Will be set by SDK via tryOn
+          }
+
+          if ('apiKey' in auth) {
+            // API Key auth
+            endpointData.apiKey = auth.apiKey
+          } else if ('subscriptionId' in auth) {
+            // JWT auth
+            endpointData.userId = auth.subscriptionId
+          }
+
+          dispatch(configSlice.actions.setAiutaEndpointData(endpointData))
+          console.log('APP: Initialized auth data via RPC:', endpointData)
+        } catch (error) {
+          console.error('Failed to initialize auth data:', error)
+        }
       } catch (error) {
         console.log('[RPC APP] Failed to initialize RPC', error)
       }
