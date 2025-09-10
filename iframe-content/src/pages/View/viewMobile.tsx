@@ -16,7 +16,6 @@ import { generateSlice } from '@lib/redux/slices/generateSlice'
 import {
   isOpenSwipSelector,
   isShowFooterSelector,
-  stylesConfigurationSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 import {
@@ -82,7 +81,6 @@ export default function ViewMobile() {
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
   const uploadedViewFile = useAppSelector(uploadedViewFileSelector)
   const isStartGeneration = useAppSelector(isStartGenerationSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleNavigate = (path: string) => {
     navigate(`/${path}`)
@@ -729,7 +727,7 @@ export default function ViewMobile() {
       <Section
         className={`${styles.sectionMobile} ${
           !isShowFooter ? styles.sectionMobileActive : ''
-        } ${stylesConfiguration.pages.viewPageClassName}`}
+        } `}
       >
         <motion.div
           key="view-page"

@@ -9,7 +9,6 @@ export type {
   AiutaAnalytics,
   AiutaDebugSettings,
   AiutaIframePosition,
-  AiutaStylesConfiguration,
   AiutaAnalyticsCallback,
   AiutaJwtCallback,
 } from '@shared/config'

@@ -13,7 +13,6 @@ import {
 } from '@lib/redux/slices/generateSlice/selectors'
 import {
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 
 // components
@@ -31,7 +30,6 @@ export const RemoveHistoryBanner = () => {
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleSelectAll = () => {
     const generatedImagesId = generatedImages.map(({ id }) => id)
@@ -80,7 +78,7 @@ export const RemoveHistoryBanner = () => {
 
   return (
     <div
-      className={`${styles.removeHistoryBanner} ${stylesConfiguration.components.historyBannerClassName}`}
+      className={`${styles.removeHistoryBanner} `}
     >
       <div className={styles.buttonLine}>
         <SecondaryButton text="Cancel" onClick={handleClose} classNames={styles.cancelBtn} />

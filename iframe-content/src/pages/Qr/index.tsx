@@ -14,7 +14,6 @@ import { configSlice } from '@lib/redux/slices/configSlice'
 import {
   qrTokenSelector,
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 
 // components
@@ -41,7 +40,6 @@ export default function Qr() {
 
   const qrToken = useAppSelector(qrTokenSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -244,7 +242,7 @@ export default function Qr() {
   return (
     <>
       <motion.div
-        className={`${styles.qrContainer} ${stylesConfiguration.pages.qrPageClassName}`}
+        className={`${styles.qrContainer} `}
         key="qr-page"
         initial={{
           opacity: 0,

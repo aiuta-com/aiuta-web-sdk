@@ -56,7 +56,7 @@ export const ViewImage = (props: ViewImageTypes) => {
   return (
     <div
       className={`
-        ${styles.viewImageBox} 
+        ${styles.viewImageBox}
         ${isStartGeneration ? styles.startGeneration : ''}
         ${generatedImageUrl ? styles.startShowGeneratedImage : ''}
         ${className ?? ''}

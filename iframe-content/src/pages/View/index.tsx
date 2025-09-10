@@ -11,10 +11,7 @@ import { alertSlice } from '@lib/redux/slices/alertSlice'
 import { generateSlice } from '../../../lib/redux/slices/generateSlice'
 
 // selectors
-import {
-  isMobileSelector,
-  stylesConfigurationSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
 import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 
 // messaging
@@ -69,7 +66,6 @@ export default function View() {
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
   const uploadedViewFile = useAppSelector(uploadedViewFileSelector)
   const isStartGeneration = useAppSelector(isStartGenerationSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleNavigate = (path: string) => {
     navigate(`/${path}`)
@@ -519,7 +515,7 @@ export default function View() {
   }, [])
 
   return (
-    <div className={stylesConfiguration.pages.viewPageClassName}>
+    <div>
       <AiutaModal isOpen={isOpenAbortedModal}>
         <div className={styles.abortedModal}>
           <p>We couldn't detect anyone in this photo</p>

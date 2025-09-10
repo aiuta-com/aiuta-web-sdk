@@ -17,7 +17,6 @@ import {
 import {
   isMobileSelector,
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 
@@ -62,7 +61,6 @@ export default function History() {
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
 
   const handleShowFullScreen = (activeImage: { id: string; url: string }) => {
@@ -172,7 +170,7 @@ export default function History() {
 
   return (
     <>
-      <Section className={`${styles.sectionContent} ${stylesConfiguration.pages.historyClassName}`}>
+      <Section className={`${styles.sectionContent} `}>
         <>
           <motion.div
             key="history-page"

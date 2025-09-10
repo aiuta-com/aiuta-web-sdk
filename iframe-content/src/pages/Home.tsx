@@ -9,11 +9,7 @@ import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { configSlice } from '@lib/redux/slices/configSlice'
 
 // selectors
-import {
-  isMobileSelector,
-  onboardingStepsSelector,
-  stylesConfigurationSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { isMobileSelector, onboardingStepsSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
 import { Section } from '@/components/feature/'
@@ -53,7 +49,6 @@ export default function Home() {
 
   const isMobile = useAppSelector(isMobileSelector)
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleGetInitialData = () => {
     SecureMessenger.sendToParent({ action: MESSAGE_ACTIONS.GET_AIUTA_API_KEYS })
@@ -122,11 +117,7 @@ export default function Home() {
         You should remove <head> here and add these meta tags in index.html or via react-helmet.
       */}
       <motion.div key="home-page" {...initiallAnimationConfig}>
-        <Section
-          className={`${
-            isMobile && onboardingSteps === 2 ? styles.sectionMobile : ''
-          } ${stylesConfiguration.pages.onboardingPageClassName}`}
-        >
+        <Section className={`${isMobile && onboardingSteps === 2 ? styles.sectionMobile : ''}`}>
           <Onboarding />
         </Section>
       </motion.div>

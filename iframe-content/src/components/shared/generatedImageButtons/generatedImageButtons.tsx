@@ -6,7 +6,6 @@ import { useAppSelector } from '@lib/redux/store'
 // selectors
 import {
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 
 // components
@@ -25,7 +24,6 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const { activeGeneratedImageUrl } = props
 
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
 
   const handleShare = async () => {
     SecureMessenger.sendToParent({
@@ -76,7 +74,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
 
   return (
     <div
-      className={`${styles.generatedImageButtons} ${stylesConfiguration.components.resultButonsContentClassName}`}
+      className={`${styles.generatedImageButtons} `}
     >
       <SecondaryButton text="Share" onClick={handleShare} />
       <SecondaryButton text="Download" onClick={handleDownload} />

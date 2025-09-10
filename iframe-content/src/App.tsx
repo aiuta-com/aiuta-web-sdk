@@ -139,18 +139,6 @@ function App() {
       if (
         event.data &&
         event.data.action &&
-        event.data.action === MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION
-      ) {
-        console.log('Setting styles configuration:', event.data.data.stylesConfiguration)
-        const stylesConfig = event.data.data.stylesConfiguration
-        if (stylesConfig && stylesConfig.components && stylesConfig.pages) {
-          dispatch(configSlice.actions.setStylesConfiguration(stylesConfig))
-        } else {
-          console.error('Invalid styles configuration structure:', stylesConfig)
-        }
-      } else if (
-        event.data &&
-        event.data.action &&
         event.data.action === MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL
       ) {
         // Handle fullscreen modal data from postMessage

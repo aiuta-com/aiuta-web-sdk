@@ -1,12 +1,7 @@
 import { MESSAGE_ACTIONS } from '@shared/messaging'
 import type { FullScreenModalData, FullscreenModalIframeConfig, ShareModalData } from './types'
-import type {
-  AiutaIframePosition,
-  AiutaStylesConfiguration,
-  AiutaUserInterface,
-} from '@shared/config'
+import type { AiutaIframePosition, AiutaUserInterface } from '@shared/config'
 import { SDK_POSITION } from './constants'
-import { INITIALLY_STYLES_CONFIGURATION } from '@shared/config'
 
 declare const __AIUTA_IFRAME_URL__: string
 
@@ -19,7 +14,6 @@ export default class IframeManager {
   private shareModalIframe: HTMLIFrameElement | null = null
 
   position: AiutaIframePosition = 'topRight'
-  stylesConfiguration: AiutaStylesConfiguration = INITIALLY_STYLES_CONFIGURATION
   customCssUrl?: string
 
   constructor(userInterface: AiutaUserInterface | undefined) {
@@ -43,8 +37,6 @@ export default class IframeManager {
   private applyUserInterface(userInterface: AiutaUserInterface) {
     if (userInterface.position && userInterface.position.length > 0)
       this.position = userInterface.position
-    if (userInterface.stylesConfiguration)
-      this.stylesConfiguration = userInterface.stylesConfiguration
     if (userInterface.customCssUrl) this.customCssUrl = userInterface.customCssUrl
   }
 

@@ -16,7 +16,6 @@ import {
   onboardingStepsSelector,
   isOnboardingDoneSelector,
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
 } from '@lib/redux/slices/configSlice/selectors'
@@ -52,7 +51,6 @@ export const SdkHeader = () => {
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
   const isStartGeneration = useAppSelector(isStartGenerationSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
   const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
 
@@ -212,7 +210,7 @@ export const SdkHeader = () => {
     <header
       className={`${styles.sdkHeader} ${
         isMobile ? styles.sdkHeaderMobile : ''
-      } ${stylesConfiguration.components.headerClassName}`}
+      } `}
     >
       {!isMobile && !isCheckQrTokenPage ? (
         hasHistoryImages ? (

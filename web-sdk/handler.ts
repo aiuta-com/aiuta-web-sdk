@@ -141,15 +141,6 @@ export default class MessageHandler {
       })
     })
 
-    this.secure.registerHandler(MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION, async () => {
-      this.sendToIframe(MESSAGE_ACTIONS.STYLES_CONFIGURATION, {
-        action: MESSAGE_ACTIONS.GET_AIUTA_STYLES_CONFIGURATION,
-        data: {
-          stylesConfiguration: this.iframeManager.stylesConfiguration.stylesConfiguration,
-        },
-      })
-    })
-
     this.secure.registerHandler(MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL, (data) => {
       this.iframeManager.openFullscreenModal(data)
     })

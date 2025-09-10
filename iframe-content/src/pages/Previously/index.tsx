@@ -13,7 +13,6 @@ import { generateSlice } from '@lib/redux/slices/generateSlice'
 // selectors
 import {
   aiutaEndpointDataSelector,
-  stylesConfigurationSelector,
   isSelectPreviouselyImagesSelector,
 } from '@lib/redux/slices/configSlice/selectors'
 import { recentlyPhotosSelector } from '@lib/redux/slices/generateSlice/selectors'
@@ -56,7 +55,6 @@ export default function Previously() {
 
   const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const stylesConfiguration = useAppSelector(stylesConfigurationSelector)
   const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
 
   const [endpointData, setEndpointData] = useState<EndpointDataTypes | null>(null)
@@ -235,7 +233,7 @@ export default function Previously() {
   return (
     <>
       <Section
-        className={`${styles.sectionContent} ${stylesConfiguration.pages.previouselyPageClassName}`}
+        className={`${styles.sectionContent} `}
       >
         <motion.div
           key="previously-page"
