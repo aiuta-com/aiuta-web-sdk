@@ -1,4 +1,4 @@
-import type { AiutaAuth, AiutaJwtCallback } from '@shared/config'
+import type { AiutaAuth, AiutaJwtCallback } from '@lib/config'
 
 export default class AuthManager {
   private getJwt?: AiutaJwtCallback

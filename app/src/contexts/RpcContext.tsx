@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode, useEffect } from 'react'
-import type { AiutaRpcApp } from '@shared/rpc'
+import type { AiutaRpcApp } from '@lib/rpc'
 
 interface RpcContextType {
   rpc: AiutaRpcApp | null

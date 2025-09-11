@@ -4,7 +4,7 @@
 
 ### 🏗️ **Core Structure**
 
-- **React 18** with TypeScript
+- **React 19** with TypeScript
 - **Redux Toolkit** for state management
 - **React Router** (MemoryRouter) for navigation
 - **CSS Modules** with BEM methodology
@@ -13,14 +13,17 @@
 ### 📁 **Directory Structure**
 
 ```
-src/
-├── components/           # Reusable UI components
-├── pages/               # Page-level components
-├── hooks/               # Custom React hooks
-├── store/               # Redux store and slices
-├── utils/               # Utilities and services
-├── contexts/            # React contexts
-└── styles/              # Global styles
+app/
+├── src/
+│   ├── components/       # Reusable UI components
+│   ├── pages/           # Page-level components
+│   ├── hooks/           # Custom React hooks
+│   ├── store/           # Redux store and slices
+│   ├── utils/           # Utilities and services
+│   ├── contexts/        # React contexts
+│   └── styles/          # Global styles
+├── public/              # Static assets
+└── index.html          # HTML entry point
 ```
 
 ## 🎯 **Key Practices & Conventions**
@@ -34,9 +37,14 @@ src/
 ### **CSS & Styling**
 
 - **CSS Modules**: `Component.module.scss`
-- **BEM methodology**: `.block`, `.block__element`, `.block--modifier`
-- **Generated classes**: `aiuta-{component-name}__{element}--{modifier}`
-- **Naming**: `kebab-case` for CSS, `camelCase` for JS properties
+- **BEM methodology**: Automatic generation via `generateScopedName`
+- **Generated classes**:
+  - **Main block**: `aiuta-{component-name}` (e.g., `aiuta-error-snackbar`)
+  - **Elements**: `aiuta-{component-name}__{element}` (e.g., `aiuta-error-snackbar__content`)
+  - **Modifiers**: `aiuta-{component-name}--{modifier}` (e.g., `aiuta-error-snackbar--active`)
+  - **Element modifiers**: `aiuta-{component-name}__{element}--{modifier}`
+- **SCSS naming**: `camelCase` for all classes (e.g., `.errorSnackbar`, `.content`, `.errorSnackbarActive`)
+- **JS access**: `camelCase` properties (e.g., `styles.errorSnackbar`, `styles.content`)
 
 ### **State Management (Redux)**
 
@@ -115,20 +123,69 @@ hooks/
 
 ### **CSS Modules Configuration**
 
-- **Generated names**: `aiuta-{component}__{element}--{modifier}`
-- **BEM structure**: Block → Element → Modifier
-- **Example**:
+- **Auto-generation**: `generateScopedName` creates proper BEM from camelCase
+- **Component matching**: Class name = component name → main block (no element)
+- **Modifier detection**: `{base}{Modifier}` → `{base}--{modifier}`
+- **Examples**:
+
+  **SCSS (camelCase naming):**
+
   ```scss
-  .snackbar {
-    &--error {
-      background: red;
-    }
-    &__content {
-      padding: 16px;
-    }
-    &__button {
-      margin-left: auto;
-    }
+  // ErrorSnackbar.module.scss
+  .errorSnackbar {
+    // → aiuta-error-snackbar (main block)
+    display: flex;
+  }
+
+  .errorSnackbarError {
+    // → aiuta-error-snackbar--error (modifier)
+    background: red;
+  }
+
+  .errorSnackbarActive {
+    // → aiuta-error-snackbar--active (modifier)
+    bottom: 15px;
+  }
+
+  .content {
+    // → aiuta-error-snackbar__content (element)
+    padding: 16px;
+  }
+
+  .contentFullWidth {
+    // → aiuta-error-snackbar__content--full-width (element modifier)
+    width: 100%;
+  }
+  ```
+
+  **TypeScript (camelCase access):**
+
+  ```typescript
+  // Component usage
+  <div className={`${styles.errorSnackbar} ${isError ? styles.errorSnackbarError : ''}`}>
+    <div className={`${styles.content} ${fullWidth ? styles.contentFullWidth : ''}`}>
+      Content here
+    </div>
+  </div>
+  ```
+
+  **Generated CSS (kebab-case BEM):**
+
+  ```css
+  .aiuta-error-snackbar {
+    display: flex;
+  }
+  .aiuta-error-snackbar--error {
+    background: red;
+  }
+  .aiuta-error-snackbar--active {
+    bottom: 15px;
+  }
+  .aiuta-error-snackbar__content {
+    padding: 16px;
+  }
+  .aiuta-error-snackbar__content--full-width {
+    width: 100%;
   }
   ```
 
@@ -164,11 +221,11 @@ hooks/
 
 - **Build tool**: Vite
 - **CSS processing**: SCSS modules with BEM naming
-- **Bundle analysis**: Check `dist/iframe/` output
+- **Bundle analysis**: Check `dist/app/` output
 
 ### **Integration**
 
-- **SDK embedding**: Via `web-sdk/iframe.ts`
+- **SDK embedding**: Via `sdk/iframe.ts`
 - **Cross-origin**: Handles iframe security and communication
 - **Modal modes**: Support overlay and full-page modes
 
@@ -177,7 +234,10 @@ hooks/
 ### **Recent Changes**
 
 - ✅ **Alert → ErrorSnackbar**: Proper semantic naming
-- ✅ **BEM CSS**: Consistent methodology with namespace
+- ✅ **BEM CSS**: Automatic generation with `generateScopedName`
+- ✅ **CSS naming**: `camelCase` in SCSS → `kebab-case` BEM in CSS
+- ✅ **Main block optimization**: Component name = main block (no element duplication)
+- ✅ **Modifier detection**: Automatic `--` for modifiers, `__` for elements
 - ✅ **RPC transition**: Replacing postMessage system
 - ✅ **Hook organization**: Domain-based grouping
 - ✅ **Redux cleanup**: Specific slice naming
@@ -193,12 +253,12 @@ hooks/
 
 ## 📖 **Documentation Policy**
 
-**⚠️ IMPORTANT**: This README.md is the **ONLY** documentation file for iframe-content.
+**⚠️ IMPORTANT**: This README.md is the **ONLY** documentation file for the app.
 
 - **✅ DO**: Update this file when architecture or practices change
 - **❌ DON'T**: Create additional docs/\*.md files
 - **❌ DON'T**: Create separate documentation files elsewhere
-- **📝 Rule**: All iframe-content documentation must be consolidated here for easy maintenance and AI context restoration
+- **📝 Rule**: All app documentation must be consolidated here for easy maintenance and AI context restoration
 
 ---
 
@@ -224,13 +284,25 @@ const handleUpload = async (file: File) => {
   }
 }
 
-// BEM CSS
-.photo-upload {
-  &--loading { opacity: 0.7; }
-  &__container { width: 100%; }
-  &__button {
-    &--primary { background: blue; }
-  }
+// CSS Modules (camelCase naming)
+.photoUpload {              // → aiuta-photo-upload (main block)
+  display: flex;
+}
+
+.photoUploadLoading {       // → aiuta-photo-upload--loading (modifier)
+  opacity: 0.7;
+}
+
+.container {                // → aiuta-photo-upload__container (element)
+  width: 100%;
+}
+
+.button {                   // → aiuta-photo-upload__button (element)
+  padding: 12px;
+}
+
+.buttonPrimary {            // → aiuta-photo-upload__button--primary (element modifier)
+  background: blue;
 }
 ```
 

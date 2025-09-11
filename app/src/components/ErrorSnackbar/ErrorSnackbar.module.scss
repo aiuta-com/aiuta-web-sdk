@@ -1,5 +1,5 @@
-// ErrorSnackbar component - BEM structure
-.snackbar {
+// ErrorSnackbar component - classes for generateScopedName
+.errorSnackbar {
   transition: all 0.3s ease-in-out;
   width: 93%;
   padding: 12px 16px;
@@ -11,20 +11,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  // Snackbar modifiers
-  &--error {
-    background: #ef5754;
-  }
-
-  &--active {
-    transition: all 0.3s ease-in-out;
-    bottom: 15px;
-  }
 }
 
-// Snackbar elements
-.snackbar__content {
+.errorSnackbarError {
+  background: #ef5754;
+}
+
+.errorSnackbarActive {
+  transition: all 0.3s ease-in-out;
+  bottom: 15px;
+}
+
+.content {
   p {
     max-width: 185px;
     font-family: GT Maru;
@@ -35,16 +33,15 @@
     color: var(--white);
     letter-spacing: -0.025em;
   }
+}
 
-  // Content modifier for full width
-  &--full-width {
-    p {
-      max-width: 100%;
-    }
+.contentFullWidth {
+  p {
+    max-width: 100%;
   }
 }
 
-.snackbar__button {
+.button {
   width: auto;
   padding: 9px 16px;
   min-height: 36px;

@@ -1,9 +1,9 @@
 // TODO: Replace with RPC - need to support sending modal actions to iframe
 // Required actions: openFullScreenModal, openShareModal
 import type { FullScreenModalData, FullscreenModalIframeConfig, ShareModalData } from './types'
-import type { AiutaUserInterface } from '@shared/config'
+import type { AiutaUserInterface } from '@lib/config'
 
-declare const __AIUTA_IFRAME_URL__: string
+declare const __APP_URL__: string
 
 export default class IframeManager {
   private iframe: HTMLIFrameElement | null = null
@@ -20,7 +20,7 @@ export default class IframeManager {
   }
 
   private get iframeUrl() {
-    return __AIUTA_IFRAME_URL__
+    return __APP_URL__
   }
 
   private resolveIframeOrigin(iframeUrl: string) {

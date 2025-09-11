@@ -28,17 +28,15 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
 
   return (
     <div
-      className={`${styles.snackbar} ${hasError ? styles['snackbar--error'] : ''} ${
-        isShow ? styles['snackbar--active'] : ''
+      className={`${styles.errorSnackbar} ${hasError ? styles.errorSnackbarError : ''} ${
+        isShow ? styles.errorSnackbarActive : ''
       }`}
     >
-      <div
-        className={`${styles.snackbar__content} ${!hasButton ? styles['snackbar__content--full-width'] : ''}`}
-      >
+      <div className={`${styles.content} ${!hasButton ? styles.contentFullWidth : ''}`}>
         {isContentString ? <p>{content}</p> : content}
       </div>
       {hasButton && (
-        <SecondaryButton text={buttonText} classNames={styles.snackbar__button} onClick={onRetry} />
+        <SecondaryButton text={buttonText} classNames={styles.button} onClick={onRetry} />
       )}
     </div>
   )

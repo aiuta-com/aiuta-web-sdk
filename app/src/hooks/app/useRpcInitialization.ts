@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { useAppDispatch, store } from '@/store/store'
 import { configSlice } from '@/store/slices/configSlice'
 import { isMobileSelector } from '@/store/slices/configSlice/selectors'
-import { AiutaRpcApp } from '@shared/rpc'
-import type { AppHandlers } from '@shared/rpc'
+import { AiutaRpcApp } from '@lib/rpc'
+import type { AppHandlers } from '@lib/rpc'
 
-declare const __IFRAME_VERSION__: string
+declare const __APP_VERSION__: string
 
 // Mobile breakpoint constant
 const MOBILE_BREAKPOINT = 992
@@ -60,7 +60,7 @@ export const useRpcInitialization = () => {
         }
 
         const rpcAppInstance = new AiutaRpcApp({
-          context: { appVersion: __IFRAME_VERSION__ },
+          context: { appVersion: __APP_VERSION__ },
           handlers,
         })
 

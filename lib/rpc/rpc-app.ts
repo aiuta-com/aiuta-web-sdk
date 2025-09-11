@@ -2,7 +2,7 @@
  * Aiuta RPC App implementation for iframe applications
  */
 
-import type { AiutaConfiguration } from '@shared/config'
+import type { AiutaConfiguration } from '@lib/config'
 import type { SdkApi } from './api-sdk'
 import type { AppHandlers, AppContext } from './api-app'
 import { PROTOCOL_VERSION, DEFAULT_HANDSHAKE_TIMEOUT } from './core'

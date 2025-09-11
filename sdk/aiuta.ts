@@ -1,4 +1,4 @@
-import { AiutaConfiguration } from '@shared/config'
+import { AiutaConfiguration } from '@lib/config'
 import AuthManager from './auth'
 import IframeManager from './iframe'
 import MessageHandler from './handler'
@@ -63,4 +63,4 @@ export type {
   AiutaDebugSettings,
   AiutaAnalyticsCallback,
   AiutaJwtCallback,
-} from '@shared/config'
+} from '@lib/config'

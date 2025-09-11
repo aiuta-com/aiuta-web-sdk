@@ -2,9 +2,9 @@
 import AuthManager from './auth'
 import IframeManager from './iframe'
 import AnalyticsTracker from './analytics'
-import { AiutaRpcSdk } from '@shared/rpc'
-import type { SdkHandlers, SdkContext } from '@shared/rpc'
-import type { AiutaConfiguration } from '@shared/config'
+import { AiutaRpcSdk } from '@lib/rpc'
+import type { SdkHandlers, SdkContext } from '@lib/rpc'
+import type { AiutaConfiguration } from '@lib/config'
 
 declare const __SDK_VERSION__: string
 

@@ -7,8 +7,8 @@
     "moduleResolution": "bundler",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["iframe-content/src/*"],
-      "@shared/*": ["shared/*"]
+      "@/*": ["app/src/*"],
+      "@lib/*": ["lib/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -23,11 +23,12 @@
     "noUnusedParameters": true
   },
   "include": [
-    "web-sdk/**/*",
-    "iframe-content/**/*",
-    "shared/**/*",
-    "vite.config.iframe.ts",
-    "vite.config.sdk.ts"
+    "sdk/**/*",
+    "app/**/*",
+    "lib/**/*",
+    "vite.config.app.ts",
+    "vite.config.sdk.ts",
+    "vite.config.shared.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

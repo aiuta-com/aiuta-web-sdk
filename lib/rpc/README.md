@@ -22,14 +22,14 @@ shared/rpc/
 ### Basic Usage (95% of cases)
 
 ```typescript
-import { AiutaRpcSdk, AiutaRpcApp } from '@shared/rpc'
-import type { SdkApi, AppApi } from '@shared/rpc'
+import { AiutaRpcSdk, AiutaRpcApp } from '@lib/rpc'
+import type { SdkApi, AppApi } from '@lib/rpc'
 ```
 
 ### SDK Side (web-sdk)
 
 ```typescript
-import { AiutaRpcSdk } from '@shared/rpc'
+import { AiutaRpcSdk } from '@lib/rpc'
 
 const rpc = new AiutaRpcSdk({
   context: { cfg: config, sdkVersion: '1.0.0' },
@@ -51,7 +51,7 @@ await rpc.connection('modal').api.showModal({ imageUrl: 'url' })
 ### App Side (iframe-content)
 
 ```typescript
-import { AiutaRpcApp } from '@shared/rpc'
+import { AiutaRpcApp } from '@lib/rpc'
 
 const rpc = new AiutaRpcApp({
   context: { appVersion: '1.0.0' },
@@ -179,10 +179,10 @@ For custom implementations or debugging:
 
 ```typescript
 // Direct module imports
-import { AiutaRpcSdk } from '@shared/rpc/rpc-sdk'
-import type { RpcReq, RpcRes } from '@shared/rpc/core'
-import { createRpcClient } from '@shared/rpc/generic'
-import { AiutaRpcBase, type ConnectionInfo } from '@shared/rpc/base'
+import { AiutaRpcSdk } from '@lib/rpc/rpc-sdk'
+import type { RpcReq, RpcRes } from '@lib/rpc/core'
+import { createRpcClient } from '@lib/rpc/generic'
+import { AiutaRpcBase, type ConnectionInfo } from '@lib/rpc/base'
 
 // Custom RPC implementation
 class CustomRpcSdk extends AiutaRpcSdk {
@@ -206,9 +206,9 @@ The modular design enables optimal tree-shaking:
 
 ```typescript
 // Only import what you need
-import type { SdkApi } from '@shared/rpc/api-sdk' // ~1KB
-import type { AppApi } from '@shared/rpc/api-app' // ~0.5KB
-import type { RpcReq } from '@shared/rpc/core' // ~0.3KB
+import type { SdkApi } from '@lib/rpc/api-sdk' // ~1KB
+import type { AppApi } from '@lib/rpc/api-app' // ~0.5KB
+import type { RpcReq } from '@lib/rpc/core' // ~0.3KB
 
 // No unnecessary internal types in your bundle
 ```

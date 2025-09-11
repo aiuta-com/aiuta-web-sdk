@@ -1,4 +1,4 @@
-import type { AiutaAnalytics, AiutaAnalyticsCallback } from '@shared/config'
+import type { AiutaAnalytics, AiutaAnalyticsCallback } from '@lib/config'
 import { v4 as uuidv4 } from 'uuid'
 import Bowser from 'bowser'
 import dayjs from 'dayjs'

@@ -24,7 +24,7 @@ jobs:
       - name: Build dev project
         run: npm run build:dev
         env:
-          AIUTA_IFRAME_BRANCH: ${{ github.ref_name }}
+          AIUTA_APP_BRANCH: ${{ github.ref_name }}
 
       # Authenticate with GCP
       - name: Set up GCP credentials Dev
@@ -42,10 +42,10 @@ jobs:
           process_gcloudignore: 'false'
 
       # Upload dist/ to GCS
-      - name: Upload to GCS bucket Dev Iframe
+      - name: Upload to GCS bucket Dev App
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: dist/iframe/
+          path: dist/app/
           destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
           parent: false
           process_gcloudignore: 'false'

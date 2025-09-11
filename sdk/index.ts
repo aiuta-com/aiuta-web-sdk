@@ -10,7 +10,7 @@ export type {
   AiutaDebugSettings,
   AiutaAnalyticsCallback,
   AiutaJwtCallback,
-} from '@shared/config'
+} from '@lib/config'
 
 import Aiuta from './aiuta'
 
