@@ -4,7 +4,7 @@ import { alertSlice } from '@lib/redux/slices/alertSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
-import { TryOnApiService, UploadedImage } from '../../utils/apiService'
+import { TryOnApiService, UploadedImage } from '../../utils/api/tryOnApiService'
 import { usePhotoGallery } from '../tryOn/usePhotoGallery'
 import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
 

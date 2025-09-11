@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { QrApiService, type QrEndpointData } from '../../utils/qrApiService'
+import { QrApiService, type QrEndpointData } from '../../utils/api/qrApiService'
 
 interface UseQrTokenProps {
   token?: string

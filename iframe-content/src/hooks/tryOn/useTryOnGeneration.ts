@@ -7,7 +7,7 @@ import { fileSlice } from '@lib/redux/slices/fileSlice'
 import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
 import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 import { useRpcProxy } from '@/contexts'
-import { TryOnApiService, UploadedImage, GenerationResult } from '../../utils/apiService'
+import { TryOnApiService, UploadedImage, GenerationResult } from '../../utils/api/tryOnApiService'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
 import { usePhotoGallery } from './usePhotoGallery'
 

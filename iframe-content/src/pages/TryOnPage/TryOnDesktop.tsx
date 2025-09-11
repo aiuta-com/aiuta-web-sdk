@@ -19,7 +19,7 @@ import { AbortModal, ImageManager } from '@/components/shared'
 import { useTryOnGeneration, usePhotoGallery } from '../../hooks'
 
 // types
-import { UploadedImage } from '../../utils/apiService'
+import { UploadedImage } from '../../utils/api/tryOnApiService'
 
 // styles
 import styles from './tryOn.module.scss'

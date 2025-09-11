@@ -1,7 +1,7 @@
 import React from 'react'
 import { ViewImage } from '@/components/feature'
 import { EmptyViewImage } from '@/components/shared'
-import { UploadedImage } from '../../../utils/apiService'
+import { UploadedImage } from '../../../utils/api/tryOnApiService'
 
 interface ImageManagerProps {
   uploadedImage?: {

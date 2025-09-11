@@ -1,7 +1,7 @@
 import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 import { recentlyPhotosSelector } from '@lib/redux/slices/generateSlice/selectors'
-import { UploadedImage } from '../../utils/apiService'
+import { UploadedImage } from '../../utils/api/tryOnApiService'
 
 const STORAGE_KEY = 'tryon-recent-photos'
 

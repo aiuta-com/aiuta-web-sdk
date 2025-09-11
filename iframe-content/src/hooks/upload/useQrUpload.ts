@@ -5,9 +5,9 @@ import { fileSlice } from '@lib/redux/slices/fileSlice'
 import { alertSlice } from '@lib/redux/slices/alertSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 import { qrTokenSelector, aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
-import { QrApiService, type QrEndpointData } from '../../utils/qrApiService'
+import { QrApiService, type QrEndpointData } from '../../utils/api/qrApiService'
 import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
-import { generateRandomString } from '../../helpers/generateRandomString'
+import { generateRandomString } from '../../utils/helpers/generateRandomString'
 
 export const useQrUpload = () => {
   const navigate = useNavigate()
