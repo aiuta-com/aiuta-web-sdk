@@ -7,14 +7,7 @@ import { RpcProvider } from './contexts'
 import { ModalRenderer, AppRouter } from '@/components'
 
 // hooks
-import {
-  useUrlParams,
-  useCustomCSS,
-  useModalOnlyStyles,
-  useIframeInitialization,
-  useRpcInitialization,
-  useLegacyMessageHandler,
-} from '@/hooks'
+import { useUrlParams, useCustomCSS, useModalOnlyStyles, useRpcInitialization } from '@/hooks'
 
 /**
  * Main App component - Entry point for the iframe application
@@ -33,11 +26,9 @@ function App() {
   // Initialize all app functionality
   const { rpcApp } = useRpcInitialization()
 
-  // Setup various initialization hooks
-  useIframeInitialization()
+  // Setup styling and modal hooks
   useCustomCSS(cssUrl)
   useModalOnlyStyles(isModalOnly)
-  useLegacyMessageHandler()
 
   // If this is a modal-only iframe, only show the appropriate modal
   if (isModalOnly) {
