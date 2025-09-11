@@ -1,13 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { MESSAGE_ACTIONS } from '@shared/messaging'
 import { useRpcProxy } from '@/contexts'
-import {
-  MESSENGER,
-  WHATS_APP,
-  CLOSE_ICON,
-  COPY_BUTTON,
-  SHARE_WITH_TEXT,
-} from '@/constants/socialIcons'
+import { MESSENGER, WHATS_APP, CLOSE_ICON, COPY_BUTTON, SHARE_WITH_TEXT } from './socialIcons'
 import styles from './shareModal.module.scss'
 
 interface ShareModalData {
