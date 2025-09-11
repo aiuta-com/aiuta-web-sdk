@@ -1,0 +1,7 @@
+/**
+ * Mobile section styling for onboarding step 2 (consent screen)
+ * Adjusts height to account for mobile header (44px)
+ */
+.sectionMobile {
+  min-height: calc(100vh - 44px);
+}
