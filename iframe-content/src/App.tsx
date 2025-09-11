@@ -25,7 +25,7 @@ import PhotoUploadPage from './pages/PhotoUploadPage'
 import Home from './pages/Home'
 import TryOnPage from './pages/TryOnPage'
 import GenerationsHistoryPage from './pages/GenerationsHistoryPage'
-import Generated from './pages/Generated'
+import ResultsPage from './pages/ResultsPage'
 import UploadsHistoryPage from './pages/UploadsHistoryPage'
 import UploadImages from './pages/UploadImages'
 
@@ -227,7 +227,7 @@ function App() {
         <ShareModal />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/generated" element={<Generated />} />
+          <Route path="/generated" element={<ResultsPage />} />
           <Route path="/history" element={<GenerationsHistoryPage />} />
           <Route path="/previously" element={<UploadsHistoryPage />} />
           <Route path="/qr" element={<PhotoUploadPage />} />

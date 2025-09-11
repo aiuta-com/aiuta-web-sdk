@@ -1,0 +1,94 @@
+import { useCallback, useEffect, useRef, useState, UIEvent } from 'react'
+import { useAppSelector } from '@lib/redux/store'
+import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { useFullScreenViewer } from './useFullScreenViewer'
+import { useGalleryAnalytics } from './useGalleryAnalytics'
+import { ImageItem } from './useFullScreenViewer'
+
+const GENERATED_IMAGE_HEIGHT = 460
+const SLIDE_ITEM_IMAGE_HEIGHT = 96
+
+/**
+ * Hook for managing results gallery with synchronized scrolling
+ */
+export const useResultsGallery = () => {
+  const [slideItemIndex, setSlideItemIndex] = useState<number>(0)
+  const generatedImages = useAppSelector(generatedImagesSelector)
+  const miniSliderContentRef = useRef<HTMLDivElement | null>(null)
+  const generatedImagesContentRef = useRef<HTMLDivElement | null>(null)
+
+  // Convert Redux images to ImageItem format
+  const images: ImageItem[] = generatedImages.map(({ id, url }) => ({ id, url }))
+
+  const { showFullScreen } = useFullScreenViewer({ modalType: 'history', images })
+  const { trackPageView } = useGalleryAnalytics('generations')
+
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView()
+  }, [trackPageView])
+
+  // Handle slider item click with synchronized scrolling
+  const handleSliderItemClick = useCallback((index: number) => {
+    setSlideItemIndex(index)
+
+    const scrollToSliderContent = index * SLIDE_ITEM_IMAGE_HEIGHT - 200
+    const scrollToGeneratedImagesContent = index * GENERATED_IMAGE_HEIGHT
+
+    if (miniSliderContentRef.current) {
+      miniSliderContentRef.current.scrollTop = scrollToSliderContent
+    }
+
+    if (generatedImagesContentRef.current) {
+      generatedImagesContentRef.current.scrollTop = scrollToGeneratedImagesContent
+    }
+  }, [])
+
+  // Handle scroll position detection for synchronization
+  const handleScrollPositionDetection = useCallback((event: UIEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLDivElement
+
+    for (const element of target.children) {
+      if ('id' in element) {
+        const elementIndex = Number(element.id)
+        if (elementIndex * GENERATED_IMAGE_HEIGHT === target.scrollTop) {
+          setSlideItemIndex(elementIndex)
+
+          if (miniSliderContentRef.current) {
+            miniSliderContentRef.current.scrollTop = elementIndex * SLIDE_ITEM_IMAGE_HEIGHT - 200
+          }
+        }
+      }
+    }
+  }, [])
+
+  // Handle full screen image view
+  const handleImageClick = useCallback(
+    (image: ImageItem) => {
+      showFullScreen(image)
+    },
+    [showFullScreen],
+  )
+
+  return {
+    // State
+    slideItemIndex,
+    images,
+    generatedImages,
+    hasMultipleImages: generatedImages.length > 1,
+    currentImage: generatedImages[slideItemIndex],
+
+    // Refs
+    miniSliderContentRef,
+    generatedImagesContentRef,
+
+    // Event handlers
+    handleSliderItemClick,
+    handleScrollPositionDetection,
+    handleImageClick,
+
+    // Constants
+    GENERATED_IMAGE_HEIGHT,
+    SLIDE_ITEM_IMAGE_HEIGHT,
+  }
+}

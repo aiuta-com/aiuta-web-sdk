@@ -21,3 +21,4 @@ export {
 }
 
 export { ImageGallery, EmptyGalleryState, SelectionBanner } from './imageGallery'
+export { ResultsSlider, ShareButton } from './resultsGallery'
