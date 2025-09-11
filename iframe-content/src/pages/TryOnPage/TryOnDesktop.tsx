@@ -9,7 +9,8 @@ import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selectors'
 
 // messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
+// Required data: { images: UploadedImage[], modalType?: string }
 
 // components
 import { Alert, Section, TryOnButton } from '@/components'
@@ -51,12 +52,19 @@ export default function TryOnDesktop() {
   const [recentImage, setRecentImage] = useState<UploadedImage | null>(null)
 
   const handleShowFullScreen = (activeImage: UploadedImage) => {
-    SecureMessenger.sendToParent({
-      action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
-      images: [],
-      modalType: undefined,
-      activeImage: activeImage,
-    })
+    // TODO: Replace with RPC call to SDK
+    // await rpc.sdk.openFullScreenModal({
+    //   images: [],
+    //   modalType: undefined,
+    //   activeImage: activeImage
+    // })
+
+    console.warn(
+      'FullScreen modal opening: Legacy messaging removed, implement RPC method openFullScreenModal',
+      {
+        activeImage: activeImage.id,
+      },
+    )
   }
 
   const hasUploadedImage = uploadedViewFile.localUrl.length > 0

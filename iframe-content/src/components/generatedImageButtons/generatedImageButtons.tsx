@@ -13,7 +13,8 @@ import { SecondaryButton } from '@/components'
 import { GeneratedImageButtonsTypes } from './types'
 
 // messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support opening share modal from iframe to SDK
+// Required data: { imageUrl: string }
 
 // rpc
 import { useRpcProxy } from '@/contexts'
@@ -28,10 +29,14 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
 
   const handleShare = async () => {
-    SecureMessenger.sendToParent({
-      action: MESSAGE_ACTIONS.OPEN_SHARE_MODAL,
-      data: { imageUrl: activeGeneratedImageUrl },
-    })
+    // TODO: Replace with RPC call to SDK
+    // await rpc.sdk.openShareModal({
+    //   imageUrl: activeGeneratedImageUrl
+    // })
+
+    console.warn(
+      'Share modal opening: Legacy messaging removed, implement RPC method openShareModal',
+    )
 
     const analytic = {
       data: {

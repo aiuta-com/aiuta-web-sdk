@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support modal opening from SDK
+// Required data: { imageUrl: string }
+// RPC method needed: openShareModal(data: { imageUrl: string })
 import { useRpcProxy } from '@/contexts'
 import { MESSENGER, WHATS_APP, CLOSE_ICON, COPY_BUTTON, SHARE_WITH_TEXT } from './socialIcons'
 import styles from './shareModal.module.scss'
@@ -35,7 +37,8 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
     } else {
       // Listen for share modal messages (for standalone usage)
       const handleMessage = (event: MessageEvent) => {
-        if (event.data?.action === MESSAGE_ACTIONS.OPEN_AIUTA_SHARE_MODAL) {
+        // TODO: Replace with RPC event - event.data?.action === 'openShareModal'
+        if (event.data?.action === 'OPEN_AIUTA_SHARE_MODAL') {
           setModalData(event.data.data)
           setHasShared(false)
         }

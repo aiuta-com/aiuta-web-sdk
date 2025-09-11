@@ -2,7 +2,8 @@ import { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { fileSlice } from '@lib/redux/slices/fileSlice'
 import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support sharing images to SDK
+// Required data: { url: string, productId: string }
 import { useGalleryAnalytics } from '../gallery/useGalleryAnalytics'
 
 /**
@@ -19,14 +20,14 @@ export const useResultsShare = () => {
       const urlToShare = imageUrl || generatedImages[0]?.url
       if (!urlToShare) return
 
-      SecureMessenger.sendToParent({
-        action: MESSAGE_ACTIONS.SHARE_IMAGE,
-        payload: {
-          url: urlToShare,
-          title: '',
-          text: '',
-        },
-      })
+      // TODO: Replace with RPC call to SDK
+      // await rpc.sdk.shareImage({
+      //   url: urlToShare,
+      //   title: '',
+      //   text: ''
+      // })
+
+      console.warn('Image sharing: Legacy messaging removed, implement RPC method shareImage')
 
       trackEvent('imageShared', { imageUrl: urlToShare })
     },

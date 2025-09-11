@@ -9,7 +9,9 @@ import { fileSlice } from '@lib/redux/slices/fileSlice'
 import { fullScreenImageUrlSelector } from '@lib/redux/slices/fileSlice/selectors'
 
 // messaging
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support:
+// 1. Modal opening from SDK: openFullScreenModal(data: { images: UploadedImage[], modalType?: string })
+// 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { useRpcProxy } from '@/contexts'
 
 // components
@@ -42,7 +44,8 @@ export const FullScreenImageModal = () => {
   // Listen for fullscreen modal messages
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.action === MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL) {
+      // TODO: Replace with RPC event - event.data?.action === 'openFullScreenModal'
+      if (event.data?.action === 'OPEN_AIUTA_FULL_SCREEN_MODAL') {
         setModalData(event.data.data)
       }
     }
@@ -107,15 +110,13 @@ export const FullScreenImageModal = () => {
     }
 
     // Notify parent about deletion
-    const message = {
-      action:
-        modalData.modalType === 'history'
-          ? MESSAGE_ACTIONS.REMOVE_HISTORY_IMAGES
-          : MESSAGE_ACTIONS.REMOVE_PREVIOUSELY_IMAGES,
-      images: deleteActiveImage,
-    }
+    // TODO: Replace with RPC call to SDK
+    // await rpc.sdk.removeImages({
+    //   type: modalData.modalType === 'history' ? 'history' : 'uploads',
+    //   imageIds: deleteActiveImage.map(img => img.id)
+    // })
 
-    SecureMessenger.sendToParent(message)
+    console.warn('Image removal: Legacy messaging removed, implement RPC method removeImages')
   }, [modalData, handleCloseModal])
 
   const changeActiveImage = useCallback(

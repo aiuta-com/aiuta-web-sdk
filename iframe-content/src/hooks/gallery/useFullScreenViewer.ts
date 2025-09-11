@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
-import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
+// Required data: { images: UploadedImage[], modalType?: string, activeImage?: UploadedImage }
 
 export interface ImageItem {
   id: string
@@ -17,12 +18,21 @@ interface UseFullScreenViewerOptions {
 export const useFullScreenViewer = ({ modalType, images }: UseFullScreenViewerOptions) => {
   const showFullScreen = useCallback(
     (activeImage: ImageItem) => {
-      SecureMessenger.sendToParent({
-        action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL,
-        images,
-        modalType,
-        activeImage,
-      })
+      // TODO: Replace with RPC call to SDK
+      // await rpc.sdk.openFullScreenModal({
+      //   images,
+      //   modalType,
+      //   activeImage
+      // })
+
+      console.warn(
+        'FullScreen modal opening: Legacy messaging removed, implement RPC method openFullScreenModal',
+        {
+          activeImage,
+          modalType,
+          imagesCount: images.length,
+        },
+      )
     },
     [modalType, images],
   )

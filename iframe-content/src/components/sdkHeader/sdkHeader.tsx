@@ -29,7 +29,8 @@ import {
 // types
 
 // messaging
-import { MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support receiving base keys from SDK
+// Required data: { data: { status: number, [key: string]: any } }
 import { useRpcProxy } from '@/contexts'
 
 // styles
@@ -191,7 +192,8 @@ export const SdkHeader = () => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.action) {
-        if (event.data.data?.status === 200 && event.data.action === MESSAGE_ACTIONS.BASE_KEYS) {
+        // TODO: Replace with RPC event handling
+        if (event.data.data?.status === 200 && event.data.action === 'BASE_KEYS') {
           dispatch(configSlice.actions.setAiutaEndpointData(event.data.data))
         }
       }

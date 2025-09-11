@@ -1,4 +1,5 @@
-import { MESSAGE_ACTIONS } from '@shared/messaging'
+// TODO: Replace with RPC - need to support sending modal actions to iframe
+// Required actions: openFullScreenModal, openShareModal
 import type { FullScreenModalData, FullscreenModalIframeConfig, ShareModalData } from './types'
 import type { AiutaUserInterface } from '@shared/config'
 
@@ -167,7 +168,8 @@ export default class IframeManager {
     iframe.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
     if (document.body.parentElement) document.body.parentElement.style.overflow = 'hidden'
     iframe.contentWindow?.postMessage(
-      { action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL, data: modalData },
+      // TODO: Replace with RPC call
+      { action: 'OPEN_AIUTA_FULL_SCREEN_MODAL', data: modalData },
       this.getIframeOrigin(),
     )
   }
@@ -210,7 +212,8 @@ export default class IframeManager {
     iframe.addEventListener('load', () => {
       setTimeout(() => {
         this.fullscreenModalIframe?.contentWindow?.postMessage(
-          { action: MESSAGE_ACTIONS.OPEN_AIUTA_FULL_SCREEN_MODAL, data: modalData },
+          // TODO: Replace with RPC call
+          { action: 'OPEN_AIUTA_FULL_SCREEN_MODAL', data: modalData },
           this.getIframeOrigin(),
         )
       }, 100)
@@ -250,7 +253,8 @@ export default class IframeManager {
     iframe.addEventListener('load', () => {
       setTimeout(() => {
         this.shareModalIframe?.contentWindow?.postMessage(
-          { action: MESSAGE_ACTIONS.OPEN_AIUTA_SHARE_MODAL, data: shareData },
+          // TODO: Replace with RPC call
+          { action: 'OPEN_AIUTA_SHARE_MODAL', data: shareData },
           this.getIframeOrigin(),
         )
       }, 100)
