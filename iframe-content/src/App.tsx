@@ -23,7 +23,7 @@ import type { AppHandlers } from '@shared/rpc'
 // pages
 import Qr from './pages/Qr'
 import Home from './pages/Home'
-import View from './pages/View'
+import TryOnPage from './pages/TryOnPage'
 import History from './pages/History'
 import Generated from './pages/Generated'
 import QRTokenPage from './pages/Qr/token'
@@ -233,7 +233,7 @@ function App() {
           <Route path="/previously" element={<Previously />} />
           <Route path="/qr" element={<Qr />} />
           <Route path="/uploadImages" element={<UploadImages />} />
-          <Route path="/view" element={<View />} />
+          <Route path="/view" element={<TryOnPage />} />
           <Route path="/qr/:token" element={<QRTokenPage />} />
         </Routes>
         <SdkFooter />

@@ -24,7 +24,7 @@
   }
 }
 
-.viewContainer {
+.tryOnContainer {
   display: flex;
   row-gap: 30px;
   align-items: center;
@@ -32,7 +32,7 @@
   padding-bottom: 20px;
 }
 
-.viewContent {
+.tryOnContent {
   overflow: hidden;
   border-radius: 20px;
 }
@@ -46,7 +46,7 @@
     min-height: 100vh;
   }
 
-  .viewContainerMobile {
+  .tryOnContainerMobile {
     width: 100%;
     display: flex;
     min-height: inherit;
@@ -77,7 +77,7 @@
     }
   }
 
-  .viewContentMobile {
+  .tryOnContentMobile {
     margin: 0 auto;
     max-width: 280px;
     max-height: 460px;
