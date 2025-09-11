@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 import { fileSlice } from '@lib/redux/slices/fileSlice'
 import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
@@ -60,7 +60,7 @@ export const useTryOnGeneration = () => {
       dispatch(generateSlice.actions.setIsStartGeneration(false))
 
       dispatch(
-        alertSlice.actions.setShowAlert({
+        errorSnackbarSlice.actions.setShowErrorSnackbar({
           type: 'error',
           isShow: true,
           buttonText: 'Try again',
@@ -190,7 +190,7 @@ export const useTryOnGeneration = () => {
       trackTryOnInitiated()
 
       // Update state
-      dispatch(alertSlice.actions.setShowAlert({ isShow: false }))
+      dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
       dispatch(generateSlice.actions.setIsStartGeneration(true))
 
       // Add to gallery if this is an uploaded image
@@ -207,7 +207,7 @@ export const useTryOnGeneration = () => {
       if (!operationId) {
         dispatch(generateSlice.actions.setIsStartGeneration(false))
         dispatch(
-          alertSlice.actions.setShowAlert({
+          errorSnackbarSlice.actions.setShowErrorSnackbar({
             type: 'error',
             isShow: true,
             buttonText: 'Try again',
@@ -236,7 +236,7 @@ export const useTryOnGeneration = () => {
   )
 
   const regenerate = useCallback(() => {
-    dispatch(alertSlice.actions.setShowAlert({ isShow: false }))
+    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
     startTryOn()
   }, [dispatch, startTryOn])
 

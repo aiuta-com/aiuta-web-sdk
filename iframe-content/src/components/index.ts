@@ -8,7 +8,7 @@ import { SdkHeader } from './sdkHeader/sdkHeader'
 import { SdkFooter } from './sdkFooter/sdkFooter'
 
 // UI Components
-import { Alert } from './alert/alert'
+import { ErrorSnackbar } from './ErrorSnackbar'
 import { Spinner } from './spinner/spinner'
 import { TryOnButton } from './tryOnButton/tryOnButton'
 import { SecondaryButton } from './secondaryButton/secondaryButton'
@@ -59,7 +59,7 @@ export {
   SdkFooter,
 
   // UI Components
-  Alert,
+  ErrorSnackbar,
   Spinner,
   TryOnButton,
   SecondaryButton,

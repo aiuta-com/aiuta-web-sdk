@@ -2,7 +2,7 @@ import React, { useEffect, ChangeEvent } from 'react'
 import { motion } from 'framer-motion'
 
 // components
-import { Alert, QrCode } from '@/components'
+import { ErrorSnackbar, QrCode } from '@/components'
 
 // hooks
 import { useQrUpload, useTryOnAnalytics } from '../../hooks'
@@ -37,7 +37,7 @@ export default function PhotoUploadDesktop() {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
-      <Alert />
+      <ErrorSnackbar />
       {endpointData && qrUrl ? <QrCode onChange={handleChoosePhoto} url={qrUrl} /> : null}
     </motion.div>
   )

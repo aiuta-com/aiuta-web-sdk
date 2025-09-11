@@ -1,6 +1,6 @@
 import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
@@ -53,7 +53,7 @@ export const useImageUpload = () => {
   const handleUploadError = (errorMessage: string) => {
     dispatch(generateSlice.actions.setIsStartGeneration(false))
     dispatch(
-      alertSlice.actions.setShowAlert({
+      errorSnackbarSlice.actions.setShowErrorSnackbar({
         type: 'error',
         isShow: true,
         buttonText: 'Try again',

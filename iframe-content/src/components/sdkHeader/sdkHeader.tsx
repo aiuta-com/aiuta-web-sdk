@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@lib/redux/store'
 
 // actions
-import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 
@@ -120,7 +120,7 @@ export const SdkHeader = () => {
     }
 
     handleAnalytic()
-    dispatch(alertSlice.actions.setShowAlert({ isShow: false }))
+    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
   }
 
   const handleToggleHistorySelectImages = () => {

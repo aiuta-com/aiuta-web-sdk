@@ -2,7 +2,7 @@ import { useRef, useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 import { qrTokenSelector, aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
 import { QrApiService, type QrEndpointData } from '../../utils/api/qrApiService'
@@ -106,7 +106,7 @@ export const useQrUpload = () => {
   const handleUploadError = useCallback(
     (errorMessage: string) => {
       dispatch(
-        alertSlice.actions.setShowAlert({
+        errorSnackbarSlice.actions.setShowErrorSnackbar({
           type: 'error',
           isShow: true,
           buttonText: 'Try again',

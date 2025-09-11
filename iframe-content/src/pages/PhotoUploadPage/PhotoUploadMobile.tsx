@@ -2,7 +2,7 @@ import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 
 // components
-import { TryOnButton, ViewImage } from '@/components'
+import { TryOnButton, ViewImage, ErrorSnackbar } from '@/components'
 
 // hooks
 import { useQrToken } from '../../hooks'
@@ -40,6 +40,7 @@ export default function PhotoUploadMobile() {
 
   return (
     <div className={styles.tokenContainer}>
+      <ErrorSnackbar />
       {uploadState.selectedFile && !uploadState.uploadedUrl ? (
         <div className={styles.uploadedContent}>
           <div className={styles.uploadedBox}>

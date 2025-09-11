@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useAppDispatch } from '@lib/redux/store'
+import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
 import { QrApiService, type QrEndpointData } from '../../utils/api/qrApiService'
+import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
 
 interface UseQrTokenProps {
   token?: string
@@ -14,6 +17,9 @@ interface UploadState {
 }
 
 export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
+  const dispatch = useAppDispatch()
+  const { trackUploadError } = useTryOnAnalytics()
+
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
     uploadedUrl: null,
@@ -55,6 +61,22 @@ export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
     }))
   }, [])
 
+  // Handle upload errors
+  const handleUploadError = useCallback(
+    (errorMessage: string) => {
+      dispatch(
+        errorSnackbarSlice.actions.setShowErrorSnackbar({
+          type: 'error',
+          isShow: true,
+          buttonText: 'Try again',
+          content: 'Something went wrong, please try again later.',
+        }),
+      )
+      trackUploadError(errorMessage, errorMessage)
+    },
+    [dispatch, trackUploadError],
+  )
+
   // Upload selected file
   const uploadFile = useCallback(async () => {
     if (!uploadState.selectedFile || !token) return
@@ -79,11 +101,12 @@ export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
           uploadedUrl: result.url,
         }))
       }, 3000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Upload error:', error)
       setUploadState((prev) => ({ ...prev, isUploading: false }))
+      handleUploadError(error.message || 'Upload failed')
     }
-  }, [uploadState.selectedFile, token, apiKey, userId])
+  }, [uploadState.selectedFile, token, apiKey, userId, handleUploadError])
 
   // Reset state
   const reset = useCallback(() => {

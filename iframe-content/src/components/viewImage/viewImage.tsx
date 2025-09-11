@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@lib/redux/store'
 
 // actions
-import { alertSlice } from '@lib/redux/slices/alertSlice'
+import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
 
 // types
 import { ViewImageTypes } from './types'
@@ -38,7 +38,7 @@ export const ViewImage = (props: ViewImageTypes) => {
     if (typeof onChange === 'function') return onChange()
     handleNavigate('previously')
 
-    dispatch(alertSlice.actions.setShowAlert({ isShow: false }))
+    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
   }
 
   const handleClickOnImage = (event: MouseEvent<HTMLImageElement>) => {

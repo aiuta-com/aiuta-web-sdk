@@ -1,5 +1,5 @@
-// Alert component - BEM structure
-.alert {
+// ErrorSnackbar component - BEM structure
+.snackbar {
   transition: all 0.3s ease-in-out;
   width: 93%;
   padding: 12px 16px;
@@ -12,7 +12,7 @@
   align-items: center;
   justify-content: space-between;
 
-  // Alert modifiers
+  // Snackbar modifiers
   &--error {
     background: #ef5754;
   }
@@ -23,8 +23,8 @@
   }
 }
 
-// Alert elements
-.alert__content {
+// Snackbar elements
+.snackbar__content {
   p {
     max-width: 185px;
     font-family: GT Maru;
@@ -44,7 +44,7 @@
   }
 }
 
-.alert__button {
+.snackbar__button {
   width: auto;
   padding: 9px 16px;
   min-height: 36px;

@@ -15,7 +15,7 @@ import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selectors'
 
 // components
-import { Swip, Alert, Section, TryOnButton, SelectableImage } from '@/components'
+import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 
 // hooks
@@ -111,7 +111,7 @@ export default function TryOnMobile() {
           {...initiallAnimationConfig}
         >
           <AbortModal isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
-          <Alert onClick={regenerate} />
+          <ErrorSnackbar onRetry={regenerate} />
           <div />
 
           <div className={styles.tryOnContentMobile}>

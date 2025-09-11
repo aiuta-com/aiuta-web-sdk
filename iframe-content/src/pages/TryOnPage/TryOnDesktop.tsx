@@ -13,7 +13,7 @@ import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selec
 // Required data: { images: UploadedImage[], modalType?: string }
 
 // components
-import { Alert, Section, TryOnButton } from '@/components'
+import { ErrorSnackbar, Section, TryOnButton } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 
 // hooks
@@ -80,7 +80,7 @@ export default function TryOnDesktop() {
   return (
     <>
       <AbortModal isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
-      <Alert onClick={regenerate} />
+      <ErrorSnackbar onRetry={regenerate} />
 
       <Section>
         <motion.div key="tryon-desktop" className={styles.tryOnContainer} {...animationConfig}>
