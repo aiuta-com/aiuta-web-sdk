@@ -24,9 +24,9 @@ import type { AppHandlers } from '@shared/rpc'
 import PhotoUploadPage from './pages/PhotoUploadPage'
 import Home from './pages/Home'
 import TryOnPage from './pages/TryOnPage'
-import History from './pages/History'
+import GenerationsHistoryPage from './pages/GenerationsHistoryPage'
 import Generated from './pages/Generated'
-import Previously from './pages/Previously'
+import UploadsHistoryPage from './pages/UploadsHistoryPage'
 import UploadImages from './pages/UploadImages'
 
 // components
@@ -228,8 +228,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/generated" element={<Generated />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/previously" element={<Previously />} />
+          <Route path="/history" element={<GenerationsHistoryPage />} />
+          <Route path="/previously" element={<UploadsHistoryPage />} />
           <Route path="/qr" element={<PhotoUploadPage />} />
           <Route path="/uploadImages" element={<UploadImages />} />
           <Route path="/view" element={<TryOnPage />} />

@@ -19,3 +19,5 @@ export {
   AbortModal,
   ImageManager,
 }
+
+export { ImageGallery, EmptyGalleryState, SelectionBanner } from './imageGallery'
