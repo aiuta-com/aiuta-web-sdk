@@ -1,13 +1,13 @@
 import React from 'react'
 import { useQRCode } from 'next-qrcode'
-import { QrSpinner } from '../animationIcons'
+import { QrSpinner } from '@/components/animationIcons'
 
 // redux
 
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // selectors
-import { isShowQrSpinnerSelector } from '@lib/redux/slices/configSlice/selectors'
+import { isShowQrSpinnerSelector } from '@/store/slices/configSlice/selectors'
 
 // types
 import { QrCodeTypes } from './types'

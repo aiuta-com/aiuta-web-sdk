@@ -5,7 +5,7 @@ import { useParams, useLocation } from 'react-router-dom'
 import { TryOnButton, ViewImage, ErrorSnackbar } from '@/components'
 
 // hooks
-import { useQrToken } from '../../hooks'
+import { useQrToken } from '@/hooks'
 
 // styles
 import styles from './photoUpload.module.scss'

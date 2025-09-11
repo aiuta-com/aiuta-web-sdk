@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { configSlice } from '@lib/redux/slices/configSlice'
+import { configSlice } from '@/store/slices/configSlice'
 
 // selectors
 import {
@@ -14,7 +14,7 @@ import {
   isShowSpinnerSelector,
   onboardingStepsSelector,
   aiutaEndpointDataSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/configSlice/selectors'
 
 // components
 import { OnboardingMobile } from './onboardingMobile'

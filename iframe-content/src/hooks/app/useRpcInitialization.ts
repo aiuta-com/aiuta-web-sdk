@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { useAppDispatch, store } from '@lib/redux/store'
-import { configSlice } from '@lib/redux/slices/configSlice'
-import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+import { useAppDispatch, store } from '@/store/store'
+import { configSlice } from '@/store/slices/configSlice'
+import { isMobileSelector } from '@/store/slices/configSlice/selectors'
 import { AiutaRpcApp } from '@shared/rpc'
 import type { AppHandlers } from '@shared/rpc'
 

@@ -1,17 +1,17 @@
 import React from 'react'
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { modalSlice } from '@lib/redux/slices/modalSlice'
-import { generateSlice } from '@lib/redux/slices/generateSlice'
+import { modalSlice } from '@/store/slices/modalSlice'
+import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
 import {
   selectedImagesSelector,
   generatedImagesSelector,
-} from '@lib/redux/slices/generateSlice/selectors'
-import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/generateSlice/selectors'
+import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
 
 // components
 import { SecondaryButton } from '@/components'

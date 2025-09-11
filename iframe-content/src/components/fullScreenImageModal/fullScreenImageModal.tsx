@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react'
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { fileSlice } from '@lib/redux/slices/fileSlice'
+import { fileSlice } from '@/store/slices/fileSlice'
 
 // selectors
-import { fullScreenImageUrlSelector } from '@lib/redux/slices/fileSlice/selectors'
+import { fullScreenImageUrlSelector } from '@/store/slices/fileSlice/selectors'
 
 // messaging
 // TODO: Replace with RPC - need to support:
@@ -15,7 +15,7 @@ import { fullScreenImageUrlSelector } from '@lib/redux/slices/fileSlice/selector
 import { useRpcProxy } from '@/contexts'
 
 // components
-import { ShareModal } from '../shareModal/shareModal'
+import { ShareModal } from '@/components/shareModal/shareModal'
 
 // styles
 import styles from './fullScreenImageModal.module.scss'

@@ -1,19 +1,17 @@
 import React, { useRef, TouchEvent } from 'react'
 
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { configSlice } from '@lib/redux/slices/configSlice'
+import { configSlice } from '@/store/slices/configSlice'
 
 // selectors
-import {
-  isOpenSwipSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+import { isOpenSwipSelector } from '@/store/slices/configSlice/selectors'
 
 // components
-import { TryOnButton } from '../tryOnButton/tryOnButton'
-import { TitleDescription } from '../titleDescription/titleDescription'
+import { TryOnButton } from '@/components/tryOnButton/tryOnButton'
+import { TitleDescription } from '@/components/titleDescription/titleDescription'
 
 // types
 import { SwipTypes } from './types'
@@ -79,9 +77,7 @@ export const Swip = (props: SwipTypes) => {
   return (
     <div
       onClick={handleCloseSwip}
-      className={`${styles.swipConteiner} ${
-        isOpenSwip ? styles.swipConteinerActive : ''
-      } `}
+      className={`${styles.swipConteiner} ${isOpenSwip ? styles.swipConteinerActive : ''} `}
     >
       <div className={styles.swipContent} ref={swipRef}>
         <div

@@ -2,10 +2,10 @@ import React, { useState, MouseEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 // redux
-import { useAppDispatch } from '@lib/redux/store'
+import { useAppDispatch } from '@/store/store'
 
 // actions
-import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
+import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 
 // types
 import { ViewImageTypes } from './types'

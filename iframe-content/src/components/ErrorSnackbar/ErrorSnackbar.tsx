@@ -1,13 +1,13 @@
 import React from 'react'
 
 // redux
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // selectors
-import { showErrorSnackbarStatesSelector } from '@lib/redux/slices/errorSnackbarSlice/selectors'
+import { showErrorSnackbarStatesSelector } from '@/store/slices/errorSnackbarSlice/selectors'
 
 // components
-import { SecondaryButton } from '../secondaryButton/secondaryButton'
+import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
 
 // types
 import { ErrorSnackbarProps } from './types'

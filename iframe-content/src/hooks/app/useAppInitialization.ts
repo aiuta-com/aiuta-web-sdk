@@ -1,8 +1,8 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { configSlice } from '@lib/redux/slices/configSlice'
-import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { configSlice } from '@/store/slices/configSlice'
+import { isMobileSelector } from '@/store/slices/configSlice/selectors'
 
 /**
  * Hook for managing app initialization logic

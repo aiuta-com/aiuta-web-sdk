@@ -1,4 +1,4 @@
-import { RootState } from '../../store'
+import { RootState } from '@/store/store'
 
 export const uploadedViewFileSelector = (state: RootState) => state.file.uploadedViewFile
 

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { ErrorSnackbar, QrCode } from '@/components'
 
 // hooks
-import { useQrUpload, useTryOnAnalytics } from '../../hooks'
+import { useQrUpload, useTryOnAnalytics } from '@/hooks'
 
 // styles
 import styles from './photoUpload.module.scss'

@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState, UIEvent } from 'react'
-import { useAppSelector } from '@lib/redux/store'
-import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
-import { useFullScreenViewer } from '../gallery/useFullScreenViewer'
-import { useGalleryAnalytics } from '../gallery/useGalleryAnalytics'
-import { ImageItem } from '../gallery/useFullScreenViewer'
+import { useAppSelector } from '@/store/store'
+import { generatedImagesSelector } from '@/store/slices/generateSlice/selectors'
+import { useFullScreenViewer } from '@/hooks/gallery/useFullScreenViewer'
+import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
+import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'
 
 const GENERATED_IMAGE_HEIGHT = 460
 const SLIDE_ITEM_IMAGE_HEIGHT = 96

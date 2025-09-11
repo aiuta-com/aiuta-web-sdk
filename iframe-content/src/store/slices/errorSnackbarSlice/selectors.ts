@@ -1,4 +1,4 @@
-import { RootState } from '../../store'
+import { RootState } from '@/store/store'
 
 const showErrorSnackbarStatesSelector = (state: RootState) =>
   state.errorSnackbar.showErrorSnackbarStates

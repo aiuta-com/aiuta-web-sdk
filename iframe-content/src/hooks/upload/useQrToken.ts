@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useAppDispatch } from '@lib/redux/store'
-import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
-import { QrApiService, type QrEndpointData } from '../../utils/api/qrApiService'
-import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
+import { useAppDispatch } from '@/store/store'
+import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
+import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
+import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 interface UseQrTokenProps {
   token?: string

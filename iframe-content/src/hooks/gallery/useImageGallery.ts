@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
-import { useAppSelector } from '@lib/redux/store'
-import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+import { useAppSelector } from '@/store/store'
+import { isMobileSelector } from '@/store/slices/configSlice/selectors'
 import { useFullScreenViewer, ImageItem } from './useFullScreenViewer'
 import { useImageSelection } from './useImageSelection'
 import { useGalleryAnalytics } from './useGalleryAnalytics'

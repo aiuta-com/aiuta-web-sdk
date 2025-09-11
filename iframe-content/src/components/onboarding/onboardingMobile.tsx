@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { configSlice } from '@lib/redux/slices/configSlice'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { configSlice } from '@/store/slices/configSlice'
 import {
   aiutaEndpointDataSelector,
   onboardingStepsSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/configSlice/selectors'
 import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components'
 

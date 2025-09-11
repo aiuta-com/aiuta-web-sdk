@@ -1,13 +1,13 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
-import { configSlice } from '@lib/redux/slices/configSlice'
-import { qrTokenSelector, aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
-import { QrApiService, type QrEndpointData } from '../../utils/api/qrApiService'
-import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
-import { generateRandomString } from '../../utils/helpers/generateRandomString'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { fileSlice } from '@/store/slices/fileSlice'
+import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
+import { configSlice } from '@/store/slices/configSlice'
+import { qrTokenSelector, aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
+import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
+import { generateRandomString } from '@/utils/helpers/generateRandomString'
 
 export const useQrUpload = () => {
   const navigate = useNavigate()

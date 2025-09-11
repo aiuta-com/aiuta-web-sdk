@@ -1,9 +1,9 @@
 import React from 'react'
 // redux
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // selectors
-import { showHistoryImagesModalSelector } from '@lib/redux/slices/modalSlice/selectors'
+import { showHistoryImagesModalSelector } from '@/store/slices/modalSlice/selectors'
 
 // components
 import { SecondaryButton } from '@/components'

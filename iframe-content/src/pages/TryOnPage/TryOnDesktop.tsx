@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 
 // redux
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // selectors
-import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
-import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { uploadedViewFileSelector } from '@/store/slices/fileSlice/selectors'
+import { isStartGenerationSelector } from '@/store/slices/generateSlice/selectors'
 
 // messaging
 // TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
@@ -17,10 +17,10 @@ import { ErrorSnackbar, Section, TryOnButton } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 
 // hooks
-import { useTryOnGeneration, usePhotoGallery } from '../../hooks'
+import { useTryOnGeneration, usePhotoGallery } from '@/hooks'
 
 // types
-import { UploadedImage } from '../../utils/api/tryOnApiService'
+import { UploadedImage } from '@/utils/api/tryOnApiService'
 
 // styles
 import styles from './tryOn.module.scss'

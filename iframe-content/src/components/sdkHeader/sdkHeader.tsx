@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 
 // redux
-import { useAppDispatch, useAppSelector } from '@lib/redux/store'
+import { useAppDispatch, useAppSelector } from '@/store/store'
 
 // actions
-import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
-import { configSlice } from '@lib/redux/slices/configSlice'
-import { generateSlice } from '@lib/redux/slices/generateSlice'
+import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
+import { configSlice } from '@/store/slices/configSlice'
+import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
 import {
@@ -18,13 +18,13 @@ import {
   aiutaEndpointDataSelector,
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/configSlice/selectors'
 import {
   selectedImagesSelector,
   recentlyPhotosSelector,
   generatedImagesSelector,
   isStartGenerationSelector,
-} from '@lib/redux/slices/generateSlice/selectors'
+} from '@/store/slices/generateSlice/selectors'
 
 // types
 

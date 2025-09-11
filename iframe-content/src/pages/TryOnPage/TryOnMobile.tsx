@@ -2,27 +2,27 @@ import React, { useRef, useState, useEffect, ChangeEvent } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { configSlice } from '@lib/redux/slices/configSlice'
-import { generateSlice } from '@lib/redux/slices/generateSlice'
+import { fileSlice } from '@/store/slices/fileSlice'
+import { configSlice } from '@/store/slices/configSlice'
+import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
-import { isOpenSwipSelector, isShowFooterSelector } from '@lib/redux/slices/configSlice/selectors'
-import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
-import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { isOpenSwipSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
+import { uploadedViewFileSelector } from '@/store/slices/fileSlice/selectors'
+import { isStartGenerationSelector } from '@/store/slices/generateSlice/selectors'
 
 // components
 import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 
 // hooks
-import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '../../hooks'
+import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
 
 // types
-import { UploadedImage } from '../../utils/api/tryOnApiService'
+import { UploadedImage } from '@/utils/api/tryOnApiService'
 
 // styles
 import styles from './tryOn.module.scss'

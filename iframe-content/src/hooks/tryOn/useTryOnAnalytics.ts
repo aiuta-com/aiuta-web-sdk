@@ -1,8 +1,8 @@
 import { useRef } from 'react'
-import { useAppSelector } from '@lib/redux/store'
-import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
+import { useAppSelector } from '@/store/store'
+import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
 import { useRpcProxy } from '@/contexts'
-import { TryOnAnalyticsService } from '../../utils/analytics/tryOnAnalyticsService'
+import { TryOnAnalyticsService } from '@/utils/analytics/tryOnAnalyticsService'
 
 export const useTryOnAnalytics = () => {
   const rpc = useRpcProxy()

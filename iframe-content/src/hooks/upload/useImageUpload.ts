@@ -1,12 +1,12 @@
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { errorSnackbarSlice } from '@lib/redux/slices/errorSnackbarSlice'
-import { configSlice } from '@lib/redux/slices/configSlice'
-import { generateSlice } from '@lib/redux/slices/generateSlice'
-import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
-import { TryOnApiService, UploadedImage } from '../../utils/api/tryOnApiService'
-import { usePhotoGallery } from '../tryOn/usePhotoGallery'
-import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { fileSlice } from '@/store/slices/fileSlice'
+import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
+import { configSlice } from '@/store/slices/configSlice'
+import { generateSlice } from '@/store/slices/generateSlice'
+import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { TryOnApiService, UploadedImage } from '@/utils/api/tryOnApiService'
+import { usePhotoGallery } from '@/hooks/tryOn/usePhotoGallery'
+import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 export const useImageUpload = () => {
   const dispatch = useAppDispatch()

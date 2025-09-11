@@ -1,9 +1,9 @@
 import React from 'react'
 // redux
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // selectors
-import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+import { isMobileSelector } from '@/store/slices/configSlice/selectors'
 
 // components
 import { TitleDescription } from '@/components'

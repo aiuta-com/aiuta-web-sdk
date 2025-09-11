@@ -1,6 +1,6 @@
 import React from 'react'
-import { useAppSelector } from '@lib/redux/store'
-import { isMobileSelector } from '@lib/redux/slices/configSlice/selectors'
+import { useAppSelector } from '@/store/store'
+import { isMobileSelector } from '@/store/slices/configSlice/selectors'
 import ResultsDesktop from './ResultsDesktop'
 import ResultsMobile from './ResultsMobile'
 

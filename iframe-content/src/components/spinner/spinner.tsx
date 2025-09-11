@@ -1,8 +1,8 @@
 import React from 'react'
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // redux
-import { isShowSpinnerSelector } from '@lib/redux/slices/configSlice/selectors'
+import { isShowSpinnerSelector } from '@/store/slices/configSlice/selectors'
 
 // styles
 import styles from './spinner.module.scss'

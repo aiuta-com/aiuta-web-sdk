@@ -1,13 +1,13 @@
 import React from 'react'
 
 // redux
-import { useAppSelector } from '@lib/redux/store'
+import { useAppSelector } from '@/store/store'
 
 // selectors
 import {
   isMobileSelector,
   isShowFooterSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/configSlice/selectors'
 
 // styles
 import styles from './sdkFooter.module.scss'

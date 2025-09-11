@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react'
 
 // redux
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { generateSlice } from '@lib/redux/slices/generateSlice'
+import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
-import { selectedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { selectedImagesSelector } from '@/store/slices/generateSlice/selectors'
 import {
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/configSlice/selectors'
 
 // components
-import { SecondaryButton } from '../secondaryButton/secondaryButton'
-import { CountDownAnimation } from '../CountDownAnimation/countDownAnimation'
+import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
+import { CountDownAnimation } from '@/components/CountDownAnimation/countDownAnimation'
 
 // types
 import { SelectableImageTypes } from './types'

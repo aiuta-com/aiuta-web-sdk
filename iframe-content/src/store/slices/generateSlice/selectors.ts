@@ -1,4 +1,4 @@
-import { RootState } from '../../store'
+import { RootState } from '@/store/store'
 
 export const selectedImagesSelector = (state: RootState) => state.generate.selectedImages
 export const generatedImagesSelector = (state: RootState) => state.generate.generatedImages

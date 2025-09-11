@@ -1,16 +1,16 @@
 import { useCallback, useEffect } from 'react'
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { modalSlice } from '@lib/redux/slices/modalSlice'
-import { generateSlice } from '@lib/redux/slices/generateSlice'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { fileSlice } from '@/store/slices/fileSlice'
+import { modalSlice } from '@/store/slices/modalSlice'
+import { generateSlice } from '@/store/slices/generateSlice'
 import {
   selectedImagesSelector,
   generatedImagesSelector,
-} from '@lib/redux/slices/generateSlice/selectors'
+} from '@/store/slices/generateSlice/selectors'
 import {
   isMobileSelector,
   isSelectHistoryImagesSelector,
-} from '@lib/redux/slices/configSlice/selectors'
+} from '@/store/slices/configSlice/selectors'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'

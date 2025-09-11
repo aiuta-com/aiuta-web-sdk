@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { generateSlice } from '@lib/redux/slices/generateSlice'
-import { selectedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { generateSlice } from '@/store/slices/generateSlice'
+import { selectedImagesSelector } from '@/store/slices/generateSlice/selectors'
 
 /**
  * Hook for managing image selection in galleries

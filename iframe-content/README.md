@@ -17,6 +17,7 @@ src/
 ├── components/           # Reusable UI components
 ├── pages/               # Page-level components
 ├── hooks/               # Custom React hooks
+├── store/               # Redux store and slices
 ├── utils/               # Utilities and services
 ├── contexts/            # React contexts
 └── styles/              # Global styles
@@ -39,8 +40,9 @@ src/
 
 ### **State Management (Redux)**
 
+- **Location**: `src/store/` (NOT lib/redux - app-specific state)
 - **Slice naming**: Descriptive and specific (e.g., `errorSnackbarSlice`)
-- **Structure**: `{domain}Slice/{domain}Slice.ts`, `selectors.ts`, `index.ts`
+- **Structure**: `store/slices/{domain}Slice/{domain}Slice.ts`, `selectors.ts`, `index.ts`
 - **Actions**: Descriptive verbs (e.g., `setShowErrorSnackbar`)
 - **Selectors**: Named consistently (e.g., `show{Domain}StatesSelector`)
 
@@ -179,6 +181,7 @@ hooks/
 - ✅ **RPC transition**: Replacing postMessage system
 - ✅ **Hook organization**: Domain-based grouping
 - ✅ **Redux cleanup**: Specific slice naming
+- ✅ **Redux location**: Moved from `lib/redux` to `src/store` (app-specific state)
 
 ### **TODO Priorities**
 
@@ -234,7 +237,7 @@ const handleUpload = async (file: File) => {
 ### **State Access**
 
 ```typescript
-// Redux selectors
+// Redux selectors (from src/store)
 const errorState = useAppSelector(showErrorSnackbarStatesSelector)
 const config = useAppSelector(aiutaEndpointDataSelector)
 

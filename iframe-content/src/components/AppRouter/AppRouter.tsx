@@ -2,12 +2,12 @@ import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
 // Pages
-import PhotoUploadPage from '../../pages/PhotoUploadPage'
-import Home from '../../pages/Home'
-import TryOnPage from '../../pages/TryOnPage'
-import GenerationsHistoryPage from '../../pages/GenerationsHistoryPage'
-import ResultsPage from '../../pages/ResultsPage'
-import UploadsHistoryPage from '../../pages/UploadsHistoryPage'
+import PhotoUploadPage from '@/pages/PhotoUploadPage'
+import Home from '@/pages/Home'
+import TryOnPage from '@/pages/TryOnPage'
+import GenerationsHistoryPage from '@/pages/GenerationsHistoryPage'
+import ResultsPage from '@/pages/ResultsPage'
+import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
 
 // Components
 import { SdkHeader, SdkFooter, FullScreenImageModal, ShareModal, Spinner } from '@/components'

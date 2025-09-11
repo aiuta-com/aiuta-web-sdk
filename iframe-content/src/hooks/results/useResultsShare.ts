@@ -1,10 +1,10 @@
 import { useCallback } from 'react'
-import { useAppSelector, useAppDispatch } from '@lib/redux/store'
-import { fileSlice } from '@lib/redux/slices/fileSlice'
-import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { fileSlice } from '@/store/slices/fileSlice'
+import { generatedImagesSelector } from '@/store/slices/generateSlice/selectors'
 // TODO: Replace with RPC - need to support sharing images to SDK
 // Required data: { url: string, productId: string }
-import { useGalleryAnalytics } from '../gallery/useGalleryAnalytics'
+import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
 
 /**
  * Hook for handling results sharing functionality
