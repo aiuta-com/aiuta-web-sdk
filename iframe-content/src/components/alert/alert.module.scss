@@ -1,4 +1,5 @@
-.alertContainer {
+// Alert component - BEM structure
+.alert {
   transition: all 0.3s ease-in-out;
   width: 93%;
   padding: 12px 16px;
@@ -11,6 +12,19 @@
   align-items: center;
   justify-content: space-between;
 
+  // Alert modifiers
+  &--error {
+    background: #ef5754;
+  }
+
+  &--active {
+    transition: all 0.3s ease-in-out;
+    bottom: 15px;
+  }
+}
+
+// Alert elements
+.alert__content {
   p {
     max-width: 185px;
     font-family: GT Maru;
@@ -22,33 +36,25 @@
     letter-spacing: -0.025em;
   }
 
-  .fullTextContent {
+  // Content modifier for full width
+  &--full-width {
     p {
       max-width: 100%;
     }
   }
+}
 
-  .button {
-    width: auto;
-    padding: 9px 16px;
-    min-height: 36px;
+.alert__button {
+  width: auto;
+  padding: 9px 16px;
+  min-height: 36px;
 
-    p {
-      font-family: GT Maru;
-      font-weight: 500;
-      font-size: 14px;
-      line-height: unset;
-      color: var(--black);
-      letter-spacing: -0.035em;
-    }
+  p {
+    font-family: GT Maru;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: unset;
+    color: var(--black);
+    letter-spacing: -0.035em;
   }
-}
-
-.error {
-  background: #ef5754;
-}
-
-.activeAlert {
-  transition: all 0.3s ease-in-out;
-  bottom: 15px;
 }

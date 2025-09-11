@@ -19,7 +19,7 @@ import { useUrlParams, useCustomCSS, useModalOnlyStyles, useRpcInitialization } 
  * - Modal-only rendering
  * - Full application routing
  */
-function App() {
+export default function App() {
   // Parse URL parameters and determine app mode
   const { isModalOnly, modalType, cssUrl, initialPath } = useUrlParams()
 
@@ -42,5 +42,3 @@ function App() {
     </RpcProvider>
   )
 }
-
-export default App

@@ -13,7 +13,7 @@ import { SecondaryButton } from '../secondaryButton/secondaryButton'
 import { AlertTypes } from './types'
 
 // styles
-import styles from './/alert.module.scss'
+import styles from './alert.module.scss'
 
 export const Alert = (props: AlertTypes) => {
   const { onClick } = props
@@ -26,20 +26,20 @@ export const Alert = (props: AlertTypes) => {
 
   const hasError = type === 'error'
   const hasFullWidth = onClick && typeof onClick === 'function'
-  // const hasWarning = type === "warning"; TO DO For future
-  // const hasSuccess = type === "success"; TO DO For future
 
   return (
     <div
-      className={`${styles.alertContainer} ${hasError ? styles.error : ''} ${
-        isShow ? styles.activeAlert : ''
+      className={`${styles.alert} ${hasError ? styles['alert--error'] : ''} ${
+        isShow ? styles['alert--active'] : ''
       }`}
     >
-      <div className={!hasFullWidth ? styles.fullTextContent : ''}>
+      <div
+        className={`${styles.alert__content} ${!hasFullWidth ? styles['alert__content--full-width'] : ''}`}
+      >
         {hasCheckContentTyeps ? <p>{content} </p> : content}
       </div>
       {hasFullWidth && (
-        <SecondaryButton text={buttonText} classNames={styles.button} onClick={onClick} />
+        <SecondaryButton text={buttonText} classNames={styles.alert__button} onClick={onClick} />
       )}
     </div>
   )

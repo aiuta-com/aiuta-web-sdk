@@ -29,6 +29,24 @@ export default defineConfig({
   css: {
     modules: {
       localsConvention: 'camelCase',
+      generateScopedName: (name, filename) => {
+        // Extract component name from filename
+        const componentMatch = filename.match(/([^/]+)\.module\.(css|scss)$/)
+        const componentName = componentMatch ? componentMatch[1] : 'component'
+
+        // Convert camelCase to kebab-case for both component and class names
+        const kebabComponent = componentName
+          .replace(/([A-Z])/g, '-$1')
+          .toLowerCase()
+          .replace(/^-/, '') // Remove leading dash
+        const kebabClassName = name
+          .replace(/([A-Z])/g, '-$1')
+          .toLowerCase()
+          .replace(/^-/, '') // Remove leading dash
+
+        // Generate predictable class name: aiuta-{component}__{class} (proper BEM)
+        return `aiuta-${kebabComponent}__${kebabClassName}`
+      },
     },
   },
   esbuild: {
