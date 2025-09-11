@@ -2,7 +2,7 @@ import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { Section, TryOnButton } from '@/components/feature'
 import { ImageGallery } from '@/components/shared'
-import { useUploadsGallery } from '@/hooks/useUploadsGallery'
+import { useUploadsGallery } from '@/hooks'
 import styles from './uploadsHistory.module.scss'
 
 const animationConfig = {

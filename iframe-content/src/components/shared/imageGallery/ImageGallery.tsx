@@ -1,7 +1,7 @@
 import React from 'react'
 import { SelectableImage } from '@/components/feature'
 import { EmptyGalleryState } from './EmptyGalleryState'
-import { ImageItem } from '@/hooks/useFullScreenViewer'
+import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'
 import styles from './imageGallery.module.scss'
 
 interface ImageGalleryProps {

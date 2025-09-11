@@ -3,7 +3,7 @@ import { motion, easeInOut } from 'framer-motion'
 import { Section } from '@/components/feature'
 import { ImageGallery, SelectionBanner } from '@/components/shared'
 import { HistoryImagesRemoveModal } from '@/components/shared/modals'
-import { useGenerationsGallery } from '@/hooks/useGenerationsGallery'
+import { useGenerationsGallery } from '@/hooks'
 import styles from './generationsHistory.module.scss'
 
 const animationConfig = {

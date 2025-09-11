@@ -1,6 +1,6 @@
 import React from 'react'
 import { MiniSliderItem } from '@/components/feature'
-import { ImageItem } from '@/hooks/useFullScreenViewer'
+import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'
 
 interface ResultsSliderProps {
   images: ImageItem[]

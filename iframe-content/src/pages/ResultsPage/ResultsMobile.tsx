@@ -2,7 +2,7 @@ import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { Section, ViewImage } from '@/components/feature'
 import { ShareButton } from '@/components/shared'
-import { useResultsShare } from '@/hooks/useResultsShare'
+import { useResultsShare } from '@/hooks'
 import styles from './ResultsPage.module.scss'
 
 const animationConfig = {

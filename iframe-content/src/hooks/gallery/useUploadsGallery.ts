@@ -7,7 +7,7 @@ import { generateSlice } from '@lib/redux/slices/generateSlice'
 import { isSelectPreviouselyImagesSelector } from '@lib/redux/slices/configSlice/selectors'
 import { recentlyPhotosSelector } from '@lib/redux/slices/generateSlice/selectors'
 import { useImageGallery } from './useImageGallery'
-import { useImageUpload } from './useImageUpload'
+import { useImageUpload } from '../upload/useImageUpload'
 import { ImageItem } from './useFullScreenViewer'
 
 /**

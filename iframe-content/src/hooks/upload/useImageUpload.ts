@@ -4,9 +4,9 @@ import { alertSlice } from '@lib/redux/slices/alertSlice'
 import { configSlice } from '@lib/redux/slices/configSlice'
 import { generateSlice } from '@lib/redux/slices/generateSlice'
 import { aiutaEndpointDataSelector } from '@lib/redux/slices/configSlice/selectors'
-import { TryOnApiService, UploadedImage } from '../utils/apiService'
-import { usePhotoGallery } from './usePhotoGallery'
-import { useTryOnAnalytics } from './useTryOnAnalytics'
+import { TryOnApiService, UploadedImage } from '../../utils/apiService'
+import { usePhotoGallery } from '../tryOn/usePhotoGallery'
+import { useTryOnAnalytics } from '../tryOn/useTryOnAnalytics'
 
 export const useImageUpload = () => {
   const dispatch = useAppDispatch()

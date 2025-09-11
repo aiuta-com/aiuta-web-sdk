@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from '@lib/redux/store'
 import { fileSlice } from '@lib/redux/slices/fileSlice'
 import { generatedImagesSelector } from '@lib/redux/slices/generateSlice/selectors'
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
-import { useGalleryAnalytics } from './useGalleryAnalytics'
+import { useGalleryAnalytics } from '../gallery/useGalleryAnalytics'
 
 /**
  * Hook for handling results sharing functionality

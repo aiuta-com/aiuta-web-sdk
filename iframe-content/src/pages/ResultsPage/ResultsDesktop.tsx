@@ -3,7 +3,7 @@ import { motion, easeInOut } from 'framer-motion'
 import { Section, ViewImage } from '@/components/feature'
 import { GeneratedImageButtons } from '@/components/shared'
 import { ResultsSlider } from '@/components/shared'
-import { useResultsGallery } from '@/hooks/useResultsGallery'
+import { useResultsGallery } from '@/hooks'
 import styles from './ResultsPage.module.scss'
 
 const animationConfig = {
