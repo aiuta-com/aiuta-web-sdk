@@ -21,12 +21,11 @@ import { AiutaRpcApp } from '@shared/rpc'
 import type { AppHandlers } from '@shared/rpc'
 
 // pages
-import Qr from './pages/Qr'
+import PhotoUploadPage from './pages/PhotoUploadPage'
 import Home from './pages/Home'
 import TryOnPage from './pages/TryOnPage'
 import History from './pages/History'
 import Generated from './pages/Generated'
-import QRTokenPage from './pages/Qr/token'
 import Previously from './pages/Previously'
 import UploadImages from './pages/UploadImages'
 
@@ -231,10 +230,10 @@ function App() {
           <Route path="/generated" element={<Generated />} />
           <Route path="/history" element={<History />} />
           <Route path="/previously" element={<Previously />} />
-          <Route path="/qr" element={<Qr />} />
+          <Route path="/qr" element={<PhotoUploadPage />} />
           <Route path="/uploadImages" element={<UploadImages />} />
           <Route path="/view" element={<TryOnPage />} />
-          <Route path="/qr/:token" element={<QRTokenPage />} />
+          <Route path="/qr/:token" element={<PhotoUploadPage />} />
         </Routes>
         <SdkFooter />
       </MemoryRouter>

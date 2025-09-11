@@ -1,11 +1,14 @@
 .qrContainer {
   height: calc(100vh - 128px);
+  background: var(--background-primary, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .tokenContainer {
+  min-height: 100vh;
+  background: var(--background-primary, #ffffff);
   display: flex;
   align-items: center;
   justify-content: center;

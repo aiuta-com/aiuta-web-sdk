@@ -5,3 +5,4 @@ export {
   type GenerationResult,
 } from './apiService'
 export { AnalyticsService, type AnalyticsEvent, type RpcProxy } from './analyticsService'
+export { QrApiService, type QrUploadResult, type QrEndpointData } from './qrApiService'
