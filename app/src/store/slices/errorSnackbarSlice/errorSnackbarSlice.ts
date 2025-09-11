@@ -1,21 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { ReactNode } from 'react'
+
+interface ErrorSnackbarState {
+  isVisible: boolean
+  errorMessage: string
+  retryButtonText: string
+}
 
 interface ErrorSnackbarSliceState {
-  showErrorSnackbarStates: {
-    type: string
-    isShow: boolean
-    buttonText: string
-    content: string | ReactNode
-  }
+  errorSnackbar: ErrorSnackbarState
 }
 
 const initialState: ErrorSnackbarSliceState = {
-  showErrorSnackbarStates: {
-    type: '',
-    content: '',
-    isShow: false,
-    buttonText: '',
+  errorSnackbar: {
+    isVisible: false,
+    errorMessage: '',
+    retryButtonText: '',
   },
 }
 
@@ -23,8 +22,14 @@ export const errorSnackbarSlice = createSlice({
   name: 'errorSnackbar',
   initialState,
   reducers: {
-    setShowErrorSnackbar: (state, { payload }) => {
-      state.showErrorSnackbarStates = payload
+    showErrorSnackbar: (state, { payload }: { payload: Omit<ErrorSnackbarState, 'isVisible'> }) => {
+      state.errorSnackbar = {
+        ...payload,
+        isVisible: true,
+      }
+    },
+    hideErrorSnackbar: (state) => {
+      state.errorSnackbar.isVisible = false
     },
   },
 })

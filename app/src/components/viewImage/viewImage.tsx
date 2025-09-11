@@ -38,7 +38,7 @@ export const ViewImage = (props: ViewImageTypes) => {
     if (typeof onChange === 'function') return onChange()
     handleNavigate('previously')
 
-    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
+    dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
   }
 
   const handleClickOnImage = (event: MouseEvent<HTMLImageElement>) => {

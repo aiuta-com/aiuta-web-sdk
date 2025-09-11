@@ -65,11 +65,9 @@ export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
   const handleUploadError = useCallback(
     (errorMessage: string) => {
       dispatch(
-        errorSnackbarSlice.actions.setShowErrorSnackbar({
-          type: 'error',
-          isShow: true,
-          buttonText: 'Try again',
-          content: 'Something went wrong, please try again later.',
+        errorSnackbarSlice.actions.showErrorSnackbar({
+          retryButtonText: 'Try again',
+          errorMessage: 'Something went wrong. Please try again later.',
         }),
       )
       trackUploadError(errorMessage, errorMessage)

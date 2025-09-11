@@ -1,6 +1,6 @@
 import { RootState } from '@/store/store'
 
-const showErrorSnackbarStatesSelector = (state: RootState) =>
-  state.errorSnackbar.showErrorSnackbarStates
+export const errorSnackbarSelector = (state: RootState) => state.errorSnackbar.errorSnackbar
 
-export { showErrorSnackbarStatesSelector }
+export const isErrorSnackbarVisibleSelector = (state: RootState) =>
+  state.errorSnackbar.errorSnackbar.isVisible

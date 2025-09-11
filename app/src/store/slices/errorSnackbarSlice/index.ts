@@ -1,2 +1,2 @@
 export { errorSnackbarSlice } from './errorSnackbarSlice'
-export { showErrorSnackbarStatesSelector } from './selectors'
+export { errorSnackbarSelector, isErrorSnackbarVisibleSelector } from './selectors'

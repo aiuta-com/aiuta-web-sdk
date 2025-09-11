@@ -120,7 +120,7 @@ export const SdkHeader = () => {
     }
 
     handleAnalytic()
-    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
+    dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
   }
 
   const handleToggleHistorySelectImages = () => {

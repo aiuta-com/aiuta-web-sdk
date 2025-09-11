@@ -51,8 +51,8 @@ app/
 - **Location**: `src/store/` (NOT lib/redux - app-specific state)
 - **Slice naming**: Descriptive and specific (e.g., `errorSnackbarSlice`)
 - **Structure**: `store/slices/{domain}Slice/{domain}Slice.ts`, `selectors.ts`, `index.ts`
-- **Actions**: Descriptive verbs (e.g., `setShowErrorSnackbar`)
-- **Selectors**: Named consistently (e.g., `show{Domain}StatesSelector`)
+- **Actions**: Descriptive verbs (e.g., `showErrorSnackbar`, `hideErrorSnackbar`)
+- **Selectors**: Domain-specific (e.g., `errorSnackbarSelector`, `isErrorSnackbarVisibleSelector`)
 
 ### **Hooks Organization**
 
@@ -72,12 +72,6 @@ hooks/
 - **Analytics**: `{Domain}AnalyticsService` (e.g., `TryOnAnalyticsService`)
 
 ## 📱 **Key Components**
-
-### **ErrorSnackbar**
-
-- Bottom toast for error messages with retry functionality
-- Redux: `errorSnackbarSlice` → `showErrorSnackbarStatesSelector`
-- Used across all pages for consistent error handling
 
 ### **Page Structure**
 
@@ -109,9 +103,14 @@ hooks/
 
 ### **Error Handling**
 
-- **Pattern**: Dispatch `setShowErrorSnackbar` in hooks
-- **UI**: ErrorSnackbar component handles display
+- **Component**: `ErrorSnackbar` - bottom toast with retry functionality
+- **Pattern**: Dispatch `showErrorSnackbar({ errorMessage, retryButtonText })` in hooks
+- **UI**: ErrorSnackbar component handles display and retry functionality
+- **Redux**: `errorSnackbarSlice` → `errorSnackbarSelector`, `isErrorSnackbarVisibleSelector`
+- **State**: `{ isVisible, errorMessage, retryButtonText }`
+- **Actions**: `showErrorSnackbar()`, `hideErrorSnackbar()`
 - **Analytics**: Track errors via analytics services
+- **Hide**: Use `hideErrorSnackbar()` to programmatically hide
 
 ### **Image Handling**
 
@@ -233,14 +232,15 @@ hooks/
 
 ### **Recent Changes**
 
-- ✅ **Alert → ErrorSnackbar**: Proper semantic naming
+- ✅ **Alert → ErrorSnackbar**: Proper semantic naming and improved API
+- ✅ **ErrorSnackbar Redux**: Simplified with `showErrorSnackbar()` / `hideErrorSnackbar()`
 - ✅ **BEM CSS**: Automatic generation with `generateScopedName`
 - ✅ **CSS naming**: `camelCase` in SCSS → `kebab-case` BEM in CSS
 - ✅ **Main block optimization**: Component name = main block (no element duplication)
 - ✅ **Modifier detection**: Automatic `--` for modifiers, `__` for elements
 - ✅ **RPC transition**: Replacing postMessage system
 - ✅ **Hook organization**: Domain-based grouping
-- ✅ **Redux cleanup**: Specific slice naming
+- ✅ **Redux cleanup**: Specific slice naming and improved state structure
 - ✅ **Redux location**: Moved from `lib/redux` to `src/store` (app-specific state)
 
 ### **TODO Priorities**
@@ -275,11 +275,9 @@ const handleUpload = async (file: File) => {
   try {
     await upload(file)
   } catch (error) {
-    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({
-      type: 'error',
-      isShow: true,
-      buttonText: 'Try again',
-      content: 'Upload failed'
+    dispatch(errorSnackbarSlice.actions.showErrorSnackbar({
+      errorMessage: 'Upload failed. Please try again.',
+      retryButtonText: 'Try again'
     }))
   }
 }
@@ -310,8 +308,18 @@ const handleUpload = async (file: File) => {
 
 ```typescript
 // Redux selectors (from src/store)
-const errorState = useAppSelector(showErrorSnackbarStatesSelector)
+const { isVisible, errorMessage, retryButtonText } = useAppSelector(errorSnackbarSelector)
+const isSnackbarVisible = useAppSelector(isErrorSnackbarVisibleSelector)
 const config = useAppSelector(aiutaEndpointDataSelector)
+
+// Error snackbar actions
+dispatch(
+  errorSnackbarSlice.actions.showErrorSnackbar({
+    errorMessage: 'Something went wrong',
+    retryButtonText: 'Try again',
+  }),
+)
+dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
 
 // RPC context
 const { rpc } = useRpcProxy()

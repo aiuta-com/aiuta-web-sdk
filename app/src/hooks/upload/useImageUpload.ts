@@ -53,11 +53,9 @@ export const useImageUpload = () => {
   const handleUploadError = (errorMessage: string) => {
     dispatch(generateSlice.actions.setIsStartGeneration(false))
     dispatch(
-      errorSnackbarSlice.actions.setShowErrorSnackbar({
-        type: 'error',
-        isShow: true,
-        buttonText: 'Try again',
-        content: 'Something went wrong, please try again later.',
+      errorSnackbarSlice.actions.showErrorSnackbar({
+        retryButtonText: 'Try again',
+        errorMessage: 'Something went wrong. Please try again later.',
       }),
     )
 

@@ -11,9 +11,6 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.errorSnackbarError {
   background: #ef5754;
 }
 
@@ -22,7 +19,7 @@
   bottom: 15px;
 }
 
-.content {
+.errorMessage {
   p {
     max-width: 185px;
     font-family: GT Maru;
@@ -35,13 +32,13 @@
   }
 }
 
-.contentFullWidth {
+.errorMessageFullWidth {
   p {
     max-width: 100%;
   }
 }
 
-.button {
+.tryAgainButton {
   width: auto;
   padding: 9px 16px;
   min-height: 36px;

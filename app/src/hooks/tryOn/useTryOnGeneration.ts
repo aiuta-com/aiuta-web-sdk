@@ -60,11 +60,9 @@ export const useTryOnGeneration = () => {
       dispatch(generateSlice.actions.setIsStartGeneration(false))
 
       dispatch(
-        errorSnackbarSlice.actions.setShowErrorSnackbar({
-          type: 'error',
-          isShow: true,
-          buttonText: 'Try again',
-          content: 'Something went wrong. Please try again',
+        errorSnackbarSlice.actions.showErrorSnackbar({
+          retryButtonText: 'Try again',
+          errorMessage: 'Something went wrong. Please try again later.',
         }),
       )
 
@@ -190,7 +188,7 @@ export const useTryOnGeneration = () => {
       trackTryOnInitiated()
 
       // Update state
-      dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
+      dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
       dispatch(generateSlice.actions.setIsStartGeneration(true))
 
       // Add to gallery if this is an uploaded image
@@ -207,11 +205,9 @@ export const useTryOnGeneration = () => {
       if (!operationId) {
         dispatch(generateSlice.actions.setIsStartGeneration(false))
         dispatch(
-          errorSnackbarSlice.actions.setShowErrorSnackbar({
-            type: 'error',
-            isShow: true,
-            buttonText: 'Try again',
-            content: 'Something went wrong, please try again later.',
+          errorSnackbarSlice.actions.showErrorSnackbar({
+            retryButtonText: 'Try again',
+            errorMessage: 'Something went wrong. Please try again later.',
           }),
         )
         return
@@ -236,7 +232,7 @@ export const useTryOnGeneration = () => {
   )
 
   const regenerate = useCallback(() => {
-    dispatch(errorSnackbarSlice.actions.setShowErrorSnackbar({ isShow: false }))
+    dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
     startTryOn()
   }, [dispatch, startTryOn])
 
