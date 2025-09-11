@@ -27,7 +27,6 @@ import TryOnPage from './pages/TryOnPage'
 import GenerationsHistoryPage from './pages/GenerationsHistoryPage'
 import ResultsPage from './pages/ResultsPage'
 import UploadsHistoryPage from './pages/UploadsHistoryPage'
-import UploadImages from './pages/UploadImages'
 
 // components
 import { SdkHeader } from './components/shared'
@@ -231,7 +230,6 @@ function App() {
           <Route path="/history" element={<GenerationsHistoryPage />} />
           <Route path="/previously" element={<UploadsHistoryPage />} />
           <Route path="/qr" element={<PhotoUploadPage />} />
-          <Route path="/uploadImages" element={<UploadImages />} />
           <Route path="/view" element={<TryOnPage />} />
           <Route path="/qr/:token" element={<PhotoUploadPage />} />
         </Routes>
