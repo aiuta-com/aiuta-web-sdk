@@ -2,6 +2,8 @@
 import { Layout } from './layout/layout'
 import { Section } from './section/section'
 import { Sdk } from './sdk/sdk'
+import { ModalRenderer } from './ModalRenderer'
+import { AppRouter } from './AppRouter'
 import { SdkHeader } from './sdkHeader/sdkHeader'
 import { SdkFooter } from './sdkFooter/sdkFooter'
 
@@ -50,6 +52,8 @@ export {
   // Core layout
   Layout,
   Section,
+  ModalRenderer,
+  AppRouter,
   Sdk,
   SdkHeader,
   SdkFooter,
