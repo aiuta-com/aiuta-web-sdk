@@ -5,14 +5,14 @@ import { motion, easeInOut } from 'framer-motion'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 
 // actions
-import { fileSlice } from '@/store/slices/fileSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 import { configSlice } from '@/store/slices/configSlice'
-import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
 import { isOpenSwipSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
-import { uploadedViewFileSelector } from '@/store/slices/fileSlice/selectors'
-import { isStartGenerationSelector } from '@/store/slices/generateSlice/selectors'
+import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
+import { isGeneratingSelector } from '@/store/slices/generationsSlice/selectors'
 
 // components
 import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
@@ -22,7 +22,7 @@ import { AbortModal, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
 
 // types
-import { UploadedImage } from '@/utils/api/tryOnApiService'
+import { InputImage } from '@/utils/api/tryOnApiService'
 
 // styles
 import styles from './tryOn.module.scss'
@@ -49,8 +49,8 @@ export default function TryOnMobile() {
 
   const isOpenSwip = useAppSelector(isOpenSwipSelector)
   const isShowFooter = useAppSelector(isShowFooterSelector)
-  const uploadedViewFile = useAppSelector(uploadedViewFileSelector)
-  const isStartGeneration = useAppSelector(isStartGenerationSelector)
+  const uploadedViewFile = useAppSelector(currentImageSelector)
+  const isStartGeneration = useAppSelector(isGeneratingSelector)
 
   const { recentlyPhotos, removePhotoFromGallery } = usePhotoGallery()
 
@@ -59,7 +59,7 @@ export default function TryOnMobile() {
   const { generatedImageUrl, isOpenAbortedModal, startTryOn, regenerate, closeAbortedModal } =
     useTryOnGeneration()
 
-  const [recentImage, setRecentImage] = useState<UploadedImage | null>(null)
+  const [recentImage, setRecentImage] = useState<InputImage | null>(null)
 
   const handleOpenSwip = () => {
     dispatch(configSlice.actions.setIsOpenSwip(true))
@@ -67,8 +67,8 @@ export default function TryOnMobile() {
 
   const handleChooseNewPhoto = (id: string, url: string) => {
     setTimeout(() => {
-      dispatch(generateSlice.actions.setIsStartGeneration(true))
-      dispatch(fileSlice.actions.setUploadViewFile({ id, url }))
+      dispatch(generationsSlice.actions.setIsGenerating(true))
+      dispatch(uploadsSlice.actions.setCurrentImage({ id, url }))
       startTryOn({ id, url })
     }, 300)
   }
@@ -82,23 +82,23 @@ export default function TryOnMobile() {
       const file = event.target.files[0]
       if (!file) return
 
-      await uploadImage(file, (result: UploadedImage) => {
+      await uploadImage(file, (result: InputImage) => {
         startTryOn(result)
         if (isOpenSwip) dispatch(configSlice.actions.setIsOpenSwip(false))
       })
     }
   }
 
-  const hasUploadedImage = uploadedViewFile.localUrl.length > 0
+  const hasInputImage = uploadedViewFile.localUrl.length > 0
   const hasRecentPhotos = recentlyPhotos && recentlyPhotos.length > 0
-  const showTryOnButton = !isStartGeneration && (hasUploadedImage || recentImage)
+  const showTryOnButton = !isStartGeneration && (hasInputImage || recentImage)
 
   useEffect(() => {
-    if (!hasUploadedImage && hasRecentPhotos) {
+    if (!hasInputImage && hasRecentPhotos) {
       setRecentImage(recentlyPhotos[0])
       dispatch(configSlice.actions.setIsShowFooter(true))
     }
-  }, [recentlyPhotos, hasUploadedImage, dispatch, hasRecentPhotos])
+  }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
   return (
     <>
@@ -116,11 +116,11 @@ export default function TryOnMobile() {
 
           <div className={styles.tryOnContentMobile}>
             <ImageManager
-              uploadedImage={hasUploadedImage ? uploadedViewFile : undefined}
+              uploadedImage={hasInputImage ? uploadedViewFile : undefined}
               recentImage={recentImage || undefined}
               isStartGeneration={isStartGeneration}
               generatedImageUrl={generatedImageUrl}
-              onChangeImage={hasUploadedImage ? handleButtonClick : handleOpenSwip}
+              onChangeImage={hasInputImage ? handleButtonClick : handleOpenSwip}
               onUploadClick={handleButtonClick}
             />
           </div>
@@ -142,7 +142,7 @@ export default function TryOnMobile() {
           <Swip onClickButton={handleButtonClick} buttonText="+ Upload new photo">
             <div className={styles.imageContent}>
               {recentlyPhotos.length > 0
-                ? recentlyPhotos.map((item: UploadedImage, index: number) => (
+                ? recentlyPhotos.map((item: InputImage, index: number) => (
                     <SelectableImage
                       key={index}
                       src={item.url}

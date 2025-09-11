@@ -1,12 +1,12 @@
 import { useCallback, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { fileSlice } from '@/store/slices/fileSlice'
+import { generationsSlice } from '@/store/slices/generationsSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { modalSlice } from '@/store/slices/modalSlice'
-import { generateSlice } from '@/store/slices/generateSlice'
 import {
   selectedImagesSelector,
   generatedImagesSelector,
-} from '@/store/slices/generateSlice/selectors'
+} from '@/store/slices/generationsSlice/selectors'
 import {
   isMobileSelector,
   isSelectHistoryImagesSelector,
@@ -47,10 +47,10 @@ export const useGenerationsGallery = () => {
         // Desktop: toggle selection for deletion
         if (gallery.isSelected(image.id)) {
           dispatch(
-            generateSlice.actions.setSelectedImage(selectedIds.filter((id) => id !== image.id)),
+            generationsSlice.actions.setSelectedImages(selectedIds.filter((id) => id !== image.id)),
           )
         } else {
-          dispatch(generateSlice.actions.setSelectedImage([...selectedIds, image.id]))
+          dispatch(generationsSlice.actions.setSelectedImages([...selectedIds, image.id]))
         }
       } else {
         // Desktop: show full screen modal
@@ -61,14 +61,14 @@ export const useGenerationsGallery = () => {
         // Mobile: toggle selection for deletion
         if (gallery.isSelected(image.id)) {
           dispatch(
-            generateSlice.actions.setSelectedImage(selectedIds.filter((id) => id !== image.id)),
+            generationsSlice.actions.setSelectedImages(selectedIds.filter((id) => id !== image.id)),
           )
         } else {
-          dispatch(generateSlice.actions.setSelectedImage([...selectedIds, image.id]))
+          dispatch(generationsSlice.actions.setSelectedImages([...selectedIds, image.id]))
         }
       } else {
         // Mobile: set full screen URL in Redux
-        dispatch(fileSlice.actions.setFullScreenImageUrl(image.url))
+        dispatch(uploadsSlice.actions.showImageFullScreen(image.url))
       }
     }
   }
@@ -84,7 +84,7 @@ export const useGenerationsGallery = () => {
 
     // Update Redux state
     clearSelection() // Clear selection first
-    dispatch(generateSlice.actions.setGeneratedImage(remainingImages))
+    dispatch(generationsSlice.actions.setGeneratedImages(remainingImages))
     closeHistoryImagesModal()
 
     // Track deletion
@@ -104,7 +104,7 @@ export const useGenerationsGallery = () => {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.action === 'REMOVE_HISTORY_IMAGES') {
-        dispatch(generateSlice.actions.setGeneratedImage(event.data.data.images))
+        dispatch(generationsSlice.actions.addGeneratedImage(event.data.data.images))
 
         // Track deletion analytics
         trackEvent('generatedImageDeleted')

@@ -2,12 +2,12 @@ import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { generateSlice } from '@/store/slices/generateSlice'
-import { fileSlice } from '@/store/slices/fileSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
-import { uploadedViewFileSelector } from '@/store/slices/fileSlice/selectors'
+import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
 import { useRpcProxy } from '@/contexts'
-import { TryOnApiService, UploadedImage, GenerationResult } from '@/utils/api/tryOnApiService'
+import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
 import { usePhotoGallery } from './usePhotoGallery'
 
@@ -17,13 +17,13 @@ export const useTryOnGeneration = () => {
   const rpc = useRpcProxy()
 
   const endpointData = useAppSelector(aiutaEndpointDataSelector)
-  const uploadedViewFile = useAppSelector(uploadedViewFileSelector)
+  const uploadedViewFile = useAppSelector(currentImageSelector)
 
   const { addPhotoToGallery, getRecentPhoto } = usePhotoGallery()
   const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
     useTryOnAnalytics()
 
-  const [generatedImageUrl, setGeneratedImageUrl] = useState('')
+  const [generatedImageUrl, addGeneratedImageUrl] = useState('')
   const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -39,11 +39,11 @@ export const useTryOnGeneration = () => {
       if (result.generated_images && result.generated_images.length > 0) {
         const { id, url } = result.generated_images[0]
 
-        setGeneratedImageUrl(url)
-        dispatch(generateSlice.actions.setGeneratedImage({ id, url }))
+        addGeneratedImageUrl(url)
+        dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
         setTimeout(() => {
-          dispatch(generateSlice.actions.setIsStartGeneration(false))
+          dispatch(generationsSlice.actions.setIsGenerating(false))
           navigate('/generated')
         }, 500)
 
@@ -57,7 +57,7 @@ export const useTryOnGeneration = () => {
   const handleGenerationError = useCallback(
     (result: GenerationResult) => {
       clearGenerationInterval()
-      dispatch(generateSlice.actions.setIsStartGeneration(false))
+      dispatch(generationsSlice.actions.setIsGenerating(false))
 
       dispatch(
         errorSnackbarSlice.actions.showErrorSnackbar({
@@ -74,7 +74,7 @@ export const useTryOnGeneration = () => {
   const handleGenerationAborted = useCallback(
     (result: GenerationResult) => {
       clearGenerationInterval()
-      dispatch(generateSlice.actions.setIsStartGeneration(false))
+      dispatch(generationsSlice.actions.setIsGenerating(false))
       setIsOpenAbortedModal(true)
 
       trackTryOnAborted(result.error || 'Unknown reason')
@@ -94,7 +94,7 @@ export const useTryOnGeneration = () => {
             handleGenerationSuccess(result)
             // Clear file in mobile version
             if (uploadedViewFile.id) {
-              dispatch(fileSlice.actions.setUploadViewFile(null))
+              dispatch(uploadsSlice.actions.clearCurrentImage())
             }
             break
           case 'FAILED':
@@ -170,7 +170,7 @@ export const useTryOnGeneration = () => {
   )
 
   const startTryOn = useCallback(
-    async (customImage?: UploadedImage): Promise<void> => {
+    async (customImage?: InputImage): Promise<void> => {
       if (!endpointData) {
         console.error('Endpoints info is missing')
         return
@@ -189,7 +189,7 @@ export const useTryOnGeneration = () => {
 
       // Update state
       dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
-      dispatch(generateSlice.actions.setIsStartGeneration(true))
+      dispatch(generationsSlice.actions.setIsGenerating(true))
 
       // Add to gallery if this is an uploaded image
       if (uploadedViewFile.id) {
@@ -203,7 +203,7 @@ export const useTryOnGeneration = () => {
         : await createOperationWithoutJwt(targetImage.id)
 
       if (!operationId) {
-        dispatch(generateSlice.actions.setIsStartGeneration(false))
+        dispatch(generationsSlice.actions.setIsGenerating(false))
         dispatch(
           errorSnackbarSlice.actions.showErrorSnackbar({
             retryButtonText: 'Try again',

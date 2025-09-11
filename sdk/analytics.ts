@@ -20,7 +20,7 @@ interface AnalyticsEnv {
 export default class AnalyticsTracker {
   private readonly PLATFORM = 'web'
   private readonly UNKNOWN = 'Unknown'
-  private readonly INSTALLATION_KEY = 'aiutaInstallationKey'
+  private readonly INSTALLATION_KEY = 'aiutaInstallationId'
 
   private handler?: AiutaAnalyticsCallback
   private analyticsUrl: string

@@ -1,16 +1,13 @@
 import React from 'react'
 // redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 
 // actions
 import { modalSlice } from '@/store/slices/modalSlice'
-import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
-import {
-  selectedImagesSelector,
-  generatedImagesSelector,
-} from '@/store/slices/generateSlice/selectors'
+import { selectedImagesSelector, generatedImagesSelector } from '@/store/slices/generationsSlice'
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
 
 // components
@@ -35,11 +32,11 @@ export const RemoveHistoryBanner = () => {
   const handleSelectAll = () => {
     const generatedImagesId = generatedImages.map(({ id }) => id)
 
-    dispatch(generateSlice.actions.setSelectedImage(generatedImagesId))
+    dispatch(generationsSlice.actions.setSelectedImages(generatedImagesId))
   }
 
   const handleClose = () => {
-    dispatch(generateSlice.actions.setSelectedImage([]))
+    dispatch(generationsSlice.actions.clearSelectedImages())
   }
 
   const handleShowHistoryImagesModal = () => {

@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react'
 
 // redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 
 // actions
-import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
-import { selectedImagesSelector } from '@/store/slices/generateSlice/selectors'
+import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import {
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
@@ -73,7 +73,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
     if (isSelectHistoryImages) setIsActiveHover(isSelectHistoryImages)
     else {
       setIsActiveHover(isSelectHistoryImages)
-      dispatch(generateSlice.actions.setSelectedImage([]))
+      dispatch(generationsSlice.actions.clearSelectedImages())
     }
   }, [isSelectHistoryImages])
 

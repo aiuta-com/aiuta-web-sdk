@@ -1,30 +1,23 @@
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { generateSlice } from '@/store/slices/generateSlice'
-import { recentlyPhotosSelector } from '@/store/slices/generateSlice/selectors'
-import { UploadedImage } from '@/utils/api/tryOnApiService'
-
-const STORAGE_KEY = 'tryon-recent-photos'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
+import { InputImage } from '@/utils/api/tryOnApiService'
 
 export const usePhotoGallery = () => {
   const dispatch = useAppDispatch()
-  const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
+  const recentlyPhotos = useAppSelector(inputImagesSelector)
 
-  const addPhotoToGallery = (photo: UploadedImage) => {
-    const existingPhotos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]')
-    const newPhotos = [photo, ...existingPhotos]
-
-    dispatch(generateSlice.actions.setRecentlyPhotos(newPhotos))
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newPhotos))
+  const addPhotoToGallery = (photo: InputImage) => {
+    dispatch(uploadsSlice.actions.addInputImage(photo))
   }
 
   const removePhotoFromGallery = (imageId: string) => {
     const filteredPhotos = recentlyPhotos.filter(({ id }) => id !== imageId)
 
-    dispatch(generateSlice.actions.setRecentlyPhotos(filteredPhotos))
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredPhotos))
+    dispatch(uploadsSlice.actions.setInputImages(filteredPhotos))
   }
 
-  const getRecentPhoto = (): UploadedImage | null => {
+  const getRecentPhoto = (): InputImage | null => {
     return recentlyPhotos.length > 0 ? recentlyPhotos[0] : null
   }
 

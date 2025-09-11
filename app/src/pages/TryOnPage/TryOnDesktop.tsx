@@ -5,12 +5,12 @@ import { motion, easeInOut } from 'framer-motion'
 import { useAppSelector } from '@/store/store'
 
 // selectors
-import { uploadedViewFileSelector } from '@/store/slices/fileSlice/selectors'
-import { isStartGenerationSelector } from '@/store/slices/generateSlice/selectors'
+import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
+import { isGeneratingSelector } from '@/store/slices/generationsSlice/selectors'
 
 // messaging
 // TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
-// Required data: { images: UploadedImage[], modalType?: string }
+// Required data: { images: InputImage[], modalType?: string }
 
 // components
 import { ErrorSnackbar, Section, TryOnButton } from '@/components'
@@ -20,7 +20,7 @@ import { AbortModal, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery } from '@/hooks'
 
 // types
-import { UploadedImage } from '@/utils/api/tryOnApiService'
+import { InputImage } from '@/utils/api/tryOnApiService'
 
 // styles
 import styles from './tryOn.module.scss'
@@ -42,16 +42,16 @@ const animationConfig = {
 }
 
 export default function TryOnDesktop() {
-  const uploadedViewFile = useAppSelector(uploadedViewFileSelector)
-  const isStartGeneration = useAppSelector(isStartGenerationSelector)
+  const uploadedViewFile = useAppSelector(currentImageSelector)
+  const isStartGeneration = useAppSelector(isGeneratingSelector)
 
   const { getRecentPhoto } = usePhotoGallery()
   const { generatedImageUrl, isOpenAbortedModal, startTryOn, regenerate, closeAbortedModal } =
     useTryOnGeneration()
 
-  const [recentImage, setRecentImage] = useState<UploadedImage | null>(null)
+  const [recentImage, setRecentImage] = useState<InputImage | null>(null)
 
-  const handleShowFullScreen = (activeImage: UploadedImage) => {
+  const handleShowFullScreen = (activeImage: InputImage) => {
     // TODO: Replace with RPC call to SDK
     // await rpc.sdk.openFullScreenModal({
     //   images: [],
@@ -67,15 +67,15 @@ export default function TryOnDesktop() {
     )
   }
 
-  const hasUploadedImage = uploadedViewFile.localUrl.length > 0
+  const hasInputImage = uploadedViewFile.localUrl.length > 0
   const showTryOnButton = !isStartGeneration && !isOpenAbortedModal
 
   useEffect(() => {
-    if (!hasUploadedImage) {
+    if (!hasInputImage) {
       const recent = getRecentPhoto()
       setRecentImage(recent)
     }
-  }, [hasUploadedImage, getRecentPhoto])
+  }, [hasInputImage, getRecentPhoto])
 
   return (
     <>
@@ -86,7 +86,7 @@ export default function TryOnDesktop() {
         <motion.div key="tryon-desktop" className={styles.tryOnContainer} {...animationConfig}>
           <div className={styles.tryOnContent}>
             <ImageManager
-              uploadedImage={hasUploadedImage ? uploadedViewFile : undefined}
+              uploadedImage={hasInputImage ? uploadedViewFile : undefined}
               recentImage={recentImage || undefined}
               isStartGeneration={isStartGeneration}
               generatedImageUrl={generatedImageUrl}
@@ -94,7 +94,7 @@ export default function TryOnDesktop() {
               showFullScreenOnClick={true}
             />
           </div>
-          {showTryOnButton && (hasUploadedImage || recentImage) && (
+          {showTryOnButton && (hasInputImage || recentImage) && (
             <TryOnButton isShowTryOnIcon onClick={() => startTryOn()}>
               Try On
             </TryOnButton>

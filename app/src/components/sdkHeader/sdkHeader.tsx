@@ -3,11 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom'
 
 // redux
 import { useAppDispatch, useAppSelector } from '@/store/store'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 
 // actions
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { configSlice } from '@/store/slices/configSlice'
-import { generateSlice } from '@/store/slices/generateSlice'
 
 // selectors
 import {
@@ -21,10 +21,10 @@ import {
 } from '@/store/slices/configSlice/selectors'
 import {
   selectedImagesSelector,
-  recentlyPhotosSelector,
   generatedImagesSelector,
-  isStartGenerationSelector,
-} from '@/store/slices/generateSlice/selectors'
+  isGeneratingSelector,
+} from '@/store/slices/generationsSlice/selectors'
+import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
 
 // types
 
@@ -45,13 +45,13 @@ export const SdkHeader = () => {
 
   const qrToken = useAppSelector(qrTokenSelector)
   const isMobile = useAppSelector(isMobileSelector)
-  const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
+  const recentlyPhotos = useAppSelector(inputImagesSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
   const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const isStartGeneration = useAppSelector(isStartGenerationSelector)
+  const isStartGeneration = useAppSelector(isGeneratingSelector)
   const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
   const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
 
@@ -148,7 +148,7 @@ export const SdkHeader = () => {
       if (recentlyPhotos.length === 0) {
         navigate('/qr')
       } else if (selectedImages.length > 0) {
-        dispatch(generateSlice.actions.setSelectedImage([]))
+        dispatch(generationsSlice.actions.clearSelectedImages())
         setTimeout(() => {
           navigate(-1)
         }, 100)

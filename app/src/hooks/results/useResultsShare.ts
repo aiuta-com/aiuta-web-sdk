@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { fileSlice } from '@/store/slices/fileSlice'
-import { generatedImagesSelector } from '@/store/slices/generateSlice/selectors'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 // TODO: Replace with RPC - need to support sharing images to SDK
 // Required data: { url: string, productId: string }
 import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
@@ -37,7 +37,7 @@ export const useResultsShare = () => {
   // Handle full screen image on mobile
   const handleMobileImageClick = useCallback(
     (imageUrl: string) => {
-      dispatch(fileSlice.actions.setFullScreenImageUrl(imageUrl))
+      dispatch(uploadsSlice.actions.showImageFullScreen(imageUrl))
     },
     [dispatch],
   )

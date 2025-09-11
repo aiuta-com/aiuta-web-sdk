@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { generateSlice } from '@/store/slices/generateSlice'
-import { selectedImagesSelector } from '@/store/slices/generateSlice/selectors'
+import { generationsSlice } from '@/store/slices/generationsSlice'
+import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 
 /**
  * Hook for managing image selection in galleries
@@ -12,13 +12,13 @@ export const useImageSelection = () => {
 
   const toggleSelection = useCallback(
     (id: string) => {
-      dispatch(generateSlice.actions.setSelectedImage(id))
+      dispatch(generationsSlice.actions.toggleSelectedImage(id))
     },
     [dispatch],
   )
 
   const clearSelection = useCallback(() => {
-    dispatch(generateSlice.actions.setSelectedImage([]))
+    dispatch(generationsSlice.actions.clearSelectedImages())
   }, [dispatch])
 
   const isSelected = useCallback(

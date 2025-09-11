@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useCallback } from 'react'
 // redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
 
 // actions
-import { fileSlice } from '@/store/slices/fileSlice'
 
 // selectors
-import { fullScreenImageUrlSelector } from '@/store/slices/fileSlice/selectors'
+import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 
 // messaging
 // TODO: Replace with RPC - need to support:
-// 1. Modal opening from SDK: openFullScreenModal(data: { images: UploadedImage[], modalType?: string })
+// 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { useRpcProxy } from '@/contexts'
 
@@ -56,7 +56,7 @@ export const FullScreenImageModal = () => {
 
   const handleCloseModal = useCallback(() => {
     setModalData(null)
-    dispatch(fileSlice.actions.setFullScreenImageUrl(null))
+    dispatch(uploadsSlice.actions.showImageFullScreen(null))
 
     // Notify parent to close modal via RPC
     rpc.sdk.closeModal()

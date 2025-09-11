@@ -1,11 +1,10 @@
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { fileSlice } from '@/store/slices/fileSlice'
 import { configSlice } from '@/store/slices/configSlice'
-import { generateSlice } from '@/store/slices/generateSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { isSelectPreviouselyImagesSelector } from '@/store/slices/configSlice/selectors'
-import { recentlyPhotosSelector } from '@/store/slices/generateSlice/selectors'
+import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
 import { useImageGallery } from './useImageGallery'
 import { useImageUpload } from '@/hooks/upload/useImageUpload'
 import { ImageItem } from './useFullScreenViewer'
@@ -16,7 +15,7 @@ import { ImageItem } from './useFullScreenViewer'
 export const useUploadsGallery = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const recentlyPhotos = useAppSelector(recentlyPhotosSelector)
+  const recentlyPhotos = useAppSelector(inputImagesSelector)
   const isSelectPreviouslyImages = useAppSelector(isSelectPreviouselyImagesSelector)
   const { uploadImage } = useImageUpload()
 
@@ -38,7 +37,9 @@ export const useUploadsGallery = () => {
   function handleImageSelect(image: ImageItem) {
     if (isSelectPreviouslyImages) {
       // Select image for try-on
-      dispatch(fileSlice.actions.setUploadViewFile({ id: image.id, url: image.url }))
+      dispatch(
+        uploadsSlice.actions.setCurrentImage({ id: image.id, url: image.url }),
+      )
       navigate('/view')
       trackImageSelected(image.id)
     } else {
@@ -52,7 +53,7 @@ export const useUploadsGallery = () => {
   // Handle image deletion
   function handleImageDelete(imageId: string) {
     const updatedPhotos = recentlyPhotos.filter(({ id }) => id !== imageId)
-    dispatch(generateSlice.actions.setRecentlyPhotos(updatedPhotos))
+    dispatch(uploadsSlice.actions.setInputImages(updatedPhotos))
   }
 
   // Handle new photo upload

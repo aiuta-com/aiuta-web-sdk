@@ -4,14 +4,13 @@ export interface EndpointData {
   userId?: string
 }
 
-export interface UploadedImage {
-  id: string
-  url: string
-}
+import type { Image, InputImage, GeneratedImage } from '@lib/models'
+
+export type { Image, InputImage, GeneratedImage }
 
 export interface GenerationResult {
   status: 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'ABORTED' | 'PENDING'
-  generated_images?: UploadedImage[]
+  generated_images?: GeneratedImage[]
   operation_id?: string
   error?: string
 }
@@ -27,7 +26,7 @@ export class TryOnApiService {
   static async uploadImage(
     file: File,
     endpointData: EndpointData,
-  ): Promise<UploadedImage & { owner_type?: string; error?: string }> {
+  ): Promise<InputImage & { owner_type?: string; error?: string }> {
     const hasUserId = typeof endpointData.userId === 'string' && endpointData.userId.length > 0
     const headers: Record<string, string> = {
       'Content-Type': file.type,

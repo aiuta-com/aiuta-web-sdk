@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, UIEvent } from 'react'
 import { useAppSelector } from '@/store/store'
-import { generatedImagesSelector } from '@/store/slices/generateSlice/selectors'
+import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { useFullScreenViewer } from '@/hooks/gallery/useFullScreenViewer'
 import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
 import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'

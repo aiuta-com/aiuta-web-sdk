@@ -1,7 +1,7 @@
 import React from 'react'
 import { ViewImage } from '@/components'
 import { EmptyViewImage } from '@/components'
-import { UploadedImage } from '@/utils'
+import { InputImage } from '@/utils'
 
 interface ImageManagerProps {
   uploadedImage?: {
@@ -9,10 +9,10 @@ interface ImageManagerProps {
     url: string
     localUrl: string
   }
-  recentImage?: UploadedImage
+  recentImage?: InputImage
   isStartGeneration: boolean
   generatedImageUrl: string
-  onImageClick?: (image: UploadedImage) => void
+  onImageClick?: (image: InputImage) => void
   onChangeImage?: () => void
   onUploadClick?: () => void
   showFullScreenOnClick?: boolean
@@ -28,12 +28,12 @@ export const ImageManager: React.FC<ImageManagerProps> = ({
   onUploadClick,
   showFullScreenOnClick = false,
 }) => {
-  const hasUploadedImage = uploadedImage && uploadedImage.localUrl.length > 0
+  const hasInputImage = uploadedImage && uploadedImage.localUrl.length > 0
   const hasRecentImage = recentImage && recentImage.url.length > 0
   const showChangeButton = !isStartGeneration
 
   // If there is an uploaded image
-  if (hasUploadedImage) {
+  if (hasInputImage) {
     return (
       <ViewImage
         url={uploadedImage.localUrl}
