@@ -2,7 +2,7 @@ import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 
 // components
-import { TryOnButton, ViewImage } from '@/components/feature'
+import { TryOnButton, ViewImage } from '@/components'
 
 // hooks
 import { useQrToken } from '../../hooks'

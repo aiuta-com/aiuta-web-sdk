@@ -15,8 +15,8 @@ import { uploadedViewFileSelector } from '@lib/redux/slices/fileSlice/selectors'
 import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selectors'
 
 // components
-import { Swip, Alert, Section, TryOnButton, SelectableImage } from '@/components/feature'
-import { AbortModal, ImageManager } from '@/components/shared'
+import { Swip, Alert, Section, TryOnButton, SelectableImage } from '@/components'
+import { AbortModal, ImageManager } from '@/components'
 
 // hooks
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '../../hooks'

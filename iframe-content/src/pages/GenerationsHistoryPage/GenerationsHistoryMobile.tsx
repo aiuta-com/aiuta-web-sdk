@@ -1,8 +1,8 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section } from '@/components/feature'
-import { ImageGallery, SelectionBanner } from '@/components/shared'
-import { HistoryImagesRemoveModal } from '@/components/shared/modals'
+import { Section } from '@/components'
+import { ImageGallery, SelectionBanner } from '@/components'
+import { HistoryImagesRemoveModal } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
 import styles from './generationsHistory.module.scss'
 

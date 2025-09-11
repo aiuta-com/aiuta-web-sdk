@@ -12,8 +12,8 @@ import { configSlice } from '@lib/redux/slices/configSlice'
 import { isMobileSelector, onboardingStepsSelector } from '@lib/redux/slices/configSlice/selectors'
 
 // components
-import { Section } from '@/components/feature/'
-import { Onboarding } from '@/components/shared'
+import { Section } from '@/components'
+import { Onboarding } from '@/components'
 
 // styles
 import styles from './index.module.scss'

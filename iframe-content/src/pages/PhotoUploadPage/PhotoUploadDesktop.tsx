@@ -2,7 +2,7 @@ import React, { useEffect, ChangeEvent } from 'react'
 import { motion } from 'framer-motion'
 
 // components
-import { Alert, QrCode } from '@/components/feature'
+import { Alert, QrCode } from '@/components'
 
 // hooks
 import { useQrUpload, useTryOnAnalytics } from '../../hooks'

@@ -1,8 +1,8 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section, ViewImage } from '@/components/feature'
-import { GeneratedImageButtons } from '@/components/shared'
-import { ResultsSlider } from '@/components/shared'
+import { Section, ViewImage } from '@/components'
+import { GeneratedImageButtons } from '@/components'
+import { ResultsSlider } from '@/components'
 import { useResultsGallery } from '@/hooks'
 import styles from './ResultsPage.module.scss'
 

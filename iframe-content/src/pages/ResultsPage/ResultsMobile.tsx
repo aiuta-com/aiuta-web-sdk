@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section, ViewImage } from '@/components/feature'
-import { ShareButton } from '@/components/shared'
+import { Section, ViewImage } from '@/components'
+import { ShareButton } from '@/components'
 import { useResultsShare } from '@/hooks'
 import styles from './ResultsPage.module.scss'
 

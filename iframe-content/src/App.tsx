@@ -29,11 +29,7 @@ import ResultsPage from './pages/ResultsPage'
 import UploadsHistoryPage from './pages/UploadsHistoryPage'
 
 // components
-import { SdkHeader } from './components/shared'
-import { SdkFooter } from './components/shared'
-import { FullScreenImageModal } from './components/feature'
-import { ShareModal } from './components/feature'
-import { Spinner } from './components/feature/spinner/spinner'
+import { SdkHeader, SdkFooter, FullScreenImageModal, ShareModal, Spinner } from '@/components'
 
 declare const __IFRAME_VERSION__: string
 

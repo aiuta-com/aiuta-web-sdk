@@ -12,8 +12,8 @@ import { isStartGenerationSelector } from '@lib/redux/slices/generateSlice/selec
 import { SecureMessenger, MESSAGE_ACTIONS } from '@shared/messaging'
 
 // components
-import { Alert, Section, TryOnButton } from '@/components/feature'
-import { AbortModal, ImageManager } from '@/components/shared'
+import { Alert, Section, TryOnButton } from '@/components'
+import { AbortModal, ImageManager } from '@/components'
 
 // hooks
 import { useTryOnGeneration, usePhotoGallery } from '../../hooks'
