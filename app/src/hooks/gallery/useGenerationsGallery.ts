@@ -2,7 +2,6 @@ import { useCallback, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { modalSlice } from '@/store/slices/modalSlice'
 import {
   selectedImagesSelector,
   generatedImagesSelector,
@@ -15,10 +14,14 @@ import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'
 
+interface UseGenerationsGalleryProps {
+  onCloseModal?: () => void
+}
+
 /**
  * Hook for managing generated images gallery functionality
  */
-export const useGenerationsGallery = () => {
+export const useGenerationsGallery = ({ onCloseModal }: UseGenerationsGalleryProps = {}) => {
   const dispatch = useAppDispatch()
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
@@ -75,8 +78,8 @@ export const useGenerationsGallery = () => {
 
   // Close history images removal modal
   const closeHistoryImagesModal = useCallback(() => {
-    dispatch(modalSlice.actions.setShowHistoryImagesModal(false))
-  }, [dispatch])
+    onCloseModal?.()
+  }, [onCloseModal])
 
   // Delete selected images
   const deleteSelectedImages = useCallback(() => {

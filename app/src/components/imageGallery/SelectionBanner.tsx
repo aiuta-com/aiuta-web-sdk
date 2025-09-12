@@ -7,6 +7,7 @@ interface SelectionBannerProps {
   isMobile?: boolean
   className?: string
   children?: React.ReactNode
+  onShowModal?: () => void
 }
 
 /**
@@ -17,6 +18,7 @@ export const SelectionBanner: React.FC<SelectionBannerProps> = ({
   isMobile,
   className,
   children,
+  onShowModal,
 }) => {
   return (
     <div
@@ -28,7 +30,7 @@ export const SelectionBanner: React.FC<SelectionBannerProps> = ({
             : ''
       } ${className || ''}`}
     >
-      {children || <RemoveHistoryBanner />}
+      {children || (onShowModal && <RemoveHistoryBanner onShowModal={onShowModal} />)}
     </div>
   )
 }

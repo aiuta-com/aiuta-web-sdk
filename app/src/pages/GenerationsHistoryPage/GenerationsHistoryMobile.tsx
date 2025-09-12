@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { Section } from '@/components'
 import { ImageGallery, SelectionBanner } from '@/components'
@@ -17,14 +17,15 @@ const animationConfig = {
  * Mobile version of generations history page
  */
 export default function GenerationsHistoryMobile() {
-  const {
-    images,
-    handleImageClick,
-    hasSelection,
-    isMobile,
-    deleteSelectedImages,
-    closeHistoryImagesModal,
-  } = useGenerationsGallery()
+  const [isModalVisible, setIsModalVisible] = useState(false)
+
+  const { images, handleImageClick, hasSelection, isMobile, deleteSelectedImages } =
+    useGenerationsGallery({
+      onCloseModal: () => setIsModalVisible(false),
+    })
+
+  const handleShowModal = () => setIsModalVisible(true)
+  const handleCloseModal = () => setIsModalVisible(false)
 
   return (
     <Section className={styles.sectionContent}>
@@ -46,11 +47,13 @@ export default function GenerationsHistoryMobile() {
           hasSelection={hasSelection}
           isMobile={isMobile}
           className={styles.historyBanner}
+          onShowModal={handleShowModal}
         />
 
         <HistoryImagesRemoveModal
+          isVisible={isModalVisible}
           onClickRightButton={deleteSelectedImages}
-          onClickLeftButton={closeHistoryImagesModal}
+          onClickLeftButton={handleCloseModal}
         />
       </motion.div>
     </Section>

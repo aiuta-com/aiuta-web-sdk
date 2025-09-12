@@ -1,14 +1,17 @@
 import React from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
-import { modalSlice } from '@/store/slices/modalSlice'
 import { selectedImagesSelector, generatedImagesSelector } from '@/store/slices/generationsSlice'
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
 import { SecondaryButton } from '@/components'
 import styles from './removeHistoryBanner.module.scss'
 import { useRpcProxy } from '@/contexts'
 
-export const RemoveHistoryBanner = () => {
+interface RemoveHistoryBannerProps {
+  onShowModal: () => void
+}
+
+export const RemoveHistoryBanner = ({ onShowModal }: RemoveHistoryBannerProps) => {
   const dispatch = useAppDispatch()
   const rpc = useRpcProxy()
 
@@ -24,10 +27,6 @@ export const RemoveHistoryBanner = () => {
 
   const handleClose = () => {
     dispatch(generationsSlice.actions.clearSelectedImages())
-  }
-
-  const handleShowHistoryImagesModal = () => {
-    dispatch(modalSlice.actions.setShowHistoryImagesModal(true))
   }
 
   const handleDowloadSelectedImages = async () => {
@@ -70,7 +69,7 @@ export const RemoveHistoryBanner = () => {
         </p>
       </div>
       <div className={styles.iconsLine}>
-        <img src={'./icons/trash.svg'} alt="Trash icon" onClick={handleShowHistoryImagesModal} />
+        <img src={'./icons/trash.svg'} alt="Trash icon" onClick={onShowModal} />
         <img
           src={'./icons/download.svg'}
           alt="Download icon"

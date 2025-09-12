@@ -1,19 +1,15 @@
 import React from 'react'
-import { useAppSelector } from '@/store/store'
-import { showHistoryImagesModalSelector } from '@/store/slices/modalSlice/selectors'
 import { SecondaryButton } from '@/components'
 import { HistoryImagesRemoveModalTypes } from './types'
 import styles from './historyImagesRemoveModal.module.scss'
 
 export const HistoryImagesRemoveModal = (props: HistoryImagesRemoveModalTypes) => {
-  const { onClickLeftButton, onClickRightButton } = props
-
-  const showHistoryImagesModal = useAppSelector(showHistoryImagesModalSelector)
+  const { onClickLeftButton, onClickRightButton, isVisible } = props
 
   return (
     <div
       className={`${styles.historyImagesModal} ${
-        showHistoryImagesModal ? styles.historyImagesModalActive : ''
+        isVisible ? styles.historyImagesModalActive : ''
       } `}
     >
       <div className={styles.moadlContent}>
