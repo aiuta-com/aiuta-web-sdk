@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { configSlice } from '@/store/slices/configSlice'
-import { isMobileSelector } from '@/store/slices/configSlice/selectors'
+import { isMobileSelector, isOnboardingDoneSelector } from '@/store/slices/configSlice/selectors'
 
 /**
  * Hook for managing app initialization logic
@@ -11,12 +11,12 @@ export const useAppInitialization = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const isMobile = useAppSelector(isMobileSelector)
+  const isOnboardingCompleted = useAppSelector(isOnboardingDoneSelector)
 
   const getStoredData = useCallback(() => {
-    const isOnboarding = localStorage.getItem('isOnboarding') || false
     const recentlyPhotos = JSON.parse(localStorage.getItem('tryon-recent-photos') || '[]')
 
-    return { isOnboarding, recentlyPhotos, hasPhotos: recentlyPhotos.length > 0 }
+    return { recentlyPhotos, hasPhotos: recentlyPhotos.length > 0 }
   }, [])
 
   const navigateBasedOnState = useCallback(
@@ -65,15 +65,13 @@ export const useAppInitialization = () => {
 
     // Delay to show onboarding animation
     setTimeout(() => {
-      const { isOnboarding } = getStoredData()
-
-      if (isOnboarding) {
+      if (isOnboardingCompleted) {
         handleOnboardingComplete()
       } else {
         handleFirstTimeUser()
       }
     }, 2000) // 2 second delay for onboarding display
-  }, [dispatch, getStoredData, handleOnboardingComplete, handleFirstTimeUser])
+  }, [dispatch, isOnboardingCompleted, handleOnboardingComplete, handleFirstTimeUser])
 
   return { initializeApp }
 }

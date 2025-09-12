@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit'
-
-const isOnboardingDone =
-  typeof window !== 'undefined' && JSON.parse(localStorage.getItem('isOnboarding') || 'false')
+import { OnboardingStorage } from '@/utils'
 
 interface configSliceState {
   qrToken: string
@@ -34,7 +32,7 @@ const initialState: configSliceState = {
   isShowQrSpinner: false,
   isSelectHistoryImages: false,
   isSelectPreviouselyImages: false,
-  isOnboardingDone: isOnboardingDone,
+  isOnboardingDone: OnboardingStorage.getOnboardingCompleted(),
   aiutaEndpointData: {
     skuId: '',
     apiKey: '',
@@ -70,6 +68,7 @@ export const configSlice = createSlice({
     },
     setIsOnboardingDone: (state, { payload }) => {
       state.isOnboardingDone = payload
+      OnboardingStorage.setOnboardingCompleted(payload)
     },
     setAiutaEndpointData: (state, { payload }) => {
       state.aiutaEndpointData = payload

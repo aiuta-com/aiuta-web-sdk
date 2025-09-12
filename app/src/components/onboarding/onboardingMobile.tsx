@@ -5,6 +5,7 @@ import { configSlice } from '@/store/slices/configSlice'
 import {
   aiutaEndpointDataSelector,
   onboardingStepsSelector,
+  isOnboardingDoneSelector,
 } from '@/store/slices/configSlice/selectors'
 import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components'
@@ -44,6 +45,7 @@ export const OnboardingMobile = () => {
 
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
 
   const handleOnboardAnalyticFinish = () => {
     const analytic = {
@@ -69,7 +71,6 @@ export const OnboardingMobile = () => {
         handleOnboardAnalyticFinish()
         dispatch(configSlice.actions.setIsShowFooter(true))
         dispatch(configSlice.actions.setIsOnboardingDone(true))
-        localStorage.setItem('isOnboarding', JSON.stringify(true))
       }
     }
   }
@@ -93,9 +94,7 @@ export const OnboardingMobile = () => {
   }
 
   useEffect(() => {
-    const isOnboarding = JSON.parse(localStorage.getItem('isOnboarding') || 'false')
-
-    if (!isOnboarding) {
+    if (!isOnboardingDone) {
       if (!onboardingSteps) {
         initaillAnalytic()
       } else if (onboardingSteps === 1) {

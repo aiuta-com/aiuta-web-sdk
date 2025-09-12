@@ -41,7 +41,7 @@ body {
 
 body {
   color: #171717;
-  background: transparent;
+  background: var(--background);
   font-family:
     GT Maru,
     sans-serif;

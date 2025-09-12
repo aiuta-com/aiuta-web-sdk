@@ -14,6 +14,7 @@ import {
   isShowSpinnerSelector,
   onboardingStepsSelector,
   aiutaEndpointDataSelector,
+  isOnboardingDoneSelector,
 } from '@/store/slices/configSlice/selectors'
 
 // components
@@ -43,6 +44,7 @@ export const Onboarding = () => {
   const isInitialized = useAppSelector(isInitializedSelector)
   const onboardingSteps = useAppSelector(onboardingStepsSelector)
   const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
 
   const onboardingAnalytic = () => {
     const analytic = {
@@ -77,7 +79,7 @@ export const Onboarding = () => {
       navigate('/qr')
       onboardingAnalytic()
       handleOnboardAnalyticFinish()
-      localStorage.setItem('isOnboarding', JSON.stringify(true))
+      dispatch(configSlice.actions.setIsOnboardingDone(true))
     }
   }
 
@@ -88,9 +90,7 @@ export const Onboarding = () => {
   }
 
   useEffect(() => {
-    const isOnboarding = JSON.parse(localStorage.getItem('isOnboarding') || 'false')
-
-    if (!isOnboarding) {
+    if (!isOnboardingDone) {
       if (onboardingSteps === 0) {
         const analytic = {
           data: {
