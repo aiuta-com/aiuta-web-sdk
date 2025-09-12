@@ -4,6 +4,7 @@ import AnalyticsTracker from './analytics'
 import { AiutaRpcSdk } from '@lib/rpc'
 import type { SdkHandlers, SdkContext } from '@lib/rpc'
 import type { AiutaConfiguration } from '@lib/config'
+import type { Logger } from '@lib/logger'
 
 declare const __SDK_VERSION__: string
 
@@ -14,6 +15,7 @@ export default class MessageHandler {
     private readonly analytics: AnalyticsTracker,
     private readonly iframeManager: IframeManager,
     private readonly configuration: AiutaConfiguration,
+    private readonly logger: Logger,
   ) {
     const handlers: SdkHandlers = {
       trackEvent: (event, ctx) => {
@@ -59,7 +61,7 @@ export default class MessageHandler {
         await this.rpc.app.tryOn(productId)
       }
     } catch (error) {
-      console.error('Aiuta RPC tryOn failed:', error)
+      this.logger.error('Aiuta RPC tryOn failed:', error)
       this.analytics.track({ data: { type: 'session', event: 'rpcFailed' } })
     }
   }
@@ -74,7 +76,7 @@ export default class MessageHandler {
         await this.rpc.app.updateWindowSizes(sizes)
       }
     } catch (error) {
-      console.error('RPC sendWindowSizes failed:', error)
+      this.logger.error('RPC sendWindowSizes failed:', error)
     }
   }
 }

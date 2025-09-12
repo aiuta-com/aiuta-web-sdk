@@ -2,6 +2,7 @@
 // Required actions: openFullScreenModal, openShareModal
 import type { FullScreenModalData, FullscreenModalIframeConfig, ShareModalData } from './types'
 import type { AiutaUserInterface } from '@lib/config'
+import type { Logger } from '@lib/logger'
 
 declare const __APP_URL__: string
 
@@ -62,7 +63,10 @@ export default class IframeManager {
   customCssUrl?: string
   iframeStyles?: AiutaUserInterface['iframeStyles']
 
-  constructor(userInterface: AiutaUserInterface | undefined) {
+  constructor(
+    userInterface: AiutaUserInterface | undefined,
+    private readonly logger: Logger,
+  ) {
     if (userInterface) this.applyUserInterface(userInterface)
   }
 
@@ -90,8 +94,13 @@ export default class IframeManager {
 
   showMainFrame() {
     const existing = document.getElementById(iframeDefaults.iframeId) as HTMLIFrameElement | null
-    if (existing) this.reveal()
-    else this.createMainIframe()
+    if (existing) {
+      this.logger.debug('Revealing existing iframe')
+      this.reveal()
+    } else {
+      this.logger.debug('Creating new main iframe')
+      this.createMainIframe()
+    }
   }
 
   private buildIframeSrc(baseUrl: string, customCssUrl?: string) {
@@ -192,6 +201,7 @@ export default class IframeManager {
   }
 
   openFullscreenModal(modalData: FullScreenModalData) {
+    this.logger.debug('Opening fullscreen modal:', modalData)
     this.removeFullscreenModal()
     const modalUrl = this.buildModalUrl('fullscreen')
     const cfg: FullscreenModalIframeConfig = {
@@ -231,6 +241,7 @@ export default class IframeManager {
   }
 
   openShareModal(shareData: ShareModalData) {
+    this.logger.debug('Opening share modal:', shareData)
     this.removeShareModal()
     const modalUrl = this.buildModalUrl('share')
     const cfg: FullscreenModalIframeConfig = {

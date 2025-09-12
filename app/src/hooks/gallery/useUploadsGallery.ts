@@ -37,9 +37,7 @@ export const useUploadsGallery = () => {
   function handleImageSelect(image: ImageItem) {
     if (isSelectPreviouslyImages) {
       // Select image for try-on
-      dispatch(
-        uploadsSlice.actions.setCurrentImage({ id: image.id, url: image.url }),
-      )
+      dispatch(uploadsSlice.actions.setCurrentImage({ id: image.id, url: image.url }))
       navigate('/view')
       trackImageSelected(image.id)
     } else {

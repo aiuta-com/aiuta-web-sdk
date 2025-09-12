@@ -7,3 +7,4 @@ export {
   useRpcMethod,
   useRpcProxy,
 } from './RpcContext'
+export { LoggerProvider, useLogger, useLoggerControl } from './LoggerContext'

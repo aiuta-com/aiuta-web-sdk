@@ -1,4 +1,5 @@
 import type { AiutaAnalytics, AiutaAnalyticsCallback } from '@lib/config'
+import type { Logger } from '@lib/logger'
 import { v4 as uuidv4 } from 'uuid'
 import Bowser from 'bowser'
 import dayjs from 'dayjs'
@@ -26,7 +27,10 @@ export default class AnalyticsTracker {
   private analyticsUrl: string
   private env: AnalyticsEnv
 
-  constructor(analytics?: AiutaAnalytics) {
+  constructor(
+    analytics?: AiutaAnalytics,
+    private readonly logger?: Logger,
+  ) {
     this.analyticsUrl = __ANALYTICS_URL__
     this.env = this.buildEnv()
 
@@ -54,7 +58,9 @@ export default class AnalyticsTracker {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
-    }).catch(() => {})
+    }).catch((error) => {
+      this.logger?.error('Track event failed', error)
+    })
   }
 
   private buildEnv(): AnalyticsEnv {

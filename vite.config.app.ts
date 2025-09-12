@@ -12,6 +12,7 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, buildConfig.path.dist, buildConfig.path.app),
     emptyOutDir: true,
+    chunkSizeWarningLimit: 512,
     commonjsOptions: {
       transformMixedEsModules: true,
     },

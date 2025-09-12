@@ -1,5 +1,6 @@
 import React, { createContext, useContext, ReactNode, useEffect } from 'react'
 import type { AiutaRpcApp } from '@lib/rpc'
+import { useLoggerConfig } from '@/hooks'
 
 interface RpcContextType {
   rpc: AiutaRpcApp | null
@@ -13,7 +14,16 @@ interface RpcProviderProps {
 }
 
 export function RpcProvider({ children, rpcApp }: RpcProviderProps) {
-  return <RpcContext.Provider value={{ rpc: rpcApp }}>{children}</RpcContext.Provider>
+  return (
+    <RpcContext.Provider value={{ rpc: rpcApp }}>
+      <RpcLoggerConfigWrapper>{children}</RpcLoggerConfigWrapper>
+    </RpcContext.Provider>
+  )
+}
+
+function RpcLoggerConfigWrapper({ children }: { children: React.ReactNode }) {
+  useLoggerConfig()
+  return <>{children}</>
 }
 
 export function useRpc(): RpcContextType {

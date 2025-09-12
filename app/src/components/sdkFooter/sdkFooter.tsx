@@ -1,9 +1,6 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
-import {
-  isMobileSelector,
-  isShowFooterSelector,
-} from '@/store/slices/configSlice/selectors'
+import { isMobileSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
 import styles from './sdkFooter.module.scss'
 import { useEffect, useState } from 'react'
 
@@ -26,11 +23,7 @@ export const SdkFooter = () => {
   const iasNavigateMobilePath = pathName === '/history' || pathName === '/previously'
 
   return !isMobile ? (
-    <footer
-      className={`${styles.footer} ${
-        iasNavigatePath ? styles.hideFooter : ''
-      } `}
-    >
+    <footer className={`${styles.footer} ${iasNavigatePath ? styles.hideFooter : ''} `}>
       <p className={styles.linkingText}>
         Powered{' '}
         <a target="_blank" href="https://www.aiuta.com/">
