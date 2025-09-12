@@ -41,10 +41,10 @@ jobs:
           process_gcloudignore: 'false'
 
       # Upload dist/ to GCS
-      - name: Upload to GCS bucket Preprod Iframe
+      - name: Upload to GCS bucket Preprod App
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: dist/iframe/
+          path: dist/app/
           destination: aiuta_preprod_static/sdk/main/
           parent: false
           process_gcloudignore: 'false'

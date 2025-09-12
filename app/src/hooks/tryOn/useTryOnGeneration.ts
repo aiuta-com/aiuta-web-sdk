@@ -1,0 +1,250 @@
+import { useState, useCallback, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { generationsSlice } from '@/store/slices/generationsSlice'
+import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
+import { useRpcProxy } from '@/contexts'
+import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
+import { useTryOnAnalytics } from './useTryOnAnalytics'
+import { usePhotoGallery } from './usePhotoGallery'
+
+export const useTryOnGeneration = () => {
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
+
+  const endpointData = useAppSelector(aiutaEndpointDataSelector)
+  const uploadedViewFile = useAppSelector(currentImageSelector)
+
+  const { addPhotoToGallery, getRecentPhoto } = usePhotoGallery()
+  const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
+    useTryOnAnalytics()
+
+  const [generatedImageUrl, addGeneratedImageUrl] = useState('')
+  const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const clearGenerationInterval = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [])
+
+  const handleGenerationSuccess = useCallback(
+    (result: GenerationResult) => {
+      if (result.generated_images && result.generated_images.length > 0) {
+        const { id, url } = result.generated_images[0]
+
+        addGeneratedImageUrl(url)
+        dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
+
+        setTimeout(() => {
+          dispatch(generationsSlice.actions.setIsGenerating(false))
+          navigate('/generated')
+        }, 500)
+
+        trackTryOnFinished()
+        clearGenerationInterval()
+      }
+    },
+    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval],
+  )
+
+  const handleGenerationError = useCallback(
+    (result: GenerationResult) => {
+      clearGenerationInterval()
+      dispatch(generationsSlice.actions.setIsGenerating(false))
+
+      dispatch(
+        errorSnackbarSlice.actions.showErrorSnackbar({
+          retryButtonText: 'Try again',
+          errorMessage: 'Something went wrong. Please try again later.',
+        }),
+      )
+
+      trackTryOnError(result.status, result.error || 'Unknown error')
+    },
+    [dispatch, trackTryOnError, clearGenerationInterval],
+  )
+
+  const handleGenerationAborted = useCallback(
+    (result: GenerationResult) => {
+      clearGenerationInterval()
+      dispatch(generationsSlice.actions.setIsGenerating(false))
+      setIsOpenAbortedModal(true)
+
+      trackTryOnAborted(result.error || 'Unknown reason')
+    },
+    [dispatch, trackTryOnAborted, clearGenerationInterval],
+  )
+
+  const pollGenerationStatus = useCallback(
+    async (operationId: string) => {
+      if (!endpointData) return
+
+      try {
+        const result = await TryOnApiService.getGenerationResult(operationId, endpointData)
+
+        switch (result.status) {
+          case 'SUCCESS':
+            handleGenerationSuccess(result)
+            // Clear file in mobile version
+            if (uploadedViewFile.id) {
+              dispatch(uploadsSlice.actions.clearCurrentImage())
+            }
+            break
+          case 'FAILED':
+          case 'CANCELLED':
+            handleGenerationError(result)
+            break
+          case 'ABORTED':
+            handleGenerationAborted(result)
+            break
+          default:
+            // Continue waiting for PENDING status
+            break
+        }
+      } catch (error) {
+        console.error('Generation polling error:', error)
+      }
+    },
+    [
+      endpointData,
+      handleGenerationSuccess,
+      handleGenerationError,
+      handleGenerationAborted,
+      uploadedViewFile.id,
+      dispatch,
+    ],
+  )
+
+  const createOperationWithJwt = useCallback(
+    async (uploadedImageId: string): Promise<string | null> => {
+      if (!endpointData || !rpc || !('getJwt' in rpc.config.auth)) return null
+
+      try {
+        const jwtToken = await rpc.config.auth.getJwt({ uploaded_image_id: uploadedImageId })
+
+        if (typeof jwtToken !== 'string' || jwtToken.length === 0) {
+          trackTryOnError('authorizationFailed', 'authorizationFailed')
+          return null
+        }
+
+        const result = await TryOnApiService.createOperation(
+          uploadedImageId,
+          endpointData,
+          jwtToken,
+        )
+
+        if (result.operation_id) {
+          return result.operation_id
+        } else {
+          trackTryOnError('operation_id_is_missing', 'operation_id_is_missing')
+          return null
+        }
+      } catch (error: any) {
+        trackTryOnError('requestOperationFailed', error.message)
+        return null
+      }
+    },
+    [endpointData, rpc, trackTryOnError],
+  )
+
+  const createOperationWithoutJwt = useCallback(
+    async (uploadedImageId: string): Promise<string | null> => {
+      if (!endpointData) return null
+
+      try {
+        const result = await TryOnApiService.createOperation(uploadedImageId, endpointData)
+        return result.operation_id || null
+      } catch (error: any) {
+        trackTryOnError('requestOperationFailed', error.message)
+        return null
+      }
+    },
+    [endpointData, trackTryOnError],
+  )
+
+  const startTryOn = useCallback(
+    async (customImage?: InputImage): Promise<void> => {
+      if (!endpointData) {
+        console.error('Endpoints info is missing')
+        return
+      }
+
+      // Determine image for try-on
+      const targetImage = customImage || (uploadedViewFile.id ? uploadedViewFile : getRecentPhoto())
+
+      if (!targetImage?.id) {
+        console.error('No image selected for try-on')
+        return
+      }
+
+      // Track process start
+      trackTryOnInitiated()
+
+      // Update state
+      dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
+      dispatch(generationsSlice.actions.setIsGenerating(true))
+
+      // Add to gallery if this is an uploaded image
+      if (uploadedViewFile.id) {
+        addPhotoToGallery({ id: uploadedViewFile.id, url: uploadedViewFile.url })
+      }
+
+      // Create operation
+      const hasUserId = endpointData.userId && endpointData.userId.length > 0
+      const operationId = hasUserId
+        ? await createOperationWithJwt(targetImage.id)
+        : await createOperationWithoutJwt(targetImage.id)
+
+      if (!operationId) {
+        dispatch(generationsSlice.actions.setIsGenerating(false))
+        dispatch(
+          errorSnackbarSlice.actions.showErrorSnackbar({
+            retryButtonText: 'Try again',
+            errorMessage: 'Something went wrong. Please try again later.',
+          }),
+        )
+        return
+      }
+
+      // Start status polling
+      intervalRef.current = setInterval(() => {
+        pollGenerationStatus(operationId)
+      }, 3000)
+    },
+    [
+      endpointData,
+      uploadedViewFile,
+      getRecentPhoto,
+      trackTryOnInitiated,
+      dispatch,
+      addPhotoToGallery,
+      createOperationWithJwt,
+      createOperationWithoutJwt,
+      pollGenerationStatus,
+    ],
+  )
+
+  const regenerate = useCallback(() => {
+    dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
+    startTryOn()
+  }, [dispatch, startTryOn])
+
+  const closeAbortedModal = useCallback(() => {
+    setIsOpenAbortedModal(false)
+  }, [])
+
+  return {
+    generatedImageUrl,
+    isOpenAbortedModal,
+    startTryOn,
+    regenerate,
+    closeAbortedModal,
+  }
+}

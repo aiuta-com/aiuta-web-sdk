@@ -55,10 +55,10 @@ jobs:
           process_gcloudignore: 'false'
 
       # Upload dist/ to GCS
-      - name: Upload to GCS bucket Prod Iframe
+      - name: Upload to GCS bucket Prod App
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: dist/iframe/
+          path: dist/app/
           destination: aiuta_prod_static/sdk/${{ github.ref_name }}/
           parent: false
           process_gcloudignore: 'false'
@@ -73,10 +73,10 @@ jobs:
           process_gcloudignore: 'false'
 
       # Upload dist/ to GCS latest folder
-      - name: Upload to GCS bucket Prod (latest) Iframe
+      - name: Upload to GCS bucket Prod (latest) App
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: dist/iframe/
+          path: dist/app/
           destination: aiuta_prod_static/sdk/latest/
           parent: false
           process_gcloudignore: 'false'
@@ -100,10 +100,10 @@ jobs:
           process_gcloudignore: 'false'
 
       # Upload dist/ to GCS major version folder
-      - name: Upload to GCS bucket Prod (major version) Iframe
+      - name: Upload to GCS bucket Prod (major version) App
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: dist/iframe/
+          path: dist/app/
           destination: aiuta_prod_static/sdk/${{ steps.extract_version.outputs.major_version }}/
           parent: false
           process_gcloudignore: 'false'

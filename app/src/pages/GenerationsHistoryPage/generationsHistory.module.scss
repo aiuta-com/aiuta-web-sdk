@@ -1,0 +1,35 @@
+.sectionContent {
+  position: relative;
+  height: calc(100vh - 90px);
+}
+
+.viewContent {
+  height: 100%;
+  min-height: 100%;
+  display: flex;
+  row-gap: 5px;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.imageContent {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  overflow-y: auto;
+  max-height: 555px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.historyBanner {
+  transition: all 0.3s ease-in-out;
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  left: 7.5px;
+  max-width: 377px;
+  bottom: -200px;
+}
