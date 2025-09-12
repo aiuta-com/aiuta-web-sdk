@@ -6,16 +6,10 @@ interface ErrorSnackbarState {
   retryButtonText: string
 }
 
-interface ErrorSnackbarSliceState {
-  errorSnackbar: ErrorSnackbarState
-}
-
-const initialState: ErrorSnackbarSliceState = {
-  errorSnackbar: {
-    isVisible: false,
-    errorMessage: '',
-    retryButtonText: '',
-  },
+const initialState: ErrorSnackbarState = {
+  isVisible: false,
+  errorMessage: '',
+  retryButtonText: '',
 }
 
 export const errorSnackbarSlice = createSlice({
@@ -23,13 +17,12 @@ export const errorSnackbarSlice = createSlice({
   initialState,
   reducers: {
     showErrorSnackbar: (state, { payload }: { payload: Omit<ErrorSnackbarState, 'isVisible'> }) => {
-      state.errorSnackbar = {
-        ...payload,
-        isVisible: true,
-      }
+      state.errorMessage = payload.errorMessage
+      state.retryButtonText = payload.retryButtonText
+      state.isVisible = true
     },
     hideErrorSnackbar: (state) => {
-      state.errorSnackbar.isVisible = false
+      state.isVisible = false
     },
   },
 })
