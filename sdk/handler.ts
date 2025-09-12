@@ -1,5 +1,4 @@
 // import { SecurePostMessageHandler } from './security' // TODO: Remove if not needed
-import AuthManager from './auth'
 import IframeManager from './iframe'
 import AnalyticsTracker from './analytics'
 import { AiutaRpcSdk } from '@lib/rpc'
@@ -9,19 +8,13 @@ import type { AiutaConfiguration } from '@lib/config'
 declare const __SDK_VERSION__: string
 
 export default class MessageHandler {
-  private rpcSdk!: AiutaRpcSdk<AiutaConfiguration>
+  private rpc: AiutaRpcSdk<AiutaConfiguration>
 
   constructor(
-    _auth: AuthManager, // TODO: Remove if not needed
     private readonly analytics: AnalyticsTracker,
     private readonly iframeManager: IframeManager,
     private readonly configuration: AiutaConfiguration,
   ) {
-    this.initializeRpc()
-    this.setupResizeListener()
-  }
-
-  private initializeRpc() {
     const handlers: SdkHandlers = {
       trackEvent: (event, ctx) => {
         if (ctx.appVersion) {
@@ -39,54 +32,49 @@ export default class MessageHandler {
       sdkVersion: __SDK_VERSION__,
     }
 
-    this.rpcSdk = new AiutaRpcSdk<AiutaConfiguration>({
+    this.rpc = new AiutaRpcSdk<AiutaConfiguration>({
       context,
       handlers,
     })
+
+    window.addEventListener('resize', () => {
+      this.sendWindowSizes()
+    })
   }
 
-  setProductId() {
-    // TODO: Remove this method if not needed
-  }
-
-  async tryOnViaRpc(productId: string) {
+  async startTryOn(productId: string) {
     try {
       const iframe = this.iframeManager.getIframe()
       if (iframe) {
-        if (!this.rpcSdk.hasConnection()) {
-          await this.rpcSdk.connect(iframe)
-          await this.sendWindowSizesViaRpc()
-          const sdkVersion = this.rpcSdk.context.sdkVersion
+        if (!this.rpc.hasConnection()) {
+          await this.rpc.connect(iframe)
+          await this.sendWindowSizes()
+          const sdkVersion = this.rpc.context.sdkVersion
           if (sdkVersion) {
             this.analytics.setIframeVersion(sdkVersion)
           }
           this.analytics.track({ data: { type: 'session', event: 'iframeLoaded' } })
         }
 
-        await this.rpcSdk.app.tryOn(productId)
+        await this.rpc.app.tryOn(productId)
       }
     } catch (error) {
-      console.error('RPC tryOn failed:', error)
+      console.error('Aiuta RPC tryOn failed:', error)
+      this.analytics.track({ data: { type: 'session', event: 'rpcFailed' } })
     }
   }
 
-  private async sendWindowSizesViaRpc() {
+  private async sendWindowSizes() {
     try {
-      if (this.rpcSdk.hasConnection()) {
+      if (this.rpc.hasConnection()) {
         const sizes = {
           width: window.innerWidth,
           height: window.innerHeight,
         }
-        await this.rpcSdk.app.updateWindowSizes(sizes)
+        await this.rpc.app.updateWindowSizes(sizes)
       }
     } catch (error) {
-      console.error('[RPC SDK] sendWindowSizes failed:', error)
+      console.error('RPC sendWindowSizes failed:', error)
     }
-  }
-
-  private setupResizeListener() {
-    window.addEventListener('resize', () => {
-      this.sendWindowSizesViaRpc()
-    })
   }
 }

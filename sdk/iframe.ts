@@ -5,15 +5,62 @@ import type { AiutaUserInterface } from '@lib/config'
 
 declare const __APP_URL__: string
 
+// Default iframe styles and dimensions
+const iframeDefaults = {
+  // Desktop dimensions
+  desktopWidth: '394px',
+  desktopHeight: '632px',
+
+  // Positioning
+  defaultTop: '12px',
+  defaultRight: '12px',
+  hiddenRight: '-1000%',
+
+  // Fullscreen positioning (used for mobile and modals)
+  fullscreenTop: '0px',
+  fullscreenRight: '0px',
+  fullscreenLeft: '0px',
+  fullscreenBottom: '0px',
+  fullscreenWidth: '100%',
+  fullscreenHeight: '100%',
+
+  // Styling
+  defaultBorderRadius: '24px',
+  defaultBorder: '1px solid #0000001A',
+  defaultBoxShadow: '0px 8px 28px -6px #0000001F',
+  defaultTransition: 'all ease-in-out 0.5s',
+
+  // Mobile overrides
+  mobileBorderRadius: '0px',
+  mobileBorder: '1px solid #ffffff',
+  mobileBoxShadow: 'none',
+
+  // Other
+  zIndex: '10000',
+  fullscreenModalZIndex: '10001',
+  shareModalZIndex: '10002',
+  mobileBreakpoint: 992,
+
+  // Modal styles
+  modalBorder: 'none',
+  modalBackground: 'transparent',
+
+  // HTML attributes
+  iframeId: 'aiuta-iframe',
+  fullscreenModalId: 'aiuta-fullscreen-modal',
+  shareModalId: 'aiuta-share-modal',
+  allowAttribute: 'fullscreen',
+  position: 'fixed',
+} as const
+
 export default class IframeManager {
   private iframe: HTMLIFrameElement | null = null
   private isOpen = false
-  private originalIframeStyles: any = null
-  private originalIframeParent: Element | null = null
   private fullscreenModalIframe: HTMLIFrameElement | null = null
   private shareModalIframe: HTMLIFrameElement | null = null
 
   customCssUrl?: string
+  iframeStyles?: AiutaUserInterface['iframeStyles']
 
   constructor(userInterface: AiutaUserInterface | undefined) {
     if (userInterface) this.applyUserInterface(userInterface)
@@ -35,60 +82,68 @@ export default class IframeManager {
 
   private applyUserInterface(userInterface: AiutaUserInterface) {
     if (userInterface.customCssUrl) this.customCssUrl = userInterface.customCssUrl
+    if (userInterface.iframeStyles) this.iframeStyles = userInterface.iframeStyles
   }
 
   getIframe = () => this.iframe
   getIsOpen = () => this.isOpen
 
   showMainFrame() {
-    const existing = document.getElementById('aiuta-iframe') as HTMLIFrameElement | null
+    const existing = document.getElementById(iframeDefaults.iframeId) as HTMLIFrameElement | null
     if (existing) this.reveal()
     else this.createMainIframe()
   }
 
   private buildIframeSrc(baseUrl: string, customCssUrl?: string) {
-    let src = baseUrl.startsWith('/') ? `${window.location.origin}${baseUrl}` : baseUrl
+    const absoluteUrl = baseUrl.startsWith('/') ? `${window.location.origin}${baseUrl}` : baseUrl
+    const url = new URL(absoluteUrl)
+    url.searchParams.set('parentOrigin', window.location.origin)
 
-    // Add parentOrigin parameter for RPC security
-    const parentOrigin = window.location.origin
-    const sep1 = src.includes('?') ? '&' : '?'
-    src = `${src}${sep1}parentOrigin=${encodeURIComponent(parentOrigin)}`
-
-    if (!customCssUrl) return src
-    let resolvedCssUrl = customCssUrl
-    if (!customCssUrl.startsWith('http')) {
-      try {
-        resolvedCssUrl = new URL(customCssUrl, window.location.origin).href
-      } catch {
-        const origin = window.location.origin
-        resolvedCssUrl = customCssUrl.startsWith('/')
-          ? `${origin}${customCssUrl}`
-          : `${origin}/${customCssUrl}`
+    if (customCssUrl) {
+      let resolvedCssUrl = customCssUrl
+      if (!customCssUrl.startsWith('http')) {
+        try {
+          resolvedCssUrl = new URL(customCssUrl, window.location.origin).href
+        } catch {
+          const origin = window.location.origin
+          resolvedCssUrl = customCssUrl.startsWith('/')
+            ? `${origin}${customCssUrl}`
+            : `${origin}/${customCssUrl}`
+        }
       }
+      url.searchParams.set('css', resolvedCssUrl)
     }
-    const sep2 = '&' // src already has ? from parentOrigin
-    return `${src}${sep2}css=${encodeURIComponent(resolvedCssUrl)}`
+
+    return url.toString()
   }
 
   createMainIframe() {
     const src = this.buildIframeSrc(this.iframeUrl, this.customCssUrl)
     const iframe = document.createElement('iframe') as HTMLIFrameElement
-    iframe.id = 'aiuta-iframe'
-    iframe.allow = 'fullscreen'
+    iframe.id = iframeDefaults.iframeId
+    iframe.allow = iframeDefaults.allowAttribute
     iframe.src = src
-    iframe.style.transition = 'all ease-in-out 0.5s'
-    iframe.style.position = 'fixed'
-    iframe.style.width = '394px'
-    iframe.style.height = '632px'
-    iframe.style.borderRadius = '24px'
-    iframe.style.zIndex = '9999'
-    iframe.style.border = '1px solid #0000001A'
-    iframe.style.boxShadow = '0px 8px 28px -6px #0000001F'
-    iframe.style.top = '12px'
-    iframe.style.right = '-1000%'
+
+    // Apply styles with fallbacks to defaults
+    iframe.style.position = iframeDefaults.position
+    iframe.style.width = iframeDefaults.desktopWidth
+    iframe.style.height = iframeDefaults.desktopHeight
+    iframe.style.zIndex = iframeDefaults.zIndex
+    iframe.style.border = this.iframeStyles?.border ?? iframeDefaults.defaultBorder
+    iframe.style.borderRadius =
+      this.iframeStyles?.borderRadius ?? iframeDefaults.defaultBorderRadius
+    iframe.style.boxShadow = this.iframeStyles?.boxShadow ?? iframeDefaults.defaultBoxShadow
+    iframe.style.transition = this.iframeStyles?.transition ?? iframeDefaults.defaultTransition
+    iframe.style.top = this.iframeStyles?.top ?? iframeDefaults.defaultTop
+    iframe.style.right = iframeDefaults.hiddenRight // Always start hidden, ignore custom right
+
     document.body.append(iframe)
     this.iframe = iframe
-    setTimeout(() => this.reveal(), 1000)
+
+    iframe.addEventListener('load', () => {
+      this.reveal()
+    })
+
     window.addEventListener('resize', () => {
       this.adjustForViewport()
     })
@@ -99,11 +154,10 @@ export default class IframeManager {
     if (!iframe) return
     this.isOpen = true
     this.adjustForViewport()
-    if (window.innerWidth <= 992) {
-      iframe.style.right = '0px'
-      if (document.body.parentElement) document.body.parentElement.style.overflow = 'hidden'
+    if (window.innerWidth <= iframeDefaults.mobileBreakpoint) {
+      iframe.style.right = iframeDefaults.fullscreenRight
     } else {
-      iframe.style.right = '12px'
+      iframe.style.right = this.iframeStyles?.right ?? iframeDefaults.defaultRight
     }
   }
 
@@ -111,98 +165,47 @@ export default class IframeManager {
     const iframe = this.iframe
     if (!iframe) return
     this.isOpen = false
-    iframe.style.right = '-1000%'
+    iframe.style.right = iframeDefaults.hiddenRight
   }
 
   adjustForViewport() {
     const iframe = this.iframe
     if (!iframe || !this.isOpen) return
-    if (window.innerWidth <= 992) {
-      iframe.style.width = '100%'
-      iframe.style.height = '100%'
-      iframe.style.borderRadius = '0px'
-      iframe.style.border = '1px solid #ffffff'
-      iframe.style.top = '0px'
-      iframe.style.right = '0px'
+    if (window.innerWidth <= iframeDefaults.mobileBreakpoint) {
+      iframe.style.width = iframeDefaults.fullscreenWidth
+      iframe.style.height = iframeDefaults.fullscreenHeight
+      iframe.style.borderRadius = iframeDefaults.mobileBorderRadius
+      iframe.style.border = iframeDefaults.mobileBorder
+      iframe.style.boxShadow = iframeDefaults.mobileBoxShadow
+      iframe.style.top = iframeDefaults.fullscreenTop
+      iframe.style.right = iframeDefaults.fullscreenRight
     } else {
-      iframe.style.width = '394px'
-      iframe.style.height = '632px'
-      iframe.style.borderRadius = '24px'
-      iframe.style.border = '1px solid #0000001A'
-      iframe.style.top = '12px'
-      iframe.style.right = '12px'
+      iframe.style.width = iframeDefaults.desktopWidth
+      iframe.style.height = iframeDefaults.desktopHeight
+      iframe.style.borderRadius =
+        this.iframeStyles?.borderRadius ?? iframeDefaults.defaultBorderRadius
+      iframe.style.border = this.iframeStyles?.border ?? iframeDefaults.defaultBorder
+      iframe.style.boxShadow = this.iframeStyles?.boxShadow ?? iframeDefaults.defaultBoxShadow
+      iframe.style.top = this.iframeStyles?.top ?? iframeDefaults.defaultTop
+      iframe.style.right = this.iframeStyles?.right ?? iframeDefaults.defaultRight
     }
-  }
-
-  makeMainIframeFullscreen(modalData: any) {
-    const iframe = this.iframe
-    if (!iframe) return
-    this.originalIframeStyles = {
-      position: iframe.style.position,
-      top: iframe.style.top,
-      left: iframe.style.left,
-      right: iframe.style.right,
-      bottom: iframe.style.bottom,
-      width: iframe.style.width,
-      height: iframe.style.height,
-      zIndex: iframe.style.zIndex,
-      borderRadius: iframe.style.borderRadius,
-      border: iframe.style.border,
-      boxShadow: iframe.style.boxShadow,
-    }
-    this.originalIframeParent = iframe.parentElement
-    if (iframe.parentElement && iframe.parentElement !== document.body) {
-      document.body.appendChild(iframe)
-    }
-    iframe.style.position = 'fixed'
-    iframe.style.top = '0'
-    iframe.style.left = '0'
-    iframe.style.right = '0'
-    iframe.style.bottom = '0'
-    iframe.style.width = '100vw'
-    iframe.style.height = '100vh'
-    iframe.style.zIndex = '10000'
-    iframe.style.borderRadius = '0'
-    iframe.style.border = 'none'
-    iframe.style.boxShadow = 'none'
-    iframe.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'
-    if (document.body.parentElement) document.body.parentElement.style.overflow = 'hidden'
-    iframe.contentWindow?.postMessage(
-      // TODO: Replace with RPC call
-      { action: 'OPEN_AIUTA_FULL_SCREEN_MODAL', data: modalData },
-      this.getIframeOrigin(),
-    )
-  }
-
-  restoreFromFullscreen() {
-    const iframe = this.iframe
-    if (!iframe) return
-    if (this.originalIframeStyles) {
-      Object.assign(iframe.style, this.originalIframeStyles)
-      this.originalIframeStyles = null
-    }
-    if (this.originalIframeParent && this.originalIframeParent !== document.body) {
-      this.originalIframeParent.appendChild(iframe)
-    }
-    this.originalIframeParent = null
-    if (document.body.parentElement) document.body.parentElement.style.overflow = ''
   }
 
   openFullscreenModal(modalData: FullScreenModalData) {
     this.removeFullscreenModal()
     const modalUrl = this.buildModalUrl('fullscreen')
     const cfg: FullscreenModalIframeConfig = {
-      id: 'aiuta-fullscreen-modal',
+      id: iframeDefaults.fullscreenModalId,
       src: modalUrl.toString(),
       styles: {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
-        zIndex: '10001',
-        border: 'none',
-        background: 'transparent',
+        position: iframeDefaults.position,
+        top: iframeDefaults.fullscreenTop,
+        left: iframeDefaults.fullscreenLeft,
+        width: iframeDefaults.fullscreenWidth,
+        height: iframeDefaults.fullscreenHeight,
+        zIndex: iframeDefaults.fullscreenModalZIndex,
+        border: iframeDefaults.modalBorder,
+        background: iframeDefaults.modalBackground,
       },
       allow: 'fullscreen',
     }
@@ -225,31 +228,29 @@ export default class IframeManager {
       this.fullscreenModalIframe.remove()
       this.fullscreenModalIframe = null
     }
-    this.ensurePageInteractivity()
   }
 
   openShareModal(shareData: ShareModalData) {
     this.removeShareModal()
     const modalUrl = this.buildModalUrl('share')
     const cfg: FullscreenModalIframeConfig = {
-      id: 'aiuta-share-modal',
+      id: iframeDefaults.shareModalId,
       src: modalUrl.toString(),
       styles: {
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '100vw',
-        height: '100vh',
-        zIndex: '10000',
-        border: 'none',
-        background: 'transparent',
+        position: iframeDefaults.position,
+        top: iframeDefaults.fullscreenTop,
+        left: iframeDefaults.fullscreenLeft,
+        width: iframeDefaults.fullscreenWidth,
+        height: iframeDefaults.fullscreenHeight,
+        zIndex: iframeDefaults.shareModalZIndex,
+        border: iframeDefaults.modalBorder,
+        background: iframeDefaults.modalBackground,
       },
       allow: 'fullscreen',
     }
     const iframe = this.createOverlayIframe(cfg)
     document.body.appendChild(iframe)
     this.shareModalIframe = iframe
-    this.setBodyScroll(false)
     iframe.addEventListener('load', () => {
       setTimeout(() => {
         this.shareModalIframe?.contentWindow?.postMessage(
@@ -266,8 +267,6 @@ export default class IframeManager {
       this.shareModalIframe.remove()
       this.shareModalIframe = null
     }
-    this.setBodyScroll(true)
-    this.ensurePageInteractivity()
   }
 
   closeOrHide() {
@@ -279,16 +278,9 @@ export default class IframeManager {
       this.removeShareModal()
       return
     }
-    if (this.originalIframeStyles) {
-      this.restoreFromFullscreen()
-      return
-    }
     if (!this.iframe) return
     this.isOpen = false
     this.hide()
-    if (document.body.parentElement?.style.overflow === 'hidden') {
-      document.body.parentElement.style.overflow = ''
-    }
   }
 
   private buildModalUrl(modalType: 'fullscreen' | 'share') {
@@ -299,7 +291,7 @@ export default class IframeManager {
     const url = new URL(absoluteIframeUrl)
     url.searchParams.set('modal', 'true')
     url.searchParams.set('modalType', modalType)
-    url.searchParams.set('parentOrigin', encodeURIComponent(window.location.origin))
+    url.searchParams.set('parentOrigin', window.location.origin)
     return url
   }
 
@@ -310,29 +302,5 @@ export default class IframeManager {
     iframe.allow = config.allow
     Object.assign(iframe.style, config.styles)
     return iframe
-  }
-
-  private setBodyScroll(enabled: boolean) {
-    if (document.body.parentElement) {
-      const hasModals = this.fullscreenModalIframe || this.shareModalIframe
-      if (enabled && !hasModals) document.body.parentElement.style.overflow = ''
-      else if (!enabled) document.body.parentElement.style.overflow = 'hidden'
-    }
-  }
-
-  private ensurePageInteractivity() {
-    const overlays = document.querySelectorAll('[id^="aiuta-"]')
-    overlays.forEach((overlay) => {
-      if (
-        overlay.id !== 'aiuta-iframe' &&
-        overlay.id !== 'aiuta-fullscreen-modal' &&
-        overlay.id !== 'aiuta-share-modal'
-      ) {
-        overlay.remove()
-      }
-    })
-    if (document.body.parentElement) document.body.parentElement.style.overflow = ''
-    document.body.style.pointerEvents = ''
-    document.body.style.userSelect = ''
   }
 }

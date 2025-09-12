@@ -1,47 +1,30 @@
 import { AiutaConfiguration } from '@lib/config'
-import AuthManager from './auth'
 import IframeManager from './iframe'
 import MessageHandler from './handler'
 import AnalyticsTracker from './analytics'
 
 export default class Aiuta {
-  private auth: AuthManager
   private analytics: AnalyticsTracker
   private iframeManager: IframeManager
   private messageHandler: MessageHandler
 
   constructor(configuration: AiutaConfiguration) {
-    this.auth = new AuthManager(configuration.auth)
     this.analytics = new AnalyticsTracker(configuration.analytics)
     this.iframeManager = new IframeManager(configuration.userInterface)
-    this.messageHandler = new MessageHandler(
-      this.auth,
-      this.analytics,
-      this.iframeManager,
-      configuration,
-    )
+    this.messageHandler = new MessageHandler(this.analytics, this.iframeManager, configuration)
 
     this.analytics.track({ data: { type: 'configure' } })
   }
 
   async tryOn(productId: string) {
     if (!productId || !productId.length) {
-      console.error('Product id is not provided for Aiuta.')
+      console.error('Product id is not provided for Aiuta')
       return
     }
 
-    // Show iframe first
     this.iframeManager.showMainFrame()
+    this.messageHandler.startTryOn(productId)
 
-    try {
-      // Try RPC first
-      await this.messageHandler.tryOnViaRpc(productId)
-    } catch {
-      // RPC failed, messageHandler already set productId as fallback
-      console.error('RPC tryOn failed, using legacy fallback')
-    }
-
-    // Analytics
     this.analytics.track({
       data: {
         type: 'session',
@@ -51,16 +34,3 @@ export default class Aiuta {
     })
   }
 }
-
-export type {
-  AiutaConfiguration,
-  AiutaAuth,
-  AiutaApiKeyAuth,
-  AiutaJwtAuth,
-  AiutaUserInterface,
-  AiutaFeatures,
-  AiutaAnalytics,
-  AiutaDebugSettings,
-  AiutaAnalyticsCallback,
-  AiutaJwtCallback,
-} from '@lib/config'
