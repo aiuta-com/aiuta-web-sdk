@@ -7,35 +7,32 @@ import { RpcProvider } from './contexts'
 import { ModalRenderer, AppRouter } from '@/components'
 
 // hooks
-import { useUrlParams, useCustomCSS, useModalOnlyStyles, useRpcInitialization } from '@/hooks'
+import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
 
 /**
  * Main App component - Entry point for the iframe application
  *
- * Handles:
- * - URL parameter parsing
- * - Custom CSS loading
- * - RPC initialization
- * - Modal-only rendering
- * - Full application routing
+ * Handles two distinct modes:
+ * 1. Main app mode: Small iframe with full application routing and navigation
+ * 2. Modal mode: Fullscreen showing specific modal (share/fullscreen image)
+ *
+ * URL structure:
+ * - Main app: / (no modal param) → AppRouter with full navigation
+ * - Modal app: ?modal=share|fullscreen → ModalRenderer with specific modal
  */
 export default function App() {
-  // Parse URL parameters and determine app mode
-  const { isModalOnly, modalType, cssUrl, initialPath } = useUrlParams()
-
-  // Initialize all app functionality
+  const { modalType, cssUrl, initialPath } = useUrlParams()
   const { rpcApp } = useRpcInitialization()
-
-  // Setup styling and modal hooks
   useCustomCSS(cssUrl)
-  useModalOnlyStyles(isModalOnly)
 
-  // If this is a modal-only iframe, only show the appropriate modal
-  if (isModalOnly) {
-    return <ModalRenderer modalType={modalType} />
+  if (modalType) {
+    return (
+      <RpcProvider rpcApp={rpcApp}>
+        <ModalRenderer modalType={modalType} />
+      </RpcProvider>
+    )
   }
 
-  // Full application with routing
   return (
     <RpcProvider rpcApp={rpcApp}>
       <AppRouter initialPath={initialPath} />

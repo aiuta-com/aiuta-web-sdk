@@ -1,2 +1,2 @@
-export { ModalRenderer } from './ModalRenderer'
-export { default } from './ModalRenderer'
+export { ModalRenderer, type ModalType } from './ModalRenderer'
+export { ModalRenderer as default } from './ModalRenderer'

@@ -301,7 +301,7 @@ export const FullScreenImageModal = () => {
 
   // If this is a modal-only iframe but no data, show a loading state
   const urlParams = new URLSearchParams(window.location.search)
-  const isModalOnly = urlParams.get('modal') === 'true'
+  const isModalOnly = urlParams.get('modal') === 'fullscreen'
 
   if (isModalOnly && !modalData && !fullScreenImageUrl) {
     return (

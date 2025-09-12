@@ -2,30 +2,18 @@ import { useEffect } from 'react'
 
 /**
  * Hook for applying modal-only styles to DOM elements
+ * Adds transparent background and other modal-specific styles
  */
-export const useModalOnlyStyles = (isModalOnly: boolean) => {
+export const useModalOnlyStyles = () => {
   useEffect(() => {
-    if (!isModalOnly) return
-
     const rootElement = document.getElementById('root')
     const bodyElement = document.body
 
-    // Add modal-only classes for transparent background
     if (rootElement) {
       rootElement.classList.add('modal-only')
     }
     if (bodyElement) {
       bodyElement.classList.add('modal-only')
     }
-
-    // Cleanup function
-    return () => {
-      if (rootElement) {
-        rootElement.classList.remove('modal-only')
-      }
-      if (bodyElement) {
-        bodyElement.classList.remove('modal-only')
-      }
-    }
-  }, [isModalOnly])
+  }, [])
 }

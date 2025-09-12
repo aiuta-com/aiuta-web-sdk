@@ -2,7 +2,7 @@
 import { Layout } from './layout/layout'
 import { Section } from './section/section'
 import { Sdk } from './sdk/sdk'
-import { ModalRenderer } from './ModalRenderer'
+import { ModalRenderer, type ModalType } from './ModalRenderer'
 import { AppRouter } from './AppRouter'
 import { SdkHeader } from './sdkHeader/sdkHeader'
 import { SdkFooter } from './sdkFooter/sdkFooter'
@@ -46,6 +46,9 @@ export { ResultsSlider, ShareButton } from './resultsGallery'
 
 // Modals
 export { AiutaModal, HistoryImagesRemoveModal } from './modals'
+
+// Type exports
+export type { ModalType }
 
 // Main exports
 export {

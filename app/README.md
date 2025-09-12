@@ -28,6 +28,15 @@ app/
 
 ## 🎯 **Key Practices & Conventions**
 
+### **App Modes & URLs**
+
+The app operates in two distinct modes via URL parameters:
+
+- **Main app mode**: `app/` (no modal param) → Small iframe with full application
+- **Modal mode**: `app/?modal=share` or `app/?modal=fullscreen` → Fullscreen iframe with specific modal
+
+Both modes establish RPC connection with the parent SDK for communication.
+
 ### **Component Naming**
 
 - **Files**: `PascalCase` (e.g., `ErrorSnackbar.tsx`)
@@ -97,9 +106,10 @@ hooks/
 
 ### **RPC Integration**
 
-- **Context**: `RpcProvider` with `useRpcProxy`
+- **Context**: `RpcProvider` wraps both main app and modal-only app
 - **Methods**: `rpc.sdk.{method}()` for SDK communication
-- **Legacy**: TODO comments mark postMessage replacements
+- **Modal communication**: Modal-only iframes use `rpc.sdk.closeModal()` to close themselves
+- **Legacy**: TODO comments mark postMessage replacements being migrated
 
 ### **Error Handling**
 
@@ -242,6 +252,9 @@ hooks/
 - ✅ **Hook organization**: Domain-based grouping
 - ✅ **Redux cleanup**: Specific slice naming and improved state structure
 - ✅ **Redux location**: Moved from `lib/redux` to `src/store` (app-specific state)
+- ✅ **Modal URL simplification**: Unified `?modal=share|fullscreen` instead of separate `modal` + `modalType` params
+- ✅ **Modal RPC integration**: Both main and modal-only apps wrapped in RpcProvider
+- ✅ **App mode separation**: Clear distinction between main app iframe and modal-only iframe
 
 ### **TODO Priorities**
 
