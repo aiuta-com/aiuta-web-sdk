@@ -1,26 +1,14 @@
 import React, { useState, useEffect } from 'react'
-
-// redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
-
-// actions
-
-// selectors
 import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import {
   isSelectHistoryImagesSelector,
   isSelectPreviouselyImagesSelector,
 } from '@/store/slices/configSlice/selectors'
-
-// components
 import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
 import { CountDownAnimation } from '@/components/CountDownAnimation/countDownAnimation'
-
-// types
 import { SelectableImageTypes } from './types'
-
-// styles
 import styles from './selectableImage.module.scss'
 
 export const SelectableImage = (props: SelectableImageTypes) => {

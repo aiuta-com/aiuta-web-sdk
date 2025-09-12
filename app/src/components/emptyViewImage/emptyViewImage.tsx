@@ -1,11 +1,6 @@
 import React from 'react'
-// components
 import { TryOnButton } from '@/components'
-
-// types
 import { EmptyViewImageTypes } from './types'
-
-// styles
 import styles from './emptyViewImage.module.scss'
 
 export const EmptyViewImage = (props: EmptyViewImageTypes) => {

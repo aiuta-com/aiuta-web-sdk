@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-
-// redux
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
-
-// actions
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { configSlice } from '@/store/slices/configSlice'
-
-// selectors
 import {
   qrTokenSelector,
   isMobileSelector,
@@ -26,14 +20,9 @@ import {
 } from '@/store/slices/generationsSlice/selectors'
 import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
 
-// types
-
-// messaging
 // TODO: Replace with RPC - need to support receiving base keys from SDK
 // Required data: { data: { status: number, [key: string]: any } }
 import { useRpcProxy } from '@/contexts'
-
-// styles
 import styles from './sdkHeader.module.scss'
 
 export const SdkHeader = () => {

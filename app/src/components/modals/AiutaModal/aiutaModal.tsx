@@ -1,9 +1,5 @@
 import React from 'react'
-
-// types
 import { AiutaModalTypes } from './types'
-
-// styles
 import styles from './aiutaModal.module.scss'
 
 export const AiutaModal = (props: AiutaModalTypes) => {

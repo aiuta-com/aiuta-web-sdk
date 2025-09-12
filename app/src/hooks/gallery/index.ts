@@ -1,4 +1,3 @@
-// Gallery hooks - shared image gallery functionality
 export { useImageGallery } from './useImageGallery'
 export { useFullScreenViewer } from './useFullScreenViewer'
 export { useImageSelection } from './useImageSelection'

@@ -1,13 +1,5 @@
 import React from 'react'
-
-// redux
-
-// selectors
-
-// types
 import { SecondaryButtonTypes } from './types'
-
-// styles
 import styles from './secondaryButton.module.scss'
 
 export const SecondaryButton = (props: SecondaryButtonTypes) => {

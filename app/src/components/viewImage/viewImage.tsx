@@ -1,16 +1,8 @@
 import React, { useState, MouseEvent, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-// redux
 import { useAppDispatch } from '@/store/store'
-
-// actions
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-
-// types
 import { ViewImageTypes } from './types'
-
-// styles
 import styles from './viewImage.module.scss'
 
 export const ViewImage = (props: ViewImageTypes) => {

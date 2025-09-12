@@ -9,15 +9,7 @@ import {
 } from '@/store/slices/configSlice/selectors'
 import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components'
-
-// types
-
-// messaging
-
-// rpc
 import { useRpcProxy } from '@/contexts'
-
-// styles
 import styles from './onboarding.module.scss'
 
 const INITIALLY_ONBOARDING = [

@@ -1,24 +1,11 @@
 import React from 'react'
-// redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
-
-// actions
 import { modalSlice } from '@/store/slices/modalSlice'
-
-// selectors
 import { selectedImagesSelector, generatedImagesSelector } from '@/store/slices/generationsSlice'
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
-
-// components
 import { SecondaryButton } from '@/components'
-
-// styles
 import styles from './removeHistoryBanner.module.scss'
-
-// messaging
-
-// rpc
 import { useRpcProxy } from '@/contexts'
 
 export const RemoveHistoryBanner = () => {

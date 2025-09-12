@@ -1,22 +1,10 @@
 import React, { useRef, TouchEvent } from 'react'
-
-// redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
-
-// actions
 import { configSlice } from '@/store/slices/configSlice'
-
-// selectors
 import { isOpenSwipSelector } from '@/store/slices/configSlice/selectors'
-
-// components
 import { TryOnButton } from '@/components/tryOnButton/tryOnButton'
 import { TitleDescription } from '@/components/titleDescription/titleDescription'
-
-// types
 import { SwipTypes } from './types'
-
-// styles
 import styles from './swip.module.scss'
 
 const SWIP_DOWN_POSITION = 200

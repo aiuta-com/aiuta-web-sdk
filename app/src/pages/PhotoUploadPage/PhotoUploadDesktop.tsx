@@ -1,13 +1,7 @@
 import React, { useEffect, ChangeEvent } from 'react'
 import { motion } from 'framer-motion'
-
-// components
 import { ErrorSnackbar, QrCode } from '@/components'
-
-// hooks
 import { useQrUpload, useTryOnAnalytics } from '@/hooks'
-
-// styles
 import styles from './photoUpload.module.scss'
 
 export default function PhotoUploadDesktop() {

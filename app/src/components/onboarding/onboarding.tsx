@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-// redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
-
-// actions
 import { configSlice } from '@/store/slices/configSlice'
-
-// selectors
 import {
   isMobileSelector,
   isInitializedSelector,
@@ -16,20 +10,10 @@ import {
   aiutaEndpointDataSelector,
   isOnboardingDoneSelector,
 } from '@/store/slices/configSlice/selectors'
-
-// components
 import { OnboardingMobile } from './onboardingMobile'
 import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components'
-
-// types
-
-// messaging
-
-// rpc
 import { useRpcProxy } from '@/contexts'
-
-// styles
 import styles from './onboarding.module.scss'
 
 export const Onboarding = () => {

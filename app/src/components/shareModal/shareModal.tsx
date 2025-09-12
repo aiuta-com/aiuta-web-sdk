@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+
 // TODO: Replace with RPC - need to support modal opening from SDK
 // Required data: { imageUrl: string }
 // RPC method needed: openShareModal(data: { imageUrl: string })

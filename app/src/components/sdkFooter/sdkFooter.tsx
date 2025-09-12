@@ -1,15 +1,9 @@
 import React from 'react'
-
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import {
   isMobileSelector,
   isShowFooterSelector,
 } from '@/store/slices/configSlice/selectors'
-
-// styles
 import styles from './sdkFooter.module.scss'
 import { useEffect, useState } from 'react'
 

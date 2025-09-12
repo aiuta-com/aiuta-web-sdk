@@ -1,12 +1,6 @@
 import React from 'react'
-
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { isMobileSelector } from '@/store/slices/configSlice/selectors'
-
-// components
 import TryOnDesktop from './TryOnDesktop'
 import TryOnMobile from './TryOnMobile'
 

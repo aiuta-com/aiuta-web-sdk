@@ -1,25 +1,13 @@
 import React from 'react'
-
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
-
-// components
 import { SecondaryButton } from '@/components'
-
-// types
 import { GeneratedImageButtonsTypes } from './types'
 
-// messaging
 // TODO: Replace with RPC - need to support opening share modal from iframe to SDK
 // Required data: { imageUrl: string }
 
-// rpc
 import { useRpcProxy } from '@/contexts'
-
-// styles
 import styles from './generatedImageButtons.module.scss'
 
 export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {

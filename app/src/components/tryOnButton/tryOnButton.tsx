@@ -1,13 +1,5 @@
 import React from 'react'
-
-// redux
-
-// selectors
-
-// types
 import { TryOnButtonTypes } from './types'
-
-// styles
 import styles from './tryOnButton.module.scss'
 
 export const TryOnButton = (props: TryOnButtonTypes) => {

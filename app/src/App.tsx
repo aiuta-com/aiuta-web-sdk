@@ -1,12 +1,6 @@
 import React from 'react'
-
-// contexts
 import { RpcProvider } from './contexts'
-
-// components
 import { ModalRenderer, AppRouter } from '@/components'
-
-// hooks
 import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
 
 /**

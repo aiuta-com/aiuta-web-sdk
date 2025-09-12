@@ -1,23 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react'
-// redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-
-// actions
-
-// selectors
 import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 
-// messaging
 // TODO: Replace with RPC - need to support:
 // 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { useRpcProxy } from '@/contexts'
-
-// components
 import { ShareModal } from '@/components/shareModal/shareModal'
-
-// styles
 import styles from './fullScreenImageModal.module.scss'
 
 type ImageType = {

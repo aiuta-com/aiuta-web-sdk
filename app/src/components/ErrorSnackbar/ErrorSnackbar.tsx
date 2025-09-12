@@ -1,18 +1,8 @@
 import React from 'react'
-
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { errorSnackbarSelector } from '@/store/slices/errorSnackbarSlice/selectors'
-
-// components
 import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
-
-// types
 import { ErrorSnackbarProps } from './types'
-
-// styles
 import styles from './ErrorSnackbar.module.scss'
 
 export const ErrorSnackbar = (props: ErrorSnackbarProps) => {

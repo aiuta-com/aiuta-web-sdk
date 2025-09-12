@@ -1,8 +1,5 @@
 import React from 'react'
-// types
 import { LayoutTypes } from './types'
-
-// styles
 import styles from './layout.module.scss'
 
 export const Layout = (props: LayoutTypes) => {

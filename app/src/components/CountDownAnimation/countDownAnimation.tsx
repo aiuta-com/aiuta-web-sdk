@@ -1,10 +1,6 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
-
-// types
 import { CountDownAnimationTypes } from './types'
-
-// styles
 import styles from './countDownAnimation.module.scss'
 
 const RADIUS = 16

@@ -1,8 +1,5 @@
 import React from 'react'
-// types
 import { TitleDescriptionTypes } from './types'
-
-// styles
 import styles from './titleDescription.module.scss'
 
 export const TitleDescription = (props: TitleDescriptionTypes) => {

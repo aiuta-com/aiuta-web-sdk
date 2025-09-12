@@ -1,17 +1,8 @@
 import React from 'react'
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { showHistoryImagesModalSelector } from '@/store/slices/modalSlice/selectors'
-
-// components
 import { SecondaryButton } from '@/components'
-
-// types
 import { HistoryImagesRemoveModalTypes } from './types'
-
-// styles
 import styles from './historyImagesRemoveModal.module.scss'
 
 export const HistoryImagesRemoveModal = (props: HistoryImagesRemoveModalTypes) => {

@@ -1,30 +1,16 @@
 import React, { useRef, useState, useEffect, ChangeEvent } from 'react'
 import { motion, easeInOut } from 'framer-motion'
-
-// redux
 import { useAppSelector, useAppDispatch } from '@/store/store'
-
-// actions
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { configSlice } from '@/store/slices/configSlice'
-
-// selectors
 import { isOpenSwipSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
 import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
 import { isGeneratingSelector } from '@/store/slices/generationsSlice/selectors'
-
-// components
 import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
-
-// hooks
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
-
-// types
 import { InputImage } from '@/utils/api/tryOnApiService'
-
-// styles
 import styles from './tryOn.module.scss'
 
 const initiallAnimationConfig = {

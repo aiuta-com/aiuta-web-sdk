@@ -1,7 +1,5 @@
-// Redux
 import { combineReducers } from '@reduxjs/toolkit'
 
-// Reducers
 import { uploadsSlice } from './slices/uploadsSlice'
 import { generationsSlice } from './slices/generationsSlice'
 import { errorSnackbarSlice } from './slices/errorSnackbarSlice'

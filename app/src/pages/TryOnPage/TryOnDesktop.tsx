@@ -1,28 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import { motion, easeInOut } from 'framer-motion'
-
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
 import { isGeneratingSelector } from '@/store/slices/generationsSlice/selectors'
 
-// messaging
 // TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
 // Required data: { images: InputImage[], modalType?: string }
 
-// components
 import { ErrorSnackbar, Section, TryOnButton } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
-
-// hooks
 import { useTryOnGeneration, usePhotoGallery } from '@/hooks'
-
-// types
 import { InputImage } from '@/utils/api/tryOnApiService'
-
-// styles
 import styles from './tryOn.module.scss'
 
 const animationConfig = {

@@ -1,13 +1,7 @@
 import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
-
-// components
 import { TryOnButton, ViewImage, ErrorSnackbar } from '@/components'
-
-// hooks
 import { useQrToken } from '@/hooks'
-
-// styles
 import styles from './photoUpload.module.scss'
 
 function useQuery() {

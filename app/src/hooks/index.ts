@@ -1,4 +1,3 @@
-// Export all hooks from organized groups
 export * from './app'
 export * from './gallery'
 export * from './tryOn'

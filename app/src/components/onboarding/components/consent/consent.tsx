@@ -1,18 +1,9 @@
 import React from 'react'
-// redux
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { isMobileSelector } from '@/store/slices/configSlice/selectors'
-
-// components
 import { TitleDescription } from '@/components'
 import { CheckboxLabel } from '@/components'
-
-// types
 import { ConsentTypes } from './types'
-
-// styles
 import styles from './consent.module.scss'
 
 export const Consent = (props: ConsentTypes) => {

@@ -1,7 +1,5 @@
 import React from 'react'
-// types
 import { SectionTypes } from './types'
-
 import styles from './section.module.scss'
 
 export const Section = (props: SectionTypes) => {

@@ -1,10 +1,6 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
-
-// redux
 import { isShowSpinnerSelector } from '@/store/slices/configSlice/selectors'
-
-// styles
 import styles from './spinner.module.scss'
 
 export const Spinner = () => {

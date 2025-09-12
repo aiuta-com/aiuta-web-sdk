@@ -1,18 +1,9 @@
 import React from 'react'
 import { useQRCode } from 'next-qrcode'
 import { QrSpinner } from '@/components/animationIcons'
-
-// redux
-
 import { useAppSelector } from '@/store/store'
-
-// selectors
 import { isShowQrSpinnerSelector } from '@/store/slices/configSlice/selectors'
-
-// types
 import { QrCodeTypes } from './types'
-
-// styles
 import styles from './qrCode.module.scss'
 
 export const QrCode = (props: QrCodeTypes) => {
