@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { useAppSelector } from '@/store/store'
-import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
-import { isGeneratingSelector } from '@/store/slices/generationsSlice/selectors'
+import { currentTryOnImageSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 
 // TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
 // Required data: { images: InputImage[], modalType?: string }
@@ -30,7 +29,7 @@ const animationConfig = {
 }
 
 export default function TryOnDesktop() {
-  const uploadedViewFile = useAppSelector(currentImageSelector)
+  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isStartGeneration = useAppSelector(isGeneratingSelector)
 
   const { getRecentPhoto } = usePhotoGallery()

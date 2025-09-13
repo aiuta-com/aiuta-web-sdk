@@ -1,2 +1,2 @@
-export { uploadsSlice } from './uploadsSlice'
-export { currentImageSelector, fullScreenImageUrlSelector, inputImagesSelector } from './selectors'
+export { uploadsSlice, type ImageToTryOn, type UploadsState } from './uploadsSlice'
+export { fullScreenImageUrlSelector, inputImagesSelector } from './selectors'

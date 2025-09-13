@@ -1,2 +1,2 @@
-export { generationsSlice } from './generationsSlice'
-export { selectedImagesSelector, generatedImagesSelector, isGeneratingSelector } from './selectors'
+export { generationsSlice, type GenerationsState } from './generationsSlice'
+export { selectedImagesSelector, generatedImagesSelector } from './selectors'

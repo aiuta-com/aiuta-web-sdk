@@ -1,12 +1,10 @@
 import React, { useRef, useState, useEffect, ChangeEvent } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { generationsSlice } from '@/store/slices/generationsSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { configSlice } from '@/store/slices/configSlice'
 import { isOpenSwipSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
-import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
-import { isGeneratingSelector } from '@/store/slices/generationsSlice/selectors'
+import { currentTryOnImageSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
@@ -35,7 +33,7 @@ export default function TryOnMobile() {
 
   const isOpenSwip = useAppSelector(isOpenSwipSelector)
   const isShowFooter = useAppSelector(isShowFooterSelector)
-  const uploadedViewFile = useAppSelector(currentImageSelector)
+  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isStartGeneration = useAppSelector(isGeneratingSelector)
 
   const { recentlyPhotos, removePhotoFromGallery } = usePhotoGallery()
@@ -53,8 +51,8 @@ export default function TryOnMobile() {
 
   const handleChooseNewPhoto = (id: string, url: string) => {
     setTimeout(() => {
-      dispatch(generationsSlice.actions.setIsGenerating(true))
-      dispatch(uploadsSlice.actions.setCurrentImage({ id, url }))
+      dispatch(tryOnSlice.actions.setIsGenerating(true))
+      dispatch(tryOnSlice.actions.setCurrentImage({ id, url, localUrl: url }))
       startTryOn({ id, url })
     }, 300)
   }

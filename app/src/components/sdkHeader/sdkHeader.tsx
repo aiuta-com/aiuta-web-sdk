@@ -16,8 +16,8 @@ import {
 import {
   selectedImagesSelector,
   generatedImagesSelector,
-  isGeneratingSelector,
 } from '@/store/slices/generationsSlice/selectors'
+import { isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
 
 // TODO: Replace with RPC - need to support receiving base keys from SDK

@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { configSlice } from '@/store/slices/configSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { isSelectPreviouselyImagesSelector } from '@/store/slices/configSlice/selectors'
 import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
@@ -37,7 +38,9 @@ export const useUploadsGallery = () => {
   function handleImageSelect(image: ImageItem) {
     if (isSelectPreviouslyImages) {
       // Select image for try-on
-      dispatch(uploadsSlice.actions.setCurrentImage({ id: image.id, url: image.url }))
+      dispatch(
+        tryOnSlice.actions.setCurrentImage({ id: image.id, url: image.url, localUrl: image.url }),
+      )
       navigate('/view')
       trackImageSelected(image.id)
     } else {

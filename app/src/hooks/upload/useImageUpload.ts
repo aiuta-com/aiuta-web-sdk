@@ -1,6 +1,5 @@
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { generationsSlice } from '@/store/slices/generationsSlice'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { configSlice } from '@/store/slices/configSlice'
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
@@ -21,7 +20,7 @@ export const useImageUpload = () => {
     if (!endpointData) return
 
     try {
-      dispatch(generationsSlice.actions.setIsGenerating(true))
+      dispatch(tryOnSlice.actions.setIsGenerating(true))
       dispatch(configSlice.actions.setIsShowFooter(true))
 
       const result = await TryOnApiService.uploadImage(file, endpointData)
@@ -30,10 +29,12 @@ export const useImageUpload = () => {
         const uploadedImage: InputImage = { id: result.id, url: result.url }
 
         // Update file state with local URL for preview
+        const localUrl = URL.createObjectURL(file)
         dispatch(
-          uploadsSlice.actions.setCurrentImage({
-            ...uploadedImage,
-            file,
+          tryOnSlice.actions.setCurrentImage({
+            id: uploadedImage.id,
+            url: uploadedImage.url,
+            localUrl,
           }),
         )
 
@@ -50,7 +51,7 @@ export const useImageUpload = () => {
   }
 
   const handleUploadError = (errorMessage: string) => {
-    dispatch(generationsSlice.actions.setIsGenerating(false))
+    dispatch(tryOnSlice.actions.setIsGenerating(false))
     dispatch(
       errorSnackbarSlice.actions.showErrorSnackbar({
         retryButtonText: 'Try again',

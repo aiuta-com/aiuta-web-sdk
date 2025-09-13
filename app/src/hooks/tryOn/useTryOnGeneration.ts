@@ -2,10 +2,10 @@ import { useState, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { generationsSlice } from '@/store/slices/generationsSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
-import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
+import { currentTryOnImageSelector } from '@/store/slices/tryOnSlice'
 import { useRpcProxy } from '@/contexts'
 import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
@@ -17,7 +17,7 @@ export const useTryOnGeneration = () => {
   const rpc = useRpcProxy()
 
   const endpointData = useAppSelector(aiutaEndpointDataSelector)
-  const uploadedViewFile = useAppSelector(currentImageSelector)
+  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
 
   const { addPhotoToGallery, getRecentPhoto } = usePhotoGallery()
   const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
@@ -43,7 +43,7 @@ export const useTryOnGeneration = () => {
         dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
         setTimeout(() => {
-          dispatch(generationsSlice.actions.setIsGenerating(false))
+          dispatch(tryOnSlice.actions.setIsGenerating(false))
           navigate('/generated')
         }, 500)
 
@@ -57,7 +57,7 @@ export const useTryOnGeneration = () => {
   const handleGenerationError = useCallback(
     (result: GenerationResult) => {
       clearGenerationInterval()
-      dispatch(generationsSlice.actions.setIsGenerating(false))
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
 
       dispatch(
         errorSnackbarSlice.actions.showErrorSnackbar({
@@ -74,7 +74,7 @@ export const useTryOnGeneration = () => {
   const handleGenerationAborted = useCallback(
     (result: GenerationResult) => {
       clearGenerationInterval()
-      dispatch(generationsSlice.actions.setIsGenerating(false))
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
       setIsOpenAbortedModal(true)
 
       trackTryOnAborted(result.error || 'Unknown reason')
@@ -94,7 +94,7 @@ export const useTryOnGeneration = () => {
             handleGenerationSuccess(result)
             // Clear file in mobile version
             if (uploadedViewFile.id) {
-              dispatch(uploadsSlice.actions.clearCurrentImage())
+              dispatch(tryOnSlice.actions.clearCurrentImage())
             }
             break
           case 'FAILED':
@@ -189,7 +189,7 @@ export const useTryOnGeneration = () => {
 
       // Update state
       dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
-      dispatch(generationsSlice.actions.setIsGenerating(true))
+      dispatch(tryOnSlice.actions.setIsGenerating(true))
 
       // Add to gallery if this is an uploaded image
       if (uploadedViewFile.id) {
@@ -203,7 +203,7 @@ export const useTryOnGeneration = () => {
         : await createOperationWithoutJwt(targetImage.id)
 
       if (!operationId) {
-        dispatch(generationsSlice.actions.setIsGenerating(false))
+        dispatch(tryOnSlice.actions.setIsGenerating(false))
         dispatch(
           errorSnackbarSlice.actions.showErrorSnackbar({
             retryButtonText: 'Try again',

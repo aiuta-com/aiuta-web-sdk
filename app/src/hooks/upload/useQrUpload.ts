@@ -1,7 +1,7 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { configSlice } from '@/store/slices/configSlice'
 import { qrTokenSelector, aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
@@ -36,7 +36,14 @@ export const useQrUpload = () => {
         const result = await QrApiService.uploadImage(file, endpointData as QrEndpointData)
 
         if (result.owner_type === 'user') {
-          dispatch(uploadsSlice.actions.setCurrentImage({ file, ...result }))
+          const localUrl = URL.createObjectURL(file)
+          dispatch(
+            tryOnSlice.actions.setCurrentImage({
+              id: result.id,
+              url: result.url,
+              localUrl,
+            }),
+          )
           dispatch(configSlice.actions.setIsShowFooter(false))
           navigate('/view')
 
@@ -63,7 +70,13 @@ export const useQrUpload = () => {
         dispatch(configSlice.actions.setIsShowQrSpinner(true))
       } else if (result.owner_type === 'user') {
         dispatch(configSlice.actions.setIsShowQrSpinner(false))
-        dispatch(uploadsSlice.actions.setCurrentImage({ ...result }))
+        dispatch(
+          tryOnSlice.actions.setCurrentImage({
+            id: result.id,
+            url: result.url,
+            localUrl: result.url,
+          }),
+        )
 
         // Clean up QR token
         await QrApiService.deleteQrToken(qrToken)
