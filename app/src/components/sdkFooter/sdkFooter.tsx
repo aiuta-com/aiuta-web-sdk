@@ -1,6 +1,7 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
-import { isMobileSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
+import { isMobileSelector } from '@/store/slices/appSlice'
+import { hasFooterSelector } from '@/store/slices/appSlice'
 import styles from './sdkFooter.module.scss'
 import { useEffect, useState } from 'react'
 
@@ -12,7 +13,7 @@ export const SdkFooter = () => {
   }, [])
 
   const isMobile = useAppSelector(isMobileSelector)
-  const isShowFooter = useAppSelector(isShowFooterSelector)
+  const isShowFooter = useAppSelector(hasFooterSelector)
 
   const iasNavigatePath =
     pathName === '/view' ||

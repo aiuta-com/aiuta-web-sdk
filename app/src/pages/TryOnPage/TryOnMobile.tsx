@@ -2,8 +2,10 @@ import React, { useRef, useState, useEffect, ChangeEvent } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
-import { configSlice } from '@/store/slices/configSlice'
-import { isOpenSwipSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { appSlice } from '@/store/slices/appSlice'
+import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
+import { hasFooterSelector } from '@/store/slices/appSlice'
 import {
   currentTryOnImageSelector,
   isGeneratingSelector,
@@ -36,8 +38,8 @@ export default function TryOnMobile() {
   const dispatch = useAppDispatch()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const isOpenSwip = useAppSelector(isOpenSwipSelector)
-  const isShowFooter = useAppSelector(isShowFooterSelector)
+  const isOpenSwip = useAppSelector(uploadsIsBottomSheetOpenSelector)
+  const isShowFooter = useAppSelector(hasFooterSelector)
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isStartGeneration = useAppSelector(isGeneratingSelector)
   const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
@@ -52,7 +54,7 @@ export default function TryOnMobile() {
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
 
   const handleOpenSwip = () => {
-    dispatch(configSlice.actions.setIsOpenSwip(true))
+    dispatch(uploadsSlice.actions.setIsBottomSheetOpen(true))
   }
 
   const handleChooseNewPhoto = (id: string, url: string) => {
@@ -74,7 +76,7 @@ export default function TryOnMobile() {
 
       await uploadImage(file, (result: InputImage) => {
         startTryOn(result)
-        if (isOpenSwip) dispatch(configSlice.actions.setIsOpenSwip(false))
+        if (isOpenSwip) dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
       })
     }
   }
@@ -86,7 +88,7 @@ export default function TryOnMobile() {
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {
       setRecentImage(recentlyPhotos[0])
-      dispatch(configSlice.actions.setIsShowFooter(true))
+      dispatch(appSlice.actions.setHasFooter(true))
     }
   }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
 

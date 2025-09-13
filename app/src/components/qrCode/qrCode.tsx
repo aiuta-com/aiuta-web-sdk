@@ -2,7 +2,7 @@ import React from 'react'
 import { useQRCode } from 'next-qrcode'
 import { QrSpinner } from '@/components/animationIcons'
 import { useAppSelector } from '@/store/store'
-import { isShowQrSpinnerSelector } from '@/store/slices/configSlice/selectors'
+import { qrIsLoadingSelector } from '@/store/slices/qrSlice'
 import { QrCodeTypes } from './types'
 import styles from './qrCode.module.scss'
 
@@ -11,7 +11,7 @@ export const QrCode = (props: QrCodeTypes) => {
 
   const { Canvas } = useQRCode()
 
-  const isShowQrSpinner = useAppSelector(isShowQrSpinnerSelector)
+  const isShowQrSpinner = useAppSelector(qrIsLoadingSelector)
 
   return (
     <div className={styles.qrContent}>

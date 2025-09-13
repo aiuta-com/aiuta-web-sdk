@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAppSelector } from '@/store/store'
-import { isMobileSelector, onboardingStepsSelector } from '@/store/slices/configSlice/selectors'
+import { isMobileSelector } from '@/store/slices/appSlice'
+import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
 import { Section, Onboarding } from '@/components'
 import { useAppInitialization, useHomeAnimation } from '@/hooks'
 import styles from './Home.module.scss'
@@ -17,7 +18,7 @@ import styles from './Home.module.scss'
  */
 export default function Home() {
   const isMobile = useAppSelector(isMobileSelector)
-  const onboardingSteps = useAppSelector(onboardingStepsSelector)
+  const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
 
   const { initializeApp } = useAppInitialization()
   const { animationConfig } = useHomeAnimation()

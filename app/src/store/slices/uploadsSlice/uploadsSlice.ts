@@ -10,11 +10,15 @@ export interface ImageToTryOn extends InputImage {
 export interface UploadsState {
   inputImages: Array<InputImage>
   fullScreenImageUrl: string | null
+  isSelecting: boolean
+  isBottomSheetOpen: boolean
 }
 
 const initialState: UploadsState = {
   inputImages: UploadsStorage.getInputImages(),
   fullScreenImageUrl: null,
+  isSelecting: false,
+  isBottomSheetOpen: false,
 }
 
 export const uploadsSlice = createSlice({
@@ -35,6 +39,14 @@ export const uploadsSlice = createSlice({
       const newImage = action.payload
       const updatedImages = UploadsStorage.addInputImage(newImage)
       state.inputImages = updatedImages
+    },
+
+    setIsSelecting: (state, action: PayloadAction<boolean>) => {
+      state.isSelecting = action.payload
+    },
+
+    setIsBottomSheetOpen: (state, action: PayloadAction<boolean>) => {
+      state.isBottomSheetOpen = action.payload
     },
   },
 })

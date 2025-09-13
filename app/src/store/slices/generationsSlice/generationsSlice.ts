@@ -5,11 +5,13 @@ import { GenerationsStorage } from '@/utils'
 export interface GenerationsState {
   selectedImages: Array<string>
   generatedImages: Array<GeneratedImage>
+  isSelecting: boolean
 }
 
 const initialState: GenerationsState = {
   selectedImages: [],
   generatedImages: GenerationsStorage.getGeneratedImages(),
+  isSelecting: false,
 }
 
 export const generationsSlice = createSlice({
@@ -43,6 +45,10 @@ export const generationsSlice = createSlice({
       const newImage = action.payload
       const updatedImages = GenerationsStorage.addGeneratedImage(newImage)
       state.generatedImages = updatedImages
+    },
+
+    setIsSelecting: (state, action: PayloadAction<boolean>) => {
+      state.isSelecting = action.payload
     },
   },
 })

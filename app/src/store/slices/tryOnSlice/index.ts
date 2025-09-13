@@ -5,4 +5,5 @@ export {
   currentTryOnImageSelector,
   operationIdSelector,
   generatedImageUrlSelector,
+  productIdSelector,
 } from './selectors'
