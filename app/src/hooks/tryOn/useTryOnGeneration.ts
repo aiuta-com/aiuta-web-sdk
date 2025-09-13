@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
@@ -23,8 +23,6 @@ export const useTryOnGeneration = () => {
   const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
     useTryOnAnalytics()
 
-  const [generatedImageUrl, addGeneratedImageUrl] = useState('')
-  const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   const clearGenerationInterval = useCallback(() => {
@@ -32,14 +30,15 @@ export const useTryOnGeneration = () => {
       clearInterval(intervalRef.current)
       intervalRef.current = null
     }
-  }, [])
+    dispatch(tryOnSlice.actions.setOperationId(null))
+  }, [dispatch])
 
   const handleGenerationSuccess = useCallback(
     (result: GenerationResult) => {
       if (result.generated_images && result.generated_images.length > 0) {
         const { id, url } = result.generated_images[0]
 
-        addGeneratedImageUrl(url)
+        dispatch(tryOnSlice.actions.setGeneratedImageUrl(url))
         dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
         setTimeout(() => {
@@ -75,7 +74,7 @@ export const useTryOnGeneration = () => {
     (result: GenerationResult) => {
       clearGenerationInterval()
       dispatch(tryOnSlice.actions.setIsGenerating(false))
-      setIsOpenAbortedModal(true)
+      dispatch(tryOnSlice.actions.setIsAborted(true))
 
       trackTryOnAborted(result.error || 'Unknown reason')
     },
@@ -213,6 +212,9 @@ export const useTryOnGeneration = () => {
         return
       }
 
+      // Save operation ID to Redux
+      dispatch(tryOnSlice.actions.setOperationId(operationId))
+
       // Start status polling
       intervalRef.current = setInterval(() => {
         pollGenerationStatus(operationId)
@@ -237,12 +239,10 @@ export const useTryOnGeneration = () => {
   }, [dispatch, startTryOn])
 
   const closeAbortedModal = useCallback(() => {
-    setIsOpenAbortedModal(false)
-  }, [])
+    dispatch(tryOnSlice.actions.setIsAborted(false))
+  }, [dispatch])
 
   return {
-    generatedImageUrl,
-    isOpenAbortedModal,
     startTryOn,
     regenerate,
     closeAbortedModal,

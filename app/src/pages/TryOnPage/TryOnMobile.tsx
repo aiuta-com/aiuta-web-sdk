@@ -4,7 +4,12 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { configSlice } from '@/store/slices/configSlice'
 import { isOpenSwipSelector, isShowFooterSelector } from '@/store/slices/configSlice/selectors'
-import { currentTryOnImageSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
+import {
+  currentTryOnImageSelector,
+  isGeneratingSelector,
+  generatedImageUrlSelector,
+  isAbortedSelector,
+} from '@/store/slices/tryOnSlice'
 import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
@@ -35,13 +40,14 @@ export default function TryOnMobile() {
   const isShowFooter = useAppSelector(isShowFooterSelector)
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isStartGeneration = useAppSelector(isGeneratingSelector)
+  const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
+  const isOpenAbortedModal = useAppSelector(isAbortedSelector)
 
   const { recentlyPhotos, removePhotoFromGallery } = usePhotoGallery()
 
   const { uploadImage } = useImageUpload()
 
-  const { generatedImageUrl, isOpenAbortedModal, startTryOn, regenerate, closeAbortedModal } =
-    useTryOnGeneration()
+  const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
 
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
 
