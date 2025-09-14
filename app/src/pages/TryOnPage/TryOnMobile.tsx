@@ -12,7 +12,13 @@ import {
   generatedImageUrlSelector,
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
-import { Swip, ErrorSnackbar, Section, TryOnButton, SelectableImage } from '@/components'
+import {
+  UploadHistorySheet,
+  ErrorSnackbar,
+  Section,
+  TryOnButton,
+  SelectableImage,
+} from '@/components'
 import { AbortModal, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
@@ -131,7 +137,7 @@ export default function TryOnMobile() {
             style={{ display: 'none' }}
           />
 
-          <Swip onClickButton={handleButtonClick} buttonText="+ Upload new photo">
+          <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
             <div className={styles.imageContent}>
               {recentlyPhotos.length > 0
                 ? recentlyPhotos.map((item: InputImage, index: number) => (
@@ -148,7 +154,7 @@ export default function TryOnMobile() {
                   ))
                 : null}
             </div>
-          </Swip>
+          </UploadHistorySheet>
         </motion.div>
       </Section>
     </>

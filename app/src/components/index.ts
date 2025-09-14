@@ -19,7 +19,8 @@ import { EmptyViewImage } from './emptyViewImage/emptyViewImage'
 import { MiniSliderItem } from './MiniSliderItem/miniSliderItem'
 
 import { QrCode } from './qrCode/qrCode'
-import { Swip } from './swip/swip'
+import { BottomSheet } from './BottomSheet'
+import { UploadHistorySheet } from './UploadHistorySheet'
 import { CountDownAnimation } from './CountDownAnimation/countDownAnimation'
 
 import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
@@ -65,7 +66,8 @@ export {
 
   // Specialized Components
   QrCode,
-  Swip,
+  BottomSheet,
+  UploadHistorySheet,
   CountDownAnimation,
 
   // Modals and Overlays

@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 
-export type SwipTypes = {
-  buttonText: string
+export interface UploadHistorySheetProps {
   children: ReactNode
+  buttonText: string
   onClickButton: () => void
 }
