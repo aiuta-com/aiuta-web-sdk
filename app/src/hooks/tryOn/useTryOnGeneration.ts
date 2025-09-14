@@ -4,7 +4,8 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { currentTryOnImageSelector } from '@/store/slices/tryOnSlice'
 import { useRpcProxy } from '@/contexts'
 import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
@@ -16,8 +17,17 @@ export const useTryOnGeneration = () => {
   const dispatch = useAppDispatch()
   const rpc = useRpcProxy()
 
-  const endpointData = useAppSelector(aiutaEndpointDataSelector)
+  const apiKey = useAppSelector(apiKeySelector)
+  const subscriptionId = useAppSelector(subscriptionIdSelector)
+  const productId = useAppSelector(productIdSelector)
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
+
+  // Create combined endpoint data for API calls
+  const endpointData = {
+    apiKey,
+    subscriptionId,
+    skuId: productId,
+  }
 
   const { addPhotoToGallery, getRecentPhoto } = usePhotoGallery()
   const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
@@ -196,8 +206,9 @@ export const useTryOnGeneration = () => {
       }
 
       // Create operation
-      const hasUserId = endpointData.userId && endpointData.userId.length > 0
-      const operationId = hasUserId
+      const hasSubscriptionId =
+        endpointData.subscriptionId && endpointData.subscriptionId.length > 0
+      const operationId = hasSubscriptionId
         ? await createOperationWithJwt(targetImage.id)
         : await createOperationWithoutJwt(targetImage.id)
 

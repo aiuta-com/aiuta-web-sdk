@@ -1,15 +1,15 @@
 import { useRef } from 'react'
 import { useAppSelector } from '@/store/store'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { useRpcProxy } from '@/contexts'
 import { TryOnAnalyticsService } from '@/utils/analytics/tryOnAnalyticsService'
 
 export const useTryOnAnalytics = () => {
   const rpc = useRpcProxy()
-  const endpointData = useAppSelector(aiutaEndpointDataSelector)
+  const productId = useAppSelector(productIdSelector)
   const startTimeRef = useRef<number>(0)
 
-  const analytics = new TryOnAnalyticsService(rpc, endpointData?.skuId)
+  const analytics = new TryOnAnalyticsService(rpc, productId)
 
   const trackTryOnInitiated = () => {
     analytics.trackTryOnInitiated()

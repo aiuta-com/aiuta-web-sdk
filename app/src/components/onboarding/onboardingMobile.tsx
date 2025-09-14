@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
+import { appSlice } from '@/store/slices/appSlice'
+import { onboardingSlice } from '@/store/slices/onboardingSlice'
 import {
-  aiutaEndpointDataSelector,
-  onboardingStepsSelector,
-  isOnboardingDoneSelector,
-} from '@/store/slices/configSlice/selectors'
+  onboardingCurrentStepSelector,
+  onboardingIsCompletedSelector,
+} from '@/store/slices/onboardingSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components'
 import { useRpcProxy } from '@/contexts'
@@ -35,9 +36,9 @@ export const OnboardingMobile = () => {
   const [isChecked, setIsChecked] = useState(false)
   const [initiallyOnboardingStep, setInitiallyOnboardingStep] = useState(0)
 
-  const onboardingSteps = useAppSelector(onboardingStepsSelector)
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
+  const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
+  const isOnboardingDone = useAppSelector(onboardingIsCompletedSelector)
+  const productId = useAppSelector(productIdSelector)
 
   const handleOnboardAnalyticFinish = () => {
     const analytic = {
@@ -45,7 +46,7 @@ export const OnboardingMobile = () => {
         type: 'onboarding',
         pageId: 'consent',
         event: 'onboardingFinished',
-        productIds: [aiutaEndpointData.skuId],
+        productIds: [productId],
       },
     }
 
@@ -57,23 +58,23 @@ export const OnboardingMobile = () => {
       setInitiallyOnboardingStep((prevState) => prevState + 1)
     } else {
       if (onboardingSteps !== 2) {
-        dispatch(configSlice.actions.setOnboardingSteps(null))
+        dispatch(onboardingSlice.actions.setCurrentStep(0))
       } else {
         navigate('/view')
         handleOnboardAnalyticFinish()
-        dispatch(configSlice.actions.setIsShowFooter(true))
-        dispatch(configSlice.actions.setIsOnboardingDone(true))
+        dispatch(appSlice.actions.setHasFooter(true))
+        dispatch(onboardingSlice.actions.setIsCompleted(true))
       }
     }
   }
 
   const initaillAnalytic = () => {
-    if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+    if (productId && productId.length > 0) {
       const analytic = {
         data: {
           type: 'page',
           pageId: 'howItWorks',
-          productIds: [aiutaEndpointData.skuId],
+          productIds: [productId],
         },
       }
 
@@ -94,7 +95,7 @@ export const OnboardingMobile = () => {
           data: {
             type: 'page',
             pageId: 'bestResults',
-            productIds: [aiutaEndpointData.skuId],
+            productIds: [productId],
           },
         }
 
@@ -104,14 +105,14 @@ export const OnboardingMobile = () => {
           data: {
             type: 'page',
             pageId: 'consent',
-            productIds: [aiutaEndpointData.skuId],
+            productIds: [productId],
           },
         }
 
         initPageAnalytic(analytic)
       }
     }
-  }, [aiutaEndpointData, onboardingSteps])
+  }, [productId, onboardingSteps])
 
   return (
     <div className={styles.onboardingMobile}>

@@ -1,10 +1,9 @@
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { isSelectPreviouselyImagesSelector } from '@/store/slices/configSlice/selectors'
+import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
 import { useImageGallery } from './useImageGallery'
 import { useImageUpload } from '@/hooks/upload/useImageUpload'
@@ -17,7 +16,7 @@ export const useUploadsGallery = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const recentlyPhotos = useAppSelector(inputImagesSelector)
-  const isSelectPreviouslyImages = useAppSelector(isSelectPreviouselyImagesSelector)
+  const isSelectPreviouslyImages = useAppSelector(uploadsIsSelectingSelector)
   const { uploadImage } = useImageUpload()
 
   // Convert Redux photos to ImageItem format
@@ -48,7 +47,7 @@ export const useUploadsGallery = () => {
       gallery.showFullScreen(image)
     }
     // Reset selection state
-    dispatch(configSlice.actions.setIsSelectPreviouselyImages(false))
+    dispatch(uploadsSlice.actions.setIsSelecting(false))
   }
 
   // Handle image deletion

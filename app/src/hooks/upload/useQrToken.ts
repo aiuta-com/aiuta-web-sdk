@@ -7,7 +7,7 @@ import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 interface UseQrTokenProps {
   token?: string
   apiKey: string
-  userId?: string
+  subscriptionId?: string
 }
 
 interface UploadState {
@@ -16,7 +16,7 @@ interface UploadState {
   selectedFile: { file: File; url: string } | null
 }
 
-export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
+export const useQrToken = ({ token, apiKey, subscriptionId }: UseQrTokenProps) => {
   const dispatch = useAppDispatch()
   const { trackUploadError } = useTryOnAnalytics()
 
@@ -84,7 +84,7 @@ export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
 
       const endpointData: QrEndpointData = {
         apiKey,
-        userId,
+        subscriptionId,
         skuId: '', // QR uploads don't need skuId
       }
 
@@ -104,7 +104,7 @@ export const useQrToken = ({ token, apiKey, userId }: UseQrTokenProps) => {
       setUploadState((prev) => ({ ...prev, isUploading: false }))
       handleUploadError(error.message || 'Upload failed')
     }
-  }, [uploadState.selectedFile, token, apiKey, userId, handleUploadError])
+  }, [uploadState.selectedFile, token, apiKey, subscriptionId, handleUploadError])
 
   // Reset state
   const reset = useCallback(() => {

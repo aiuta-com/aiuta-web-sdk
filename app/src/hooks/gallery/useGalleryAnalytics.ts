@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAppSelector } from '@/store/store'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { useRpcProxy } from '@/contexts'
 
 type GalleryType = 'history' | 'previously' | 'uploads' | 'generations'
@@ -19,11 +19,11 @@ interface AnalyticsEvent {
  */
 export const useGalleryAnalytics = (galleryType: GalleryType) => {
   const rpc = useRpcProxy()
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const productId = useAppSelector(productIdSelector)
 
   const trackEvent = useCallback(
     (event: string, additionalData?: Record<string, any>) => {
-      if (!aiutaEndpointData?.skuId) return
+      if (!productId) return
 
       const analytic: AnalyticsEvent = {
         data: {
@@ -31,14 +31,14 @@ export const useGalleryAnalytics = (galleryType: GalleryType) => {
           pageId:
             galleryType === 'history' || galleryType === 'generations' ? 'history' : 'imagePicker',
           event,
-          productIds: [aiutaEndpointData.skuId],
+          productIds: [productId],
           ...additionalData,
         },
       }
 
       rpc.sdk.trackEvent(analytic as unknown as Record<string, unknown>)
     },
-    [rpc, aiutaEndpointData, galleryType],
+    [rpc, productId, galleryType],
   )
 
   const trackPageView = useCallback(() => {

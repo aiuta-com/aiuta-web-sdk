@@ -1,10 +1,10 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
-import { isShowSpinnerSelector } from '@/store/slices/configSlice/selectors'
+import { isLoadingSelector } from '@/store/slices/appSlice'
 import styles from './spinner.module.scss'
 
 export const Spinner = () => {
-  const isShowSpinner = useAppSelector(isShowSpinnerSelector)
+  const isShowSpinner = useAppSelector(isLoadingSelector)
 
   return (
     <svg

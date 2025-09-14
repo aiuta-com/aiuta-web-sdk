@@ -3,8 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { configSlice } from '@/store/slices/configSlice'
-import { qrTokenSelector, aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { appSlice } from '@/store/slices/appSlice'
+import { qrSlice } from '@/store/slices/qrSlice'
+import { qrTokenSelector } from '@/store/slices/qrSlice'
+import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 import { generateRandomString } from '@/utils/helpers/generateRandomString'
@@ -14,7 +17,9 @@ export const useQrUpload = () => {
   const dispatch = useAppDispatch()
 
   const qrToken = useAppSelector(qrTokenSelector)
-  const endpointData = useAppSelector(aiutaEndpointDataSelector)
+  const apiKey = useAppSelector(apiKeySelector)
+  const subscriptionId = useAppSelector(subscriptionIdSelector)
+  const productId = useAppSelector(productIdSelector)
   const { trackUploadError } = useTryOnAnalytics()
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -23,14 +28,16 @@ export const useQrUpload = () => {
   // Initialize QR token on mount
   useEffect(() => {
     if (!qrToken) {
-      dispatch(configSlice.actions.setQrToken(generateRandomString()))
+      dispatch(qrSlice.actions.setToken(generateRandomString()))
     }
   }, [dispatch, qrToken])
 
   // Upload file from current device
   const uploadFromDevice = useCallback(
     async (file: File) => {
-      if (!endpointData) return
+      if (!productId || (!apiKey && !subscriptionId)) return
+
+      const endpointData = { apiKey, subscriptionId, skuId: productId }
 
       try {
         const result = await QrApiService.uploadImage(file, endpointData as QrEndpointData)
@@ -44,7 +51,7 @@ export const useQrUpload = () => {
               localUrl,
             }),
           )
-          dispatch(configSlice.actions.setIsShowFooter(false))
+          dispatch(appSlice.actions.setHasFooter(false))
           navigate('/view')
 
           // Track success
@@ -56,20 +63,20 @@ export const useQrUpload = () => {
         handleUploadError(error.message)
       }
     },
-    [endpointData, dispatch, navigate],
+    [apiKey, subscriptionId, productId, dispatch, navigate],
   )
 
   // Check for QR uploaded photo
   const checkQrUpload = useCallback(async () => {
-    if (!qrToken || !endpointData) return
+    if (!qrToken || !productId || (!apiKey && !subscriptionId)) return
 
     try {
       const result = await QrApiService.getQrPhoto(qrToken)
 
       if (result.owner_type === 'scanning') {
-        dispatch(configSlice.actions.setIsShowQrSpinner(true))
+        dispatch(qrSlice.actions.setIsLoading(true))
       } else if (result.owner_type === 'user') {
-        dispatch(configSlice.actions.setIsShowQrSpinner(false))
+        dispatch(qrSlice.actions.setIsLoading(false))
         dispatch(
           tryOnSlice.actions.setCurrentImage({
             id: result.id,
@@ -90,7 +97,7 @@ export const useQrUpload = () => {
     } catch (error) {
       console.error('QR polling error:', error)
     }
-  }, [qrToken, endpointData, dispatch, navigate])
+  }, [qrToken, apiKey, subscriptionId, productId, dispatch, navigate])
 
   // Start polling for QR uploads
   const startPolling = useCallback(() => {
@@ -111,9 +118,14 @@ export const useQrUpload = () => {
 
   // Generate QR URL
   const getQrUrl = useCallback(() => {
-    if (!qrToken || !endpointData) return ''
+    if (!qrToken) return ''
+    if (!productId) return ''
+    // For JWT auth we need subscriptionId, for API key auth we need apiKey
+    if (!apiKey && !subscriptionId) return ''
+
+    const endpointData = { apiKey, subscriptionId, skuId: productId }
     return QrApiService.generateQrUrl(qrToken, endpointData as QrEndpointData)
-  }, [qrToken, endpointData])
+  }, [qrToken, apiKey, subscriptionId, productId])
 
   // Handle upload errors
   const handleUploadError = useCallback(
@@ -138,7 +150,9 @@ export const useQrUpload = () => {
 
   return {
     qrToken,
-    endpointData,
+    apiKey,
+    subscriptionId,
+    productId,
     qrUrl: getQrUrl(),
     isPolling,
     uploadFromDevice,

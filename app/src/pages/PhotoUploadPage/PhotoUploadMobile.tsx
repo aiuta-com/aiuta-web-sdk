@@ -17,7 +17,7 @@ export default function PhotoUploadMobile() {
   const { uploadState, selectFile, uploadFile } = useQrToken({
     token,
     apiKey,
-    userId: userId || undefined,
+    subscriptionId: userId || undefined,
   })
 
   const fileInputRef = useRef<HTMLInputElement>(null)

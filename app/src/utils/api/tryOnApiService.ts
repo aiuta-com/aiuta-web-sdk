@@ -1,7 +1,7 @@
 export interface EndpointData {
   skuId: string
   apiKey: string
-  userId?: string
+  subscriptionId?: string
 }
 
 import type { Image, InputImage, GeneratedImage } from '@lib/models'
@@ -27,14 +27,15 @@ export class TryOnApiService {
     file: File,
     endpointData: EndpointData,
   ): Promise<InputImage & { owner_type?: string; error?: string }> {
-    const hasUserId = typeof endpointData.userId === 'string' && endpointData.userId.length > 0
+    const hasSubscriptionId =
+      typeof endpointData.subscriptionId === 'string' && endpointData.subscriptionId.length > 0
     const headers: Record<string, string> = {
       'Content-Type': file.type,
       'X-Filename': file.name,
     }
 
-    if (hasUserId) {
-      headers['userid'] = endpointData.userId!
+    if (hasSubscriptionId) {
+      headers['userid'] = endpointData.subscriptionId!
     } else {
       headers['keys'] = endpointData.apiKey
     }
@@ -82,9 +83,21 @@ export class TryOnApiService {
     operationId: string,
     endpointData: EndpointData,
   ): Promise<GenerationResult> {
+    // Create request body like original code, but transform subscriptionId to userId
+    const body: any = {
+      ...endpointData,
+      operation_id: operationId,
+    }
+
+    // Transform subscriptionId to userId for API compatibility
+    if (endpointData.subscriptionId) {
+      body.userId = endpointData.subscriptionId
+      delete body.subscriptionId
+    }
+
     const response = await fetch(`${this.BASE_URL}/sku-image-operation`, {
       method: 'POST',
-      body: JSON.stringify({ ...endpointData, operation_id: operationId }),
+      body: JSON.stringify(body),
     })
 
     if (!response.ok) {

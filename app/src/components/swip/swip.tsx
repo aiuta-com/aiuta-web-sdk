@@ -1,7 +1,7 @@
 import React, { useRef, TouchEvent } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
-import { isOpenSwipSelector } from '@/store/slices/configSlice/selectors'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import { TryOnButton } from '@/components/tryOnButton/tryOnButton'
 import { TitleDescription } from '@/components/titleDescription/titleDescription'
 import { SwipTypes } from './types'
@@ -17,7 +17,7 @@ export const Swip = (props: SwipTypes) => {
 
   const swipRef = useRef<HTMLDivElement | null>(null)
 
-  const isOpenSwip = useAppSelector(isOpenSwipSelector)
+  const isOpenSwip = useAppSelector(uploadsIsBottomSheetOpenSelector)
 
   const onTouchStart = () => {
     if (swipRef && swipRef.current) {
@@ -35,7 +35,7 @@ export const Swip = (props: SwipTypes) => {
       const swipContent = swipRef.current
 
       if (initilOfsetTop && clientY - initilOfsetTop >= SWIP_DOWN_POSITION) {
-        dispatch(configSlice.actions.setIsOpenSwip(false))
+        dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
         setTimeout(() => {
           swipContent.style.top = 'unset'
         }, 300)
@@ -59,7 +59,7 @@ export const Swip = (props: SwipTypes) => {
   }
 
   const handleCloseSwip = () => {
-    dispatch(configSlice.actions.setIsOpenSwip(false))
+    dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
   }
 
   return (

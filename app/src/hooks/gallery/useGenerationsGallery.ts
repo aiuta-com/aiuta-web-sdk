@@ -6,10 +6,8 @@ import {
   selectedImagesSelector,
   generatedImagesSelector,
 } from '@/store/slices/generationsSlice/selectors'
-import {
-  isMobileSelector,
-  isSelectHistoryImagesSelector,
-} from '@/store/slices/configSlice/selectors'
+import { isMobileSelector } from '@/store/slices/appSlice'
+import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'
@@ -26,7 +24,7 @@ export const useGenerationsGallery = ({ onCloseModal }: UseGenerationsGalleryPro
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
+  const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
 
   // Convert Redux images to ImageItem format
   const images: ImageItem[] = generatedImages.map(({ id, url }) => ({ id, url }))

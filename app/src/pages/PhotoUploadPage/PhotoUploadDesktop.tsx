@@ -5,16 +5,16 @@ import { useQrUpload, useTryOnAnalytics } from '@/hooks'
 import styles from './photoUpload.module.scss'
 
 export default function PhotoUploadDesktop() {
-  const { qrUrl, endpointData, uploadFromDevice, startPolling } = useQrUpload()
+  const { qrUrl, uploadFromDevice, startPolling } = useQrUpload()
   const { trackTryOnInitiated } = useTryOnAnalytics()
 
   // Start QR polling on mount
   useEffect(() => {
-    if (qrUrl && endpointData) {
+    if (qrUrl) {
       startPolling()
       trackTryOnInitiated()
     }
-  }, [qrUrl, endpointData, startPolling, trackTryOnInitiated])
+  }, [qrUrl, startPolling, trackTryOnInitiated])
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target?.files?.[0]) {
@@ -32,7 +32,7 @@ export default function PhotoUploadDesktop() {
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <ErrorSnackbar />
-      {endpointData && qrUrl ? <QrCode onChange={handleChoosePhoto} url={qrUrl} /> : null}
+      {qrUrl ? <QrCode onChange={handleChoosePhoto} url={qrUrl} /> : null}
     </motion.div>
   )
 }

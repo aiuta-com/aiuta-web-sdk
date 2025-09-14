@@ -1,8 +1,10 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
-import { isMobileSelector, isOnboardingDoneSelector } from '@/store/slices/configSlice/selectors'
+import { appSlice } from '@/store/slices/appSlice'
+// import { onboardingSlice } from '@/store/slices/onboardingSlice' // TODO: Remove if unused
+import { isMobileSelector } from '@/store/slices/appSlice'
+import { onboardingIsCompletedSelector } from '@/store/slices/onboardingSlice'
 
 /**
  * Hook for managing app initialization logic
@@ -11,7 +13,7 @@ export const useAppInitialization = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const isMobile = useAppSelector(isMobileSelector)
-  const isOnboardingCompleted = useAppSelector(isOnboardingDoneSelector)
+  const isOnboardingCompleted = useAppSelector(onboardingIsCompletedSelector)
 
   const getStoredData = useCallback(() => {
     const recentlyPhotos = JSON.parse(localStorage.getItem('tryon-recent-photos') || '[]')
@@ -33,8 +35,8 @@ export const useAppInitialization = () => {
   )
 
   const completeInitialization = useCallback(() => {
-    dispatch(configSlice.actions.setIsInitialized(true))
-    dispatch(configSlice.actions.setIsShowSpinner(false))
+    dispatch(appSlice.actions.setIsInitialized(true))
+    dispatch(appSlice.actions.setIsLoading(false))
   }, [dispatch])
 
   const handleOnboardingComplete = useCallback(() => {
@@ -53,7 +55,7 @@ export const useAppInitialization = () => {
 
     // Hide footer on mobile for first-time users
     if (isMobile) {
-      dispatch(configSlice.actions.setIsShowFooter(false))
+      dispatch(appSlice.actions.setHasFooter(false))
     }
   }, [completeInitialization, isMobile, dispatch])
 
@@ -61,7 +63,7 @@ export const useAppInitialization = () => {
     if (!globalThis) return
 
     // Show loading spinner
-    dispatch(configSlice.actions.setIsShowSpinner(true))
+    dispatch(appSlice.actions.setIsLoading(true))
 
     // Delay to show onboarding animation
     setTimeout(() => {

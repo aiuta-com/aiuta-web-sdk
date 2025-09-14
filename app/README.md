@@ -58,10 +58,19 @@ Both modes establish RPC connection with the parent SDK for communication.
 ### **State Management (Redux)**
 
 - **Location**: `src/store/` (NOT lib/redux - app-specific state)
-- **Slice naming**: Descriptive and specific (e.g., `errorSnackbarSlice`)
+- **Architecture**: Domain-driven slices (migrated from monolithic `configSlice`)
 - **Structure**: `store/slices/{domain}Slice/{domain}Slice.ts`, `selectors.ts`, `index.ts`
-- **Actions**: Descriptive verbs (e.g., `showErrorSnackbar`, `hideErrorSnackbar`)
-- **Selectors**: Domain-specific (e.g., `errorSnackbarSelector`, `isErrorSnackbarVisibleSelector`)
+- **Domain separation**:
+  - `apiSlice` - API configuration (`apiKey`, `subscriptionId`)
+  - `appSlice` - App state (`isMobile`, `isLoading`, `hasFooter`, `isInitialized`)
+  - `tryOnSlice` - Try-on process (`isGenerating`, `currentImage`, `productId`, `operationId`)
+  - `qrSlice` - QR functionality (`token`, `isLoading`)
+  - `onboardingSlice` - Onboarding flow (`currentStep`, `isCompleted`)
+  - `uploadsSlice` - Image uploads (`inputImages`, `isSelecting`, `isBottomSheetOpen`)
+  - `generationsSlice` - Generated images (`generatedImages`, `selectedImages`, `isSelecting`)
+  - `errorSnackbarSlice` - Error display (`isVisible`, `errorMessage`, `retryButtonText`)
+- **Actions**: Descriptive verbs (e.g., `setIsGenerating`, `setCurrentImage`)
+- **Selectors**: Atomic and domain-specific (e.g., `apiKeySelector`, `productIdSelector`)
 
 ### **Hooks Organization**
 
@@ -255,6 +264,11 @@ hooks/
 - ✅ **Modal URL simplification**: Unified `?modal=share|fullscreen` instead of separate `modal` + `modalType` params
 - ✅ **Modal RPC integration**: Both main and modal-only apps wrapped in RpcProvider
 - ✅ **App mode separation**: Clear distinction between main app iframe and modal-only iframe
+- ✅ **Redux architecture refactor**: Broke down monolithic `configSlice` into 8 domain-specific slices
+- ✅ **State flattening**: Removed unnecessary nesting (e.g., `apiSlice.endpointData` → `apiSlice`)
+- ✅ **Field renaming**: `userId` → `subscriptionId`, `skuId` → `productId` for consistency
+- ✅ **JWT authentication**: Fixed API compatibility for subscription-based auth
+- ✅ **Logger integration**: Unified logging across SDK and app with proper configuration
 
 ### **TODO Priorities**
 
@@ -320,10 +334,13 @@ const handleUpload = async (file: File) => {
 ### **State Access**
 
 ```typescript
-// Redux selectors (from src/store)
+// Redux selectors (from src/store) - domain-specific atomic selectors
 const { isVisible, errorMessage, retryButtonText } = useAppSelector(errorSnackbarSelector)
-const isSnackbarVisible = useAppSelector(isErrorSnackbarVisibleSelector)
-const config = useAppSelector(aiutaEndpointDataSelector)
+const apiKey = useAppSelector(apiKeySelector)
+const subscriptionId = useAppSelector(subscriptionIdSelector)
+const productId = useAppSelector(productIdSelector)
+const isGenerating = useAppSelector(tryOnIsGeneratingSelector)
+const isMobile = useAppSelector(isMobileSelector)
 
 // Error snackbar actions
 dispatch(

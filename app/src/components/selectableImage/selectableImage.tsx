@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice'
-import {
-  isSelectHistoryImagesSelector,
-  isSelectPreviouselyImagesSelector,
-} from '@/store/slices/configSlice/selectors'
+import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
+import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
 import { CountDownAnimation } from '@/components/CountDownAnimation/countDownAnimation'
 import { SelectableImageTypes } from './types'
@@ -21,8 +19,8 @@ export const SelectableImage = (props: SelectableImageTypes) => {
   const [isStartCountdown, setIsStartCountDown] = useState<boolean>(false)
 
   const selectedImages = useAppSelector(selectedImagesSelector)
-  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
-  const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
+  const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
+  const isSelectPreviouselyImages = useAppSelector(uploadsIsSelectingSelector)
 
   const handleClick = () => {
     if (typeof onClick === 'function') onClick()

@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import { useAppSelector } from '@/store/store'
-import { isMobileSelector } from '@/store/slices/configSlice/selectors'
+import { isMobileSelector } from '@/store/slices/appSlice'
 import { useFullScreenViewer, ImageItem } from './useFullScreenViewer'
 import { useImageSelection } from './useImageSelection'
 import { useGalleryAnalytics } from './useGalleryAnalytics'

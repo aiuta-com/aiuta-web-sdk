@@ -2,7 +2,7 @@ import React from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { selectedImagesSelector, generatedImagesSelector } from '@/store/slices/generationsSlice'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import styles from './removeHistoryBanner.module.scss'
 import { useRpcProxy } from '@/contexts'
@@ -17,7 +17,7 @@ export const RemoveHistoryBanner = ({ onShowModal }: RemoveHistoryBannerProps) =
 
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const productId = useAppSelector(productIdSelector)
 
   const handleSelectAll = () => {
     const generatedImagesId = generatedImages.map(({ id }) => id)
@@ -53,7 +53,7 @@ export const RemoveHistoryBanner = ({ onShowModal }: RemoveHistoryBannerProps) =
         type: 'share',
         event: 'downloaded',
         pageId: 'history',
-        productIds: [aiutaEndpointData.skuId],
+        productIds: [productId],
       },
     }
 

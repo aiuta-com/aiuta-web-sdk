@@ -1,15 +1,18 @@
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { configSlice } from '@/store/slices/configSlice'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { appSlice } from '@/store/slices/appSlice'
+import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { TryOnApiService, InputImage } from '@/utils/api/tryOnApiService'
 import { usePhotoGallery } from '@/hooks/tryOn/usePhotoGallery'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 export const useImageUpload = () => {
   const dispatch = useAppDispatch()
-  const endpointData = useAppSelector(aiutaEndpointDataSelector)
+  const apiKey = useAppSelector(apiKeySelector)
+  const subscriptionId = useAppSelector(subscriptionIdSelector)
+  const productId = useAppSelector(productIdSelector)
   const { addPhotoToGallery } = usePhotoGallery()
   const { trackUploadError } = useTryOnAnalytics()
 
@@ -17,11 +20,13 @@ export const useImageUpload = () => {
     file: File,
     onSuccess?: (result: InputImage) => void,
   ): Promise<void> => {
-    if (!endpointData) return
+    if (!productId || (!apiKey && !subscriptionId)) return
+
+    const endpointData = { apiKey, subscriptionId, skuId: productId }
 
     try {
       dispatch(tryOnSlice.actions.setIsGenerating(true))
-      dispatch(configSlice.actions.setIsShowFooter(true))
+      dispatch(appSlice.actions.setHasFooter(true))
 
       const result = await TryOnApiService.uploadImage(file, endpointData)
 

@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
+// import { appSlice } from '@/store/slices/appSlice' // TODO: Remove if unused
+import { onboardingSlice } from '@/store/slices/onboardingSlice'
+import { isMobileSelector, isInitializedSelector, isLoadingSelector } from '@/store/slices/appSlice'
 import {
-  isMobileSelector,
-  isInitializedSelector,
-  isShowSpinnerSelector,
-  onboardingStepsSelector,
-  aiutaEndpointDataSelector,
-  isOnboardingDoneSelector,
-} from '@/store/slices/configSlice/selectors'
+  onboardingCurrentStepSelector,
+  onboardingIsCompletedSelector,
+} from '@/store/slices/onboardingSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { OnboardingMobile } from './onboardingMobile'
 import { Consent } from './components/consent/consent'
 import { TitleDescription, TryOnButton } from '@/components'
@@ -24,11 +23,11 @@ export const Onboarding = () => {
   const [isChecked, setIsChecked] = useState(false)
 
   const isMobile = useAppSelector(isMobileSelector)
-  const isShowSpinner = useAppSelector(isShowSpinnerSelector)
+  const isShowSpinner = useAppSelector(isLoadingSelector)
   const isInitialized = useAppSelector(isInitializedSelector)
-  const onboardingSteps = useAppSelector(onboardingStepsSelector)
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
-  const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
+  const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
+  const isOnboardingDone = useAppSelector(onboardingIsCompletedSelector)
+  const productId = useAppSelector(productIdSelector)
 
   const onboardingAnalytic = () => {
     const analytic = {
@@ -36,7 +35,7 @@ export const Onboarding = () => {
         type: 'onboarding',
         pageId: 'consent',
         event: 'consentsGiven',
-        productIds: [aiutaEndpointData.skuId],
+        productIds: [productId],
       },
     }
 
@@ -49,7 +48,7 @@ export const Onboarding = () => {
         type: 'onboarding',
         pageId: 'consent',
         event: 'onboardingFinished',
-        productIds: [aiutaEndpointData.skuId],
+        productIds: [productId],
       },
     }
 
@@ -58,17 +57,17 @@ export const Onboarding = () => {
 
   const handleClickOnboardingButton = () => {
     if (onboardingSteps !== 2) {
-      dispatch(configSlice.actions.setOnboardingSteps(null))
+      dispatch(onboardingSlice.actions.setCurrentStep(0))
     } else {
       navigate('/qr')
       onboardingAnalytic()
       handleOnboardAnalyticFinish()
-      dispatch(configSlice.actions.setIsOnboardingDone(true))
+      dispatch(onboardingSlice.actions.setIsCompleted(true))
     }
   }
 
   const initPageAnalytic = (analytic: any) => {
-    if (aiutaEndpointData.skuId && aiutaEndpointData.skuId.length > 0) {
+    if (productId && productId.length > 0) {
       rpc.sdk.trackEvent(analytic)
     }
   }
@@ -80,7 +79,7 @@ export const Onboarding = () => {
           data: {
             type: 'page',
             pageId: 'howItWorks',
-            productIds: [aiutaEndpointData.skuId],
+            productIds: [productId],
           },
         }
 
@@ -90,7 +89,7 @@ export const Onboarding = () => {
           data: {
             type: 'page',
             pageId: 'bestResults',
-            productIds: [aiutaEndpointData.skuId],
+            productIds: [productId],
           },
         }
 
@@ -100,14 +99,14 @@ export const Onboarding = () => {
           data: {
             type: 'page',
             pageId: 'consent',
-            productIds: [aiutaEndpointData.skuId],
+            productIds: [productId],
           },
         }
 
         initPageAnalytic(analytic)
       }
     }
-  }, [aiutaEndpointData, onboardingSteps])
+  }, [productId, onboardingSteps])
 
   return !isShowSpinner && isInitialized ? (
     <div className={styles.onboarding}>

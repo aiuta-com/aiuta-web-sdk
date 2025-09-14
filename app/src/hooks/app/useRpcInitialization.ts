@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useAppDispatch, store } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
-import { isMobileSelector } from '@/store/slices/configSlice/selectors'
+import { appSlice } from '@/store/slices/appSlice'
+import { apiSlice } from '@/store/slices/apiSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { isMobileSelector } from '@/store/slices/appSlice'
 import { AiutaRpcApp } from '@lib/rpc'
 import type { AppHandlers } from '@lib/rpc'
 
@@ -24,15 +26,12 @@ export const useRpcInitialization = () => {
           tryOn: async (productId: string) => {
             try {
               // Update endpoint data with the product ID
-              const currentState = store.getState()
-              const currentEndpointData = currentState.config.aiutaEndpointData
+              // const currentState = store.getState()
+              // const currentApiKey = currentState.api.apiKey
+              // const currentSubscriptionId = currentState.api.subscriptionId
 
-              const updatedEndpointData = {
-                ...currentEndpointData,
-                skuId: productId,
-              }
-
-              dispatch(configSlice.actions.setAiutaEndpointData(updatedEndpointData))
+              // Update productId in tryOnSlice
+              dispatch(tryOnSlice.actions.setProductId(productId))
               return // Explicitly return to complete the Promise
             } catch (error) {
               console.error('[RPC APP] Error in tryOn handler:', error)
@@ -48,9 +47,9 @@ export const useRpcInitialization = () => {
 
               // Update mobile state based on window width
               if (sizes.width <= MOBILE_BREAKPOINT && !currentIsMobile) {
-                dispatch(configSlice.actions.setIsMobile(true))
+                dispatch(appSlice.actions.setIsMobile(true))
               } else if (sizes.width > MOBILE_BREAKPOINT && currentIsMobile) {
-                dispatch(configSlice.actions.setIsMobile(false))
+                dispatch(appSlice.actions.setIsMobile(false))
               }
             } catch (error) {
               console.error('[RPC APP] Error handling updateWindowSizes:', error)
@@ -95,12 +94,13 @@ const initializeAuthData = (rpcAppInstance: AiutaRpcApp) => {
     if ('apiKey' in auth) {
       // API Key auth
       endpointData.apiKey = auth.apiKey
+      store.dispatch(apiSlice.actions.setApiKey(auth.apiKey))
     } else if ('subscriptionId' in auth) {
       // JWT auth
-      endpointData.userId = auth.subscriptionId
+      endpointData.subscriptionId = auth.subscriptionId
+      store.dispatch(apiSlice.actions.setSubscriptionId(auth.subscriptionId))
+      // Note: JWT token is obtained dynamically via getJwt callback when needed
     }
-
-    store.dispatch(configSlice.actions.setAiutaEndpointData(endpointData))
   } catch (error) {
     console.error('Failed to initialize auth data:', error)
   }

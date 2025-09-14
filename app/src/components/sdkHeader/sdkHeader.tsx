@@ -3,16 +3,19 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { configSlice } from '@/store/slices/configSlice'
+// import { qrSlice } from '@/store/slices/qrSlice' // TODO: Remove if unused
+// import { appSlice } from '@/store/slices/appSlice' // TODO: Remove if unused
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { apiSlice } from '@/store/slices/apiSlice'
+import { qrTokenSelector } from '@/store/slices/qrSlice'
+import { isMobileSelector } from '@/store/slices/appSlice'
 import {
-  qrTokenSelector,
-  isMobileSelector,
-  onboardingStepsSelector,
-  isOnboardingDoneSelector,
-  aiutaEndpointDataSelector,
-  isSelectHistoryImagesSelector,
-  isSelectPreviouselyImagesSelector,
-} from '@/store/slices/configSlice/selectors'
+  onboardingCurrentStepSelector,
+  onboardingIsCompletedSelector,
+} from '@/store/slices/onboardingSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
+import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import {
   selectedImagesSelector,
   generatedImagesSelector,
@@ -36,13 +39,13 @@ export const SdkHeader = () => {
   const isMobile = useAppSelector(isMobileSelector)
   const recentlyPhotos = useAppSelector(inputImagesSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
-  const onboardingSteps = useAppSelector(onboardingStepsSelector)
+  const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const isOnboardingDone = useAppSelector(isOnboardingDoneSelector)
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const isOnboardingDone = useAppSelector(onboardingIsCompletedSelector)
+  const productId = useAppSelector(productIdSelector)
   const isStartGeneration = useAppSelector(isGeneratingSelector)
-  const isSelectHistoryImages = useAppSelector(isSelectHistoryImagesSelector)
-  const isSelectPreviouselyImages = useAppSelector(isSelectPreviouselyImagesSelector)
+  const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
+  const isSelectPreviouselyImages = useAppSelector(uploadsIsSelectingSelector)
 
   const [hasMounted, setHasMounted] = useState(false)
   const [headerText, setHeaderText] = useState('Virtual Try-On')
@@ -60,7 +63,7 @@ export const SdkHeader = () => {
       data: {
         type: 'exit',
         pageId: 'howItWorks',
-        productIds: [aiutaEndpointData?.skuId],
+        productIds: [productId],
       },
     }
 
@@ -90,7 +93,7 @@ export const SdkHeader = () => {
           data: {
             type: 'exit',
             pageId: 'loading',
-            productIds: [aiutaEndpointData?.skuId],
+            productIds: [productId],
           },
         }
 
@@ -114,9 +117,9 @@ export const SdkHeader = () => {
 
   const handleToggleHistorySelectImages = () => {
     if (pathName === '/previously') {
-      dispatch(configSlice.actions.setIsSelectPreviouselyImages(!isSelectPreviouselyImages))
+      dispatch(uploadsSlice.actions.setIsSelecting(!isSelectPreviouselyImages))
     } else if (pathName === '/history') {
-      dispatch(configSlice.actions.setIsSelectHistoryImages(!isSelectHistoryImages))
+      dispatch(generationsSlice.actions.setIsSelecting(!isSelectHistoryImages))
     }
   }
 
@@ -126,7 +129,7 @@ export const SdkHeader = () => {
         data: {
           type: 'exit',
           pageId: 'history',
-          productIds: [aiutaEndpointData?.skuId],
+          productIds: [productId],
         },
       }
 
@@ -160,8 +163,8 @@ export const SdkHeader = () => {
       navigate(`/${path}`)
     }
 
-    dispatch(configSlice.actions.setIsSelectHistoryImages(false))
-    dispatch(configSlice.actions.setIsSelectPreviouselyImages(false))
+    dispatch(generationsSlice.actions.setIsSelecting(false))
+    dispatch(uploadsSlice.actions.setIsSelecting(false))
   }
 
   useEffect(() => {
@@ -183,7 +186,9 @@ export const SdkHeader = () => {
       if (event.data && event.data.action) {
         // TODO: Replace with RPC event handling
         if (event.data.data?.status === 200 && event.data.action === 'BASE_KEYS') {
-          dispatch(configSlice.actions.setAiutaEndpointData(event.data.data))
+          // TODO: This should dispatch to apiSlice instead
+          dispatch(apiSlice.actions.setApiKey(event.data.data.apiKey))
+          dispatch(apiSlice.actions.setSubscriptionId(event.data.data.subscriptionId))
         }
       }
     }
@@ -193,7 +198,7 @@ export const SdkHeader = () => {
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [aiutaEndpointData])
+  }, [])
 
   if (!hasMounted) return null
 

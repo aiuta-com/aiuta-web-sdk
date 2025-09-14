@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { GeneratedImageButtonsTypes } from './types'
 
@@ -14,7 +14,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   const { activeGeneratedImageUrl } = props
   const rpc = useRpcProxy()
 
-  const aiutaEndpointData = useAppSelector(aiutaEndpointDataSelector)
+  const productId = useAppSelector(productIdSelector)
 
   const handleShare = async () => {
     // TODO: Replace with RPC call to SDK
@@ -31,7 +31,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
         type: 'share',
         event: 'initiated',
         pageId: 'results',
-        productIds: [aiutaEndpointData.skuId],
+        productIds: [productId],
       },
     }
 
@@ -60,7 +60,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
         type: 'share',
         event: 'donwloaded',
         pageId: 'results',
-        productIds: [aiutaEndpointData.skuId],
+        productIds: [productId],
       },
     }
 
