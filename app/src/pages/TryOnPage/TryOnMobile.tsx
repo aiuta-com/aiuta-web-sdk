@@ -19,7 +19,7 @@ import {
   TryOnButton,
   SelectableImage,
 } from '@/components'
-import { AbortModal, ImageManager } from '@/components'
+import { AbortAlert, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './tryOn.module.scss'
@@ -108,7 +108,7 @@ export default function TryOnMobile() {
           className={styles.tryOnContainerMobile}
           {...initiallAnimationConfig}
         >
-          <AbortModal isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
+          <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
           <ErrorSnackbar onRetry={regenerate} />
           <div />
 

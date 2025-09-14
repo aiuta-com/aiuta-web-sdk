@@ -25,7 +25,7 @@ import { CountDownAnimation } from './CountDownAnimation/countDownAnimation'
 
 import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
 import { ShareModal } from './shareModal/shareModal'
-import { AbortModal } from './AbortModal'
+import { AbortAlert } from './AbortAlert'
 
 import { Onboarding } from './onboarding/onboarding'
 import { GeneratedImageButtons } from './generatedImageButtons/generatedImageButtons'
@@ -73,7 +73,7 @@ export {
   // Modals and Overlays
   FullScreenImageModal,
   ShareModal,
-  AbortModal,
+  AbortAlert,
 
   // Feature Components
   Onboarding,

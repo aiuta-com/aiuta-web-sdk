@@ -86,7 +86,7 @@ export const useTryOnGeneration = () => {
       dispatch(tryOnSlice.actions.setIsGenerating(false))
       dispatch(tryOnSlice.actions.setIsAborted(true))
 
-      trackTryOnAborted(result.error || 'Unknown reason')
+      trackTryOnAborted(result.error || 'No people detected in photo')
     },
     [dispatch, trackTryOnAborted, clearGenerationInterval],
   )

@@ -12,7 +12,7 @@ import {
 // Required data: { images: InputImage[], modalType?: string }
 
 import { ErrorSnackbar, Section, TryOnButton } from '@/components'
-import { AbortModal, ImageManager } from '@/components'
+import { AbortAlert, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './tryOn.module.scss'
@@ -72,7 +72,7 @@ export default function TryOnDesktop() {
 
   return (
     <>
-      <AbortModal isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
+      <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
       <Section>
