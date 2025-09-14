@@ -55,8 +55,9 @@ export const SdkHeader = () => {
   const hasRecentlyPhotos = recentlyPhotos.length > 0
   const isCheckOnboardingForMobile = isMobile && isOnboardingDone
   const isCheckQrTokenPage = qrToken ? pathName.includes(qrToken) : false
-  const iasNavigatePath = pathName === '/history' || pathName === '/previously'
-  const iasNavigatePathMobile = pathName === '/history' || pathName === '/previously'
+  const iasNavigatePath = pathName === '/generations-history' || pathName === '/uploads-history'
+  const iasNavigatePathMobile =
+    pathName === '/generations-history' || pathName === '/uploads-history'
 
   const handleAnalytic = () => {
     const analytic = {
@@ -116,15 +117,15 @@ export const SdkHeader = () => {
   }
 
   const handleToggleHistorySelectImages = () => {
-    if (pathName === '/previously') {
+    if (pathName === '/uploads-history') {
       dispatch(uploadsSlice.actions.setIsSelecting(!isSelectPreviouselyImages))
-    } else if (pathName === '/history') {
+    } else if (pathName === '/generations-history') {
       dispatch(generationsSlice.actions.setIsSelecting(!isSelectHistoryImages))
     }
   }
 
   const handleNavigate = (path: string) => {
-    if (pathName === '/history' && iasNavigatePath) {
+    if (pathName === '/generations-history' && iasNavigatePath) {
       const analytic = {
         data: {
           type: 'exit',
@@ -168,9 +169,9 @@ export const SdkHeader = () => {
   }
 
   useEffect(() => {
-    if (pathName === '/history') {
+    if (pathName === '/generations-history') {
       setHeaderText('History')
-    } else if (pathName === '/previously') {
+    } else if (pathName === '/uploads-history') {
       setHeaderText('Previously used photos')
     } else {
       setHeaderText('Virtual Try-On')
@@ -209,26 +210,26 @@ export const SdkHeader = () => {
           <img
             alt="History icon"
             src={iasNavigatePath ? './icons/back.svg' : './icons/history.svg'}
-            onClick={() => handleNavigate('history')}
+            onClick={() => handleNavigate('generations-history')}
           />
         ) : iasNavigatePath ? (
           <img
             alt="History icon"
             src={'./icons/back.svg'}
-            onClick={() => handleNavigate('history')}
+            onClick={() => handleNavigate('generations-history')}
           />
         ) : null
       ) : hasHistoryImages ? (
         <img
           alt="History icon"
           src={iasNavigatePath ? './icons/back.svg' : 'icons/history.svg'}
-          onClick={() => handleNavigate('history')}
+          onClick={() => handleNavigate('generations-history')}
         />
       ) : iasNavigatePath ? (
         <img
           alt="History icon"
           src={'./icons/back.svg'}
-          onClick={() => handleNavigate('history')}
+          onClick={() => handleNavigate('generations-history')}
         />
       ) : null}
       {!isMobile && (

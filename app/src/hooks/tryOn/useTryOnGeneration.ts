@@ -53,7 +53,7 @@ export const useTryOnGeneration = () => {
 
         setTimeout(() => {
           dispatch(tryOnSlice.actions.setIsGenerating(false))
-          navigate('/generated')
+          navigate('/results')
         }, 500)
 
         trackTryOnFinished()

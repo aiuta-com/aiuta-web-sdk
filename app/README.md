@@ -94,7 +94,7 @@ hooks/
 /qr → PhotoUploadPage (Desktop)
 /qr/:token → PhotoUploadPage (Mobile)
 /view → TryOnPage
-/results/:id → ResultsPage
+/results → ResultsPage
 /uploads-history → UploadsHistoryPage
 /generations-history → GenerationsHistoryPage
 ```

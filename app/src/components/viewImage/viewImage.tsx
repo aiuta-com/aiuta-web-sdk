@@ -28,7 +28,7 @@ export const ViewImage = (props: ViewImageTypes) => {
 
   const handleOnChange = () => {
     if (typeof onChange === 'function') return onChange()
-    handleNavigate('previously')
+    handleNavigate('uploads-history')
 
     dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
   }

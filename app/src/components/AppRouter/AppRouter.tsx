@@ -17,25 +17,28 @@ interface AppRouterProps {
 /**
  * Main application router with all routes and shared components
  */
-export const AppRouter: React.FC<AppRouterProps> = ({ initialPath }) => {
+export const AppRouter = ({ initialPath }: AppRouterProps) => {
   return (
     <MemoryRouter initialEntries={[initialPath]}>
+      {/* Global components */}
       <Spinner />
-      <SdkHeader />
       <FullScreenImageModal />
       <ShareModal />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/generated" element={<ResultsPage />} />
-        <Route path="/history" element={<GenerationsHistoryPage />} />
-        <Route path="/previously" element={<UploadsHistoryPage />} />
-        <Route path="/qr" element={<PhotoUploadPage />} />
-        <Route path="/view" element={<TryOnPage />} />
-        <Route path="/qr/:token" element={<PhotoUploadPage />} />
-      </Routes>
+
+      {/* App layout */}
+      <SdkHeader />
+      <main>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/qr" element={<PhotoUploadPage />} />
+          <Route path="/qr/:token" element={<PhotoUploadPage />} />
+          <Route path="/view" element={<TryOnPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
+          <Route path="/generations-history" element={<GenerationsHistoryPage />} />
+        </Routes>
+      </main>
       <SdkFooter />
     </MemoryRouter>
   )
 }
-
-export default AppRouter

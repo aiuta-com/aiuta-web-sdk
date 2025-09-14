@@ -17,11 +17,12 @@ export const SdkFooter = () => {
 
   const iasNavigatePath =
     pathName === '/view' ||
-    pathName === '/history' ||
-    pathName === '/previously' ||
-    pathName === '/generated'
+    pathName === '/generations-history' ||
+    pathName === '/uploads-history' ||
+    pathName === '/results'
 
-  const iasNavigateMobilePath = pathName === '/history' || pathName === '/previously'
+  const iasNavigateMobilePath =
+    pathName === '/generations-history' || pathName === '/uploads-history'
 
   return !isMobile ? (
     <footer className={`${styles.footer} ${iasNavigatePath ? styles.hideFooter : ''} `}>
