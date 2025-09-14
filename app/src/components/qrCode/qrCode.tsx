@@ -1,6 +1,6 @@
 import React from 'react'
 import { useQRCode } from 'next-qrcode'
-import { QrSpinner } from '@/components/animationIcons'
+import { Spinner } from '@/components'
 import { useAppSelector } from '@/store/store'
 import { qrIsLoadingSelector } from '@/store/slices/qrSlice'
 import { QrCodeTypes } from './types'
@@ -18,7 +18,7 @@ export const QrCode = (props: QrCodeTypes) => {
       <div className={styles.qrBox}>
         {isShowQrSpinner ? (
           <div className={styles.spinnerOverlay}>
-            <QrSpinner />
+            <Spinner isVisible={true} />
           </div>
         ) : null}
         <Canvas

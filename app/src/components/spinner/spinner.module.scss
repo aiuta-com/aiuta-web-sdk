@@ -9,13 +9,13 @@
   transform: translate(-50%, -50%);
 }
 
-.spinner .path {
+.path {
   stroke: #4000ff;
   stroke-linecap: round;
   animation: dash 1.1s ease-in-out infinite;
 }
 
-.showSpinner {
+.spinnerVisible {
   display: block;
 }
 

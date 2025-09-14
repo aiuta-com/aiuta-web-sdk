@@ -8,7 +8,7 @@
 - **Redux Toolkit** for state management
 - **React Router** (MemoryRouter) for navigation
 - **CSS Modules** with BEM methodology
-- **RPC communication** with parent SDK (replacing legacy postMessage)
+- **RPC communication** with parent SDK
 
 ### 📁 **Directory Structure**
 
@@ -43,22 +43,10 @@ Both modes establish RPC connection with the parent SDK for communication.
 - **Directories**: `PascalCase` (e.g., `ErrorSnackbar/`)
 - **Exports**: Named exports preferred, default for pages
 
-### **CSS & Styling**
-
-- **CSS Modules**: `Component.module.scss`
-- **BEM methodology**: Automatic generation via `generateScopedName`
-- **Generated classes**:
-  - **Main block**: `aiuta-{component-name}` (e.g., `aiuta-error-snackbar`)
-  - **Elements**: `aiuta-{component-name}__{element}` (e.g., `aiuta-error-snackbar__content`)
-  - **Modifiers**: `aiuta-{component-name}--{modifier}` (e.g., `aiuta-error-snackbar--active`)
-  - **Element modifiers**: `aiuta-{component-name}__{element}--{modifier}`
-- **SCSS naming**: `camelCase` for all classes (e.g., `.errorSnackbar`, `.content`, `.errorSnackbarActive`)
-- **JS access**: `camelCase` properties (e.g., `styles.errorSnackbar`, `styles.content`)
-
 ### **State Management (Redux)**
 
-- **Location**: `src/store/` (NOT lib/redux - app-specific state)
-- **Architecture**: Domain-driven slices (migrated from monolithic `configSlice`)
+- **Location**: `src/store/`
+- **Architecture**: Domain-driven slices
 - **Structure**: `store/slices/{domain}Slice/{domain}Slice.ts`, `selectors.ts`, `index.ts`
 - **Domain separation**:
   - `apiSlice` - API configuration (`apiKey`, `subscriptionId`)
@@ -118,7 +106,6 @@ hooks/
 - **Context**: `RpcProvider` wraps both main app and modal-only app
 - **Methods**: `rpc.sdk.{method}()` for SDK communication
 - **Modal communication**: Modal-only iframes use `rpc.sdk.closeModal()` to close themselves
-- **Legacy**: TODO comments mark postMessage replacements being migrated
 
 ### **Error Handling**
 
@@ -137,75 +124,33 @@ hooks/
 - **QR flow**: `useQrUpload` (Desktop) + `useQrToken` (Mobile)
 - **Generation**: `useTryOnGeneration` → polling → results
 
-## 🎨 **Styling Guidelines**
+## 🎨 **CSS & Styling**
 
-### **CSS Modules Configuration**
+### **CSS Modules & BEM**
 
-- **Auto-generation**: `generateScopedName` creates proper BEM from camelCase
-- **Component matching**: Class name = component name → main block (no element)
-- **Modifier detection**: `{base}{Modifier}` → `{base}--{modifier}`
-- **Examples**:
+- **Auto-generation**: `generateScopedName` creates BEM from camelCase SCSS
+- **Key rules**:
+  - **Block**: `.componentName` → `aiuta-component-name`
+  - **Element**: `.elementName` → `aiuta-component-name__element-name`
+  - **Modifier**: `.componentNameModifier` → `aiuta-component-name--modifier`
+- **⚠️ Naming conventions**:
+  - **✅ DO**: Simple element names (`.content`, `.button`, `.path`)
+  - **❌ DON'T**: Prefix elements (`.componentNameContent` ❌)
+  - **✅ DO**: camelCase in SCSS, kebab-case generated in CSS
 
-  **SCSS (camelCase naming):**
+**Quick example:**
 
-  ```scss
-  // ErrorSnackbar.module.scss
-  .errorSnackbar {
-    // → aiuta-error-snackbar (main block)
-    display: flex;
-  }
-
-  .errorSnackbarError {
-    // → aiuta-error-snackbar--error (modifier)
-    background: red;
-  }
-
-  .errorSnackbarActive {
-    // → aiuta-error-snackbar--active (modifier)
-    bottom: 15px;
-  }
-
-  .content {
-    // → aiuta-error-snackbar__content (element)
-    padding: 16px;
-  }
-
-  .contentFullWidth {
-    // → aiuta-error-snackbar__content--full-width (element modifier)
-    width: 100%;
-  }
-  ```
-
-  **TypeScript (camelCase access):**
-
-  ```typescript
-  // Component usage
-  <div className={`${styles.errorSnackbar} ${isError ? styles.errorSnackbarError : ''}`}>
-    <div className={`${styles.content} ${fullWidth ? styles.contentFullWidth : ''}`}>
-      Content here
-    </div>
-  </div>
-  ```
-
-  **Generated CSS (kebab-case BEM):**
-
-  ```css
-  .aiuta-error-snackbar {
-    display: flex;
-  }
-  .aiuta-error-snackbar--error {
-    background: red;
-  }
-  .aiuta-error-snackbar--active {
-    bottom: 15px;
-  }
-  .aiuta-error-snackbar__content {
-    padding: 16px;
-  }
-  .aiuta-error-snackbar__content--full-width {
-    width: 100%;
-  }
-  ```
+```scss
+// MyComponent.module.scss
+.myComponent {
+} // → aiuta-my-component
+.myComponentActive {
+} // → aiuta-my-component--active
+.title {
+} // → aiuta-my-component__title
+.titleBold {
+} // → aiuta-my-component__title--bold
+```
 
 ### **Responsive Design**
 
@@ -215,77 +160,27 @@ hooks/
 
 ## 🔧 **Development Guidelines**
 
-### **File Organization**
+- **File organization**: Co-locate related files, use `index.ts` exports
+- **Hook design**: Single responsibility, handle errors via ErrorSnackbar
+- **Performance**: Lazy loading for routes, `useCallback`/`useMemo` for expensive ops
+- **Build tool**: Vite with SCSS modules and BEM naming
 
-- **Co-location**: Keep related files together
-- **Index exports**: Use `index.ts` for clean imports
-- **Types**: Separate `.ts` files for complex interfaces
+## 📝 **TODO Priorities**
 
-### **Hook Design**
-
-- **Single responsibility**: One hook, one concern
-- **Composition**: Combine hooks in components, not in other hooks
-- **Error boundaries**: Handle errors within hooks, dispatch to ErrorSnackbar
-
-### **Performance**
-
-- **Lazy loading**: Dynamic imports for routes
-- **Memoization**: `useCallback`/`useMemo` for expensive operations
-- **Image optimization**: Object URLs, proper cleanup
-
-## 🚀 **Build & Deployment**
-
-### **Environment**
-
-- **Build tool**: Vite
-- **CSS processing**: SCSS modules with BEM naming
-- **Bundle analysis**: Check `dist/app/` output
-
-### **Integration**
-
-- **SDK embedding**: Via `sdk/iframe.ts`
-- **Cross-origin**: Handles iframe security and communication
-- **Modal modes**: Support overlay and full-page modes
-
-## 📝 **Migration Notes**
-
-### **Recent Changes**
-
-- ✅ **Alert → ErrorSnackbar**: Proper semantic naming and improved API
-- ✅ **ErrorSnackbar Redux**: Simplified with `showErrorSnackbar()` / `hideErrorSnackbar()`
-- ✅ **BEM CSS**: Automatic generation with `generateScopedName`
-- ✅ **CSS naming**: `camelCase` in SCSS → `kebab-case` BEM in CSS
-- ✅ **Main block optimization**: Component name = main block (no element duplication)
-- ✅ **Modifier detection**: Automatic `--` for modifiers, `__` for elements
-- ✅ **RPC transition**: Replacing postMessage system
-- ✅ **Hook organization**: Domain-based grouping
-- ✅ **Redux cleanup**: Specific slice naming and improved state structure
-- ✅ **Redux location**: Moved from `lib/redux` to `src/store` (app-specific state)
-- ✅ **Modal URL simplification**: Unified `?modal=share|fullscreen` instead of separate `modal` + `modalType` params
-- ✅ **Modal RPC integration**: Both main and modal-only apps wrapped in RpcProvider
-- ✅ **App mode separation**: Clear distinction between main app iframe and modal-only iframe
-- ✅ **Redux architecture refactor**: Broke down monolithic `configSlice` into 8 domain-specific slices
-- ✅ **State flattening**: Removed unnecessary nesting (e.g., `apiSlice.endpointData` → `apiSlice`)
-- ✅ **Field renaming**: `userId` → `subscriptionId`, `skuId` → `productId` for consistency
-- ✅ **JWT authentication**: Fixed API compatibility for subscription-based auth
-- ✅ **Logger integration**: Unified logging across SDK and app with proper configuration
-
-### **TODO Priorities**
-
-1. Complete RPC migration (remove legacy postMessage)
-2. Add selectionSnackbar for bulk actions
-3. Optimize bundle size and loading
-4. Enhance analytics tracking
-5. Improve error boundaries and fallbacks
+1. Add selectionSnackbar for bulk actions
+2. Optimize bundle size and loading
+3. Enhance analytics tracking
+4. Improve error boundaries and fallbacks
 
 ## 📖 **Documentation Policy**
 
-**⚠️ IMPORTANT**: This README.md is the **ONLY** documentation file for the app.
+**⚠️ IMPORTANT**: This README.md is the **ONLY** documentation file for the **app development**.
 
+- **🎯 Scope**: Internal development documentation for the iframe application
+- **📚 SDK Documentation**: Complete SDK documentation available at [docs.aiuta.com](https://docs.aiuta.com/sdk/web/)
 - **✅ DO**: Update this file when architecture or practices change
-- **❌ DON'T**: Create additional docs/\*.md files
-- **❌ DON'T**: Create separate documentation files elsewhere
-- **📝 Rule**: All app documentation must be consolidated here for easy maintenance and AI context restoration
+- **❌ DON'T**: Create additional docs/\*.md files for app development
+- **📝 Rule**: All app development documentation must be consolidated here for easy maintenance and AI context restoration
 
 ---
 
@@ -294,41 +189,17 @@ hooks/
 ### **Common Patterns**
 
 ```typescript
-// Hook with error handling
-const { upload } = useImageUpload()
+// Error handling pattern
 const dispatch = useAppDispatch()
+dispatch(errorSnackbarSlice.actions.showErrorSnackbar({
+  errorMessage: 'Upload failed. Please try again.',
+  retryButtonText: 'Try again'
+}))
 
-const handleUpload = async (file: File) => {
-  try {
-    await upload(file)
-  } catch (error) {
-    dispatch(errorSnackbarSlice.actions.showErrorSnackbar({
-      errorMessage: 'Upload failed. Please try again.',
-      retryButtonText: 'Try again'
-    }))
-  }
-}
-
-// CSS Modules (camelCase naming)
-.photoUpload {              // → aiuta-photo-upload (main block)
-  display: flex;
-}
-
-.photoUploadLoading {       // → aiuta-photo-upload--loading (modifier)
-  opacity: 0.7;
-}
-
-.container {                // → aiuta-photo-upload__container (element)
-  width: 100%;
-}
-
-.button {                   // → aiuta-photo-upload__button (element)
-  padding: 12px;
-}
-
-.buttonPrimary {            // → aiuta-photo-upload__button--primary (element modifier)
-  background: blue;
-}
+// CSS usage
+<div className={`${styles.component} ${active ? styles.componentActive : ''}`}>
+  <div className={styles.content}>Content</div>
+</div>
 ```
 
 ### **State Access**

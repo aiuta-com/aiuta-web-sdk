@@ -1,15 +1,20 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { isLoadingSelector } from '@/store/slices/appSlice'
-import styles from './spinner.module.scss'
+import styles from './Spinner.module.scss'
 
-export const Spinner = () => {
-  const isShowSpinner = useAppSelector(isLoadingSelector)
+interface SpinnerProps {
+  isVisible?: boolean
+}
+
+export const Spinner = ({ isVisible }: SpinnerProps) => {
+  const isLoadingFromRedux = useAppSelector(isLoadingSelector)
+  const isShowSpinner = isVisible !== undefined ? isVisible : isLoadingFromRedux
 
   return (
     <svg
       viewBox="0 0 16 18"
-      className={`${isShowSpinner ? styles.showSpinner : ''} ${styles.spinner}`}
+      className={`${styles.spinner} ${isShowSpinner ? styles.spinnerVisible : ''}`}
     >
       <path
         className={styles.path}

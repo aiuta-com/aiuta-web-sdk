@@ -7,7 +7,7 @@ import { SdkHeader } from './sdkHeader/sdkHeader'
 import { SdkFooter } from './sdkFooter/sdkFooter'
 
 import { ErrorSnackbar } from './ErrorSnackbar'
-import { Spinner } from './spinner/spinner'
+import { Spinner } from './Spinner/Spinner'
 import { TryOnButton } from './tryOnButton/tryOnButton'
 import { SecondaryButton } from './secondaryButton/secondaryButton'
 import { TitleDescription } from './titleDescription/titleDescription'
@@ -32,7 +32,6 @@ import { GeneratedImageButtons } from './generatedImageButtons/generatedImageBut
 import { RemoveHistoryBanner } from './removeHistoryBanner/removeHistoryBanner'
 import { ImageManager } from './ImageManager'
 
-export { QrSpinner } from './animationIcons'
 export { ImageGallery, EmptyGalleryState, SelectionBanner } from './imageGallery'
 export { ResultsSlider, ShareButton } from './resultsGallery'
 
