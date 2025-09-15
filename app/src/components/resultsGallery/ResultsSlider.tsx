@@ -1,5 +1,5 @@
 import React from 'react'
-import { MiniSliderItem } from '@/components'
+import { ThumbnailItem } from '@/components'
 import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'
 
 interface ResultsSliderProps {
@@ -25,7 +25,7 @@ export const ResultsSlider: React.FC<ResultsSliderProps> = ({
   return (
     <div className={className}>
       {images.map((image, index) => (
-        <MiniSliderItem
+        <ThumbnailItem
           key={image.id}
           src={image.url}
           isActive={activeIndex === index}

@@ -17,7 +17,7 @@ import { ViewImage } from './viewImage/viewImage'
 import { SelectableImage } from './SelectableImage'
 import { DeletableImage } from './DeletableImage'
 import { MobileUploadPrompt } from './MobileUploadPrompt'
-import { MiniSliderItem } from './MiniSliderItem/miniSliderItem'
+import { ThumbnailItem } from './ThumbnailItem'
 
 import { QrCode } from './qrCode/qrCode'
 import { BottomSheet } from './BottomSheet'
@@ -63,7 +63,7 @@ export {
   SelectableImage,
   DeletableImage,
   MobileUploadPrompt,
-  MiniSliderItem,
+  ThumbnailItem,
 
   // Specialized Components
   QrCode,
