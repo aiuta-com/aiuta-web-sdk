@@ -228,7 +228,16 @@ hooks/
 
 ## 🎨 **CSS & Styling**
 
-- **CSS Modules + BEM**: Auto-generated from camelCase SCSS (`.myComponent` → `aiuta-my-component`)
+### **CSS Modules + Auto-Generated BEM**
+
+- **Block**: `.componentName` → `aiuta-component-name`
+- **Element**: `.elementName` → `aiuta-component-name__element-name`
+- **Component modifier**: `.componentNameActive` → `aiuta-component-name--active`
+- **Element modifier**: `.titleBold` → `aiuta-component-name__title--bold`
+- **Rules**: Use camelCase in SCSS, auto-generated to BEM kebab-case
+
+### **Other Patterns**
+
 - **Custom properties**: Theme tokens, component variables, responsive values
 - **Mobile-first**: Responsive design with flexible units (`rem`, `em`, `%`)
 - **Performance**: `transform`/`opacity` animations, `prefers-reduced-motion` support

@@ -1,96 +1,67 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
-import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
-import { SelectableImageTypes } from './types'
-import styles from './selectableImage.module.scss'
+import { SelectableImageProps } from './types'
+import styles from './SelectableImage.module.scss'
 
-export const SelectableImage = (props: SelectableImageTypes) => {
-  const { src, imageId, variant, classNames, isShowTrashIcon, onClick, onDelete } = props
+export const SelectableImage = (props: SelectableImageProps) => {
+  const { src, imageId, classNames, onClick } = props
 
   const dispatch = useAppDispatch()
 
-  const [isSelect, setIsSelect] = useState<boolean>(false)
-  const [isActiveHover, setIsActiveHover] = useState<boolean>(false)
+  const [isSelected, setIsSelected] = useState<boolean>(false)
+  const [isHovered, setIsHovered] = useState<boolean>(false)
 
   const selectedImages = useAppSelector(selectedImagesSelector)
-  const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
-  const isSelectPreviouselyImages = useAppSelector(uploadsIsSelectingSelector)
+  const isSelectingGeneratedImages = useAppSelector(generationsIsSelectingSelector)
 
-  const handleClick = () => {
-    if (typeof onClick === 'function') onClick()
+  const handleClick = useCallback(() => {
+    onClick?.()
 
-    if (isSelectHistoryImages) {
-      setIsSelect((prevState) => !prevState)
-    }
-  }
-
-  const handleDelete = () => {
-    if (typeof onDelete === 'function') {
-      onDelete(imageId)
-    }
-  }
-
-  useEffect(() => {
-    if (selectedImages.length > 0) {
-      for (const id of selectedImages) {
-        if (id === imageId) {
-          setIsSelect(true)
-        }
+    if (isSelectingGeneratedImages) {
+      // Update Redux store, not just local state
+      if (isSelected) {
+        // Remove from selection
+        const updatedSelection = selectedImages.filter((id) => id !== imageId)
+        dispatch(generationsSlice.actions.setSelectedImages(updatedSelection))
+      } else {
+        // Add to selection
+        dispatch(generationsSlice.actions.setSelectedImages([...selectedImages, imageId]))
       }
-    } else {
-      setIsSelect(false)
     }
-  }, [selectedImages])
+  }, [onClick, isSelectingGeneratedImages, isSelected, selectedImages, imageId, dispatch])
 
   useEffect(() => {
-    if (isSelectHistoryImages) setIsActiveHover(isSelectHistoryImages)
-    else {
-      setIsActiveHover(isSelectHistoryImages)
+    // Sync local state with Redux store
+    setIsSelected(selectedImages.includes(imageId))
+  }, [selectedImages, imageId])
+
+  useEffect(() => {
+    setIsHovered(isSelectingGeneratedImages)
+    if (!isSelectingGeneratedImages) {
       dispatch(generationsSlice.actions.clearSelectedImages())
     }
-  }, [isSelectHistoryImages])
+  }, [isSelectingGeneratedImages, dispatch])
 
-  const isHistory = variant === 'history'
-  const isPreviously = variant === 'previously'
+  const isCheckmarkVisible = useMemo(
+    () => isSelected || (isHovered && !isSelected),
+    [isSelected, isHovered],
+  )
+
+  // CSS classes computation
+  const containerClasses = useMemo(
+    () =>
+      [styles.selectableImage, isSelected ? styles.selectableImageActive : '', classNames || '']
+        .filter(Boolean)
+        .join(' '),
+    [isSelected, classNames],
+  )
 
   return (
-    <div
-      className={`${styles.selectableImage}
-      ${isHistory ? styles.selectableImagehistory : ''}
-      ${isHistory && isSelect ? styles.selectableImageActive : ''}
-      ${classNames ?? ''}
-      `}
-      onClick={handleClick}
-    >
-      {isHistory && (isSelect || (isActiveHover && !isSelect)) && (
-        <div className={styles.checkmark} />
-      )}
-      {isSelectPreviouselyImages && isPreviously && !isShowTrashIcon && (
-        <div
-          className={styles.deleteimage}
-          onClick={(e) => {
-            e.stopPropagation()
-            handleDelete()
-          }}
-        >
-          <span />
-          <span />
-        </div>
-      )}
-      {isSelectPreviouselyImages && isShowTrashIcon && (
-        <div
-          className={styles.previouslyTrashIcon}
-          onClick={(e) => {
-            e.stopPropagation()
-            handleDelete()
-          }}
-        >
-          <img src={'./icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
-        </div>
-      )}
+    <div className={containerClasses} onClick={handleClick}>
+      {isCheckmarkVisible && <div className={styles.checkmark} />}
       <img src={src} width={115} height={180} loading="lazy" alt="Selectable image" />
     </div>
   )

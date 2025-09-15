@@ -23,7 +23,7 @@ export default function UploadsHistoryDesktop() {
       <motion.div key="uploads-history-desktop" className={styles.viewContent} {...animationConfig}>
         <ImageGallery
           images={images}
-          variant="previously"
+          variant="uploaded"
           onImageClick={handleImageClick}
           onImageDelete={handleImageDelete}
           emptyMessage="Upload your first photo to see it here"

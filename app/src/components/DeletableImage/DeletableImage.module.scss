@@ -1,0 +1,61 @@
+.deletableImage {
+  scroll-snap-align: start;
+  cursor: pointer;
+  position: relative;
+  width: 115px;
+  height: 180px;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+
+  img {
+    object-fit: cover;
+  }
+
+  .deleteimage {
+    cursor: pointer;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #00000075;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    span {
+      position: absolute;
+      height: 2px;
+      width: 10px;
+      background-color: #fff;
+      transform-origin: center;
+      border-radius: 10px;
+      transform: rotate(45deg);
+
+      &:last-of-type {
+        transform: rotate(-45deg);
+      }
+    }
+  }
+
+  .trashIcon {
+    position: absolute;
+    bottom: 9px;
+    right: 9px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+
+    img {
+      width: 18px !important;
+      height: 19px !important;
+    }
+  }
+}

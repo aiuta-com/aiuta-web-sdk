@@ -17,7 +17,7 @@ import {
   ErrorSnackbar,
   Section,
   TryOnButton,
-  SelectableImage,
+  DeletableImage,
 } from '@/components'
 import { AbortAlert, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
@@ -141,12 +141,11 @@ export default function TryOnMobile() {
             <div className={styles.imageContent}>
               {recentlyPhotos.length > 0
                 ? recentlyPhotos.map((item: InputImage, index) => (
-                    <SelectableImage
+                    <DeletableImage
                       key={`${item.id}-${index}-${recentlyPhotos.length}`}
                       src={item.url}
                       imageId={item.id}
-                      variant="previously"
-                      isShowTrashIcon={true}
+                      showTrashIcon={true}
                       classNames={styles.previouslyImageBox}
                       onDelete={removePhotoFromGallery}
                       onClick={() => handleChooseNewPhoto(item.id, item.url)}

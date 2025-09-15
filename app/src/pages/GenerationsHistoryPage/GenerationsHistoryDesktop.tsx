@@ -35,7 +35,7 @@ export default function GenerationsHistoryDesktop() {
       >
         <ImageGallery
           images={images}
-          variant="history"
+          variant="generated"
           onImageClick={handleImageClick}
           emptyMessage="Once you try on first item your try-on history would be stored here"
           className={styles.imageContent}

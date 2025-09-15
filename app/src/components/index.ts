@@ -14,7 +14,8 @@ import { TitleDescription } from './titleDescription/titleDescription'
 import { CheckboxLabel } from './CheckboxLabel'
 
 import { ViewImage } from './viewImage/viewImage'
-import { SelectableImage } from './selectableImage/selectableImage'
+import { SelectableImage } from './SelectableImage'
+import { DeletableImage } from './DeletableImage'
 import { EmptyViewImage } from './emptyViewImage/emptyViewImage'
 import { MiniSliderItem } from './MiniSliderItem/miniSliderItem'
 
@@ -60,6 +61,7 @@ export {
   // Image Components
   ViewImage,
   SelectableImage,
+  DeletableImage,
   EmptyViewImage,
   MiniSliderItem,
 
