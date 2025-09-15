@@ -29,7 +29,7 @@ import { ShareModal } from './shareModal/shareModal'
 import { AbortAlert } from './AbortAlert'
 
 import { Onboarding } from './onboarding/onboarding'
-import { GeneratedImageButtons } from './generatedImageButtons/generatedImageButtons'
+import { DesktopResultActions } from './DesktopResultActions'
 import { RemoveHistoryBanner } from './removeHistoryBanner/removeHistoryBanner'
 import { ImageManager } from './ImageManager'
 
@@ -78,7 +78,7 @@ export {
 
   // Feature Components
   Onboarding,
-  GeneratedImageButtons,
+  DesktopResultActions,
   RemoveHistoryBanner,
   ImageManager,
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { Section, ViewImage } from '@/components'
-import { GeneratedImageButtons } from '@/components'
+import { DesktopResultActions } from '@/components'
 import { ResultsSlider } from '@/components'
 import { useResultsGallery } from '@/hooks'
 import styles from './ResultsPage.module.scss'
@@ -62,7 +62,7 @@ export default function ResultsDesktop() {
           ))}
         </div>
 
-        {currentImage && <GeneratedImageButtons activeGeneratedImageUrl={currentImage.url} />}
+        {currentImage && <DesktopResultActions activeGeneratedImageUrl={currentImage.url} />}
       </motion.div>
     </Section>
   )

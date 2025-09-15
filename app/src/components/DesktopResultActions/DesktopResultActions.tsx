@@ -2,15 +2,11 @@ import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
-import { GeneratedImageButtonsTypes } from './types'
-
-// TODO: Replace with RPC - need to support opening share modal from iframe to SDK
-// Required data: { imageUrl: string }
-
+import { DesktopResultActionsProps } from './types'
 import { useRpcProxy } from '@/contexts'
-import styles from './generatedImageButtons.module.scss'
+import styles from './DesktopResultActions.module.scss'
 
-export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
+export const DesktopResultActions = (props: DesktopResultActionsProps) => {
   const { activeGeneratedImageUrl } = props
   const rpc = useRpcProxy()
 
@@ -22,9 +18,8 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
     //   imageUrl: activeGeneratedImageUrl
     // })
 
-    console.warn(
-      'Share modal opening: Legacy messaging removed, implement RPC method openShareModal',
-    )
+    // Legacy messaging removed, implement RPC method openShareModal
+    console.warn('Share modal opening: implement RPC method openShareModal')
 
     const analytic = {
       data: {
@@ -58,7 +53,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
     const analytic = {
       data: {
         type: 'share',
-        event: 'donwloaded',
+        event: 'downloaded',
         pageId: 'results',
         productIds: [productId],
       },
@@ -68,7 +63,7 @@ export const GeneratedImageButtons = (props: GeneratedImageButtonsTypes) => {
   }
 
   return (
-    <div className={`${styles.generatedImageButtons} `}>
+    <div className={styles.desktopResultActions}>
       <SecondaryButton text="Share" onClick={handleShare} />
       <SecondaryButton text="Download" onClick={handleDownload} />
     </div>
