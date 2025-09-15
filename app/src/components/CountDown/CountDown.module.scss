@@ -1,19 +1,18 @@
-.circularChart {
+.countDown {
   position: relative;
   width: 52px;
   height: 52px;
 
-  .circleBg {
+  .background {
     stroke: #78797c;
   }
 
-  .circle {
+  .progress {
     stroke: #fff;
     stroke-linecap: round;
-    transition: stroke-dashoffset 1s linear;
   }
 
-  .countsText {
+  .text {
     fill: #fff;
     font-size: 10px;
     font-weight: 500;

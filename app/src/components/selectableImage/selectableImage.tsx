@@ -5,7 +5,7 @@ import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
-import { CountDownAnimation } from '@/components/CountDownAnimation/countDownAnimation'
+import { CountDown } from '@/components/CountDown/CountDown'
 import { SelectableImageTypes } from './types'
 import styles from './selectableImage.module.scss'
 
@@ -107,7 +107,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
             isShowTrashIcon ? styles.countDownContentCentered : ''
           }`}
         >
-          <CountDownAnimation timer={5} onClick={handleDelete} />
+          <CountDown duration={5} onComplete={handleDelete} />
           <p className={styles.countDownInfo}>Photo will be deleted soon</p>
           <SecondaryButton
             text="Cancel"

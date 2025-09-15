@@ -21,7 +21,7 @@ import { MiniSliderItem } from './MiniSliderItem/miniSliderItem'
 import { QrCode } from './qrCode/qrCode'
 import { BottomSheet } from './BottomSheet'
 import { UploadHistorySheet } from './UploadHistorySheet'
-import { CountDownAnimation } from './CountDownAnimation/countDownAnimation'
+import { CountDown } from './CountDown/CountDown'
 
 import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
 import { ShareModal } from './shareModal/shareModal'
@@ -67,7 +67,7 @@ export {
   QrCode,
   BottomSheet,
   UploadHistorySheet,
-  CountDownAnimation,
+  CountDown,
 
   // Modals and Overlays
   FullScreenImageModal,
