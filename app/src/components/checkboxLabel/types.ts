@@ -1,4 +1,5 @@
-export type CheckboxLabelTypes = {
+export interface CheckboxLabelProps {
   labelText: string
-  onClick?: (isChecked: boolean) => void
+  checked?: boolean
+  onChange?: (checked: boolean) => void
 }

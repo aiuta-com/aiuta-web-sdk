@@ -58,7 +58,7 @@ export const OnboardingMobile = () => {
       setInitiallyOnboardingStep((prevState) => prevState + 1)
     } else {
       if (onboardingSteps !== 2) {
-        dispatch(onboardingSlice.actions.setCurrentStep(0))
+        dispatch(onboardingSlice.actions.nextStep())
       } else {
         navigate('/view')
         handleOnboardAnalyticFinish()
@@ -188,7 +188,7 @@ export const OnboardingMobile = () => {
           }`}
         >
           <div className={styles.consentContent}>
-            <Consent setIsChecked={setIsChecked} />
+            <Consent isChecked={isChecked} setIsChecked={setIsChecked} />
           </div>
         </div>
       </div>

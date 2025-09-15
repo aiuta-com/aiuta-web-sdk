@@ -57,7 +57,7 @@ export const Onboarding = () => {
 
   const handleClickOnboardingButton = () => {
     if (onboardingSteps !== 2) {
-      dispatch(onboardingSlice.actions.setCurrentStep(0))
+      dispatch(onboardingSlice.actions.nextStep())
     } else {
       navigate('/qr')
       onboardingAnalytic()
@@ -165,7 +165,7 @@ export const Onboarding = () => {
                   : ''
             }`}
           >
-            <Consent setIsChecked={setIsChecked} />
+            <Consent isChecked={isChecked} setIsChecked={setIsChecked} />
           </div>
         </div>
       )}

@@ -1,21 +1,22 @@
 .checkboxLabel {
-  cursor: pointer;
   display: flex;
   column-gap: 16px;
   align-items: flex-start;
+}
 
-  input[type='checkbox'] {
-    width: 20px;
-    height: 20px;
-    accent-color: #000;
-  }
+.input {
+  width: 20px;
+  height: 20px;
+  accent-color: #000;
+  cursor: pointer;
+}
 
-  label {
-    cursor: pointer;
-    font-size: 14px;
+.label {
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.4;
 
-    a {
-      display: block;
-    }
+  a {
+    display: block;
   }
 }

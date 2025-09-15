@@ -11,7 +11,7 @@ import { Spinner } from './Spinner/Spinner'
 import { TryOnButton } from './tryOnButton/tryOnButton'
 import { SecondaryButton } from './secondaryButton/secondaryButton'
 import { TitleDescription } from './titleDescription/titleDescription'
-import { CheckboxLabel } from './checkboxLabel/checkboxLabel'
+import { CheckboxLabel } from './CheckboxLabel'
 
 import { ViewImage } from './viewImage/viewImage'
 import { SelectableImage } from './selectableImage/selectableImage'

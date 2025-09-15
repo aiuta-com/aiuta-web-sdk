@@ -1,27 +1,27 @@
-import React, { useRef, useState } from 'react'
-import { CheckboxLabelTypes } from './types'
-import styles from './checkboxLabel.module.scss'
+import React, { useId } from 'react'
+import type { CheckboxLabelProps } from './types'
+import styles from './CheckboxLabel.module.scss'
 
-export const CheckboxLabel = (props: CheckboxLabelTypes) => {
-  const { labelText, onClick } = props
+export const CheckboxLabel = ({ labelText, checked = false, onChange }: CheckboxLabelProps) => {
+  const id = useId()
 
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const [isChecked, setIsChecked] = useState(false)
-
-  const handleChangeCheckbox = () => {
-    setIsChecked((prevState) => !prevState)
-  }
-
-  const handleOnClick = () => {
-    if (typeof onClick === 'function') onClick(!isChecked)
-    handleChangeCheckbox()
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newChecked = event.target.checked
+    onChange?.(newChecked)
   }
 
   return (
-    <div onClick={handleOnClick} className={styles.checkboxLabel}>
-      <input ref={inputRef} type="checkbox" onChange={() => null} checked={isChecked} />
-      <label htmlFor="">{labelText}</label>
+    <div className={styles.checkboxLabel}>
+      <input
+        id={id}
+        type="checkbox"
+        checked={checked}
+        onChange={handleChange}
+        className={styles.input}
+      />
+      <label htmlFor={id} className={styles.label}>
+        {labelText}
+      </label>
     </div>
   )
 }

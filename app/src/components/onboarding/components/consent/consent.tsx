@@ -7,7 +7,7 @@ import { ConsentTypes } from './types'
 import styles from './consent.module.scss'
 
 export const Consent = (props: ConsentTypes) => {
-  const { setIsChecked } = props
+  const { isChecked, setIsChecked } = props
 
   const isMobile = useAppSelector(isMobileSelector)
 
@@ -22,7 +22,8 @@ export const Consent = (props: ConsentTypes) => {
       />
       <CheckboxLabel
         labelText="I agree to allow Aiuta to process my photo"
-        onClick={setIsChecked}
+        checked={isChecked}
+        onChange={setIsChecked}
       />
     </div>
   )
