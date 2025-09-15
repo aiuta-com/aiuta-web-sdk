@@ -1,6 +1,6 @@
 import React from 'react'
 import { ViewImage } from '@/components'
-import { EmptyViewImage } from '@/components'
+import { MobileUploadPrompt } from '@/components'
 import { InputImage } from '@/utils'
 
 interface ImageManagerProps {
@@ -70,7 +70,7 @@ export const ImageManager: React.FC<ImageManagerProps> = ({
 
   // Empty state (mobile version only)
   if (onUploadClick) {
-    return <EmptyViewImage onClick={onUploadClick} />
+    return <MobileUploadPrompt onClick={onUploadClick} />
   }
 
   return null

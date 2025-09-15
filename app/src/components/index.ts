@@ -16,7 +16,7 @@ import { CheckboxLabel } from './CheckboxLabel'
 import { ViewImage } from './viewImage/viewImage'
 import { SelectableImage } from './SelectableImage'
 import { DeletableImage } from './DeletableImage'
-import { EmptyViewImage } from './emptyViewImage/emptyViewImage'
+import { MobileUploadPrompt } from './MobileUploadPrompt'
 import { MiniSliderItem } from './MiniSliderItem/miniSliderItem'
 
 import { QrCode } from './qrCode/qrCode'
@@ -62,7 +62,7 @@ export {
   ViewImage,
   SelectableImage,
   DeletableImage,
-  EmptyViewImage,
+  MobileUploadPrompt,
   MiniSliderItem,
 
   // Specialized Components
