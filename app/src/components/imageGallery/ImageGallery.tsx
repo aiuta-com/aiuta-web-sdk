@@ -36,9 +36,9 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     <div
       className={`${styles.imageContent} ${isMobile ? styles.imageContentMobile : ''} ${className || ''}`}
     >
-      {images.map((image) => (
+      {images.map((image, index) => (
         <SelectableImage
-          key={image.id}
+          key={`${image.id}-${index}-${images.length}`}
           src={image.url}
           imageId={image.id}
           variant={variant}

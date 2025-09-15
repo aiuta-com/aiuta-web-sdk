@@ -4,8 +4,6 @@ import { generationsSlice } from '@/store/slices/generationsSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
-import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
-import { CountDown } from '@/components/CountDown/CountDown'
 import { SelectableImageTypes } from './types'
 import styles from './selectableImage.module.scss'
 
@@ -16,7 +14,6 @@ export const SelectableImage = (props: SelectableImageTypes) => {
 
   const [isSelect, setIsSelect] = useState<boolean>(false)
   const [isActiveHover, setIsActiveHover] = useState<boolean>(false)
-  const [isStartCountdown, setIsStartCountDown] = useState<boolean>(false)
 
   const selectedImages = useAppSelector(selectedImagesSelector)
   const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
@@ -30,16 +27,9 @@ export const SelectableImage = (props: SelectableImageTypes) => {
     }
   }
 
-  const handleToggleCountDown = () => {
-    setIsStartCountDown((prevState) => !prevState)
-  }
-
-  const handleRejectDeleteProcess = () => setIsStartCountDown(false)
-
   const handleDelete = () => {
     if (typeof onDelete === 'function') {
       onDelete(imageId)
-      handleToggleCountDown()
     }
   }
 
@@ -83,7 +73,7 @@ export const SelectableImage = (props: SelectableImageTypes) => {
           className={styles.deleteimage}
           onClick={(e) => {
             e.stopPropagation()
-            handleToggleCountDown()
+            handleDelete()
           }}
         >
           <span />
@@ -95,28 +85,10 @@ export const SelectableImage = (props: SelectableImageTypes) => {
           className={styles.previouslyTrashIcon}
           onClick={(e) => {
             e.stopPropagation()
-            handleToggleCountDown()
+            handleDelete()
           }}
         >
           <img src={'./icons/redTrash.svg'} alt="Red Trash" width={18} height={19} />
-        </div>
-      )}
-      {isSelectPreviouselyImages && isStartCountdown && (
-        <div
-          className={`${styles.countDownContent} ${
-            isShowTrashIcon ? styles.countDownContentCentered : ''
-          }`}
-        >
-          <CountDown duration={5} onComplete={handleDelete} />
-          <p className={styles.countDownInfo}>Photo will be deleted soon</p>
-          <SecondaryButton
-            text="Cancel"
-            classNames={styles.countDownBtn}
-            onClick={(e) => {
-              e.stopPropagation()
-              handleRejectDeleteProcess()
-            }}
-          />
         </div>
       )}
       <img src={src} width={115} height={180} loading="lazy" alt="Selectable image" />

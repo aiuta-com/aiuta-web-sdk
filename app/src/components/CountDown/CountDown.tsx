@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { CountDownProps } from './types'
 import styles from './CountDown.module.scss'
 
@@ -8,33 +8,45 @@ const RADIUS = 16
 export const CountDown = (props: CountDownProps) => {
   const { duration, onComplete } = props
 
-  const [remainingMs, setRemainingMs] = useState(duration * 1000)
+  const [seconds, setSeconds] = useState(duration)
+  const [startTime] = useState(() => Date.now())
+  const isCompletedRef = useRef(false)
 
   useEffect(() => {
-    const startTime = Date.now()
-    const totalMs = duration * 1000
+    if (isCompletedRef.current) return
 
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime
-      const remaining = Math.max(0, totalMs - elapsed)
+    const updateTimer = () => {
+      if (isCompletedRef.current) return
 
-      setRemainingMs(remaining)
+      const elapsed = (Date.now() - startTime) / 1000
+      const remaining = Math.max(0, duration - elapsed)
+      const remainingSeconds = Math.ceil(remaining)
 
-      if (remaining <= 0) {
+      setSeconds(remainingSeconds)
+
+      if (remaining <= 0 && !isCompletedRef.current) {
+        isCompletedRef.current = true
         onComplete()
       }
-    }, 16) // 60 FPS (1000ms / 60fps ≈ 16ms)
+    }
 
-    return () => clearInterval(interval)
-  }, [duration, onComplete])
+    // Update immediately
+    updateTimer()
+
+    // Don't set interval if already completed
+    if (isCompletedRef.current) return
+
+    // Then update every second
+    const timerInterval = setInterval(updateTimer, 1000)
+
+    return () => clearInterval(timerInterval)
+  }, [startTime, duration, onComplete])
 
   const circumference = useMemo(() => 2 * Math.PI * RADIUS, [])
-  const displaySeconds = Math.ceil(remainingMs / 1000)
-  const progress = useMemo(() => {
-    const totalMs = duration * 1000
-    const elapsedMs = totalMs - remainingMs
-    return (elapsedMs / totalMs) * circumference
-  }, [remainingMs, duration, circumference])
+  const progress = useMemo(
+    () => ((duration - seconds) / duration) * circumference,
+    [seconds, duration, circumference],
+  )
 
   return (
     <svg viewBox="0 0 36 36" className={styles.countDown}>
@@ -53,7 +65,7 @@ export const CountDown = (props: CountDownProps) => {
         d=" M18 2.0845 a 15.9155 15.9155 0 0 0 0 31.831 a 15.9155 15.9155 0 0 0 0 -31.831"
       />
       <text x="18" y="20.5" textAnchor="middle" fontSize="4" fill="#333" className={styles.text}>
-        {displaySeconds}
+        {seconds}
       </text>
     </svg>
   )

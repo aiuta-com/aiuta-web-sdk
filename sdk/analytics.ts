@@ -48,6 +48,8 @@ export default class AnalyticsTracker {
       this.handler(data.data || data)
     }
 
+    return
+
     const body = {
       ...data,
       env: this.env,

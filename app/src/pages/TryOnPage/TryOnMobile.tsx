@@ -140,9 +140,9 @@ export default function TryOnMobile() {
           <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
             <div className={styles.imageContent}>
               {recentlyPhotos.length > 0
-                ? recentlyPhotos.map((item: InputImage, index: number) => (
+                ? recentlyPhotos.map((item: InputImage, index) => (
                     <SelectableImage
-                      key={index}
+                      key={`${item.id}-${index}-${recentlyPhotos.length}`}
                       src={item.url}
                       imageId={item.id}
                       variant="previously"

@@ -10,6 +10,7 @@
   .progress {
     stroke: #fff;
     stroke-linecap: round;
+    transition: stroke-dashoffset 1s linear;
   }
 
   .text {
