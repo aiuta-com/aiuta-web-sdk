@@ -64,8 +64,8 @@ export const DesktopResultActions = (props: DesktopResultActionsProps) => {
 
   return (
     <div className={styles.desktopResultActions}>
-      <SecondaryButton text="Share" onClick={handleShare} />
-      <SecondaryButton text="Download" onClick={handleDownload} />
+      <SecondaryButton text="Share" iconUrl="./icons/share.svg" onClick={handleShare} />
+      <SecondaryButton text="Download" iconUrl="./icons/download.svg" onClick={handleDownload} />
     </div>
   )
 }

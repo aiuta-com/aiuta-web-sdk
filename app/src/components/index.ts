@@ -9,7 +9,7 @@ import { SdkFooter } from './sdkFooter/sdkFooter'
 import { ErrorSnackbar } from './ErrorSnackbar'
 import { Spinner } from './Spinner/Spinner'
 import { TryOnButton } from './tryOnButton/tryOnButton'
-import { SecondaryButton } from './secondaryButton/secondaryButton'
+import { SecondaryButton } from './SecondaryButton'
 import { CheckboxLabel } from './CheckboxLabel'
 
 import { ViewImage } from './viewImage/viewImage'

@@ -1,14 +1,19 @@
-import React from 'react'
-import { SecondaryButtonTypes } from './types'
-import styles from './secondaryButton.module.scss'
+import React, { useMemo } from 'react'
+import { SecondaryButtonProps } from './types'
+import styles from './SecondaryButton.module.scss'
 
-export const SecondaryButton = (props: SecondaryButtonTypes) => {
+export const SecondaryButton = (props: SecondaryButtonProps) => {
   const { text, iconUrl, classNames, onClick } = props
 
+  const buttonClasses = useMemo(
+    () => [styles.secondaryButton, classNames].filter(Boolean).join(' '),
+    [classNames],
+  )
+
   return (
-    <button className={`${styles.secondaryButton} ${classNames ?? ''}`} onClick={onClick}>
-      {iconUrl && <img src={iconUrl} alt="Secondary button icon" />}
-      <p>{text}</p>
+    <button className={buttonClasses} onClick={onClick}>
+      {iconUrl && <img src={iconUrl} alt="" className={styles.icon} aria-hidden="true" />}
+      <span className={styles.text}>{text}</span>
     </button>
   )
 }

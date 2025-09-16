@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { errorSnackbarSelector } from '@/store/slices/errorSnackbarSlice/selectors'
-import { SecondaryButton } from '@/components/secondaryButton/secondaryButton'
+import { SecondaryButton } from '@/components'
 import { ErrorSnackbarProps } from './types'
 import styles from './ErrorSnackbar.module.scss'
 
