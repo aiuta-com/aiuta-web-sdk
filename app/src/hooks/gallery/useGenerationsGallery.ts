@@ -7,23 +7,32 @@ import {
   generatedImagesSelector,
 } from '@/store/slices/generationsSlice/selectors'
 import { isMobileSelector } from '@/store/slices/appSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
+import { useRpcProxy } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'
+import type { SelectionActionItem } from '@/components/SelectionSnackbar'
 
 interface UseGenerationsGalleryProps {
   onCloseModal?: () => void
+  onShowDeleteModal?: () => void
 }
 
 /**
  * Hook for managing generated images gallery functionality
  */
-export const useGenerationsGallery = ({ onCloseModal }: UseGenerationsGalleryProps = {}) => {
+export const useGenerationsGallery = ({
+  onCloseModal,
+  onShowDeleteModal,
+}: UseGenerationsGalleryProps = {}) => {
   const dispatch = useAppDispatch()
+  const rpc = useRpcProxy()
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
+  const productId = useAppSelector(productIdSelector)
   const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
 
   // Convert Redux images to ImageItem format
@@ -101,6 +110,63 @@ export const useGenerationsGallery = ({ onCloseModal }: UseGenerationsGalleryPro
     trackImageDeleted,
   ])
 
+  // Handle select all action
+  const handleSelectAll = useCallback(() => {
+    const generatedImagesId = generatedImages.map(({ id }) => id)
+    dispatch(generationsSlice.actions.setSelectedImages(generatedImagesId))
+  }, [dispatch, generatedImages])
+
+  // Handle cancel selection
+  const handleCancel = useCallback(() => {
+    dispatch(generationsSlice.actions.clearSelectedImages())
+  }, [dispatch])
+
+  // Handle download selected images
+  const handleDownloadSelectedImages = useCallback(async () => {
+    for (const image of generatedImages) {
+      if (selectedImages.includes(image.id)) {
+        const response = await fetch(image.url, { mode: 'cors' })
+        const blob = await response.blob()
+
+        const blobUrl = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+
+        link.href = blobUrl
+        link.download = `try-on-${Date.now()}`
+        document.body.appendChild(link)
+
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(blobUrl)
+      }
+    }
+
+    const analytic = {
+      data: {
+        type: 'share',
+        event: 'downloaded',
+        pageId: 'history',
+        productIds: [productId],
+      },
+    }
+
+    rpc.sdk.trackEvent(analytic)
+  }, [generatedImages, selectedImages, productId, rpc.sdk])
+
+  // Selection actions for SelectionSnackbar
+  const selectionActions: SelectionActionItem[] = [
+    {
+      iconUrl: './icons/trash.svg',
+      label: 'Delete selected images',
+      onClick: onShowDeleteModal || (() => {}),
+    },
+    {
+      iconUrl: './icons/download.svg',
+      label: 'Download selected images',
+      onClick: handleDownloadSelectedImages,
+    },
+  ]
+
   // Handle message events from parent window
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
@@ -126,5 +192,11 @@ export const useGenerationsGallery = ({ onCloseModal }: UseGenerationsGalleryPro
     isMobile,
     deleteSelectedImages,
     closeHistoryImagesModal,
+    // Selection snackbar props
+    selectedCount: selectedImages.length,
+    totalCount: generatedImages.length,
+    onCancel: handleCancel,
+    onSelectAll: handleSelectAll,
+    selectionActions,
   }
 }

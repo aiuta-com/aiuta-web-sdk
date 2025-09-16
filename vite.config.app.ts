@@ -42,30 +42,23 @@ export default defineConfig({
           return `aiuta-${kebabComponent}`
         }
 
-        // Check if this is a modifier of the main component
-        // e.g., errorSnackbarActive -> errorSnackbar + Active
-        // Convert component name to camelCase (ErrorSnackbar -> errorSnackbar)
+        // Check if this is a modifier of the main component with _ prefix
+        // e.g., selectionSnackbar_visible -> selectionSnackbar + visible (modifier)
         const componentCamelCase = componentName.charAt(0).toLowerCase() + componentName.slice(1)
-        const componentModifierPattern = new RegExp(`^${componentCamelCase}([A-Z].*)$`)
-        const componentModifierMatch = name.match(componentModifierPattern)
-
-        if (componentModifierMatch) {
-          const modifier = componentModifierMatch[1]
+        if (name.startsWith(`${componentCamelCase}_`)) {
+          const modifier = name.substring(`${componentCamelCase}_`.length)
           const kebabModifier = camelToKebab(modifier)
           return `aiuta-${kebabComponent}--${kebabModifier}`
         }
 
-        // Check if this is a modifier of some element
-        // e.g., containerActive -> container + Active
-        const modifierPattern = /^([a-z]+)([A-Z].*)$/
-        const modifierMatch = name.match(modifierPattern)
-
-        if (modifierMatch) {
-          const baseClass = modifierMatch[1]
-          const modifier = modifierMatch[2]
+        // Check if this is a modifier with _ prefix
+        // e.g., container_active -> container + active (modifier)
+        if (name.includes('_')) {
+          const [baseClass, modifier] = name.split('_', 2)
+          const kebabBaseClass = camelToKebab(baseClass)
           const kebabModifier = camelToKebab(modifier)
 
-          return `aiuta-${kebabComponent}__${baseClass}--${kebabModifier}`
+          return `aiuta-${kebabComponent}__${kebabBaseClass}--${kebabModifier}`
         }
 
         // Regular element

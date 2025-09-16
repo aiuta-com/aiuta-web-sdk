@@ -246,11 +246,14 @@ hooks/
 
 ### **CSS Modules + Auto-Generated BEM**
 
-- **Block**: `.componentName` → `aiuta-component-name`
+- **Block**: `.componentName` → `aiuta-component-name` (main component class)
+- **Block detection**: Filename `ComponentName.module.scss` + class `.componentName` = main block
+- **Block modifier**: `.componentName_active` → `aiuta-component-name--active`
 - **Element**: `.elementName` → `aiuta-component-name__element-name`
-- **Component modifier**: `.componentNameActive` → `aiuta-component-name--active`
-- **Element modifier**: `.titleBold` → `aiuta-component-name__title--bold`
+- **Element detection**: Any class that doesn't match component name and has no `_` prefix
+- **Element modifier**: `.element_modifier` → `aiuta-component-name__element--modifier`
 - **Rules**: Use camelCase in SCSS, auto-generated to BEM kebab-case
+- **Modifier convention**: Use `_` prefix for ALL modifiers (component and element)
 
 ### **Other Patterns**
 

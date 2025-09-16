@@ -31,6 +31,7 @@ import { AbortAlert } from './AbortAlert'
 import { Onboarding } from './onboarding/onboarding'
 import { DesktopResultActions } from './DesktopResultActions'
 import { RemoveHistoryBanner } from './removeHistoryBanner/removeHistoryBanner'
+import { SelectionSnackbar } from './SelectionSnackbar'
 import { ImageManager } from './ImageManager'
 
 export { ImageGallery, EmptyGalleryState, SelectionBanner } from './imageGallery'
@@ -80,5 +81,6 @@ export {
   Onboarding,
   DesktopResultActions,
   RemoveHistoryBanner,
+  SelectionSnackbar,
   ImageManager,
 }
