@@ -1,5 +1,5 @@
 import { Layout } from './layout/layout'
-import { Section } from './section/section'
+import { Section } from './Section'
 import { Sdk } from './sdk/sdk'
 import { ModalRenderer, type ModalType } from './ModalRenderer'
 import { AppRouter } from './AppRouter'
