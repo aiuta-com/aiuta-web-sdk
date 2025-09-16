@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section, TryOnButton } from '@/components'
+import { Section, PrimaryButton } from '@/components'
 import { ImageGallery } from '@/components'
 import { useUploadsGallery } from '@/hooks'
 import styles from './uploadsHistory.module.scss'
@@ -16,15 +16,7 @@ const animationConfig = {
  * Mobile version of uploads history page
  */
 export default function UploadsHistoryMobile() {
-  const { images, handleImageClick, handleImageDelete, navigateToUpload, handlePhotoUpload } =
-    useUploadsGallery()
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      await handlePhotoUpload(file)
-    }
-  }
+  const { images, handleImageClick, handleImageDelete, navigateToUpload } = useUploadsGallery()
 
   return (
     <Section className={styles.sectionContent}>
@@ -39,16 +31,9 @@ export default function UploadsHistoryMobile() {
           isMobile
         />
 
-        <TryOnButton onClick={navigateToUpload}>
-          <>
-            + Upload new photo
-            {!images.length && (
-              <label className={styles.changeImageBtn}>
-                <input type="file" accept="image/*" onChange={handleFileChange} />
-              </label>
-            )}
-          </>
-        </TryOnButton>
+        <PrimaryButton onClick={navigateToUpload}>
+          + Upload new photo
+        </PrimaryButton>
       </motion.div>
     </Section>
   )

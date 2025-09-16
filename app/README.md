@@ -186,6 +186,22 @@ hooks/
 
 ## 📱 **Key Components**
 
+### **Button Components**
+
+- **TryOnButton**: Specialized for actual "Try On" actions only
+  - CSS class: `.tryOnButton`
+  - No disabled state (always actionable)
+  - Icon support via `isShowTryOnIcon` prop
+
+- **PrimaryButton**: Universal primary action button
+  - CSS class: `.primaryButton`, `.primaryButtonDisabled`
+  - Supports disabled state for forms/workflows
+  - Icon support via `iconUrl` prop
+
+- **SecondaryButton**: Secondary/alternative actions
+  - CSS class: `.secondaryButton`
+  - Neutral styling, icon support
+
 ### **Page Structure**
 
 - **PhotoUploadPage**: QR/device upload (Desktop: QR, Mobile: direct)
@@ -241,6 +257,7 @@ hooks/
 - **Custom properties**: Theme tokens, component variables, responsive values
 - **Mobile-first**: Responsive design with flexible units (`rem`, `em`, `%`)
 - **Performance**: `transform`/`opacity` animations, `prefers-reduced-motion` support
+- **className composition**: Use `[class1, class2].filter(Boolean).join(' ')` to avoid extra spaces
 
 ## 🔧 **Development Guidelines**
 
@@ -271,9 +288,6 @@ hooks/
 
 **⚠️ IMPORTANT**: Remove items from this list when they are fixed. This should contain only UNRESOLVED issues.
 
-- [ ] **Example**: Component uses old naming convention
-- [ ] **Example**: Missing TypeScript strict mode compliance
-- [ ] **Example**: Non-BEM CSS class names in legacy components
 - [ ] **Example**: Inconsistent error handling patterns
 
 ### **Refactoring Guidelines**
@@ -353,10 +367,10 @@ hooks/
 
 ```typescript
 // Error handling
-dispatch(errorSnackbarSlice.actions.showErrorSnackbar({
-  errorMessage: 'Upload failed. Please try again.',
-  retryButtonText: 'Try again'
-}))
+    dispatch(errorSnackbarSlice.actions.showErrorSnackbar({
+      errorMessage: 'Upload failed. Please try again.',
+      retryButtonText: 'Try again'
+    }))
 
 // Naming - descriptive and clear
 const selectedImages = useAppSelector(selectedImagesSelector)  // ✅ Clear purpose

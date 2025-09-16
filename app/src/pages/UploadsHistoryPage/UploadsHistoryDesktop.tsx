@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section, TryOnButton } from '@/components'
+import { Section, PrimaryButton } from '@/components'
 import { ImageGallery } from '@/components'
 import { useUploadsGallery } from '@/hooks'
 import styles from './uploadsHistory.module.scss'
@@ -30,7 +30,7 @@ export default function UploadsHistoryDesktop() {
           className={styles.imageContent}
         />
 
-        <TryOnButton onClick={navigateToUpload}>+ Upload new photo</TryOnButton>
+        <PrimaryButton onClick={navigateToUpload}>+ Upload new photo</PrimaryButton>
       </motion.div>
     </Section>
   )

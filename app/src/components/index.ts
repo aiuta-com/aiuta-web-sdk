@@ -8,7 +8,8 @@ import { SdkFooter } from './sdkFooter/sdkFooter'
 
 import { ErrorSnackbar } from './ErrorSnackbar'
 import { Spinner } from './Spinner/Spinner'
-import { TryOnButton } from './tryOnButton/tryOnButton'
+import { TryOnButton } from './TryOnButton/TryOnButton'
+import { PrimaryButton } from './PrimaryButton'
 import { SecondaryButton } from './SecondaryButton'
 import { CheckboxLabel } from './CheckboxLabel'
 
@@ -53,6 +54,7 @@ export {
   ErrorSnackbar,
   Spinner,
   TryOnButton,
+  PrimaryButton,
   SecondaryButton,
   CheckboxLabel,
 

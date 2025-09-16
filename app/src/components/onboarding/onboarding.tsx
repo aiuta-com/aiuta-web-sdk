@@ -11,7 +11,7 @@ import {
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { OnboardingMobile } from './onboardingMobile'
 import { Consent } from './components/consent/consent'
-import { TryOnButton } from '@/components'
+import { PrimaryButton } from '@/components'
 import { useRpcProxy } from '@/contexts'
 import styles from './onboarding.module.scss'
 
@@ -166,12 +166,12 @@ export const Onboarding = () => {
         </div>
       )}
       {!isMobile && (
-        <TryOnButton
+        <PrimaryButton
           disabled={onboardingSteps == 2 && !isChecked}
           onClick={handleClickOnboardingButton}
         >
           {onboardingSteps === 2 ? 'Start' : ' Next'}
-        </TryOnButton>
+        </PrimaryButton>
       )}
     </div>
   ) : (

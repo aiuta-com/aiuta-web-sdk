@@ -1,6 +1,6 @@
 import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
-import { TryOnButton, ViewImage, ErrorSnackbar } from '@/components'
+import { PrimaryButton, ViewImage, ErrorSnackbar } from '@/components'
 import { useQrToken } from '@/hooks'
 import styles from './photoUpload.module.scss'
 
@@ -47,13 +47,13 @@ export default function PhotoUploadMobile() {
               onChange={handleButtonClick}
             />
           </div>
-          <TryOnButton onClick={uploadFile}>Next</TryOnButton>
+          <PrimaryButton onClick={uploadFile}>Next</PrimaryButton>
         </div>
       ) : !uploadState.uploadedUrl ? (
         <div className={styles.banner}>
           <img src={'./icons/tokenBannerGirl.svg'} alt="Girl icon" />
           <div className={styles.uploadBtnContent}>
-            <TryOnButton onClick={handleButtonClick}>Upload a photo of you</TryOnButton>
+            <PrimaryButton onClick={handleButtonClick}>Upload a photo of you</PrimaryButton>
           </div>
         </div>
       ) : (

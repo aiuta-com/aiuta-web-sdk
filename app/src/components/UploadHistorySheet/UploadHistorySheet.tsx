@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import { BottomSheet } from '@/components/BottomSheet'
-import { TryOnButton } from '@/components/tryOnButton/tryOnButton'
+import { PrimaryButton } from '@/components'
 import type { UploadHistorySheetProps } from './types'
 import styles from './UploadHistorySheet.module.scss'
 
@@ -27,7 +27,7 @@ export const UploadHistorySheet = ({
 
       <div className={styles.content}>{children}</div>
 
-      <TryOnButton onClick={onClickButton}>{buttonText}</TryOnButton>
+      <PrimaryButton onClick={onClickButton}>{buttonText}</PrimaryButton>
     </BottomSheet>
   )
 }

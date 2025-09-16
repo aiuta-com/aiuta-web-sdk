@@ -1,5 +1,5 @@
 import React from 'react'
-import { TryOnButton } from '@/components'
+import { PrimaryButton } from '@/components'
 import { MobileUploadPromptProps } from './types'
 import styles from './MobileUploadPrompt.module.scss'
 
@@ -10,7 +10,7 @@ export const MobileUploadPrompt = (props: MobileUploadPromptProps) => {
     <div className={styles.mobileUploadPrompt}>
       <img src={'./icons/tokenBannerGirl.svg'} alt="Girl icon" />
       <div className={styles.buttonContainer}>
-        <TryOnButton onClick={onClick}>{buttonText}</TryOnButton>
+        <PrimaryButton onClick={onClick}>{buttonText}</PrimaryButton>
       </div>
     </div>
   )

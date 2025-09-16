@@ -1,4 +1,4 @@
-.tryOnButton {
+.primaryButton {
   position: relative;
   transition: all ease-in-out 0.3s;
   cursor: pointer;
@@ -18,7 +18,26 @@
   color: var(--white);
   letter-spacing: -0.07em;
 
-  &.disabledButton {
-    opacity: 30%;
+  &:hover:not(:disabled) {
+    opacity: 0.9;
   }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+.primaryButtonDisabled {
+  opacity: 30%;
+  cursor: not-allowed;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.text {
+  // Text styles are inherited from parent button
 }
