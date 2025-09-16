@@ -3,35 +3,55 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { SelectableImageProps } from './types'
 import styles from './SelectableImage.module.scss'
 
 export const SelectableImage = (props: SelectableImageProps) => {
-  const { src, imageId, classNames, onClick } = props
+  const { src, imageId, classNames, onClick, galleryType = 'generations' } = props
 
   const dispatch = useAppDispatch()
 
   const [isSelected, setIsSelected] = useState<boolean>(false)
   const [isHovered, setIsHovered] = useState<boolean>(false)
 
-  const selectedImages = useAppSelector(selectedImagesSelector)
+  // Select appropriate selectors based on gallery type
+  const generationsSelectedImages = useAppSelector(selectedImagesSelector)
+  const uploadsSelectedImages = useAppSelector(selectedUploadsSelector)
   const isSelectingGeneratedImages = useAppSelector(generationsIsSelectingSelector)
+  const isSelectingUploadsImages = useAppSelector(uploadsIsSelectingSelector)
+
+  // Get current gallery data
+  const selectedImages =
+    galleryType === 'uploads' ? uploadsSelectedImages : generationsSelectedImages
+  const isSelecting =
+    galleryType === 'uploads' ? isSelectingUploadsImages : isSelectingGeneratedImages
 
   const handleClick = useCallback(() => {
     onClick?.()
 
-    if (isSelectingGeneratedImages) {
-      // Update Redux store, not just local state
+    if (isSelecting) {
+      // Update Redux store based on gallery type
       if (isSelected) {
         // Remove from selection
         const updatedSelection = selectedImages.filter((id) => id !== imageId)
-        dispatch(generationsSlice.actions.setSelectedImages(updatedSelection))
+        if (galleryType === 'uploads') {
+          dispatch(uploadsSlice.actions.setSelectedImages(updatedSelection))
+        } else {
+          dispatch(generationsSlice.actions.setSelectedImages(updatedSelection))
+        }
       } else {
         // Add to selection
-        dispatch(generationsSlice.actions.setSelectedImages([...selectedImages, imageId]))
+        const updatedSelection = [...selectedImages, imageId]
+        if (galleryType === 'uploads') {
+          dispatch(uploadsSlice.actions.setSelectedImages(updatedSelection))
+        } else {
+          dispatch(generationsSlice.actions.setSelectedImages(updatedSelection))
+        }
       }
     }
-  }, [onClick, isSelectingGeneratedImages, isSelected, selectedImages, imageId, dispatch])
+  }, [onClick, isSelecting, isSelected, selectedImages, imageId, galleryType, dispatch])
 
   useEffect(() => {
     // Sync local state with Redux store
@@ -39,11 +59,16 @@ export const SelectableImage = (props: SelectableImageProps) => {
   }, [selectedImages, imageId])
 
   useEffect(() => {
-    setIsHovered(isSelectingGeneratedImages)
-    if (!isSelectingGeneratedImages) {
-      dispatch(generationsSlice.actions.clearSelectedImages())
+    setIsHovered(isSelecting)
+    if (!isSelecting) {
+      // Clear selection when exiting selection mode
+      if (galleryType === 'uploads') {
+        dispatch(uploadsSlice.actions.clearSelectedImages())
+      } else {
+        dispatch(generationsSlice.actions.clearSelectedImages())
+      }
     }
-  }, [isSelectingGeneratedImages, dispatch])
+  }, [isSelecting, galleryType, dispatch])
 
   const isCheckmarkVisible = useMemo(
     () => isSelected || (isHovered && !isSelected),

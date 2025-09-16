@@ -3,4 +3,5 @@ export type SelectableImageProps = {
   imageId: string
   classNames?: string
   onClick?: () => void
+  galleryType?: 'generations' | 'uploads'
 }

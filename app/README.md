@@ -186,6 +186,26 @@ hooks/
 
 ## 📱 **Key Components**
 
+### **Image Components**
+
+- **SelectableImage**: Universal image with selection support
+  - CSS class: `.selectableImage`, `.selectableImageActive`
+  - Works with both `generationsSlice` and `uploadsSlice` via `galleryType` prop
+  - Shows checkmark for selection, supports hover states
+
+- **DeletableImage**: Image with individual delete button
+  - CSS class: `.deletableImage`
+  - Shows trash icon for individual deletion
+  - Used primarily on mobile for uploads gallery
+
+- **ImageGallery**: Universal gallery component
+  - **Logic**: Shows `SelectableImage` for:
+    1. Generated images (always)
+    2. When selection mode is enabled (any variant)
+    3. Uploaded images on desktop (no individual delete buttons)
+  - **Mobile uploads**: Shows `DeletableImage` for individual deletion
+  - **Desktop uploads**: Shows `SelectableImage` only, deletion via SelectionSnackbar
+
 ### **Button Components**
 
 - **TryOnButton**: Specialized for actual "Try On" actions only
@@ -207,8 +227,8 @@ hooks/
 - **PhotoUploadPage**: QR/device upload (Desktop: QR, Mobile: direct)
 - **TryOnPage**: Main try-on interface (Desktop/Mobile variants)
 - **ResultsPage**: Generated results with sharing
-- **UploadsHistoryPage**: User uploaded photos gallery
-- **GenerationsHistoryPage**: Generated images gallery
+- **UploadsHistoryPage**: User uploaded photos gallery (Desktop: SelectableImage only, Mobile: DeletableImage + SelectableImage)
+- **GenerationsHistoryPage**: Generated images gallery (SelectableImage with selection mode)
 
 ### **Routing**
 

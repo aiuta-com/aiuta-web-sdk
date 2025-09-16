@@ -5,6 +5,7 @@ import { appSlice } from '@/store/slices/appSlice'
 // import { onboardingSlice } from '@/store/slices/onboardingSlice' // TODO: Remove if unused
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { onboardingIsCompletedSelector } from '@/store/slices/onboardingSlice'
+import { UploadsStorage } from '@/utils'
 
 /**
  * Hook for managing app initialization logic
@@ -16,7 +17,7 @@ export const useAppInitialization = () => {
   const isOnboardingCompleted = useAppSelector(onboardingIsCompletedSelector)
 
   const getStoredData = useCallback(() => {
-    const recentlyPhotos = JSON.parse(localStorage.getItem('tryon-recent-photos') || '[]')
+    const recentlyPhotos = UploadsStorage.getInputImages()
 
     return { recentlyPhotos, hasPhotos: recentlyPhotos.length > 0 }
   }, [])

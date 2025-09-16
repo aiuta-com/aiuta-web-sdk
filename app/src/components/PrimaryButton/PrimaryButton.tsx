@@ -3,15 +3,18 @@ import { PrimaryButtonProps } from './types'
 import styles from './PrimaryButton.module.scss'
 
 export const PrimaryButton = (props: PrimaryButtonProps) => {
-  const { disabled, children, iconUrl, onClick } = props
+  const { disabled, children, iconUrl, onClick, className } = props
 
   const buttonClasses = React.useMemo(() => {
     const classes = [styles.primaryButton]
     if (disabled) {
       classes.push(styles.primaryButtonDisabled)
     }
+    if (className) {
+      classes.push(className)
+    }
     return classes.join(' ')
-  }, [disabled])
+  }, [disabled, className])
 
   return (
     <button disabled={disabled} className={buttonClasses} onClick={onClick}>

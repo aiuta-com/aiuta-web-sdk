@@ -10,6 +10,8 @@ interface ImageGalleryProps {
   onImageClick: (image: ImageItem) => void
   onImageDelete?: (imageId: string) => void
   showTrashIcon?: boolean
+  enableSelection?: boolean
+  galleryType?: 'generations' | 'uploads'
   emptyMessage: string
   emptyIcon?: string
   className?: string
@@ -25,6 +27,8 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
   onImageClick,
   onImageDelete,
   showTrashIcon,
+  enableSelection,
+  galleryType,
   emptyMessage,
   emptyIcon,
   className,
@@ -42,19 +46,24 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
         const key = `${image.id}-${index}-${images.length}`
         const classNames = isMobile ? styles.selectableImageMobile : ''
 
-        if (variant === 'generated') {
+        // Show SelectableImage for:
+        // 1. Generated images (always)
+        // 2. When selection is enabled (any variant)
+        // 3. Uploaded images on desktop (no individual delete buttons on desktop)
+        if (variant === 'generated' || enableSelection || (variant === 'uploaded' && !isMobile)) {
           return (
             <SelectableImage
               key={key}
               src={image.url}
               imageId={image.id}
               classNames={classNames}
+              galleryType={galleryType}
               onClick={() => onImageClick(image)}
             />
           )
         }
 
-        // variant === 'uploaded'
+        // variant === 'uploaded' and mobile (show individual delete buttons)
         return (
           <DeletableImage
             key={key}

@@ -10,6 +10,8 @@ export type PrimaryButtonProps = {
   onClick: () => void
   /** Optional icon URL to display before text */
   iconUrl?: string
+  /** Additional CSS class names */
+  className?: string
   /** Button content */
   children: string | ReactElement
 }
