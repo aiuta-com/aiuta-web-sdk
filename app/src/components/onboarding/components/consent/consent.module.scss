@@ -5,8 +5,31 @@
   .consentTilesBox {
     margin-bottom: 36px;
 
+    h2 {
+      color: #000;
+      font-weight: 500;
+      font-size: 20px;
+      line-height: 100%;
+      letter-spacing: -0.07em;
+      text-align: left;
+    }
+
     h3 {
-      color: var(--black);
+      margin-top: 12px;
+      color: #666666;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0px;
+      text-align: left;
+
+      a {
+        color: black;
+        font-weight: 400;
+        font-size: 14px;
+        letter-spacing: 0px;
+        text-decoration: underline;
+      }
     }
   }
 }

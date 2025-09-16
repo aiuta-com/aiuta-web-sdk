@@ -10,7 +10,6 @@ import { ErrorSnackbar } from './ErrorSnackbar'
 import { Spinner } from './Spinner/Spinner'
 import { TryOnButton } from './tryOnButton/tryOnButton'
 import { SecondaryButton } from './secondaryButton/secondaryButton'
-import { TitleDescription } from './titleDescription/titleDescription'
 import { CheckboxLabel } from './CheckboxLabel'
 
 import { ViewImage } from './viewImage/viewImage'
@@ -55,7 +54,6 @@ export {
   Spinner,
   TryOnButton,
   SecondaryButton,
-  TitleDescription,
   CheckboxLabel,
 
   // Image Components

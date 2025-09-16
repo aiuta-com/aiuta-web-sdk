@@ -4,7 +4,6 @@ import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import { BottomSheet } from '@/components/BottomSheet'
 import { TryOnButton } from '@/components/tryOnButton/tryOnButton'
-import { TitleDescription } from '@/components/titleDescription/titleDescription'
 import type { UploadHistorySheetProps } from './types'
 import styles from './UploadHistorySheet.module.scss'
 
@@ -22,7 +21,9 @@ export const UploadHistorySheet = ({
 
   return (
     <BottomSheet isOpen={isOpen} onClose={handleClose}>
-      <TitleDescription title="Previously used photos" textAlign="left" className={styles.title} />
+      <div className={styles.title}>
+        <h2>Previously used photos</h2>
+      </div>
 
       <div className={styles.content}>{children}</div>
 

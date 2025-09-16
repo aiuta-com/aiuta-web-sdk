@@ -9,7 +9,7 @@ import {
 } from '@/store/slices/onboardingSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { Consent } from './components/consent/consent'
-import { TitleDescription, TryOnButton } from '@/components'
+import { TryOnButton } from '@/components'
 import { useRpcProxy } from '@/contexts'
 import styles from './onboarding.module.scss'
 
@@ -124,10 +124,8 @@ export const OnboardingMobile = () => {
           }`}
         >
           <div className={styles.titlesBoxMobile}>
-            <TitleDescription
-              title="Try on before buying"
-              description="Just upload your photo and see how it looks"
-            />
+            <h2>Try on before buying</h2>
+            <h3>Just upload your photo and see how it looks</h3>
           </div>
           <div className={styles.initiallyBoardingStep}>
             <div className={styles.miniImagesBox}>
@@ -165,11 +163,8 @@ export const OnboardingMobile = () => {
           }`}
         >
           <div className={styles.titlesBoxMobile}>
-            <TitleDescription
-              className={styles.largeTilte}
-              title="For the best results"
-              description="Use a photo with good lighting, stand straight a plain background"
-            />
+            <h2 className={styles.largeTilte}>For the best results</h2>
+            <h3>Use a photo with good lighting, stand straight a plain background</h3>
           </div>
           <img
             loading="lazy"
