@@ -1,16 +1,53 @@
 .thumbnailItem {
-  min-width: 54px;
-  min-height: 96px;
+  width: 54px;
+  height: 96px;
   cursor: pointer;
   scroll-snap-align: start;
   transition: border ease-in-out 0.3s;
   border-radius: 16px;
   overflow: hidden;
   border: 3px solid #ffffff4d;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 
   img {
+    width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+  }
+
+  // Loading state placeholder effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  // Show shimmer during loading
+  &.loading {
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
   }
 }
 
