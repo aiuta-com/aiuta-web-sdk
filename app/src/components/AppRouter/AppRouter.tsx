@@ -8,7 +8,7 @@ import GenerationsHistoryPage from '@/pages/GenerationsHistoryPage'
 import ResultsPage from '@/pages/ResultsPage'
 import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
 
-import { SdkHeader, PoweredBy, FullScreenImageModal, ShareModal, Spinner } from '@/components'
+import { PageBar, PoweredBy, FullScreenImageModal, ShareModal, Spinner } from '@/components'
 
 interface AppRouterProps {
   initialPath: string
@@ -26,7 +26,7 @@ export const AppRouter = ({ initialPath }: AppRouterProps) => {
       <ShareModal />
 
       {/* App layout */}
-      <SdkHeader />
+      <PageBar />
       <main>
         <Routes>
           <Route path="/" element={<Home />} />

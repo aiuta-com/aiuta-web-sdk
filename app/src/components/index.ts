@@ -3,7 +3,7 @@ import { Section } from './Section'
 import { Sdk } from './sdk/sdk'
 import { ModalRenderer, type ModalType } from './ModalRenderer'
 import { AppRouter } from './AppRouter'
-import { SdkHeader } from './sdkHeader/sdkHeader'
+import { PageBar } from './PageBar'
 import { PoweredBy } from './PoweredBy'
 
 import { ErrorSnackbar } from './ErrorSnackbar'
@@ -50,7 +50,7 @@ export {
   ModalRenderer,
   AppRouter,
   Sdk,
-  SdkHeader,
+  PageBar,
   PoweredBy,
 
   // UI Components

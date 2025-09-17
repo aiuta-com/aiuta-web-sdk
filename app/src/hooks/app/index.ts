@@ -1,5 +1,8 @@
 export { useAppInitialization } from './useAppInitialization'
 export { usePoweredBy } from './usePoweredBy'
+export { usePageBarNavigation } from './usePageBarNavigation'
+export { usePageBarVisibility } from './usePageBarVisibility'
+export { usePageBarTitle } from './usePageBarTitle'
 export { useCustomCSS } from './useCustomCSS'
 export { useHomeAnimation } from './useHomeAnimation'
 export { useLoggerConfig } from './useLoggerConfig'
