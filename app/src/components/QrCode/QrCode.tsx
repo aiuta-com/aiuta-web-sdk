@@ -3,18 +3,16 @@ import { useQRCode } from 'next-qrcode'
 import { Spinner } from '@/components'
 import { useAppSelector } from '@/store/store'
 import { qrIsLoadingSelector } from '@/store/slices/qrSlice'
-import { QrCodeTypes } from './types'
-import styles from './qrCode.module.scss'
+import { QrCodeProps } from './types'
+import styles from './QrCode.module.scss'
 
-export const QrCode = (props: QrCodeTypes) => {
-  const { url, isShowQrInfo = true, onChange } = props
-
+export const QrCode = ({ url, onFileUpload }: QrCodeProps) => {
   const { Canvas } = useQRCode()
 
   const isShowQrSpinner = useAppSelector(qrIsLoadingSelector)
 
   return (
-    <div className={styles.qrContent}>
+    <div className={styles.qrCode}>
       <div className={styles.qrBox}>
         {isShowQrSpinner ? (
           <div className={styles.spinnerOverlay}>
@@ -37,16 +35,14 @@ export const QrCode = (props: QrCodeTypes) => {
           }}
         />
       </div>
-      {isShowQrInfo && (
-        <div className={styles.infoContent}>
-          <p className={styles.text}>Scan the QR code </p>
-          <p className={`${styles.text} ${styles.secondaryText}`}>Or</p>
-          <label htmlFor="upload-file" className={`${styles.text} ${styles.primaryText}`}>
-            Click here to upload
-            <input onChange={onChange} type="file" id="upload-file" />
-          </label>
-        </div>
-      )}
+      <div className={styles.infoContent}>
+        <p className={styles.text}>Scan the QR code </p>
+        <p className={styles.secondaryText}>Or</p>
+        <label htmlFor="upload-file" className={styles.primaryText}>
+          Click here to upload
+          <input onChange={onFileUpload} type="file" id="upload-file" />
+        </label>
+      </div>
     </div>
   )
 }

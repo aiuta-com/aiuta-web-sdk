@@ -19,7 +19,7 @@ import { DeletableImage } from './DeletableImage'
 import { MobileUploadPrompt } from './MobileUploadPrompt'
 import { ThumbnailItem } from './ThumbnailItem'
 
-import { QrCode } from './qrCode/qrCode'
+import { QrCode } from './QrCode'
 import { BottomSheet } from './BottomSheet'
 import { UploadHistorySheet } from './UploadHistorySheet'
 import { CountDown } from './CountDown/CountDown'

@@ -32,7 +32,7 @@ export default function PhotoUploadDesktop() {
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <ErrorSnackbar />
-      {qrUrl ? <QrCode onChange={handleChoosePhoto} url={qrUrl} /> : null}
+      {qrUrl ? <QrCode onFileUpload={handleChoosePhoto} url={qrUrl} /> : null}
     </motion.div>
   )
 }
