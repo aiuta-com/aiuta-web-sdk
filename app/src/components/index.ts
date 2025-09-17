@@ -1,4 +1,3 @@
-import { Layout } from './layout/layout'
 import { Section } from './Section'
 import { Sdk } from './sdk/sdk'
 import { ModalRenderer, type ModalType } from './ModalRenderer'
@@ -44,7 +43,6 @@ export type { ModalType }
 
 export {
   // Core layout
-  Layout,
   Section,
   ModalRenderer,
   AppRouter,
