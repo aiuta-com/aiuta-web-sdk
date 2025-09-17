@@ -1,8 +1,7 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section } from '@/components'
+import { Section, ThumbnailItem } from '@/components'
 import { DesktopResultActions } from '@/components'
-import { ResultsSlider } from '@/components'
 import { useResultsGallery } from '@/hooks'
 import styles from './ResultsPage.module.scss'
 
@@ -40,11 +39,14 @@ export default function ResultsDesktop() {
         >
           {hasMultipleImages && (
             <div ref={miniSliderContentRef} className={styles.thumbnailSlider}>
-              <ResultsSlider
-                images={images}
-                activeIndex={slideItemIndex}
-                onItemClick={handleSliderItemClick}
-              />
+              {images.map((image, index) => (
+                <ThumbnailItem
+                  key={image.id}
+                  src={image.url}
+                  isActive={slideItemIndex === index}
+                  onClick={() => handleSliderItemClick(index)}
+                />
+              ))}
             </div>
           )}
 

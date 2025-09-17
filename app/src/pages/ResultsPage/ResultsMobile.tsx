@@ -1,7 +1,6 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { Section } from '@/components'
-import { ShareButton } from '@/components'
 import { useResultsShare } from '@/hooks'
 import styles from './ResultsPage.module.scss'
 
@@ -36,7 +35,9 @@ export default function ResultsMobile() {
               className={styles.resultImage}
               onClick={() => handleMobileImageClick(firstImage.url)}
             />
-            <ShareButton onShare={() => shareImage(firstImage.url)} />
+            <div className={styles.shareButton} onClick={() => shareImage(firstImage.url)}>
+              <img src={'./icons/shareMobile.svg'} alt="Share icon" className={styles.shareIcon} />
+            </div>
           </div>
         </div>
       </motion.div>

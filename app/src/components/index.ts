@@ -34,7 +34,6 @@ import { SelectionSnackbar } from './SelectionSnackbar'
 import { ImageManager } from './ImageManager'
 
 export { ImageGallery, EmptyGalleryState } from './ImageGallery'
-export { ResultsSlider, ShareButton } from './resultsGallery'
 
 // Modals
 export { AiutaModal, HistoryImagesRemoveModal } from './modals'
