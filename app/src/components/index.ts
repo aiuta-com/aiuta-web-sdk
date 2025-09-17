@@ -13,7 +13,9 @@ import { PrimaryButton } from './PrimaryButton'
 import { SecondaryButton } from './SecondaryButton'
 import { CheckboxLabel } from './CheckboxLabel'
 
-import { ViewImage } from './viewImage/viewImage'
+// ViewImage component removed - replaced with TryOnAnimator and ProcessingStatus"
+import { TryOnAnimator } from './TryOnAnimator'
+import { ProcessingStatus } from './ProcessingStatus'
 import { SelectableImage } from './SelectableImage'
 import { DeletableImage } from './DeletableImage'
 import { MobileUploadPrompt } from './MobileUploadPrompt'
@@ -60,7 +62,8 @@ export {
   CheckboxLabel,
 
   // Image Components
-  ViewImage,
+  TryOnAnimator,
+  ProcessingStatus,
   SelectableImage,
   DeletableImage,
   MobileUploadPrompt,

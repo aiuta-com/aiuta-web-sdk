@@ -44,21 +44,10 @@ export default function TryOnDesktop() {
 
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
 
-  const handleShowFullScreen = (activeImage: InputImage) => {
-    // TODO: Replace with RPC call to SDK
-    // await rpc.sdk.openFullScreenModal({
-    //   images: [],
-    //   modalType: undefined,
-    //   activeImage: activeImage
-    // })
-
-    console.warn(
-      'FullScreen modal opening: Legacy messaging removed, implement RPC method openFullScreenModal',
-      {
-        activeImage: activeImage.id,
-      },
-    )
-  }
+  // TODO: Implement fullscreen functionality when needed
+  // const handleShowFullScreen = (activeImage: InputImage) => {
+  //   await rpc.sdk.openFullScreenModal({ activeImage })
+  // }
 
   const hasInputImage = uploadedViewFile.localUrl.length > 0
   const showTryOnButton = !isStartGeneration && !isOpenAbortedModal
@@ -83,8 +72,6 @@ export default function TryOnDesktop() {
               recentImage={recentImage || undefined}
               isStartGeneration={isStartGeneration}
               generatedImageUrl={generatedImageUrl}
-              onImageClick={handleShowFullScreen}
-              showFullScreenOnClick={true}
             />
           </div>
           {showTryOnButton && (hasInputImage || recentImage) && (

@@ -1,7 +1,8 @@
 import React from 'react'
-import { ViewImage } from '@/components'
+import { TryOnAnimator, ProcessingStatus } from '@/components'
 import { MobileUploadPrompt } from '@/components'
 import { InputImage } from '@/utils'
+import styles from './ImageManager.module.scss'
 
 interface ImageManagerProps {
   uploadedImage?: {
@@ -12,10 +13,8 @@ interface ImageManagerProps {
   recentImage?: InputImage
   isStartGeneration: boolean
   generatedImageUrl: string
-  onImageClick?: (image: InputImage) => void
   onChangeImage?: () => void
   onUploadClick?: () => void
-  showFullScreenOnClick?: boolean
 }
 
 export const ImageManager: React.FC<ImageManagerProps> = ({
@@ -23,10 +22,8 @@ export const ImageManager: React.FC<ImageManagerProps> = ({
   recentImage,
   isStartGeneration,
   generatedImageUrl,
-  onImageClick,
   onChangeImage,
   onUploadClick,
-  showFullScreenOnClick = false,
 }) => {
   const hasInputImage = uploadedImage && uploadedImage.localUrl.length > 0
   const hasRecentImage = recentImage && recentImage.url.length > 0
@@ -35,36 +32,42 @@ export const ImageManager: React.FC<ImageManagerProps> = ({
   // If there is an uploaded image
   if (hasInputImage) {
     return (
-      <ViewImage
-        url={uploadedImage.localUrl}
-        isStartGeneration={isStartGeneration}
-        generatedImageUrl={generatedImageUrl}
-        isShowChangeImageBtn={showChangeButton}
-        onChange={onChangeImage}
-        onClick={
-          showFullScreenOnClick
-            ? () =>
-                onImageClick?.({
-                  id: uploadedImage.id,
-                  url: uploadedImage.url,
-                })
-            : undefined
-        }
-      />
+      <div className={styles.imageManager}>
+        <TryOnAnimator
+          imageUrl={generatedImageUrl || uploadedImage.localUrl}
+          isAnimating={isStartGeneration}
+        />
+        <ProcessingStatus
+          isVisible={isStartGeneration}
+          stage={isStartGeneration ? 'scanning' : 'generating'}
+        />
+        {showChangeButton && (
+          <button className={styles.changePhotoButton} onClick={onChangeImage}>
+            Change photo
+          </button>
+        )}
+      </div>
     )
   }
 
   // If there is a recent image
   if (hasRecentImage) {
     return (
-      <ViewImage
-        url={recentImage.url}
-        isStartGeneration={isStartGeneration}
-        generatedImageUrl={generatedImageUrl}
-        isShowChangeImageBtn={showChangeButton}
-        onChange={onChangeImage}
-        onClick={showFullScreenOnClick ? () => onImageClick?.(recentImage) : undefined}
-      />
+      <div className={styles.imageManager}>
+        <TryOnAnimator
+          imageUrl={generatedImageUrl || recentImage.url}
+          isAnimating={isStartGeneration}
+        />
+        <ProcessingStatus
+          isVisible={isStartGeneration}
+          stage={isStartGeneration ? 'scanning' : 'generating'}
+        />
+        {showChangeButton && (
+          <button className={styles.changePhotoButton} onClick={onChangeImage}>
+            Change photo
+          </button>
+        )}
+      </div>
     )
   }
 

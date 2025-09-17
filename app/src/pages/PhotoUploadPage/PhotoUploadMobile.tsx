@@ -1,6 +1,6 @@
 import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
-import { PrimaryButton, ViewImage, ErrorSnackbar } from '@/components'
+import { PrimaryButton, ErrorSnackbar, Spinner } from '@/components'
 import { useQrToken } from '@/hooks'
 import styles from './photoUpload.module.scss'
 
@@ -38,14 +38,19 @@ export default function PhotoUploadMobile() {
       {uploadState.selectedFile && !uploadState.uploadedUrl ? (
         <div className={styles.uploadedContent}>
           <div className={styles.uploadedBox}>
-            <ViewImage
-              imgUnoptimazed={true}
-              url={uploadState.selectedFile.url}
-              className={styles.viewItem}
-              isStartGeneration={uploadState.isUploading}
-              isShowChangeImageBtn={!uploadState.isUploading}
-              onChange={handleButtonClick}
-            />
+            <div className={styles.uploadPreview}>
+              <img
+                src={uploadState.selectedFile.url}
+                alt="Selected photo preview"
+                className={styles.viewItem}
+              />
+              {uploadState.isUploading && <Spinner />}
+              {!uploadState.isUploading && (
+                <button className={styles.changePhotoBtn} onClick={handleButtonClick}>
+                  Change photo
+                </button>
+              )}
+            </div>
           </div>
           <PrimaryButton onClick={uploadFile}>Next</PrimaryButton>
         </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section, ViewImage } from '@/components'
+import { Section } from '@/components'
 import { ShareButton } from '@/components'
 import { useResultsShare } from '@/hooks'
 import styles from './ResultsPage.module.scss'
@@ -27,12 +27,13 @@ export default function ResultsMobile() {
       <motion.div key="results-mobile" className={styles.resultsContainer} {...animationConfig}>
         <div className={styles.mobileGallery}>
           <div className={styles.mobileImageContainer}>
-            <ViewImage
-              imgUnoptimazed={true}
-              isStartGeneration={false}
+            <img
+              src={firstImage.url}
+              alt="Generated result"
+              width={280}
+              height={460}
+              loading="lazy"
               className={styles.resultImage}
-              url={firstImage.url}
-              isShowChangeImageBtn={false}
               onClick={() => handleMobileImageClick(firstImage.url)}
             />
             <ShareButton onShare={() => shareImage(firstImage.url)} />

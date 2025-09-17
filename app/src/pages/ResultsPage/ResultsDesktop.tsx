@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion, easeInOut } from 'framer-motion'
-import { Section, ViewImage } from '@/components'
+import { Section } from '@/components'
 import { DesktopResultActions } from '@/components'
 import { ResultsSlider } from '@/components'
 import { useResultsGallery } from '@/hooks'
@@ -50,12 +50,13 @@ export default function ResultsDesktop() {
 
           {generatedImages.map((image, index) => (
             <div key={image.id} id={String(index)}>
-              <ViewImage
-                url={image.url}
-                imgUnoptimazed={true}
-                isStartGeneration={false}
+              <img
+                src={image.url}
+                alt="Generated result"
+                width={280}
+                height={460}
+                loading="lazy"
                 className={styles.resultImage}
-                isShowChangeImageBtn={false}
                 onClick={() => handleImageClick(image)}
               />
             </div>

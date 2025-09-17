@@ -1,0 +1,55 @@
+.tryOnAnimator {
+  position: relative;
+  width: 100%;
+  height: 460px;
+  max-width: 280px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.image {
+  transition: all ease-in-out 0.3s;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.tryOnAnimator_animating {
+  &::after {
+    position: absolute;
+    content: '';
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 189px;
+    opacity: 30%;
+    background: linear-gradient(180deg, var(--try-on-primary-color) 0%, rgba(64, 0, 255, 0) 100%);
+    animation: scanningLine 5s infinite ease-in-out;
+    animation-composition: add;
+  }
+
+  &::before {
+    position: absolute;
+    content: '';
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 2.14px;
+    background: var(--try-on-primary-color);
+    animation: scanningLine 5s infinite ease-in-out;
+    animation-composition: add;
+  }
+}
+
+@keyframes scanningLine {
+  0% {
+    top: 100%;
+  }
+  50% {
+    top: -50%;
+  }
+  100% {
+    top: -200%;
+  }
+}

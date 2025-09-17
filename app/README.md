@@ -281,6 +281,7 @@ hooks/
 - **Mobile-first**: Responsive design with flexible units (`rem`, `em`, `%`)
 - **Performance**: `transform`/`opacity` animations, `prefers-reduced-motion` support
 - **className composition**: Use `[class1, class2].filter(Boolean).join(' ')` to avoid extra spaces
+- **NO INLINE STYLES**: All styles must be in CSS modules - never use `style={{}}` prop
 
 ## 🔧 **Development Guidelines**
 
@@ -292,7 +293,7 @@ hooks/
 - **Comment quality**: Avoid obvious comments; explain WHY, not WHAT. Use only for complex logic or business rules
 - **Naming consistency**: Use slice-aligned terminology (`generated`/`uploaded` not `history`/`previously`)
 - **Descriptive naming**: Names should clearly indicate purpose, responsibility, and data type
-- **Avoid abbreviations**: Use full words (`selectedImages` not `selImgs`, `isGenerating` not `isGen`)
+- **No abbreviations**: Use full words (`selectedImages` not `selImgs`, `isGenerating` not `isGen`, `changePhotoButton` not `changePhotoBtn`)
 - **Single Responsibility**: Split components by responsibility (e.g., `SelectableImage` vs `DeletableImage`)
 - **Domain alignment**: Ensure terminology matches Redux slices and business logic
 
