@@ -8,14 +8,6 @@
   &::-webkit-scrollbar {
     display: none;
   }
-
-  &.imageContentMobile {
-    // Mobile-specific styles if needed
-  }
-}
-
-.selectableImageMobile {
-  // Mobile image styles if needed
 }
 
 .emptyContent {
@@ -39,22 +31,4 @@
     letter-spacing: -0.035em;
     color: var(--text-secondary, #666);
   }
-}
-
-.selectionBanner {
-  transition: all 0.3s ease-in-out;
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  left: 7.5px;
-  max-width: 377px;
-  bottom: -200px;
-}
-
-.activeSelectionBanner {
-  bottom: 0px;
-}
-
-.activeSelectionBannerMobile {
-  bottom: -45px;
 }

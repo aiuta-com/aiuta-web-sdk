@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { motion, easeInOut } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import {
   currentTryOnImageSelector,
@@ -34,6 +35,7 @@ const animationConfig = {
 }
 
 export default function TryOnDesktop() {
+  const navigate = useNavigate()
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isStartGeneration = useAppSelector(isGeneratingSelector)
   const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
@@ -43,6 +45,10 @@ export default function TryOnDesktop() {
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
 
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
+
+  const handleChangePhoto = () => {
+    navigate('/uploads-history')
+  }
 
   // TODO: Implement fullscreen functionality when needed
   // const handleShowFullScreen = (activeImage: InputImage) => {
@@ -72,6 +78,7 @@ export default function TryOnDesktop() {
               recentImage={recentImage || undefined}
               isStartGeneration={isStartGeneration}
               generatedImageUrl={generatedImageUrl}
+              onChangeImage={handleChangePhoto}
             />
           </div>
           {showTryOnButton && (hasInputImage || recentImage) && (

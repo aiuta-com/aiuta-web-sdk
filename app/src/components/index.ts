@@ -35,7 +35,7 @@ import { DesktopResultActions } from './DesktopResultActions'
 import { SelectionSnackbar } from './SelectionSnackbar'
 import { ImageManager } from './ImageManager'
 
-export { ImageGallery, EmptyGalleryState } from './imageGallery'
+export { ImageGallery, EmptyGalleryState } from './ImageGallery'
 export { ResultsSlider, ShareButton } from './resultsGallery'
 
 // Modals

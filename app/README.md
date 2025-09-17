@@ -63,6 +63,8 @@ Both modes establish RPC connection with the parent SDK for communication.
 #### **Components & Classes**
 
 - **Components**: `PascalCase`, noun-based (`SelectableImage`, `ErrorSnackbar`)
+- **Component pattern**: Direct function with explicit props typing (`Component = (props: Props) => {}`)
+- **Avoid**: `React.FC` pattern (deprecated approach since React 18+)
 - **Props types**: Component name + `Props` (`SelectableImageProps`, `ModalProps`)
 - **Hook names**: `use` + `Purpose` (`useImageUpload`, `useAuth`, `useGenerations`)
 - **Single responsibility**: One purpose per component (`SelectableImage` vs `DeletableImage`)
@@ -395,6 +397,11 @@ hooks/
       errorMessage: 'Upload failed. Please try again.',
       retryButtonText: 'Try again'
     }))
+
+// Component pattern - modern approach
+export const ImageGallery = ({ images, onImageClick }: ImageGalleryProps) => {
+  return <div>{images.map(image => <img key={image.id} src={image.url} />)}</div>
+}
 
 // Naming - descriptive and clear
 const selectedImages = useAppSelector(selectedImagesSelector)  // ✅ Clear purpose
