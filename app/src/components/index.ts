@@ -1,5 +1,4 @@
 import { Section } from './Section'
-import { Sdk } from './sdk/sdk'
 import { ModalRenderer, type ModalType } from './ModalRenderer'
 import { AppRouter } from './AppRouter'
 import { PageBar } from './PageBar'
@@ -46,7 +45,6 @@ export {
   Section,
   ModalRenderer,
   AppRouter,
-  Sdk,
   PageBar,
   PoweredBy,
 
