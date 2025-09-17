@@ -4,7 +4,7 @@ import { Sdk } from './sdk/sdk'
 import { ModalRenderer, type ModalType } from './ModalRenderer'
 import { AppRouter } from './AppRouter'
 import { SdkHeader } from './sdkHeader/sdkHeader'
-import { SdkFooter } from './sdkFooter/sdkFooter'
+import { PoweredBy } from './PoweredBy'
 
 import { ErrorSnackbar } from './ErrorSnackbar'
 import { Spinner } from './Spinner/Spinner'
@@ -51,7 +51,7 @@ export {
   AppRouter,
   Sdk,
   SdkHeader,
-  SdkFooter,
+  PoweredBy,
 
   // UI Components
   ErrorSnackbar,

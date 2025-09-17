@@ -1,4 +1,5 @@
 export { useAppInitialization } from './useAppInitialization'
+export { usePoweredBy } from './usePoweredBy'
 export { useCustomCSS } from './useCustomCSS'
 export { useHomeAnimation } from './useHomeAnimation'
 export { useLoggerConfig } from './useLoggerConfig'
