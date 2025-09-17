@@ -32,11 +32,10 @@ import { AbortAlert } from './AbortAlert'
 
 import { Onboarding } from './onboarding/onboarding'
 import { DesktopResultActions } from './DesktopResultActions'
-import { RemoveHistoryBanner } from './removeHistoryBanner/removeHistoryBanner'
 import { SelectionSnackbar } from './SelectionSnackbar'
 import { ImageManager } from './ImageManager'
 
-export { ImageGallery, EmptyGalleryState, SelectionBanner } from './imageGallery'
+export { ImageGallery, EmptyGalleryState } from './imageGallery'
 export { ResultsSlider, ShareButton } from './resultsGallery'
 
 // Modals
@@ -83,7 +82,6 @@ export {
   // Feature Components
   Onboarding,
   DesktopResultActions,
-  RemoveHistoryBanner,
   SelectionSnackbar,
   ImageManager,
 }
