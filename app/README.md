@@ -10,22 +10,6 @@
 - **CSS Modules** with BEM methodology
 - **RPC communication** with parent SDK
 
-### 📁 **Directory Structure**
-
-```
-app/
-├── src/
-│   ├── components/       # Reusable UI components
-│   ├── pages/           # Page-level components
-│   ├── hooks/           # Custom React hooks
-│   ├── store/           # Redux store and slices
-│   ├── utils/           # Utilities and services
-│   ├── contexts/        # React contexts
-│   └── styles/          # Global styles
-├── public/              # Static assets
-└── index.html          # HTML entry point
-```
-
 ## 🎯 **Key Practices & Conventions**
 
 ### **App Modes & URLs**
@@ -93,52 +77,6 @@ Both modes establish RPC connection with the parent SDK for communication.
 - **Temporary workarounds**: Explain why and when to revisit
 - **No obvious comments**: If code is self-explanatory through good naming, skip comments
 
-### **Performance Patterns**
-
-#### **Memoization Guidelines**
-
-- **React.memo**: For components with stable props that re-render frequently
-- **useMemo**: For expensive calculations, complex object creation
-- **useCallback**: For event handlers passed to memoized children
-- **Avoid premature optimization**: Profile first, optimize based on data
-
-#### **Bundle Optimization**
-
-- **Lazy loading**: Route-level code splitting with `React.lazy`
-- **Dynamic imports**: Load heavy libraries on demand
-- **Image optimization**: WebP format, appropriate sizes, lazy loading
-- **Bundle analysis**: Regular checks for unnecessary dependencies
-
-#### **Render Optimization**
-
-- **Avoid inline objects**: Extract stable references outside render
-- **Minimize context value changes**: Split contexts by update frequency
-- **List optimization**: Stable keys, windowing for large lists
-- **Debouncing**: For rapid user input (search, form validation)
-
-### **TypeScript Patterns**
-
-#### **Type Organization**
-
-- **Co-located types**: Keep types near their usage (`Component.types.ts`)
-- **Shared types**: Global types in `src/types/` for cross-domain usage
-- **Export patterns**: `export type { }` for type-only exports
-- **Generic constraints**: Use `extends` for meaningful constraints
-
-#### **Utility Types Usage**
-
-- **Props derivation**: `Pick<BaseProps, 'field1' | 'field2'>` for variants
-- **Partial updates**: `Partial<State>` for update functions
-- **Required fields**: `Required<Props>` when defaults are applied
-- **Conditional types**: For complex prop relationships
-
-#### **Strict Mode Guidelines**
-
-- **No implicit any**: All values must have explicit types
-- **Strict null checks**: Handle `null` and `undefined` explicitly
-- **No unused locals**: Clean up unused variables and imports
-- **Exact types**: Use discriminated unions for state variants
-
 ### **CSS/Styling Patterns**
 
 #### **CSS Custom Properties** (CSS Variables)
@@ -186,84 +124,6 @@ hooks/
 - **Naming**: `{Domain}ApiService` (e.g., `TryOnApiService`)
 - **Analytics**: `{Domain}AnalyticsService` (e.g., `TryOnAnalyticsService`)
 
-## 📱 **Key Components**
-
-### **Image Components**
-
-- **SelectableImage**: Universal image with selection support
-  - CSS class: `.selectableImage`, `.selectableImageActive`
-  - Works with both `generationsSlice` and `uploadsSlice` via `galleryType` prop
-  - Shows checkmark for selection, supports hover states
-
-- **DeletableImage**: Image with individual delete button
-  - CSS class: `.deletableImage`
-  - Shows trash icon for individual deletion
-  - Used primarily on mobile for uploads gallery
-
-- **ImageGallery**: Universal gallery component
-  - **Logic**: Shows `SelectableImage` for:
-    1. Generated images (always)
-    2. When selection mode is enabled (any variant)
-    3. Uploaded images on desktop (no individual delete buttons)
-  - **Mobile uploads**: Shows `DeletableImage` for individual deletion
-  - **Desktop uploads**: Shows `SelectableImage` only, deletion via SelectionSnackbar
-
-### **Button Components**
-
-- **TryOnButton**: Specialized for actual "Try On" actions only
-  - CSS class: `.tryOnButton`
-  - No disabled state (always actionable)
-  - Icon support via `isShowTryOnIcon` prop
-
-- **PrimaryButton**: Universal primary action button
-  - CSS class: `.primaryButton`, `.primaryButtonDisabled`
-  - Supports disabled state for forms/workflows
-  - Icon support via `iconUrl` prop
-
-- **SecondaryButton**: Secondary/alternative actions
-  - CSS class: `.secondaryButton`
-  - Neutral styling, icon support
-
-### **Page Structure**
-
-- **PhotoUploadPage**: QR/device upload (Desktop: QR, Mobile: direct)
-- **TryOnPage**: Main try-on interface (Desktop/Mobile variants)
-- **ResultsPage**: Generated results with sharing
-- **UploadsHistoryPage**: User uploaded photos gallery (Desktop: SelectableImage only, Mobile: DeletableImage + SelectableImage)
-- **GenerationsHistoryPage**: Generated images gallery (SelectableImage with selection mode)
-
-### **Routing**
-
-```
-/ → Home
-/qr → PhotoUploadPage (Desktop)
-/qr/:token → PhotoUploadPage (Mobile)
-/view → TryOnPage
-/results → ResultsPage
-/uploads-history → UploadsHistoryPage
-/generations-history → GenerationsHistoryPage
-```
-
-## 🔄 **Communication & Data Flow**
-
-### **RPC Integration**
-
-- **Context**: `RpcProvider` wraps both main app and modal-only app
-- **Methods**: `rpc.sdk.{method}()` for SDK communication
-- **Modal communication**: Modal-only iframes use `rpc.sdk.closeModal()` to close themselves
-
-### **Error Handling**
-
-- **Pattern**: `dispatch(showErrorSnackbar({ errorMessage, retryButtonText }))` → `ErrorSnackbar` component
-- **State**: `{ isVisible, error: string | null }` with user-friendly messages
-- **Boundaries**: Component-level error boundaries with fallback UI (TODO: implement after refactoring)
-
-### **Image Handling**
-
-- **Upload flow**: `useImageUpload` → `usePhotoGallery` → Redux store
-- **QR flow**: `useQrUpload` (Desktop) + `useQrToken` (Mobile)
-- **Generation**: `useTryOnGeneration` → polling → results
-
 ## 🎨 **CSS & Styling**
 
 ### **CSS Modules + Auto-Generated BEM**
@@ -306,16 +166,6 @@ hooks/
 3. Enhance analytics tracking
 4. Improve error boundaries and fallbacks
 
-## 🔧 **Technical Debt & Issues**
-
-**🎯 Purpose**: Track discovered inconsistencies and improvement opportunities during refactoring.
-
-### **Found During Refactoring** (Update this section as issues are discovered)
-
-**⚠️ IMPORTANT**: Remove items from this list when they are fixed. This should contain only UNRESOLVED issues.
-
-- [ ] **Example**: Inconsistent error handling patterns
-
 ### **Refactoring Guidelines**
 
 - **Inspect dependencies**: When refactoring component X, check all components that use X and all components X uses
@@ -337,6 +187,15 @@ hooks/
 ## 🤖 **AI Collaboration Guidelines**
 
 **⚠️ CRITICAL FOR EFFECTIVE DEVELOPMENT**: These rules ensure consistent, high-quality collaboration.
+
+### **⚡ REFACTORING CHECKLIST (READ FIRST!)**
+
+Before ANY refactoring work:
+
+- [ ] 🗣️ **DISCUSS** the plan with user first - NO exceptions!
+- [ ] 🔍 **ANALYZE** all dependencies (what uses this component, what it uses)
+- [ ] 📋 **GET APPROVAL** before making any changes
+- [ ] ✅ **FOLLOW** established conventions without reminders
 
 ### **📚 Documentation Maintenance**
 
@@ -386,63 +245,5 @@ hooks/
 - **Suggest alternatives**: When multiple valid approaches exist, present options with trade-offs
 
 ---
-
-## 🔍 **Quick Reference**
-
-### **Common Patterns**
-
-```typescript
-// Error handling
-    dispatch(errorSnackbarSlice.actions.showErrorSnackbar({
-      errorMessage: 'Upload failed. Please try again.',
-      retryButtonText: 'Try again'
-    }))
-
-// Component pattern - modern approach
-export const ImageGallery = ({ images, onImageClick }: ImageGalleryProps) => {
-  return <div>{images.map(image => <img key={image.id} src={image.url} />)}</div>
-}
-
-// Naming - descriptive and clear
-const selectedImages = useAppSelector(selectedImagesSelector)  // ✅ Clear purpose
-const handleImageClick = (image: ImageItem) => { }           // ✅ Event handler
-const MAX_UPLOAD_SIZE = 5 * 1024 * 1024                      // ✅ Constant
-
-// Performance
-const Component = React.memo(({ data, onUpdate }) => {
-  const processed = useMemo(() => expensiveCalc(data), [data])
-  const handleUpdate = useCallback((id) => onUpdate(id), [onUpdate])
-  return <div>{processed}</div>
-})
-
-// TypeScript
-type Props = Pick<BaseProps, 'isOpen'> & { onConfirm: () => void }
-interface State { byId: Record<string, T>; allIds: string[]; isLoading: boolean }
-```
-
-### **State Access**
-
-```typescript
-// Redux selectors (from src/store) - domain-specific atomic selectors
-const { isVisible, errorMessage, retryButtonText } = useAppSelector(errorSnackbarSelector)
-const apiKey = useAppSelector(apiKeySelector)
-const subscriptionId = useAppSelector(subscriptionIdSelector)
-const productId = useAppSelector(productIdSelector)
-const isGenerating = useAppSelector(tryOnIsGeneratingSelector)
-const isMobile = useAppSelector(isMobileSelector)
-
-// Error snackbar actions
-dispatch(
-  errorSnackbarSlice.actions.showErrorSnackbar({
-    errorMessage: 'Something went wrong',
-    retryButtonText: 'Try again',
-  }),
-)
-dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
-
-// RPC context
-const { rpc } = useRpcProxy()
-await rpc.sdk.openModal({ type: 'share', data: imageUrl })
-```
 
 _Last updated: September 2025_
