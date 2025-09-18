@@ -4,8 +4,7 @@ import React, { useState, useEffect } from 'react'
 // Required data: { imageUrl: string }
 // RPC method needed: openShareModal(data: { imageUrl: string })
 import { useRpcProxy } from '@/contexts'
-import { MESSENGER, WHATS_APP, CLOSE_ICON, COPY_BUTTON, SHARE_WITH_TEXT } from './socialIcons'
-import styles from './shareModal.module.scss'
+import styles from './ShareModal.module.scss'
 
 interface ShareModalData {
   imageUrl: string
@@ -14,7 +13,7 @@ interface ShareModalData {
 interface ShareButton {
   id: string
   href?: string
-  icon: string
+  iconSrc: string
   shareMethod: 'whatsApp' | 'messenger' | 'copy'
 }
 
@@ -25,7 +24,7 @@ interface ShareModalProps {
   onClose?: () => void
 }
 
-export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => {
+export const ShareModal = ({ imageUrl, onClose }: ShareModalProps) => {
   const [modalData, setModalData] = useState<ShareModalData | null>(null)
   const [hasShared, setHasShared] = useState(false)
   const rpc = useRpcProxy()
@@ -53,14 +52,14 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
   const shareButtons: ShareButton[] = [
     {
       id: 'whatsapp-share',
-      href: modalData ? `https://wa.me/?text=${modalData.imageUrl}` : undefined,
-      icon: WHATS_APP,
+      href: modalData ? 'https://wa.me/?text=${modalData.imageUrl}' : undefined,
+      iconSrc: './icons/whatsapp.svg',
       shareMethod: 'whatsApp',
     },
     {
       id: 'messenger-share',
-      href: modalData ? `https://www.messenger.com/new?text=${modalData.imageUrl}` : undefined,
-      icon: MESSENGER,
+      href: modalData ? 'https://www.messenger.com/new?text=${modalData.imageUrl}' : undefined,
+      iconSrc: './icons/messenger.svg',
       shareMethod: 'messenger',
     },
   ]
@@ -129,12 +128,13 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
   return (
     <div className={styles.shareModal} onClick={handleCloseModal}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <p className={styles.title} dangerouslySetInnerHTML={{ __html: SHARE_WITH_TEXT }} />
+        <img src="./icons/shareWithText.svg" alt="Share with" className={styles.title} />
 
-        <div
+        <img
+          src="./icons/close.svg"
+          alt="Close"
           className={styles.closeButton}
           onClick={handleCloseModal}
-          dangerouslySetInnerHTML={{ __html: CLOSE_ICON }}
         />
 
         <div className={styles.shareButtons}>
@@ -146,17 +146,19 @@ export const ShareModal: React.FC<ShareModalProps> = ({ imageUrl, onClose }) => 
               rel="noopener noreferrer"
               className={styles.shareButton}
               onClick={() => handleShare(button.shareMethod)}
-              dangerouslySetInnerHTML={{ __html: button.icon }}
-            />
+            >
+              <img src={button.iconSrc} alt={'Share via ${button.shareMethod}'} />
+            </a>
           ))}
         </div>
 
         <div className={styles.copySection}>
           <p className={styles.urlText}>{modalData.imageUrl}</p>
-          <div
+          <img
+            src="./icons/copyButton.svg"
+            alt="Copy"
             className={styles.copyButton}
             onClick={handleCopyToClipboard}
-            dangerouslySetInnerHTML={{ __html: COPY_BUTTON }}
           />
         </div>
       </div>

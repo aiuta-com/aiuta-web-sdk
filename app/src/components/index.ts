@@ -25,7 +25,7 @@ import { UploadHistorySheet } from './UploadHistorySheet'
 import { CountDown } from './CountDown/CountDown'
 
 import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
-import { ShareModal } from './shareModal/shareModal'
+import { ShareModal } from './ShareModal'
 import { AbortAlert } from './AbortAlert'
 
 import { Onboarding } from './onboarding/onboarding'

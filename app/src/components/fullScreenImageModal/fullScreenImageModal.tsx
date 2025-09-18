@@ -7,7 +7,7 @@ import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 // 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { useRpcProxy } from '@/contexts'
-import { ShareModal } from '@/components/shareModal/shareModal'
+import { ShareModal } from '@/components/ShareModal'
 import styles from './fullScreenImageModal.module.scss'
 
 type ImageType = {
