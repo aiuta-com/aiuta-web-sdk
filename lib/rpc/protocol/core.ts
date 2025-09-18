@@ -18,6 +18,11 @@ export const DEFAULT_CONNECTION_ID = 'default'
 export const DEFAULT_RPC_TIMEOUT = 15_000
 export const DEFAULT_HANDSHAKE_TIMEOUT = 10_000
 
+/* ---------- Handshake Message Types ---------- */
+
+export const HANDSHAKE_MESSAGE_HELLO = 'aiuta:app:hello'
+export const HANDSHAKE_MESSAGE_ACK = 'aiuta:sdk:ack'
+
 /* ---------- Generic Result Types ---------- */
 
 /**

@@ -2,12 +2,11 @@
  * Aiuta RPC System - Public API
  *
  * Main entry point for the RPC communication system between
- * SDK and iframe applications.
+ * SDK and iframe Application.
  */
 
 // Main RPC classes
-export { AiutaRpcSdk } from './rpc-sdk'
-export { AiutaRpcApp } from './rpc-app'
+export { AiutaRpcSdk, AiutaRpcApp } from './clients'
 
 // Public API types that users actually need
 export type {
@@ -15,11 +14,8 @@ export type {
   SdkApi,
   SdkHandlers,
   SdkContext,
-} from './api-sdk'
-
-export type {
   // App API interfaces (for SDK developers)
   AppApi,
   AppHandlers,
   AppContext,
-} from './api-app'
+} from './api'

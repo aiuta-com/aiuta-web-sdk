@@ -2,7 +2,7 @@
  * Base class for Aiuta RPC instances
  */
 
-import type { RpcClientResult } from './core'
+import type { RpcClientResult } from '../protocol/core'
 
 /* ---------- Internal Base Types ---------- */
 

@@ -4,7 +4,7 @@
 
 import type { RpcReq, RpcRes, RpcClientResult, RpcServerResult } from './core'
 import { DEFAULT_RPC_TIMEOUT } from './core'
-import type { AnyFn } from './base'
+import type { AnyFn } from '../shared/base'
 
 /**
  * Create an RPC client for calling remote methods

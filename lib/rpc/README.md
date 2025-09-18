@@ -1,20 +1,32 @@
 # Aiuta RPC System
 
-Modern RPC communication system for secure interaction between Web SDK and iframe Application.
+RPC communication system for interaction between Web SDK and single iframe Application.
 
 ## 📁 Architecture
 
 ```
-shared/rpc/
-├── index.ts        # 🎯 Main public API entry point
-├── core.ts         # ⚡ Core RPC protocol types & constants
-├── api-sdk.ts      # 🌐 SDK API contracts (App → SDK)
-├── api-app.ts      # 📱 App API contracts (SDK → App)
-├── base.ts         # 🏗️ Base class & internal types
-├── utils.ts        # 🔧 Utility functions
-├── generic.ts      # ⚙️ Generic RPC client/server logic
-├── rpc-sdk.ts      # 🌐 AiutaRpcSdk implementation
-└── rpc-app.ts      # 📱 AiutaRpcApp implementation
+lib/rpc/
+├── index.ts              # 🎯 Main public API entry point
+│
+├── protocol/             # ⚡ Core RPC protocol
+│   ├── index.ts         # Re-exports
+│   ├── core.ts          # Protocol types & constants
+│   ├── transport.ts     # MessagePort client/server logic
+│   └── utils.ts         # Utility functions
+│
+├── api/                 # 📋 API interfaces
+│   ├── index.ts         # Re-exports
+│   ├── sdk.ts           # SDK API contracts (App → SDK)
+│   └── app.ts           # App API contracts (SDK → App)
+│
+├── clients/             # 🏢 RPC implementations
+│   ├── index.ts         # Re-exports
+│   ├── sdk.ts           # AiutaRpcSdk implementation
+│   └── app.ts           # AiutaRpcApp implementation
+│
+└── shared/              # 🔧 Shared utilities
+    ├── index.ts         # Re-exports
+    └── base.ts          # Base class & common types
 ```
 
 ## 🚀 Quick Start
@@ -35,17 +47,13 @@ const rpc = new AiutaRpcSdk({
   context: { cfg: config, sdkVersion: '1.0.0' },
   handlers: {
     trackEvent: (event) => analytics.track(event),
+    setInteractive: (interactive) => iframe.setInteractive(interactive),
   },
 })
 
-// Basic connection
+// Connect to single iframe
 await rpc.connect(iframe)
 await rpc.app.tryOn('product-123')
-
-// Multi-iframe support
-await rpc.connect(mainIframe)
-await rpc.connect(modalIframe, { connectionId: 'modal' })
-await rpc.connection('modal').api.showModal({ imageUrl: 'url' })
 ```
 
 ### App Side (iframe-content)
@@ -68,6 +76,7 @@ const userId = rpc.config.auth.getUserId?.()
 
 // Direct SDK calls
 await rpc.sdk.trackEvent({ action: 'try_on_started' })
+await rpc.sdk.setInteractive(false) // Make iframe click-through
 ```
 
 ## 📋 API Contracts
@@ -79,6 +88,7 @@ interface SdkApi {
   getConfigurationSnapshot(): Promise<{ data: Record<string, unknown>; functionKeys: string[] }>
   invokeConfigFunction(path: string, ...args: any[]): Promise<any>
   trackEvent(event: Record<string, unknown>): Promise<void>
+  setInteractive(interactive: boolean): Promise<void>
   getCapabilities(): Promise<SdkCapabilities>
 }
 
@@ -87,10 +97,11 @@ type SdkHandlers = {
     event: Record<string, unknown>,
     ctx: { appVersion?: string },
   ) => void | Promise<void>
+  setInteractive?: (interactive: boolean) => void | Promise<void>
 }
 
-interface SdkContext {
-  cfg: Record<string, unknown>
+interface SdkContext<TConfig = Record<string, unknown>> {
+  cfg: TConfig
   sdkVersion: string
 }
 ```
@@ -119,25 +130,35 @@ interface AppContext {
 - **Safe serialization** - proper error handling for message data
 - **URL-based origin passing** - secure origin transmission via iframe URL
 
-## 🔧 Multi-iframe Support
+## 🖼️ Single Iframe Architecture
+
+The RPC system now supports a **single fullscreen iframe** approach:
 
 ```typescript
 const rpc = new AiutaRpcSdk({ context, handlers })
 
-// Connect multiple iframes
-await rpc.connect(mainIframe) // default connection
-await rpc.connect(modalIframe, { connectionId: 'modal' }) // named connection
-await rpc.connect(helpIframe, { connectionId: 'help' }) // another connection
+// Connect to single iframe that handles everything
+await rpc.connect(mainIframe)
 
-// Use specific connections
-await rpc.connection('modal').api.showModal({ data })
-await rpc.connection('help').api.showHelp({ topic: 'sizing' })
-
-// Manage connections
-console.log(rpc.getConnections()) // ['default', 'modal', 'help']
-rpc.disconnect('modal')
-rpc.close() // close all connections
+// App controls its own visibility and modals
+await rpc.app.tryOn('product-123') // Shows app
+// App calls rpc.sdk.setInteractive(false) when showing modals
+// App calls rpc.sdk.setInteractive(true) when modals close
 ```
+
+### Iframe Interactivity Control
+
+The App can control iframe interactivity for click-through behavior:
+
+```typescript
+// In App: Make iframe non-interactive (click-through)
+await rpc.sdk.setInteractive(false)
+
+// In App: Make iframe interactive again
+await rpc.sdk.setInteractive(true)
+```
+
+This enables the App to handle fullscreen galleries and modals internally while controlling whether clicks pass through to the parent page.
 
 ## ⚡ Config Proxying
 
@@ -178,11 +199,11 @@ const token = await rpc.config.auth.getToken?.({ imageId: '123' })
 For custom implementations or debugging:
 
 ```typescript
-// Direct module imports
-import { AiutaRpcSdk } from '@lib/rpc/rpc-sdk'
-import type { RpcReq, RpcRes } from '@lib/rpc/core'
-import { createRpcClient } from '@lib/rpc/generic'
-import { AiutaRpcBase, type ConnectionInfo } from '@lib/rpc/base'
+// Direct module imports for advanced usage
+import { AiutaRpcSdk } from '@lib/rpc/clients/sdk'
+import type { RpcReq, RpcRes } from '@lib/rpc/protocol/core'
+import { createRpcClient } from '@lib/rpc/protocol/transport'
+import { AiutaRpcBase, type AnyFn } from '@lib/rpc/shared/base'
 
 // Custom RPC implementation
 class CustomRpcSdk extends AiutaRpcSdk {
@@ -195,9 +216,10 @@ class CustomRpcSdk extends AiutaRpcSdk {
 ## 🎯 Design Principles
 
 - **Clean Public API** - Only essential types exported from main entry point
-- **Modular Architecture** - Each file has single responsibility
+- **Modular Architecture** - Organized into logical directories by purpose
 - **Type Safety** - Full TypeScript support with strict contracts
 - **Security First** - Origin validation and secure communication
+- **Single Iframe Focus** - Optimized for modern single iframe architecture
 - **Developer Experience** - Simple API for common cases, powerful for advanced usage
 
 ## 📦 Bundle Optimization
@@ -206,9 +228,9 @@ The modular design enables optimal tree-shaking:
 
 ```typescript
 // Only import what you need
-import type { SdkApi } from '@lib/rpc/api-sdk' // ~1KB
-import type { AppApi } from '@lib/rpc/api-app' // ~0.5KB
-import type { RpcReq } from '@lib/rpc/core' // ~0.3KB
+import type { SdkApi } from '@lib/rpc/api/sdk' // ~1KB
+import type { AppApi } from '@lib/rpc/api/app' // ~0.5KB
+import type { RpcReq } from '@lib/rpc/protocol/core' // ~0.3KB
 
 // No unnecessary internal types in your bundle
 ```
@@ -218,6 +240,6 @@ import type { RpcReq } from '@lib/rpc/core' // ~0.3KB
 - ✅ **Security** - Protection against all known vulnerabilities
 - ✅ **Performance** - Optimized MessagePort communication
 - ✅ **Reliability** - Proper error handling and cleanup
-- ✅ **Scalability** - Multi-iframe support with connection management
-- ✅ **Maintainability** - Clean modular architecture
+- ✅ **Single Iframe** - Simplified architecture with fullscreen iframe
+- ✅ **Maintainability** - Clean modular directory structure
 - ✅ **Documentation** - Complete API contracts and examples

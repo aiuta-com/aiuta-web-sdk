@@ -2,12 +2,17 @@
  * Aiuta RPC SDK implementation for web-sdk side
  */
 
-import type { SdkHandlers, SdkContext, SdkCapabilities } from './api-sdk'
-import type { AppApi } from './api-app'
-import { PROTOCOL_VERSION, DEFAULT_HANDSHAKE_TIMEOUT } from './core'
-import { AiutaRpcBase, type AnyFn } from './base'
-import { createRpcClient, createRpcServer } from './generic'
-import { extractFunctionPaths, jsonSafeClone } from './utils'
+import type { SdkHandlers, SdkContext, SdkCapabilities } from '../api/sdk'
+import type { AppApi } from '../api/app'
+import {
+  PROTOCOL_VERSION,
+  DEFAULT_HANDSHAKE_TIMEOUT,
+  HANDSHAKE_MESSAGE_HELLO,
+  HANDSHAKE_MESSAGE_ACK,
+} from '../protocol/core'
+import { AiutaRpcBase, type AnyFn } from '../shared/base'
+import { createRpcClient, createRpcServer } from '../protocol/transport'
+import { extractFunctionPaths, jsonSafeClone } from '../protocol/utils'
 
 /**
  * Aiuta RPC SDK - manages communication with single iframe application
@@ -66,10 +71,12 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
           return
         }
 
-        const d = e.data as { type: 'app:hello'; nonce: string; appVersion?: string } | any
+        const d = e.data as
+          | { type: typeof HANDSHAKE_MESSAGE_HELLO; nonce: string; appVersion?: string }
+          | any
 
         // Quick filter: only process RPC handshake messages
-        if (!d || d.type !== 'app:hello') {
+        if (!d || d.type !== HANDSHAKE_MESSAGE_HELLO) {
           return
         }
 
@@ -107,7 +114,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
         const methods = Object.keys(registry)
 
         const ack = {
-          type: 'sdk:ack',
+          type: HANDSHAKE_MESSAGE_ACK,
           nonce: d.nonce,
           version: PROTOCOL_VERSION,
           sdkVersion: this._context.sdkVersion,

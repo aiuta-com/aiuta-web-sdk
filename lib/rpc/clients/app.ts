@@ -3,12 +3,17 @@
  */
 
 import type { AiutaConfiguration } from '@lib/config'
-import type { SdkApi } from './api-sdk'
-import type { AppHandlers, AppContext } from './api-app'
-import { PROTOCOL_VERSION, DEFAULT_HANDSHAKE_TIMEOUT } from './core'
-import { AiutaRpcBase } from './base'
-import { createRpcClient, createRpcServer } from './generic'
-import { jsonSafeClone, setByPath, rand } from './utils'
+import type { SdkApi } from '../api/sdk'
+import type { AppHandlers, AppContext } from '../api/app'
+import {
+  PROTOCOL_VERSION,
+  DEFAULT_HANDSHAKE_TIMEOUT,
+  HANDSHAKE_MESSAGE_HELLO,
+  HANDSHAKE_MESSAGE_ACK,
+} from '../protocol/core'
+import { AiutaRpcBase } from '../shared/base'
+import { createRpcClient, createRpcServer } from '../protocol/transport'
+import { jsonSafeClone, setByPath, rand } from '../protocol/utils'
 
 /**
  * Aiuta RPC App - manages communication with parent SDK
@@ -108,9 +113,14 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
         }
 
         const d = e.data as
-          | { type: 'sdk:ack'; nonce: string; sdkVersion?: string; methods?: string[] }
+          | {
+              type: typeof HANDSHAKE_MESSAGE_ACK
+              nonce: string
+              sdkVersion?: string
+              methods?: string[]
+            }
           | any
-        if (!d || d.type !== 'sdk:ack') return
+        if (!d || d.type !== HANDSHAKE_MESSAGE_ACK) return
         if (d.nonce !== nonce) return
 
         const p = e.ports?.[0]
@@ -133,7 +143,7 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
 
       try {
         const helloMessage = {
-          type: 'app:hello',
+          type: HANDSHAKE_MESSAGE_HELLO,
           nonce,
           version: PROTOCOL_VERSION,
           appVersion: this._context.appVersion,
