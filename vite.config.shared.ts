@@ -3,6 +3,11 @@
  */
 
 export const buildConfig = {
+  // Features
+  features: {
+    useBootstrap: false, // Toggle between bootstrap and direct main app loading
+  },
+
   // Domain configurations
   domain: {
     dev: {
@@ -84,59 +89,55 @@ export const buildUrl = (...parts: string[]): string => `https://${parts.join('/
 export const getEnvironmentUrls = (mode: string, version: string) => {
   const fullVersion = version
   const majorVersion = fullVersion.split('.')[0]
+  const useBootstrap = buildConfig.features.useBootstrap
+
+  // Helper function to get the appropriate app path based on bootstrap setting
+  const getAppPath = (...baseParts: string[]) => {
+    if (useBootstrap) {
+      return buildUrl(...baseParts, buildConfig.path.bootstrap, buildConfig.file.index)
+    } else {
+      return buildUrl(...baseParts, buildConfig.file.index)
+    }
+  }
 
   switch (mode) {
     case 'debug':
       return {
-        appUrl: `/${buildConfig.path.app}/${buildConfig.path.bootstrap}/${buildConfig.file.index}`,
+        appUrl: useBootstrap
+          ? `/${buildConfig.path.app}/${buildConfig.path.bootstrap}/${buildConfig.file.index}`
+          : `/${buildConfig.path.app}/${buildConfig.file.index}`,
         analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
       }
 
     case 'dev':
       const branch = process.env.AIUTA_APP_BRANCH || buildConfig.branch.default
       return {
-        appUrl: buildUrl(
-          buildConfig.domain.dev.static,
-          buildConfig.path.sdk,
-          branch,
-          buildConfig.path.bootstrap,
-          buildConfig.file.index,
-        ),
+        appUrl: getAppPath(buildConfig.domain.dev.static, buildConfig.path.sdk, branch),
         analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
       }
 
     case 'preprod':
       return {
-        appUrl: buildUrl(
+        appUrl: getAppPath(
           buildConfig.domain.preprod.static,
           buildConfig.path.sdk,
           buildConfig.branch.default,
-          buildConfig.path.bootstrap,
-          buildConfig.file.index,
         ),
         analyticsUrl: buildUrl(buildConfig.domain.preprod.api, buildConfig.apiPath.analytics),
       }
 
     case 'strict':
       return {
-        appUrl: buildUrl(
-          buildConfig.domain.prod.static,
-          buildConfig.path.sdk,
-          `v${fullVersion}`,
-          buildConfig.path.bootstrap,
-          buildConfig.file.index,
-        ),
+        appUrl: getAppPath(buildConfig.domain.prod.static, buildConfig.path.sdk, `v${fullVersion}`),
         analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
       }
 
     default:
       return {
-        appUrl: buildUrl(
+        appUrl: getAppPath(
           buildConfig.domain.prod.static,
           buildConfig.path.sdk,
           `v${majorVersion}`,
-          buildConfig.path.bootstrap,
-          buildConfig.file.index,
         ),
         analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
       }
