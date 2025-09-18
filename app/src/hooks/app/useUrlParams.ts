@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { type ModalType } from '@/components/ModalRenderer'
+import { type ModalType } from '@/components'
 
 /**
  * Hook for parsing and accessing URL parameters

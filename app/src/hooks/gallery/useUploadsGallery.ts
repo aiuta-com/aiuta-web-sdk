@@ -11,7 +11,7 @@ import { isMobileSelector } from '@/store/slices/appSlice'
 import { useImageGallery } from './useImageGallery'
 import { useImageUpload } from '@/hooks/upload/useImageUpload'
 import { ImageItem } from './useFullScreenViewer'
-import type { SelectionActionItem } from '@/components/SelectionSnackbar'
+import type { SelectionActionItem } from '@/components/ui/snackbars/SelectionSnackbar'
 
 interface UseUploadsGalleryProps {
   onCloseModal?: () => void

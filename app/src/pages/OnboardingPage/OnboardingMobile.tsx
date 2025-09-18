@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { OnboardingStep, OnboardingCarousel, Consent, PrimaryButton } from '@/components'
-import { CarouselItem } from '@/components/OnboardingCarousel'
+import { CarouselItem } from '@/components/features/onboarding/OnboardingCarousel'
 import styles from './OnboardingMobile.module.scss'
 
 interface OnboardingMobileProps {

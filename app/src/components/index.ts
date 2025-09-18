@@ -1,87 +1,62 @@
-import { Section } from './Section'
-import { ModalRenderer, type ModalType } from './ModalRenderer'
-import { AppRouter } from './AppRouter'
-import { PageBar } from './PageBar'
-import { PoweredBy } from './PoweredBy'
+// ===== LAYOUT COMPONENTS =====
+export { Section } from './layout/Section'
+export { ModalRenderer, type ModalType } from './layout/ModalRenderer'
+export { PageBar } from './layout/PageBar'
 
-import { ErrorSnackbar } from './ErrorSnackbar'
-import { Spinner } from './Spinner/Spinner'
-import { TryOnButton } from './TryOnButton/TryOnButton'
-import { PrimaryButton } from './PrimaryButton'
-import { SecondaryButton } from './SecondaryButton'
-import { CheckboxLabel } from './CheckboxLabel'
+// ===== UI COMPONENTS =====
 
-// ViewImage component removed - replaced with TryOnAnimator and ProcessingStatus"
-import { TryOnAnimator } from './TryOnAnimator'
-import { ProcessingStatus } from './ProcessingStatus'
-import { SelectableImage } from './SelectableImage'
-import { DeletableImage } from './DeletableImage'
-import { MobileUploadPrompt } from './MobileUploadPrompt'
-import { ThumbnailList } from './ThumbnailList'
+// Branding
+export { PoweredBy } from './ui/branding/PoweredBy'
 
-import { QrCode } from './QrCode'
-import { BottomSheet } from './BottomSheet'
-import { UploadHistorySheet } from './UploadHistorySheet'
-import { CountDown } from './CountDown/CountDown'
+// Buttons
+export { PrimaryButton } from './ui/buttons/PrimaryButton'
+export { SecondaryButton } from './ui/buttons/SecondaryButton'
+export { TryOnButton } from './ui/buttons/TryOnButton'
 
-import { FullScreenGallery } from './FullScreenGallery'
-import { ShareModal } from './ShareModal'
-import { AbortAlert } from './AbortAlert'
+// Forms
+export { CheckboxLabel } from './ui/forms/CheckboxLabel'
 
-import { DesktopResultActions } from './DesktopResultActions'
-import { SelectionSnackbar } from './SelectionSnackbar'
-import { ImageManager } from './ImageManager'
+// Indicators
+export { Spinner } from './ui/indicators/Spinner/Spinner'
+export { CountDown } from './ui/indicators/CountDown/CountDown'
 
-export { ImageGallery, EmptyGalleryState } from './ImageGallery'
+// Snackbars
+export { ErrorSnackbar } from './ui/snackbars/ErrorSnackbar'
+export { SelectionSnackbar } from './ui/snackbars/SelectionSnackbar'
 
-// Modals
-import { ConfirmationAlert } from './ConfirmationAlert'
-import { Consent } from './Consent'
-import { OnboardingStep } from './OnboardingStep'
-import { OnboardingCarousel } from './OnboardingCarousel'
-export type { ModalType }
+// Overlays
+export { BottomSheet } from './ui/overlays/BottomSheet'
 
-export {
-  // Core layout
-  Section,
-  ModalRenderer,
-  AppRouter,
-  PageBar,
-  PoweredBy,
+// ===== FEATURE COMPONENTS =====
 
-  // UI Components
-  ErrorSnackbar,
-  Spinner,
-  TryOnButton,
-  PrimaryButton,
-  SecondaryButton,
-  CheckboxLabel,
-  Consent,
-  OnboardingStep,
-  OnboardingCarousel,
+// Onboarding
+export { Consent } from './features/onboarding/Consent'
+export { OnboardingStep } from './features/onboarding/OnboardingStep'
+export { OnboardingCarousel } from './features/onboarding/OnboardingCarousel'
 
-  // Image Components
-  TryOnAnimator,
-  ProcessingStatus,
-  SelectableImage,
-  DeletableImage,
-  MobileUploadPrompt,
-  ThumbnailList,
+// Picker (Upload)
+export { QrCode } from './features/picker/QrCode'
+export { MobileUploadPrompt } from './features/picker/MobileUploadPrompt'
+export { UploadHistorySheet } from './features/picker/UploadHistorySheet'
 
-  // Specialized Components
-  QrCode,
-  BottomSheet,
-  UploadHistorySheet,
-  CountDown,
+// Gallery
+export { ImageGallery, EmptyGalleryState } from './features/gallery/ImageGallery'
+export { ThumbnailList } from './features/gallery/ThumbnailList'
+export { FullScreenGallery } from './features/gallery/FullScreenGallery'
+export { SelectableImage } from './features/gallery/SelectableImage'
+export { DeletableImage } from './features/gallery/DeletableImage'
 
-  // Modals and Overlays
-  FullScreenGallery,
-  ShareModal,
-  AbortAlert,
-  ConfirmationAlert,
+// Try-On
+export { TryOnAnimator } from './features/tryOn/TryOnAnimator'
+export { ProcessingStatus } from './features/tryOn/ProcessingStatus'
+export { ImageManager } from './features/tryOn/ImageManager'
 
-  // Feature Components
-  DesktopResultActions,
-  SelectionSnackbar,
-  ImageManager,
-}
+// Results
+export { DesktopResultActions } from './features/results/DesktopResultActions'
+
+// Sharing
+export { ShareModal } from './features/sharing/ShareModal'
+
+// ===== ALERTS =====
+export { AbortAlert } from './alerts/AbortAlert'
+export { ConfirmationAlert } from './alerts/ConfirmationAlert'

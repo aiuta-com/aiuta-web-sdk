@@ -13,7 +13,7 @@ import { useRpcProxy } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'
-import type { SelectionActionItem } from '@/components/SelectionSnackbar'
+import type { SelectionActionItem } from '@/components/ui/snackbars/SelectionSnackbar'
 
 interface UseGenerationsGalleryProps {
   onCloseModal?: () => void
