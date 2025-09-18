@@ -43,7 +43,7 @@ export default class MessageHandler {
     try {
       const iframe = this.iframeManager.getIframe()
       if (iframe) {
-        if (!this.rpc.hasConnection()) {
+        if (!this.rpc.isConnected()) {
           await this.rpc.connect(iframe)
           const sdkVersion = this.rpc.context.sdkVersion
           if (sdkVersion) {

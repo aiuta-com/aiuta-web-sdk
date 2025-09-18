@@ -9,73 +9,31 @@ import { AiutaRpcBase, type AnyFn } from './base'
 import { createRpcClient, createRpcServer } from './generic'
 import { extractFunctionPaths, jsonSafeClone } from './utils'
 
-import type { ConnectionInfo, ConnectionOptions } from './base'
-
 /**
- * SDK-specific connection info
- */
-type SdkConnectionInfo = ConnectionInfo & {
-  client: ReturnType<typeof createRpcClient<AppApi>>
-}
-
-/**
- * Aiuta RPC SDK - manages communication with iframe applications
- * Supports multiple iframe connections with independent management
+ * Aiuta RPC SDK - manages communication with single iframe application
  */
 export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase<
   SdkHandlers,
   AppApi,
   SdkContext<TConfig>
 > {
-  private connections = new Map<string, SdkConnectionInfo>()
-  private handshakeListeners = new Map<string, (event: MessageEvent) => void>()
-
-  // Legacy properties for backward compatibility
-  private get appClient() {
-    return this.connections.get('default')?.client
-  }
-
+  private appClient?: ReturnType<typeof createRpcClient<AppApi>>
+  private appVersion?: string
+  private iframe?: HTMLIFrameElement
   private handshakeListener?: (event: MessageEvent) => void
 
   /**
-   * Connect to an iframe with RPC communication
+   * Connect to iframe with RPC communication
    * @param iframeEl - Target iframe element
-   * @param connectionIdOrOrigin - Connection ID or legacy origin parameter
+   * @param expectedIframeOrigin - Expected iframe origin (optional, will be inferred if not provided)
    * @returns Promise that resolves when connection is established
    */
-  async connect(
-    iframeEl: HTMLIFrameElement,
-    connectionIdOrOrigin?: string | ConnectionOptions,
-  ): Promise<this> {
-    // Handle backward compatibility
-    let connectionId = 'default'
-    let expectedIframeOrigin: string | undefined
-
-    if (typeof connectionIdOrOrigin === 'string') {
-      // Legacy: second parameter is expectedIframeOrigin
-      expectedIframeOrigin = connectionIdOrOrigin
-    } else if (connectionIdOrOrigin && typeof connectionIdOrOrigin === 'object') {
-      // New API: options object
-      connectionId = connectionIdOrOrigin.connectionId || 'default'
-      expectedIframeOrigin = connectionIdOrOrigin.expectedIframeOrigin
-    }
-
-    return this.connectWithId(iframeEl, connectionId, expectedIframeOrigin)
-  }
-
-  /**
-   * Internal method to connect with specific connection ID
-   */
-  private async connectWithId(
-    iframeEl: HTMLIFrameElement,
-    connectionId: string,
-    expectedIframeOrigin?: string,
-  ): Promise<this> {
+  async connect(iframeEl: HTMLIFrameElement, expectedIframeOrigin?: string): Promise<this> {
     if (!iframeEl.contentWindow) throw new Error('Iframe has no contentWindow')
 
     // Check if already connected
-    if (this.connections.has(connectionId)) {
-      throw new Error(`Connection with ID '${connectionId}' already exists`)
+    if (this.appClient) {
+      throw new Error('RPC connection already exists')
     }
 
     const resolvedOrigin = expectedIframeOrigin || this.inferIframeOrigin(iframeEl)
@@ -83,17 +41,26 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
       throw new Error('Unable to determine expected iframe origin')
     }
 
+    return this.performHandshake(iframeEl, resolvedOrigin)
+  }
+
+  /**
+   * Perform handshake with iframe
+   */
+  private async performHandshake(
+    iframeEl: HTMLIFrameElement,
+    resolvedOrigin: string,
+  ): Promise<this> {
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
-        const listener = this.handshakeListeners.get(connectionId)
-        if (listener) {
-          window.removeEventListener('message', listener)
-          this.handshakeListeners.delete(connectionId)
+        if (this.handshakeListener) {
+          window.removeEventListener('message', this.handshakeListener)
+          this.handshakeListener = undefined
         }
-        reject(new Error(`SDK handshake timeout for connection: ${connectionId}`))
+        reject(new Error('SDK handshake timeout'))
       }, DEFAULT_HANDSHAKE_TIMEOUT)
 
-      const handshakeListener = (e: MessageEvent) => {
+      this.handshakeListener = (e: MessageEvent) => {
         // Quick filter: only process messages from correct iframe
         if (e.source !== iframeEl.contentWindow || e.origin !== resolvedOrigin) {
           return
@@ -149,7 +116,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
 
         // Create RPC server BEFORE sending ack so it's ready for incoming calls
         createRpcServer(port1, registry)
-        const client = createRpcClient<AppApi>(port1)
+        this.appClient = createRpcClient<AppApi>(port1)
 
         try {
           iframeEl.contentWindow!.postMessage(ack, resolvedOrigin, [port2])
@@ -160,21 +127,17 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
           return
         }
 
-        // Store connection
-        this.connections.set(connectionId, {
-          client,
-          appVersion: d.appVersion,
-          iframe: iframeEl,
-        })
+        // Store connection info
+        this.appVersion = d.appVersion
+        this.iframe = iframeEl
 
         clearTimeout(timeout)
-        window.removeEventListener('message', handshakeListener)
-        this.handshakeListeners.delete(connectionId)
+        window.removeEventListener('message', this.handshakeListener!)
+        this.handshakeListener = undefined
         resolve()
       }
 
-      this.handshakeListeners.set(connectionId, handshakeListener)
-      window.addEventListener('message', handshakeListener)
+      window.addEventListener('message', this.handshakeListener)
     })
 
     return this
@@ -197,7 +160,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
   }
 
   /**
-   * Get app API for default connection (backward compatibility)
+   * Get app API
    */
   get app() {
     if (!this.appClient) throw new Error('AiutaRpcSdk: not connected')
@@ -205,70 +168,40 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
   }
 
   /**
-   * Get API for specific connection
-   * @param connectionId - ID of the connection
-   * @returns Connection details with API access
+   * Check if connected to iframe
    */
-  connection(connectionId: string) {
-    const conn = this.connections.get(connectionId)
-    if (!conn) {
-      throw new Error(
-        `Connection '${connectionId}' not found. Available connections: ${Array.from(this.connections.keys()).join(', ')}`,
-      )
-    }
+  isConnected(): boolean {
+    return !!this.appClient
+  }
+
+  /**
+   * Get connection info
+   */
+  getConnectionInfo() {
+    if (!this.appClient) throw new Error('AiutaRpcSdk: not connected')
     return {
-      api: conn.client.api,
-      appVersion: conn.appVersion,
-      iframe: conn.iframe,
+      appVersion: this.appVersion,
+      iframe: this.iframe,
     }
   }
 
   /**
-   * Get all active connection IDs
-   */
-  getConnections(): string[] {
-    return Array.from(this.connections.keys())
-  }
-
-  /**
-   * Check if connection exists
-   */
-  hasConnection(connectionId: string = 'default'): boolean {
-    return this.connections.has(connectionId)
-  }
-
-  /**
-   * Disconnect specific connection
-   */
-  disconnect(connectionId: string): void {
-    const conn = this.connections.get(connectionId)
-    if (conn) {
-      conn.client.close()
-      this.connections.delete(connectionId)
-    }
-
-    const listener = this.handshakeListeners.get(connectionId)
-    if (listener) {
-      window.removeEventListener('message', listener)
-      this.handshakeListeners.delete(connectionId)
-    }
-  }
-
-  /**
-   * Close all connections and cleanup resources
+   * Close connection and cleanup resources
    */
   close() {
     super.close()
 
-    // Close all connections
-    for (const [connectionId] of this.connections) {
-      this.disconnect(connectionId)
+    // Close RPC client
+    if (this.appClient) {
+      this.appClient.close()
+      this.appClient = undefined
     }
 
-    this.connections.clear()
-    this.handshakeListeners.clear()
+    // Cleanup connection info
+    this.appVersion = undefined
+    this.iframe = undefined
 
-    // Legacy cleanup
+    // Remove handshake listener
     if (this.handshakeListener) {
       window.removeEventListener('message', this.handshakeListener)
       this.handshakeListener = undefined
