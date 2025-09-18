@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Aiuta Bootstrap</title>
+    <!-- Set base path for relative URLs to parent directory -->
+    <base href="../" />
     <style>
       /* Reset and base styles */
       * {
@@ -83,8 +85,8 @@
       </svg>
     </div>
 
-    <!-- Main app container (will be populated when main app loads) -->
-    <div id="aiuta-main-app" class="hidden"></div>
+    <!-- Main app container (React app will mount here) -->
+    <div id="root"></div>
 
     <script>
       /**
@@ -106,10 +108,10 @@
         isMainAppReady: false,
         hideBootstrap: () => {
           const bootstrap = document.getElementById('aiuta-bootstrap')
-          const mainApp = document.getElementById('aiuta-main-app')
-
-          if (bootstrap) bootstrap.classList.add('hidden')
-          if (mainApp) mainApp.classList.remove('hidden')
+          if (bootstrap) {
+            bootstrap.classList.add('hidden')
+            console.log('Bootstrap hidden, main app is ready')
+          }
         },
       }
 
@@ -129,12 +131,22 @@
 
       // Load main application
       function loadMainApp() {
-        // Main app URL will be injected by Vite build process
-        const mainAppUrl = '../assets/main-__MAIN_HASH__.js' // Will be replaced during build
+        // Main app URLs will be injected by Vite build process
+        const mainAppJsUrl = 'assets/main-__MAIN_HASH__.js' // Will be replaced during build
+        const mainAppCssUrl = 'assets/main-__MAIN_HASH__.css' // Will be replaced during build
 
+        // Load CSS first
+        const cssLink = document.createElement('link')
+        cssLink.rel = 'stylesheet'
+        cssLink.crossOrigin = 'anonymous'
+        cssLink.href = mainAppCssUrl
+        document.head.appendChild(cssLink)
+
+        // Then load JS
         const script = document.createElement('script')
         script.type = 'module'
-        script.src = mainAppUrl
+        script.crossOrigin = 'anonymous'
+        script.src = mainAppJsUrl
 
         script.onload = () => {
           console.log('Main app loaded successfully')

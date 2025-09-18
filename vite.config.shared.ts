@@ -88,7 +88,7 @@ export const getEnvironmentUrls = (mode: string, version: string) => {
   switch (mode) {
     case 'debug':
       return {
-        appUrl: `/${buildConfig.path.app}/${buildConfig.file.index}`,
+        appUrl: `/${buildConfig.path.app}/${buildConfig.path.bootstrap}/${buildConfig.file.index}`,
         analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
       }
 
@@ -99,6 +99,7 @@ export const getEnvironmentUrls = (mode: string, version: string) => {
           buildConfig.domain.dev.static,
           buildConfig.path.sdk,
           branch,
+          buildConfig.path.bootstrap,
           buildConfig.file.index,
         ),
         analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
@@ -110,6 +111,7 @@ export const getEnvironmentUrls = (mode: string, version: string) => {
           buildConfig.domain.preprod.static,
           buildConfig.path.sdk,
           buildConfig.branch.default,
+          buildConfig.path.bootstrap,
           buildConfig.file.index,
         ),
         analyticsUrl: buildUrl(buildConfig.domain.preprod.api, buildConfig.apiPath.analytics),
@@ -121,6 +123,7 @@ export const getEnvironmentUrls = (mode: string, version: string) => {
           buildConfig.domain.prod.static,
           buildConfig.path.sdk,
           `v${fullVersion}`,
+          buildConfig.path.bootstrap,
           buildConfig.file.index,
         ),
         analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
@@ -132,6 +135,7 @@ export const getEnvironmentUrls = (mode: string, version: string) => {
           buildConfig.domain.prod.static,
           buildConfig.path.sdk,
           `v${majorVersion}`,
+          buildConfig.path.bootstrap,
           buildConfig.file.index,
         ),
         analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),

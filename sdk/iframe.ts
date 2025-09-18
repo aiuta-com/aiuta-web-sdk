@@ -15,7 +15,7 @@ const iframeDefaults = {
   // Positioning
   defaultTop: '12px',
   defaultRight: '12px',
-  hiddenRight: '-1000%',
+  hiddenRight: '-50%',
 
   // Fullscreen positioning (used for mobile and modals)
   fullscreenTop: '0px',
@@ -29,7 +29,7 @@ const iframeDefaults = {
   defaultBorderRadius: '24px',
   defaultBorder: '1px solid #0000001A',
   defaultBoxShadow: '0px 8px 28px -6px #0000001F',
-  defaultTransition: 'all ease-in-out 0.5s',
+  defaultTransition: 'all ease-in-out 0.3s',
 
   // Mobile overrides
   mobileBorderRadius: '0px',

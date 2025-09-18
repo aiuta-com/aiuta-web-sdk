@@ -26,18 +26,18 @@ export default function App() {
 
   const loggerComponent = modalType ? `aiuta:modal:${modalType}` : 'aiuta:iframe'
 
-  // Handle bootstrap to main app transition
+  // Handle bootstrap to main app transition after RPC is ready
   React.useEffect(() => {
     // Check if we're running inside bootstrap environment
-    if (window.aiutaBootstrap?.ready) {
-      // Wait for app to be fully initialized
+    if (window.aiutaBootstrap?.ready && rpcApp) {
+      // Wait for RPC to be fully established before hiding bootstrap
       const timer = setTimeout(() => {
         window.aiutaBootstrap?.hideBootstrap()
       }, 100) // Small delay to ensure smooth transition
 
       return () => clearTimeout(timer)
     }
-  }, [])
+  }, [rpcApp])
 
   return (
     <LoggerProvider component={loggerComponent}>

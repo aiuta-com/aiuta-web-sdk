@@ -30,20 +30,28 @@ const bootstrapPostprocessPlugin = () => {
 
       if (!fs.existsSync(bootstrapPath)) return
 
-      // Find main JS file
+      // Find main JS and CSS files
       const assetFiles = fs.readdirSync(assetsDir)
       const mainJsFile = assetFiles.find(
         (file) =>
           file.startsWith(`${buildConfig.entry.main}-`) && file.endsWith(buildConfig.ext.js),
       )
+      const mainCssFile = assetFiles.find(
+        (file) =>
+          file.startsWith(`${buildConfig.entry.main}-`) && file.endsWith(buildConfig.ext.css),
+      )
 
-      if (!mainJsFile) return
+      if (!mainJsFile || !mainCssFile) return
 
-      // Replace placeholder in bootstrap HTML
+      // Replace placeholders in bootstrap HTML
       let bootstrapContent = fs.readFileSync(bootstrapPath, 'utf-8')
       bootstrapContent = bootstrapContent.replace(
-        `../${buildConfig.path.assets}/${buildConfig.entry.main}-${buildConfig.placeholder.mainHash}${buildConfig.ext.js}`,
-        `../${buildConfig.path.assets}/${mainJsFile}`,
+        `${buildConfig.path.assets}/${buildConfig.entry.main}-${buildConfig.placeholder.mainHash}${buildConfig.ext.js}`,
+        `${buildConfig.path.assets}/${mainJsFile}`,
+      )
+      bootstrapContent = bootstrapContent.replace(
+        `${buildConfig.path.assets}/${buildConfig.entry.main}-${buildConfig.placeholder.mainHash}${buildConfig.ext.css}`,
+        `${buildConfig.path.assets}/${mainCssFile}`,
       )
 
       // Minify HTML with html-minifier-terser
@@ -63,7 +71,7 @@ const bootstrapPostprocessPlugin = () => {
       })
 
       fs.writeFileSync(bootstrapPath, minifiedHtml)
-      console.log(`✓ Bootstrap fixed and minified: ${mainJsFile}`)
+      console.log(`✓ Bootstrap fixed and minified: ${mainJsFile}, ${mainCssFile}`)
     },
   }
 }
