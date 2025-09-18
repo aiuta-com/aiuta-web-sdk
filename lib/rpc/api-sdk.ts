@@ -45,9 +45,10 @@ export interface SdkApi {
   getCapabilities(): Promise<SdkCapabilities>
 
   /**
-   * Request SDK to close modal/iframe
+   * Set iframe interactivity state
+   * @param interactive - Whether iframe should be interactive (receive pointer events)
    */
-  closeModal(): void | Promise<void>
+  setInteractive(interactive: boolean): void | Promise<void>
 }
 
 /**

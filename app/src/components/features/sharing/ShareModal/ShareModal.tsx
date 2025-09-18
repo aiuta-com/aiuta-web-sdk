@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 // Required data: { imageUrl: string }
 // RPC method needed: openShareModal(data: { imageUrl: string })
 import { useRpcProxy } from '@/contexts'
+import { useAppVisibility } from '@/hooks'
 import styles from './ShareModal.module.scss'
 
 interface ShareModalData {
@@ -28,6 +29,7 @@ export const ShareModal = ({ imageUrl, onClose }: ShareModalProps) => {
   const [modalData, setModalData] = useState<ShareModalData | null>(null)
   const [hasShared, setHasShared] = useState(false)
   const rpc = useRpcProxy()
+  const { hideApp } = useAppVisibility()
 
   // Use props if provided, otherwise listen for messages (for standalone usage)
   useEffect(() => {
@@ -71,11 +73,11 @@ export const ShareModal = ({ imageUrl, onClose }: ShareModalProps) => {
     setModalData(null)
     setHasShared(false)
 
-    // Use onClose prop if provided, otherwise notify parent to close the modal iframe
+    // Use onClose prop if provided, otherwise hide widget
     if (onClose) {
       onClose()
     } else {
-      rpc.sdk.closeModal()
+      hideApp()
     }
   }
 

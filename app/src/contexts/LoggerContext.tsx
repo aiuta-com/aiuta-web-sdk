@@ -27,11 +27,11 @@ interface LoggerProviderProps {
   initialEnabled?: boolean
 }
 
-export const LoggerProvider: React.FC<LoggerProviderProps> = ({
+export const LoggerProvider = ({
   children,
   component,
   initialEnabled = false,
-}) => {
+}: LoggerProviderProps) => {
   const [baseLogger] = useState(() => createLogger(component, initialEnabled))
   const [enabled, setEnabled] = useState(initialEnabled)
   const [loggedMessages] = useState(() => new Set<string>())

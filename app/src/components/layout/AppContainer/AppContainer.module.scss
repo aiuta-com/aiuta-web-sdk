@@ -1,0 +1,42 @@
+// App container styles - app manages its own sizing now
+.appContainer {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  background: var(--background); /* Use CSS custom property for theme support */
+  color: var(--foreground);
+  transition: all ease-in-out 0.3s;
+  z-index: 1;
+  overflow: hidden; /* Ensure content respects border-radius */
+}
+
+// Desktop app styling (moved from SDK iframe styles)
+.appContainer_desktop {
+  width: 394px;
+  height: 632px;
+  top: 12px;
+  right: 12px;
+  border-radius: 24px;
+  border: 1px solid #0000001a;
+  box-shadow: 0px 8px 28px -6px #0000001f;
+}
+
+// Mobile fullscreen styling
+.appContainer_mobile {
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 0;
+  border: 1px solid #ffffff;
+  box-shadow: none;
+}
+
+// Hidden state (can be controlled via props if needed)
+.appContainer_hidden {
+  opacity: 0;
+  pointer-events: none;
+  right: -50%;
+}

@@ -13,12 +13,6 @@ export interface AppApi {
    * @param productId - ID of the product to try on
    */
   tryOn(productId: string): Promise<void>
-
-  /**
-   * Update window dimensions from SDK
-   * @param sizes - Window width and height
-   */
-  updateWindowSizes(sizes: { width: number; height: number }): Promise<void>
 }
 
 /**

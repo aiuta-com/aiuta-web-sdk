@@ -7,13 +7,17 @@ import { useModalOnlyStyles } from '@/hooks'
  */
 export type ModalType = 'share' | 'fullscreen'
 
+interface ModalRendererProps {
+  modalType: ModalType
+}
+
 /**
  * Component for rendering appropriate modal in fullscreen iframe mode
  *
  * Used when the app is loaded with ?modal=share or ?modal=fullscreen URL parameter
  * The modal is rendered in a fullscreen iframe created by the SDK
  */
-export const ModalRenderer: React.FC<{ modalType: ModalType }> = ({ modalType }) => {
+export const ModalRenderer = ({ modalType }: ModalRendererProps) => {
   useModalOnlyStyles()
 
   switch (modalType) {

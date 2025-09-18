@@ -2,6 +2,7 @@
 export { Section } from './layout/Section'
 export { ModalRenderer, type ModalType } from './layout/ModalRenderer'
 export { PageBar } from './layout/PageBar'
+export { AppContainer } from './layout/AppContainer'
 
 // ===== UI COMPONENTS =====
 

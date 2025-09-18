@@ -32,7 +32,7 @@ export default class Aiuta {
       return
     }
 
-    this.iframeManager.showMainFrame()
+    this.iframeManager.ensureIframe()
     this.messageHandler.startTryOn(productId)
 
     this.analytics.track({

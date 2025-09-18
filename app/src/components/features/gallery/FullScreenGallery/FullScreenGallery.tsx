@@ -6,7 +6,7 @@ import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 // TODO: Replace with RPC - need to support:
 // 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
-import { useRpcProxy } from '@/contexts'
+import { useAppVisibility } from '@/hooks'
 import { ShareModal, ThumbnailList } from '@/components'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
@@ -17,7 +17,7 @@ export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
   const [shareModalData, setShareModalData] = useState<{ imageUrl: string } | null>(null)
-  const rpc = useRpcProxy()
+  const { hideApp } = useAppVisibility()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
 
@@ -38,9 +38,9 @@ export const FullScreenGallery = () => {
     setModalData(null)
     dispatch(uploadsSlice.actions.showImageFullScreen(null))
 
-    // Notify parent to close modal via RPC
-    rpc.sdk.closeModal()
-  }, [dispatch, rpc])
+    // Hide app (includes SDK notification)
+    hideApp()
+  }, [dispatch, hideApp])
 
   const handleDownloadImage = useCallback(async () => {
     if (!modalData?.activeImage) return

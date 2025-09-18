@@ -1,4 +1,3 @@
-// import { SecurePostMessageHandler } from './security' // TODO: Remove if not needed
 import IframeManager from './iframe'
 import AnalyticsTracker from './analytics'
 import { AiutaRpcSdk } from '@lib/rpc'
@@ -24,8 +23,8 @@ export default class MessageHandler {
         }
         this.analytics.track({ data: event })
       },
-      closeModal: () => {
-        this.iframeManager.closeOrHide()
+      setInteractive: (interactive: boolean) => {
+        this.iframeManager.setInteractive(interactive)
       },
     }
 
@@ -38,10 +37,6 @@ export default class MessageHandler {
       context,
       handlers,
     })
-
-    window.addEventListener('resize', () => {
-      this.sendWindowSizes()
-    })
   }
 
   async startTryOn(productId: string) {
@@ -50,7 +45,6 @@ export default class MessageHandler {
       if (iframe) {
         if (!this.rpc.hasConnection()) {
           await this.rpc.connect(iframe)
-          await this.sendWindowSizes()
           const sdkVersion = this.rpc.context.sdkVersion
           if (sdkVersion) {
             this.analytics.setIframeVersion(sdkVersion)
@@ -63,20 +57,6 @@ export default class MessageHandler {
     } catch (error) {
       this.logger.error('Aiuta RPC tryOn failed:', error)
       this.analytics.track({ data: { type: 'session', event: 'rpcFailed' } })
-    }
-  }
-
-  private async sendWindowSizes() {
-    try {
-      if (this.rpc.hasConnection()) {
-        const sizes = {
-          width: window.innerWidth,
-          height: window.innerHeight,
-        }
-        await this.rpc.app.updateWindowSizes(sizes)
-      }
-    } catch (error) {
-      this.logger.error('RPC sendWindowSizes failed:', error)
     }
   }
 }

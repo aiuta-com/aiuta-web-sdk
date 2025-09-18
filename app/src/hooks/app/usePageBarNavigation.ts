@@ -4,6 +4,7 @@ import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { useRpcProxy } from '@/contexts'
+import { useAppVisibility } from './useAppVisibility'
 import { productIdSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
 import {
@@ -20,6 +21,7 @@ export const usePageBarNavigation = () => {
   const location = useLocation()
   const dispatch = useAppDispatch()
   const rpc = useRpcProxy()
+  const { hideApp } = useAppVisibility()
 
   const pathName = location.pathname
   const productId = useAppSelector(productIdSelector)
@@ -64,7 +66,7 @@ export const usePageBarNavigation = () => {
     // Track loading exit if generating
     if (isGenerating) {
       trackAnalyticsEvent('loading')
-      rpc.sdk.closeModal()
+      hideApp()
       return
     }
 
@@ -81,7 +83,7 @@ export const usePageBarNavigation = () => {
       trackAnalyticsEvent(pageId)
     }
 
-    rpc.sdk.closeModal()
+    hideApp()
     dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
   }
 

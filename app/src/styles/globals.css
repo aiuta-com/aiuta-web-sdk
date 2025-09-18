@@ -24,14 +24,16 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* App is now contained in WidgetContainer, not filling full screen */
 }
 
 #__next {
-  min-height: 100vh;
+  /* App container no longer fills full height - WidgetContainer handles sizing */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   background-color: transparent;
+  height: 100%; /* Fill available space in WidgetContainer */
 }
 
 /* Modal-only mode - transparent background */
@@ -41,7 +43,7 @@ body {
 
 body {
   color: #171717;
-  background: var(--background);
+  background: transparent; /* No background - WidgetContainer handles it */
   font-family:
     GT Maru,
     sans-serif;

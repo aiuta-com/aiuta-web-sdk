@@ -4,4 +4,5 @@ export {
   isInitializedSelector,
   isLoadingSelector,
   hasFooterSelector,
+  isAppVisibleSelector,
 } from './selectors'

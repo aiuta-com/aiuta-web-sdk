@@ -2,7 +2,6 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
-// import { onboardingSlice } from '@/store/slices/onboardingSlice' // TODO: Remove if unused
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { onboardingIsCompletedSelector } from '@/store/slices/onboardingSlice'
 import { UploadsStorage } from '@/utils'

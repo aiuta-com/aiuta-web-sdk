@@ -8,6 +8,7 @@ import {
   FullScreenGallery,
   ShareModal,
   Spinner,
+  AppContainer,
   type ModalType,
 } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
@@ -60,29 +61,33 @@ function AppRouter({
   useCustomCSS(cssUrl)
 
   return modalType ? (
+    // Modal mode - fullscreen overlays (share, fullscreen gallery)
     <ModalRenderer modalType={modalType} />
   ) : (
-    <MemoryRouter initialEntries={[initialPath || '/']}>
-      {/* Global components */}
-      <Spinner />
-      <FullScreenGallery />
-      <ShareModal />
+    // App mode - contained in AppContainer with proper sizing
+    <AppContainer>
+      <MemoryRouter initialEntries={[initialPath || '/']}>
+        {/* Global components */}
+        <Spinner />
+        <FullScreenGallery />
+        <ShareModal />
 
-      {/* App layout */}
-      <PageBar />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/qr" element={<PhotoUploadPage />} />
-          <Route path="/qr/:token" element={<PhotoUploadPage />} />
-          <Route path="/view" element={<TryOnPage />} />
-          <Route path="/results" element={<ResultsPage />} />
-          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
-          <Route path="/generations-history" element={<GenerationsHistoryPage />} />
-        </Routes>
-      </main>
-      <PoweredBy />
-    </MemoryRouter>
+        {/* App layout */}
+        <PageBar />
+        <main>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/qr" element={<PhotoUploadPage />} />
+            <Route path="/qr/:token" element={<PhotoUploadPage />} />
+            <Route path="/view" element={<TryOnPage />} />
+            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/uploads-history" element={<UploadsHistoryPage />} />
+            <Route path="/generations-history" element={<GenerationsHistoryPage />} />
+          </Routes>
+        </main>
+        <PoweredBy />
+      </MemoryRouter>
+    </AppContainer>
   )
 }

@@ -5,6 +5,7 @@ export interface AppState {
   isInitialized: boolean
   isLoading: boolean
   hasFooter: boolean
+  isAppVisible: boolean
 }
 
 const initialState: AppState = {
@@ -12,6 +13,7 @@ const initialState: AppState = {
   isInitialized: false,
   isLoading: false,
   hasFooter: true,
+  isAppVisible: true,
 }
 
 export const appSlice = createSlice({
@@ -32,6 +34,10 @@ export const appSlice = createSlice({
 
     setHasFooter: (state, action: PayloadAction<boolean>) => {
       state.hasFooter = action.payload
+    },
+
+    setIsAppVisible: (state, action: PayloadAction<boolean>) => {
+      state.isAppVisible = action.payload
     },
 
     resetAppState: (state) => {

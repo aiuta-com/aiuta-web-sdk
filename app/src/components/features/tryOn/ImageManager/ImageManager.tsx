@@ -17,14 +17,14 @@ interface ImageManagerProps {
   onUploadClick?: () => void
 }
 
-export const ImageManager: React.FC<ImageManagerProps> = ({
+export const ImageManager = ({
   uploadedImage,
   recentImage,
   isStartGeneration,
   generatedImageUrl,
   onChangeImage,
   onUploadClick,
-}) => {
+}: ImageManagerProps) => {
   const hasInputImage = uploadedImage && uploadedImage.localUrl.length > 0
   const hasRecentImage = recentImage && recentImage.url.length > 0
   const showChangeButton = !isStartGeneration
