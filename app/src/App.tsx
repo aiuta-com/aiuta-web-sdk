@@ -29,13 +29,13 @@ export default function App() {
   return (
     <LoggerProvider component={loggerComponent}>
       <RpcProvider rpcApp={rpcApp}>
-        <AppSwitch modalType={modalType} cssUrl={cssUrl} initialPath={initialPath} />
+        <AppRouter modalType={modalType} cssUrl={cssUrl} initialPath={initialPath} />
       </RpcProvider>
     </LoggerProvider>
   )
 }
 
-function AppSwitch({
+function AppRouter({
   modalType,
   cssUrl,
   initialPath,
