@@ -6,7 +6,7 @@ import { type ModalType } from '@/components/ModalRenderer'
  *
  * Modal URL structure:
  * - ?modal=share → ShareModal in fullscreen iframe
- * - ?modal=fullscreen → FullScreenImageModal in fullscreen iframe
+ * - ?modal=fullscreen → FullScreenGallery in fullscreen iframe
  * - No modal param → Main app in small iframe
  */
 export const useUrlParams = () => {

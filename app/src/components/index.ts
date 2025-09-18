@@ -24,7 +24,7 @@ import { BottomSheet } from './BottomSheet'
 import { UploadHistorySheet } from './UploadHistorySheet'
 import { CountDown } from './CountDown/CountDown'
 
-import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
+import { FullScreenGallery } from './FullScreenGallery'
 import { ShareModal } from './ShareModal'
 import { AbortAlert } from './AbortAlert'
 
@@ -70,7 +70,7 @@ export {
   CountDown,
 
   // Modals and Overlays
-  FullScreenImageModal,
+  FullScreenGallery,
   ShareModal,
   AbortAlert,
 

@@ -8,7 +8,7 @@ import GenerationsHistoryPage from '@/pages/GenerationsHistoryPage'
 import ResultsPage from '@/pages/ResultsPage'
 import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
 
-import { PageBar, PoweredBy, FullScreenImageModal, ShareModal, Spinner } from '@/components'
+import { PageBar, PoweredBy, FullScreenGallery, ShareModal, Spinner } from '@/components'
 
 interface AppRouterProps {
   initialPath: string
@@ -22,7 +22,7 @@ export const AppRouter = ({ initialPath }: AppRouterProps) => {
     <MemoryRouter initialEntries={[initialPath]}>
       {/* Global components */}
       <Spinner />
-      <FullScreenImageModal />
+      <FullScreenGallery />
       <ShareModal />
 
       {/* App layout */}

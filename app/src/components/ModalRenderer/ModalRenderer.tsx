@@ -1,5 +1,5 @@
 import React from 'react'
-import { FullScreenImageModal, ShareModal } from '@/components'
+import { FullScreenGallery, ShareModal } from '@/components'
 import { useModalOnlyStyles } from '@/hooks'
 
 /**
@@ -21,6 +21,6 @@ export const ModalRenderer: React.FC<{ modalType: ModalType }> = ({ modalType })
       return <ShareModal />
     case 'fullscreen':
     default:
-      return <FullScreenImageModal />
+      return <FullScreenGallery />
   }
 }
