@@ -36,7 +36,7 @@ import { ImageManager } from './ImageManager'
 export { ImageGallery, EmptyGalleryState } from './ImageGallery'
 
 // Modals
-export { AiutaModal, HistoryImagesRemoveModal } from './modals'
+import { ConfirmationAlert } from './ConfirmationAlert'
 export type { ModalType }
 
 export {
@@ -73,6 +73,7 @@ export {
   FullScreenGallery,
   ShareModal,
   AbortAlert,
+  ConfirmationAlert,
 
   // Feature Components
   Onboarding,

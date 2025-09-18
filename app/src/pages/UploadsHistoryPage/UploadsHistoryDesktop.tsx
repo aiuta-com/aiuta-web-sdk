@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { motion, easeInOut } from 'framer-motion'
 import { Section, PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
-import { HistoryImagesRemoveModal } from '@/components'
+import { ConfirmationAlert } from '@/components'
 import { useUploadsGallery } from '@/hooks'
 import styles from './uploadsHistory.module.scss'
 
@@ -52,10 +52,13 @@ export default function UploadsHistoryDesktop() {
           actions={gallery.selectionActions}
         />
 
-        <HistoryImagesRemoveModal
+        <ConfirmationAlert
           isVisible={isModalVisible}
-          onClickRightButton={gallery.deleteSelectedImages}
-          onClickLeftButton={handleCloseModal}
+          message="Are you sure you want to delete these uploads?"
+          leftButtonText="Keep"
+          rightButtonText="Delete"
+          onLeftClick={handleCloseModal}
+          onRightClick={gallery.deleteSelectedImages}
         />
       </motion.div>
 
