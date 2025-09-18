@@ -2,16 +2,22 @@ import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { CheckboxLabel } from '@/components'
-import { ConsentTypes } from './types'
-import styles from './consent.module.scss'
+import { ConsentProps } from './types'
+import styles from './Consent.module.scss'
 
-export const Consent = (props: ConsentTypes) => {
-  const { isChecked, setIsChecked } = props
-
+export const Consent = ({ isChecked, onCheckChange, className }: ConsentProps) => {
   const isMobile = useAppSelector(isMobileSelector)
 
+  const containerClasses = [
+    styles.consentContent,
+    isMobile ? styles.consentContent_mobile : '',
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <div className={`${styles.consentContent} ${isMobile ? styles.consentContentMobile : ''}`}>
+    <div className={containerClasses}>
       <div className={styles.consentTilesBox}>
         <h2>Consent</h2>
         <h3>
@@ -29,7 +35,7 @@ export const Consent = (props: ConsentTypes) => {
       <CheckboxLabel
         labelText="I agree to allow Aiuta to process my photo"
         checked={isChecked}
-        onChange={setIsChecked}
+        onChange={onCheckChange}
       />
     </div>
   )

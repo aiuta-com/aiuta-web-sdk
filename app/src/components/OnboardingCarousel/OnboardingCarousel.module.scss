@@ -1,0 +1,55 @@
+.onboardingCarousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.miniImagesBox {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  display: flex;
+  row-gap: 8px;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+}
+
+.imageBanner {
+  width: 64px;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0px 2.09px 10.8px 0px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+
+  // Active modifier using BEM convention
+  &_active {
+    width: 88px;
+    height: 120px;
+
+    .miniImage {
+      width: 56px;
+      height: 89px;
+    }
+  }
+}
+
+.miniImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  transition: all 0.3s ease-in-out;
+}
+
+.mainImage {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}

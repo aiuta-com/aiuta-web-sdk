@@ -3,6 +3,7 @@ import { Route, Routes, MemoryRouter } from 'react-router-dom'
 
 import PhotoUploadPage from '@/pages/PhotoUploadPage'
 import Home from '@/pages/Home'
+import OnboardingPage from '@/pages/OnboardingPage'
 import TryOnPage from '@/pages/TryOnPage'
 import GenerationsHistoryPage from '@/pages/GenerationsHistoryPage'
 import ResultsPage from '@/pages/ResultsPage'
@@ -30,6 +31,7 @@ export const AppRouter = ({ initialPath }: AppRouterProps) => {
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/qr" element={<PhotoUploadPage />} />
           <Route path="/qr/:token" element={<PhotoUploadPage />} />
           <Route path="/view" element={<TryOnPage />} />

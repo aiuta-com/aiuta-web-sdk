@@ -52,13 +52,16 @@ export const useAppInitialization = () => {
   }, [getStoredData, navigateBasedOnState, completeInitialization])
 
   const handleFirstTimeUser = useCallback(() => {
+    // Redirect to onboarding for first-time users
+    navigate('/onboarding')
+
     completeInitialization()
 
     // Hide footer on mobile for first-time users
     if (isMobile) {
       dispatch(appSlice.actions.setHasFooter(false))
     }
-  }, [completeInitialization, isMobile, dispatch])
+  }, [navigate, completeInitialization, isMobile, dispatch])
 
   const initializeApp = useCallback(() => {
     if (!globalThis) return

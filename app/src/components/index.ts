@@ -28,7 +28,6 @@ import { FullScreenGallery } from './FullScreenGallery'
 import { ShareModal } from './ShareModal'
 import { AbortAlert } from './AbortAlert'
 
-import { Onboarding } from './onboarding/onboarding'
 import { DesktopResultActions } from './DesktopResultActions'
 import { SelectionSnackbar } from './SelectionSnackbar'
 import { ImageManager } from './ImageManager'
@@ -37,6 +36,9 @@ export { ImageGallery, EmptyGalleryState } from './ImageGallery'
 
 // Modals
 import { ConfirmationAlert } from './ConfirmationAlert'
+import { Consent } from './Consent'
+import { OnboardingStep } from './OnboardingStep'
+import { OnboardingCarousel } from './OnboardingCarousel'
 export type { ModalType }
 
 export {
@@ -54,6 +56,9 @@ export {
   PrimaryButton,
   SecondaryButton,
   CheckboxLabel,
+  Consent,
+  OnboardingStep,
+  OnboardingCarousel,
 
   // Image Components
   TryOnAnimator,
@@ -76,7 +81,6 @@ export {
   ConfirmationAlert,
 
   // Feature Components
-  Onboarding,
   DesktopResultActions,
   SelectionSnackbar,
   ImageManager,

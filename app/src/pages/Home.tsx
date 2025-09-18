@@ -1,41 +1,27 @@
 import React, { useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { useAppSelector } from '@/store/store'
-import { isMobileSelector } from '@/store/slices/appSlice'
-import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
-import { Section, Onboarding } from '@/components'
-import { useAppInitialization, useHomeAnimation } from '@/hooks'
-import styles from './Home.module.scss'
+import { Spinner } from '@/components'
+import { useAppInitialization } from '@/hooks'
 
 /**
- * Home - Landing page with onboarding flow
+ * Home - App entry point and initializer
  *
  * Handles:
- * - App initialization
- * - First-time user onboarding
- * - Returning user navigation
- * - Mobile/desktop differences
+ * - App initialization (RPC, storage, state)
+ * - Loading state during initialization
+ * - Automatic navigation based on user state (handled in useAppInitialization)
+ *
+ * After initialization, users are automatically redirected to:
+ * - /onboarding (if onboarding not completed)
+ * - /view or /qr (if onboarding completed, based on mobile/desktop and stored photos)
  */
 export default function Home() {
-  const isMobile = useAppSelector(isMobileSelector)
-  const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
-
   const { initializeApp } = useAppInitialization()
-  const { animationConfig } = useHomeAnimation()
 
   // Initialize app on mount
   useEffect(() => {
     initializeApp()
   }, [initializeApp])
 
-  // Determine section styling based on mobile state and onboarding step
-  const sectionClassName = isMobile && onboardingSteps === 2 ? styles.sectionMobile : ''
-
-  return (
-    <motion.div key="home-page" {...animationConfig}>
-      <Section className={sectionClassName}>
-        <Onboarding />
-      </Section>
-    </motion.div>
-  )
+  // Show loading spinner during initialization
+  return <Spinner isVisible={true} />
 }

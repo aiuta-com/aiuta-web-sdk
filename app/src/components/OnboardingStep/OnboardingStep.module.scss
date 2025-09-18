@@ -1,0 +1,63 @@
+.onboardingStep {
+  transition: all ease-in-out 0.3s;
+  width: 100%;
+  display: flex;
+  row-gap: 30px;
+  align-items: center;
+  flex-direction: column;
+
+  // Position modifiers
+  &_first {
+    position: relative;
+  }
+
+  &_positioned {
+    position: absolute;
+    left: 0;
+    top: 30px;
+  }
+
+  // State modifiers
+  &_inactive {
+    transform: translateX(1000px);
+  }
+
+  &_active {
+    transform: translateX(0px);
+  }
+
+  &_completed {
+    transform: translateX(-1000px);
+  }
+}
+
+.stepImage {
+  max-width: 100%;
+  height: auto;
+}
+
+.titlesBox {
+  margin: auto;
+  max-width: 280px;
+}
+
+.title {
+  color: #000;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 100%;
+  letter-spacing: -0.07em;
+  text-align: center;
+  margin: 0;
+}
+
+.description {
+  margin-top: 12px;
+  color: #666666;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.035em;
+  text-align: center;
+  margin-bottom: 0;
+}
