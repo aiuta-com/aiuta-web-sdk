@@ -3,10 +3,73 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import pkg from './package.json'
-import { buildConfig, camelToKebab } from './vite.config.shared'
+import { buildConfig } from './vite.config.shared'
+import { generateScopedName } from './vite.config.bem'
+import fs from 'fs'
+import { minify } from 'html-minifier-terser'
+
+// Plugin to fix bootstrap hash and minify HTML after build
+const bootstrapPostprocessPlugin = () => {
+  return {
+    name: 'bootstrap-postprocess',
+    async closeBundle() {
+      // Post-process bootstrap HTML after build is complete
+      const bootstrapPath = path.resolve(
+        __dirname,
+        buildConfig.path.dist,
+        buildConfig.path.app,
+        buildConfig.path.bootstrap,
+        buildConfig.file.index,
+      )
+      const assetsDir = path.resolve(
+        __dirname,
+        buildConfig.path.dist,
+        buildConfig.path.app,
+        buildConfig.path.assets,
+      )
+
+      if (!fs.existsSync(bootstrapPath)) return
+
+      // Find main JS file
+      const assetFiles = fs.readdirSync(assetsDir)
+      const mainJsFile = assetFiles.find(
+        (file) =>
+          file.startsWith(`${buildConfig.entry.main}-`) && file.endsWith(buildConfig.ext.js),
+      )
+
+      if (!mainJsFile) return
+
+      // Replace placeholder in bootstrap HTML
+      let bootstrapContent = fs.readFileSync(bootstrapPath, 'utf-8')
+      bootstrapContent = bootstrapContent.replace(
+        `../${buildConfig.path.assets}/${buildConfig.entry.main}-${buildConfig.placeholder.mainHash}${buildConfig.ext.js}`,
+        `../${buildConfig.path.assets}/${mainJsFile}`,
+      )
+
+      // Minify HTML with html-minifier-terser
+      const minifiedHtml = await minify(bootstrapContent, {
+        collapseWhitespace: true,
+        removeComments: true,
+        removeRedundantAttributes: true,
+        removeScriptTypeAttributes: true,
+        removeStyleLinkTypeAttributes: true,
+        useShortDoctype: true,
+        minifyCSS: true,
+        minifyJS: true,
+        removeAttributeQuotes: true,
+        removeOptionalTags: false,
+        sortAttributes: true,
+        sortClassName: true,
+      })
+
+      fs.writeFileSync(bootstrapPath, minifiedHtml)
+      console.log(`✓ Bootstrap fixed and minified: ${mainJsFile}`)
+    },
+  }
+}
 
 export default defineConfig({
-  plugins: [react(), tsconfigPaths()],
+  plugins: [react(), tsconfigPaths(), bootstrapPostprocessPlugin()],
   base: './',
   root: path.resolve(__dirname, buildConfig.path.app),
   build: {
@@ -17,7 +80,33 @@ export default defineConfig({
       transformMixedEsModules: true,
     },
     rollupOptions: {
-      input: path.resolve(__dirname, buildConfig.path.app, buildConfig.file.index),
+      input: {
+        // Main app entry
+        main: path.resolve(__dirname, buildConfig.path.app, buildConfig.file.index),
+        // Bootstrap entry
+        bootstrap: path.resolve(
+          __dirname,
+          buildConfig.path.app,
+          buildConfig.path.bootstrap,
+          buildConfig.file.index,
+        ),
+      },
+      output: {
+        // Ensure bootstrap gets its own directory
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === buildConfig.entry.bootstrap) {
+            return `${buildConfig.path.bootstrap}/${buildConfig.file.indexJs}`
+          }
+          return `${buildConfig.path.assets}/${buildConfig.pattern.nameHashJs}`
+        },
+        assetFileNames: (assetInfo) => {
+          // Bootstrap HTML should go to bootstrap/ directory
+          if (assetInfo.names?.[0] === `${buildConfig.entry.bootstrap}${buildConfig.ext.html}`) {
+            return `${buildConfig.path.bootstrap}/${buildConfig.file.index}`
+          }
+          return `${buildConfig.path.assets}/${buildConfig.pattern.nameHashExt}`
+        },
+      },
     },
   },
   resolve: {
@@ -30,40 +119,7 @@ export default defineConfig({
   css: {
     modules: {
       localsConvention: 'camelCase',
-      generateScopedName: (name, filename) => {
-        const componentMatch = filename.match(/([^/]+)\.module\.(css|scss)$/)
-        const componentName = componentMatch ? componentMatch[1] : 'component'
-
-        const kebabComponent = camelToKebab(componentName)
-        const kebabClassName = camelToKebab(name)
-
-        // If class name matches component name (main block), return just the block
-        if (kebabClassName === kebabComponent) {
-          return `aiuta-${kebabComponent}`
-        }
-
-        // Check if this is a modifier of the main component with _ prefix
-        // e.g., selectionSnackbar_visible -> selectionSnackbar + visible (modifier)
-        const componentCamelCase = componentName.charAt(0).toLowerCase() + componentName.slice(1)
-        if (name.startsWith(`${componentCamelCase}_`)) {
-          const modifier = name.substring(`${componentCamelCase}_`.length)
-          const kebabModifier = camelToKebab(modifier)
-          return `aiuta-${kebabComponent}--${kebabModifier}`
-        }
-
-        // Check if this is a modifier with _ prefix
-        // e.g., container_active -> container + active (modifier)
-        if (name.includes('_')) {
-          const [baseClass, modifier] = name.split('_', 2)
-          const kebabBaseClass = camelToKebab(baseClass)
-          const kebabModifier = camelToKebab(modifier)
-
-          return `aiuta-${kebabComponent}__${kebabBaseClass}--${kebabModifier}`
-        }
-
-        // Regular element
-        return `aiuta-${kebabComponent}__${kebabClassName}`
-      },
+      generateScopedName,
     },
   },
   esbuild: {

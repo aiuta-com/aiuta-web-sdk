@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aiuta Bootstrap</title>
+    <style>
+      /* Reset and base styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+
+      #aiuta-bootstrap {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Spinner styles (copied from Spinner.module.scss) */
+      .aiuta-spinner {
+        display: block;
+        z-index: 999;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 52px;
+        height: 52px;
+        transform: translate(-50%, -50%);
+      }
+
+      .aiuta-spinner__path {
+        stroke: #4000ff;
+        stroke-linecap: round;
+        animation: aiuta-spinner-dash 1.1s ease-in-out infinite;
+      }
+
+      @keyframes aiuta-spinner-dash {
+        0% {
+          stroke-opacity: 0.3;
+          stroke-dasharray: 1, 160;
+          stroke-dashoffset: 0;
+        }
+        50% {
+          stroke-dasharray: 80, 160;
+          stroke-dashoffset: -32;
+        }
+        100% {
+          stroke-dasharray: 80, 160;
+          stroke-dashoffset: -124;
+        }
+      }
+
+      /* Hidden state for transition to main app */
+      .hidden {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="aiuta-bootstrap">
+      <!-- Exact same SVG as in Spinner.tsx -->
+      <svg viewBox="0 0 16 18" class="aiuta-spinner" aria-label="Loading Aiuta">
+        <path
+          class="aiuta-spinner__path"
+          fill="none"
+          stroke-width="2"
+          d="M7.21487 1.2868C7.88431 0.9044 8.73031 0.9044 9.39974 1.2868L9.40283 1.28856L14.4613 4.20761C15.1684 4.598 15.5746 5.33558 15.5746 6.11465V8.99996V11.8853C15.5746 12.6507 15.1632 13.3848 14.4617 13.7721L9.37973 16.7132C8.71029 17.0956 7.86428 17.0956 7.19485 16.7132L7.19088 16.7109L2.11279 13.772C1.40602 13.3816 1 12.6441 1 11.8653V8.98995V6.11465C1 5.31458 1.44381 4.59039 2.10827 4.21051L7.21487 1.2868Z"
+        />
+      </svg>
+    </div>
+
+    <!-- Main app container (will be populated when main app loads) -->
+    <div id="aiuta-main-app" class="hidden"></div>
+
+    <script>
+      /**
+       * Aiuta Bootstrap Loader
+       *
+       * Responsibilities:
+       * 1. Show spinner immediately
+       * 2. Apply custom CSS if provided
+       * 3. Load main application asynchronously
+       * 4. Handle transition from bootstrap to main app
+       */
+
+      // URL parameters for main app configuration
+      const urlParams = new URLSearchParams(window.location.search)
+      const customCssUrl = urlParams.get('css')
+
+      // Global state for main app communication
+      window.aiutaBootstrap = {
+        isMainAppReady: false,
+        hideBootstrap: () => {
+          const bootstrap = document.getElementById('aiuta-bootstrap')
+          const mainApp = document.getElementById('aiuta-main-app')
+
+          if (bootstrap) bootstrap.classList.add('hidden')
+          if (mainApp) mainApp.classList.remove('hidden')
+        },
+      }
+
+      // Apply custom CSS if provided
+      if (customCssUrl) {
+        fetch(customCssUrl)
+          .then((response) => response.text())
+          .then((css) => {
+            const style = document.createElement('style')
+            style.textContent = css
+            document.head.appendChild(style)
+          })
+          .catch((error) => {
+            console.warn('Failed to load custom CSS:', error)
+          })
+      }
+
+      // Load main application
+      function loadMainApp() {
+        // Main app URL will be injected by Vite build process
+        const mainAppUrl = '../assets/main-__MAIN_HASH__.js' // Will be replaced during build
+
+        const script = document.createElement('script')
+        script.type = 'module'
+        script.src = mainAppUrl
+
+        script.onload = () => {
+          console.log('Main app loaded successfully')
+          // Main app will call aiutaBootstrap.hideBootstrap() when ready
+        }
+
+        script.onerror = (error) => {
+          console.error('Failed to load main app:', error)
+          // Show error message in bootstrap
+          const spinner = document.querySelector('.aiuta-spinner')
+          if (spinner) {
+            spinner.innerHTML =
+              '<text x="8" y="12" text-anchor="middle" fill="#ff0000" font-size="3">Error</text>'
+          }
+        }
+
+        document.head.appendChild(script)
+      }
+
+      // Start loading main app immediately
+      loadMainApp()
+
+      // Expose global interface for main app
+      window.aiutaBootstrap.ready = true
+    </script>
+  </body>
+</html>

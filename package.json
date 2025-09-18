@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@types/formidable": "^3.4.5",
+    "@types/html-minifier-terser": "^7.0.2",
     "@types/node": "^24.2.0",
     "@types/react": "^19.0.11",
     "@types/react-dom": "^19.0.11",
@@ -47,6 +48,7 @@
     "@typescript-eslint/parser": "^8.42.0",
     "@vitejs/plugin-react": "^5.0.0",
     "eslint": "^9.35.0",
+    "html-minifier-terser": "^7.2.0",
     "prettier": "^3.6.2",
     "sass-embedded": "^1.90.0",
     "typescript": "^5.9.2",

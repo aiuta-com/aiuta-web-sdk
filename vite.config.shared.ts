@@ -31,6 +31,8 @@ export const buildConfig = {
     lib: 'lib',
     src: 'src',
     dist: 'dist',
+    bootstrap: 'bootstrap',
+    assets: 'assets',
   },
 
   // Branches
@@ -41,6 +43,33 @@ export const buildConfig = {
   // File names
   file: {
     index: 'index.html',
+    indexJs: 'index.js',
+  },
+
+  // Build patterns
+  pattern: {
+    nameHash: '[name]-[hash]',
+    nameHashJs: '[name]-[hash].js',
+    nameHashExt: '[name]-[hash].[ext]',
+  },
+
+  // Placeholders for build replacement
+  placeholder: {
+    mainHash: '__MAIN_HASH__',
+  },
+
+  // Entry names
+  entry: {
+    main: 'main',
+    bootstrap: 'bootstrap',
+  },
+
+  // File extensions
+  ext: {
+    html: '.html',
+    js: '.js',
+    css: '.css',
+    scss: '.scss',
   },
 } as const
 
@@ -48,16 +77,6 @@ export const buildConfig = {
  * Helper function to build URLs from domain parts
  */
 export const buildUrl = (...parts: string[]): string => `https://${parts.join('/')}`
-
-/**
- * Convert camelCase to kebab-case
- */
-export const camelToKebab = (str: string): string => {
-  return str
-    .replace(/([A-Z])/g, '-$1')
-    .toLowerCase()
-    .replace(/^-/, '')
-}
 
 /**
  * Get app and analytics URLs for different build modes
