@@ -17,7 +17,7 @@ import { ProcessingStatus } from './ProcessingStatus'
 import { SelectableImage } from './SelectableImage'
 import { DeletableImage } from './DeletableImage'
 import { MobileUploadPrompt } from './MobileUploadPrompt'
-import { ThumbnailItem } from './ThumbnailItem'
+import { ThumbnailList } from './ThumbnailList'
 
 import { QrCode } from './QrCode'
 import { BottomSheet } from './BottomSheet'
@@ -61,7 +61,7 @@ export {
   SelectableImage,
   DeletableImage,
   MobileUploadPrompt,
-  ThumbnailItem,
+  ThumbnailList,
 
   // Specialized Components
   QrCode,

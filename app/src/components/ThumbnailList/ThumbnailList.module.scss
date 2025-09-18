@@ -1,0 +1,117 @@
+// Container for the thumbnail list
+.thumbnailList {
+  display: flex;
+  gap: 8px;
+
+  &_horizontal {
+    flex-direction: row;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &_vertical {
+    flex-direction: column;
+    overflow-y: auto;
+    scrollbar-width: none;
+    max-height: 100vh;
+    padding-bottom: 30px;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+// Individual thumbnail item (internal component)
+.thumbnailItem {
+  width: 54px;
+  height: 96px;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: border ease-in-out 0.3s;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid #ffffff4d;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  // Loading state placeholder effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  // Show shimmer during loading
+  &.loading {
+    &::before {
+      opacity: 1;
+    }
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.thumbnailItemActive {
+  border-color: #fff;
+}
+
+// Fullscreen gallery variant
+.thumbnailItem_fullscreen {
+  border-color: rgba(255, 255, 255, 0.2);
+  position: relative;
+  transition: all 0.2s ease-in-out;
+
+  // Animated resize on active state
+  &.thumbnailItemActive {
+    width: 68px;
+    height: 120px;
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  // Additional border element for fullscreen variant
+  &::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 16px;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s ease-in-out;
+    pointer-events: none;
+  }
+
+  &.thumbnailItemActive::after {
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+}

@@ -7,8 +7,7 @@ import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 // 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { useRpcProxy } from '@/contexts'
-import { ShareModal } from '@/components/ShareModal'
-import { ImageThumbnailSidebar } from './components/ImageThumbnailSidebar'
+import { ShareModal, ThumbnailList } from '@/components'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
@@ -132,10 +131,13 @@ export const FullScreenGallery = () => {
     return (
       <div className={styles.advancedFullScreenModal}>
         {/* Left sidebar with image thumbnails */}
-        <ImageThumbnailSidebar
-          images={modalData.images || []}
-          activeImageId={modalData.activeImage.id}
-          onImageSelect={changeActiveImage}
+        <ThumbnailList
+          items={modalData.images || []}
+          activeId={modalData.activeImage.id}
+          onItemClick={(item) => changeActiveImage(item as ImageType)}
+          variant="fullscreen"
+          direction="vertical"
+          className={styles.leftContent}
         />
 
         {/* Center content with image and action buttons */}
