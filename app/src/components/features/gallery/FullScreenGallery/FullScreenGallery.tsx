@@ -171,17 +171,6 @@ export const FullScreenGallery = () => {
     )
   }
 
-  // If this is a modal-only iframe but no data, show a loading state
-  const urlParams = new URLSearchParams(window.location.search)
-  const isModalOnly = urlParams.get('modal') === 'fullscreen'
-
-  if (isModalOnly && !modalData && !fullScreenImageUrl) {
-    return (
-      <div className={styles.advancedFullScreenModal}>
-        {/* Loading state with same semi-transparent background as loaded modal */}
-      </div>
-    )
-  }
-
+  // If no data available, don't render anything
   return null
 }

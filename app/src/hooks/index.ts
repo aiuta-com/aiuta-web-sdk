@@ -1,4 +1,6 @@
 export * from './app'
+export * from './onboarding'
+export * from './pageBar'
 export * from './gallery'
 export * from './tryOn'
 export * from './upload'

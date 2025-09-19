@@ -4,7 +4,7 @@ import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { useRpcProxy } from '@/contexts'
-import { useAppVisibility } from './useAppVisibility'
+import { useAppVisibility } from '@/hooks'
 import { productIdSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
 import {

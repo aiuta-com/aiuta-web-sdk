@@ -2,14 +2,12 @@ import React, { useEffect } from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
 import {
-  ModalRenderer,
   PageBar,
   PoweredBy,
   FullScreenGallery,
   ShareModal,
   Spinner,
   AppContainer,
-  type ModalType,
 } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
 
@@ -22,10 +20,10 @@ import ResultsPage from '@/pages/ResultsPage'
 import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
 
 export default function App() {
-  const { modalType, cssUrl, initialPath } = useUrlParams()
+  const { cssUrl, initialPath } = useUrlParams()
   const { rpc } = useRpcInitialization()
 
-  const loggerComponent = modalType ? `aiuta:modal:${modalType}` : 'aiuta:iframe'
+  const loggerComponent = 'aiuta:iframe'
 
   // Handle bootstrap to main app transition after RPC is ready
   useEffect(() => {
@@ -43,28 +41,16 @@ export default function App() {
   return (
     <LoggerProvider component={loggerComponent}>
       <RpcProvider rpc={rpc}>
-        <AppRouter modalType={modalType} cssUrl={cssUrl} initialPath={initialPath} />
+        <AppRouter cssUrl={cssUrl} initialPath={initialPath} />
       </RpcProvider>
     </LoggerProvider>
   )
 }
 
-function AppRouter({
-  modalType,
-  cssUrl,
-  initialPath,
-}: {
-  modalType: ModalType | null
-  cssUrl?: string
-  initialPath?: string
-}) {
+function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: string }) {
   useCustomCSS(cssUrl)
 
-  return modalType ? (
-    // Modal mode - fullscreen overlays (share, fullscreen gallery)
-    <ModalRenderer modalType={modalType} />
-  ) : (
-    // App mode - contained in AppContainer with proper sizing
+  return (
     <AppContainer>
       <MemoryRouter initialEntries={[initialPath || '/']}>
         {/* Global components */}

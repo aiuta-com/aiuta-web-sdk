@@ -36,11 +36,6 @@ body {
   height: 100%; /* Fill available space in WidgetContainer */
 }
 
-/* Modal-only mode - transparent background */
-#__next.modal-only {
-  background-color: transparent;
-}
-
 body {
   color: #171717;
   background: transparent; /* No background - WidgetContainer handles it */
@@ -49,11 +44,6 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Modal-only mode - transparent background for body too */
-body.modal-only {
-  background: transparent;
 }
 
 * {
