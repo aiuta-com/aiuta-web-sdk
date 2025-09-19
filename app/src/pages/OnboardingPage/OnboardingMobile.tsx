@@ -58,11 +58,13 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
               <h2>Try on before buying</h2>
               <h3>Just upload your photo and see how it looks</h3>
             </div>
-            <OnboardingCarousel
-              items={CAROUSEL_ITEMS}
-              activeIndex={carouselIndex}
-              onItemChange={setCarouselIndex}
-            />
+            <div className={styles.carouselContainer}>
+              <OnboardingCarousel
+                items={CAROUSEL_ITEMS}
+                activeIndex={carouselIndex}
+                onItemChange={setCarouselIndex}
+              />
+            </div>
           </div>
         </OnboardingStep>
 

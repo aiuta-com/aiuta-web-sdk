@@ -5,51 +5,48 @@
   justify-content: center;
 }
 
-.miniImagesBox {
+.thumbnailsList {
   position: absolute;
   top: 50%;
-  left: 0%;
+  left: 66px; /* 66px from left where image content starts */
   display: flex;
-  row-gap: 8px;
+  row-gap: 6px;
   align-items: center;
   flex-direction: column;
   justify-content: center;
   transform: translate(-50%, -50%);
 }
 
-.imageBanner {
+.thumbnailItem {
   width: 64px;
   height: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: white;
-  box-shadow: 0px 2.09px 10.8px 0px rgba(0, 0, 0, 0.12);
+  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s ease-in-out;
+  padding: 2px; /* Padding instead of fixed image sizes */
 
-  // Active modifier using BEM convention
   &_active {
     width: 88px;
     height: 120px;
-
-    .miniImage {
-      width: 56px;
-      height: 89px;
-    }
   }
 }
 
-.miniImage {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
-  transition: all 0.3s ease-in-out;
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.mainImage {
-  max-width: 100%;
+.carouselImage {
+  width: 100%;
   height: auto;
+  max-height: 70vh;
   object-fit: contain;
+  padding: 0 66px;
+  box-sizing: border-box;
 }

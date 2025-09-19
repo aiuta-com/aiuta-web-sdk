@@ -14,13 +14,13 @@ export const OnboardingCarousel = ({
 
   return (
     <div className={containerClasses}>
-      {/* Thumbnail indicators on the left */}
-      <div className={styles.miniImagesBox}>
+      {/* Thumbnail indicators */}
+      <div className={styles.thumbnailsList}>
         {items.map((item, index) => (
           <div
             key={index}
-            className={`${styles.imageBanner} ${
-              activeIndex === index ? styles.imageBanner_active : ''
+            className={`${styles.thumbnailItem} ${
+              activeIndex === index ? styles.thumbnailItem_active : ''
             }`}
             onClick={() => onItemChange(index)}
           >
@@ -28,17 +28,17 @@ export const OnboardingCarousel = ({
               loading="lazy"
               alt={item.altText || `Thumbnail ${index + 1}`}
               src={item.miniImageUrl}
-              className={styles.miniImage}
+              className={styles.thumbnailImage}
             />
           </div>
         ))}
       </div>
 
-      {/* Main image display */}
+      {/* Main carousel image */}
       <img
         loading="lazy"
         alt={currentItem?.altText || 'Onboarding step'}
-        className={styles.mainImage}
+        className={styles.carouselImage}
         src={currentItem?.imageUrl}
       />
     </div>

@@ -1,29 +1,46 @@
 .onboardingMobile {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
+  /* Padding handled by parent OnboardingPage */
 }
 
 .stepsContainer {
   position: relative;
-  flex: 1;
+  flex: 1; /* Take all available space */
   display: flex;
-  align-items: center;
+  align-items: center; /* Center content vertically */
   justify-content: center;
+  min-height: 0;
+  margin-bottom: 16px; /* Space before button */
+  overflow: visible; /* Allow carousel to be fully visible */
 }
 
 .firstStepContent {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  justify-content: flex-start;
+}
+
+.carouselContainer {
+  flex: 1; /* Take remaining space */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 20px; /* Reduced space after title */
 }
 
 .stepContent {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 20px;
 }
 

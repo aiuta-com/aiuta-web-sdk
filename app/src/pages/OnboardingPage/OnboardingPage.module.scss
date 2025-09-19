@@ -1,7 +1,6 @@
 .onboardingPage {
-  position: relative;
-  min-height: inherit;
+  flex: 1; /* Take all available main space */
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  padding: 10px 16px; /* 10px vertical, 16px horizontal */
 }

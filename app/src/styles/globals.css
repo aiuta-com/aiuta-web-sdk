@@ -57,6 +57,12 @@ a {
   text-decoration: none;
 }
 
+main {
+  flex: 1; /* Take all available space between PageBar and PoweredBy */
+  display: flex;
+  flex-direction: column;
+}
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;

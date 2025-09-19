@@ -1,12 +1,13 @@
 .spinner {
   display: none;
-  z-index: 999;
-  position: absolute;
+  z-index: 9999; /* Higher z-index to appear above all elements */
+  position: absolute; /* Absolute positioning relative to AppContainer */
   top: 50%;
   left: 50%;
   width: 52px;
   height: 52px;
   transform: translate(-50%, -50%);
+  pointer-events: none; /* Prevent spinner from intercepting clicks */
 }
 
 .path {

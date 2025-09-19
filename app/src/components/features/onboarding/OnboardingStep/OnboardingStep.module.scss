@@ -1,10 +1,13 @@
 .onboardingStep {
   transition: all ease-in-out 0.3s;
   width: 100%;
+  height: 100%;
   display: flex;
-  row-gap: 30px;
-  align-items: center;
+  gap: 40px; /* Minimum 40px between image and titles */
+  align-items: stretch;
+  justify-content: flex-end; /* Align content to bottom */
   flex-direction: column;
+  overflow: hidden; /* Ensure content doesn't overflow */
 
   // Position modifiers
   &_first {
@@ -14,7 +17,7 @@
   &_positioned {
     position: absolute;
     left: 0;
-    top: 30px;
+    top: 0;
   }
 
   // State modifiers
@@ -32,13 +35,17 @@
 }
 
 .stepImage {
-  max-width: 100%;
-  height: auto;
+  width: 100%;
+  flex: 1; /* Take all available space */
+  object-fit: contain; /* Maintain aspect ratio */
+  object-position: center; /* Center the image */
+  min-height: 0; /* Allow flex shrinking */
 }
 
 .titlesBox {
-  margin: auto;
+  margin: 0 auto; /* Center horizontally */
   max-width: 280px;
+  flex-shrink: 0; /* Fixed size at bottom */
 }
 
 .title {

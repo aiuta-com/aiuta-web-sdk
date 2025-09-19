@@ -1,14 +1,16 @@
 .onboardingDesktop {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   height: 100%;
 }
 
 .stepsContainer {
   position: relative;
-  flex: 1;
+  flex: 1; /* Take all available space */
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 0;
+  margin-bottom: 34px; /* Space before button */
+  overflow: hidden; /* Hide animated steps outside container */
 }
