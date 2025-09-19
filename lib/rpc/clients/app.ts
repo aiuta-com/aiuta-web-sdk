@@ -155,6 +155,7 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
           nonce,
           version: PROTOCOL_VERSION,
           appVersion: this._context.appVersion,
+          methods: Object.keys(this.buildRegistry()),
         }
         window.parent.postMessage(helloMessage, this.expectedParentOrigin!)
       } catch (error) {

@@ -215,6 +215,67 @@ await rpc.sdk.trackEvent({ action: 'try_on_started' })
 await rpc.sdk.setInteractive(false) // Make iframe click-through
 ```
 
+## 🔄 Backward Compatibility
+
+The RPC system supports **bidirectional method detection** for gradual upgrades:
+
+### How It Works
+
+During handshake, both sides exchange their available methods:
+
+```typescript
+// App sends its methods in hello message
+{
+  type: 'aiuta:app:hello',
+  methods: ['tryOn', 'newMethod'] // ← App methods
+}
+
+// SDK responds with its methods in ack
+{
+  type: 'aiuta:sdk:ack',
+  methods: ['trackEvent', 'setInteractive'] // ← SDK methods
+}
+```
+
+### Usage
+
+**Check if method exists before calling:**
+
+```typescript
+// SDK checking App methods
+if (rpc.supports('enhancedTryOn')) {
+  await rpc.app.enhancedTryOn(productId, options) // New method
+} else {
+  await rpc.app.tryOn(productId) // Fallback
+}
+
+// App checking SDK methods
+if (rpc.supports('advancedAnalytics')) {
+  await rpc.sdk.advancedAnalytics(event) // New method
+} else {
+  await rpc.sdk.trackEvent(event) // Fallback
+}
+```
+
+### Deployment Scenarios
+
+**Scenario 1: New App, Old SDK**
+
+- App has new methods, but SDK is old
+- App can detect SDK doesn't support new methods
+- App uses fallback behavior
+
+**Scenario 2: New SDK, Old App**
+
+- SDK has new methods, but App is old
+- SDK can detect App doesn't support new methods
+- SDK uses fallback behavior
+
+**Scenario 3: Both Updated**
+
+- Both sides detect new methods are available
+- Full new functionality enabled
+
 ## 📋 API Reference
 
 See the complete API contracts in:

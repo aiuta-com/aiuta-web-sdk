@@ -72,7 +72,12 @@ export class AiutaSdkRpc<TConfig = Record<string, unknown>> extends AiutaRpcBase
         }
 
         const d = e.data as
-          | { type: typeof HANDSHAKE_MESSAGE_HELLO; nonce: string; appVersion?: string }
+          | {
+              type: typeof HANDSHAKE_MESSAGE_HELLO
+              nonce: string
+              appVersion?: string
+              methods?: string[]
+            }
           | any
 
         // Quick filter: only process RPC handshake messages
@@ -133,6 +138,11 @@ export class AiutaSdkRpc<TConfig = Record<string, unknown>> extends AiutaRpcBase
         // Connection established successfully - enrich context with app version
         if (d.appVersion) {
           this._context.appVersion = d.appVersion
+        }
+
+        // Store App methods for supports() checks
+        if (d.methods) {
+          this._supports = new Set(d.methods)
         }
 
         clearTimeout(timeout)
