@@ -4,7 +4,7 @@ import { appSlice } from '@/store/slices/appSlice'
 import { apiSlice } from '@/store/slices/apiSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
-import { AiutaRpcApp } from '@lib/rpc'
+import { AiutaAppRpc } from '@lib/rpc'
 
 declare const __APP_VERSION__: string
 
@@ -13,7 +13,7 @@ declare const __APP_VERSION__: string
  */
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
-  const [rpc, setRpc] = useState<AiutaRpcApp | null>(null)
+  const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const useRpcInitialization = () => {
           dispatch(appSlice.actions.setIsAppVisible(true))
         }
 
-        const rpc = new AiutaRpcApp({
+        const rpc = new AiutaAppRpc({
           context: { appVersion: __APP_VERSION__ },
           handlers: {
             tryOn: async (productId: string) => {
@@ -69,9 +69,9 @@ export const useRpcInitialization = () => {
 /**
  * Initialize authentication data from RPC config
  */
-const initializeAuthData = (rpc: AiutaRpcApp) => {
+const initializeAuthData = (rpc: AiutaAppRpc) => {
   try {
-    const auth = rpc.configuration.auth
+    const auth = rpc.config.auth
 
     if ('apiKey' in auth) {
       // API Key auth

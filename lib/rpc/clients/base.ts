@@ -19,7 +19,7 @@ export interface RpcBaseConfig<THandlers, TContext> {
  * Provides common functionality for both SDK and App sides
  */
 export abstract class AiutaRpcBase<
-  TLocalHandlers extends Record<string, AnyFn>,
+  TLocalHandlers extends object,
   TRemoteApi extends object,
   TContext extends object,
 > {
@@ -46,7 +46,7 @@ export abstract class AiutaRpcBase<
    * @returns Complete method registry
    */
   protected buildRegistry(extra?: Record<string, AnyFn>): Record<string, AnyFn> {
-    return { ...this._handlers, ...(extra ?? {}) }
+    return { ...(this._handlers as Record<string, AnyFn>), ...(extra ?? {}) }
   }
 
   /**

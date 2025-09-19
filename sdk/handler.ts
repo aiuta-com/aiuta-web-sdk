@@ -1,14 +1,14 @@
 import IframeManager from './iframe'
 import AnalyticsTracker from './analytics'
-import { AiutaRpcSdk } from '@lib/rpc'
-import type { SdkHandlers, SdkContext } from '@lib/rpc'
+import { AiutaSdkRpc } from '@lib/rpc'
+import type { SdkApi, SdkContext } from '@lib/rpc'
 import type { AiutaConfiguration } from '@lib/config'
 import type { Logger } from '@lib/logger'
 
 declare const __SDK_VERSION__: string
 
 export default class MessageHandler {
-  private rpc: AiutaRpcSdk<AiutaConfiguration>
+  private rpc: AiutaSdkRpc<AiutaConfiguration>
 
   constructor(
     private readonly analytics: AnalyticsTracker,
@@ -16,7 +16,7 @@ export default class MessageHandler {
     private readonly configuration: AiutaConfiguration,
     private readonly logger: Logger,
   ) {
-    const handlers: SdkHandlers = {
+    const handlers: SdkApi = {
       trackEvent: (event) => {
         this.analytics.track({ data: event })
       },
@@ -26,11 +26,11 @@ export default class MessageHandler {
     }
 
     const context: SdkContext<AiutaConfiguration> = {
-      configuration: this.configuration,
+      config: this.configuration,
       sdkVersion: __SDK_VERSION__,
     }
 
-    this.rpc = new AiutaRpcSdk<AiutaConfiguration>({
+    this.rpc = new AiutaSdkRpc<AiutaConfiguration>({
       context,
       handlers,
     })

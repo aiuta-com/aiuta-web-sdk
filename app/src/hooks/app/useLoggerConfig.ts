@@ -12,7 +12,7 @@ export const useLoggerConfig = () => {
     if (!rpc) return
 
     try {
-      const debugSettings = rpc.configuration.debugSettings
+      const debugSettings = rpc.config.debugSettings
       if (debugSettings && typeof debugSettings.isLoggingEnabled === 'boolean') {
         setEnabled(debugSettings.isLoggingEnabled)
       }

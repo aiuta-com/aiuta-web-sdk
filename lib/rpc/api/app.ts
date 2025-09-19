@@ -16,13 +16,6 @@ export interface AppApi {
 }
 
 /**
- * App-side handlers (methods that App implements for SDK to call)
- */
-export type AppHandlers = {
-  [K in keyof AppApi]: AppApi[K]
-}
-
-/**
  * App context passed during initialization
  */
 export interface AppContext {

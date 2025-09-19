@@ -3,7 +3,7 @@
  */
 
 // SDK client implementation (for web-sdk side)
-export { AiutaRpcSdk } from './sdk'
+export { AiutaSdkRpc } from './sdk'
 
 // App client implementation (for iframe side)
-export { AiutaRpcApp } from './app'
+export { AiutaAppRpc } from './app'

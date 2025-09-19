@@ -133,10 +133,10 @@ export const useTryOnGeneration = () => {
 
   const createOperationWithJwt = useCallback(
     async (uploadedImageId: string): Promise<string | null> => {
-      if (!endpointData || !rpc || !('getJwt' in rpc.configuration.auth)) return null
+      if (!endpointData || !rpc || !('getJwt' in rpc.config.auth)) return null
 
       try {
-        const jwtToken = await rpc.configuration.auth.getJwt({ uploaded_image_id: uploadedImageId })
+        const jwtToken = await rpc.config.auth.getJwt({ uploaded_image_id: uploadedImageId })
 
         if (typeof jwtToken !== 'string' || jwtToken.length === 0) {
           trackTryOnError('authorizationFailed', 'authorizationFailed')

@@ -4,7 +4,8 @@
 
 import type { AiutaConfiguration } from '@lib/config'
 import type { SdkApi } from '../api/sdk'
-import type { AppHandlers, AppContext } from '../api/app'
+import type { AppApi, AppContext } from '../api/app'
+import type { InternalSdkApi } from '../protocol/internal'
 import {
   PROTOCOL_VERSION,
   HANDSHAKE_TIMEOUT,
@@ -16,15 +17,16 @@ import { createRpcClient, createRpcServer } from '../protocol/transport'
 import { jsonSafeClone, setByPath, rand } from '../protocol/utils'
 
 /**
- * Aiuta RPC App - manages communication with parent SDK
+ * Aiuta App RPC - manages communication with parent SDK
  * Used inside iframe applications to communicate with the parent SDK
  */
-export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
+export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
   sdk!: SdkApi
-  configuration!: AiutaConfiguration
+  config!: AiutaConfiguration
   private expectedParentOrigin?: string
   private handshakeListener?: (event: MessageEvent) => void
-  private sdkClient?: ReturnType<typeof createRpcClient<SdkApi>>
+  private sdkClient?: ReturnType<typeof createRpcClient<InternalSdkApi>>
+  private internalSdk!: InternalSdkApi
 
   /**
    * Connect to parent SDK with secure handshake
@@ -41,13 +43,14 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
     // Create server for handling calls from SDK (e.g., tryOn)
     createRpcServer(port, this.buildRegistry())
 
-    // Create client for calling SDK methods (e.g., getConfigurationSnapshot)
-    this.sdkClient = createRpcClient<SdkApi>(port)
+    // Create client for calling SDK methods (e.g., getConfigSnapshot)
+    this.sdkClient = createRpcClient<InternalSdkApi>(port)
+    this.internalSdk = this.sdkClient.api
     this.sdk = this.sdkClient.api
 
     this._supports = new Set(methodsFromAck ?? [])
 
-    const snap = await this.sdk.getConfigurationSnapshot()
+    const snap = await this.internalSdk.getConfigSnapshot()
     const cfg = jsonSafeClone(snap.data) as AiutaConfiguration | null
     if (!cfg) {
       throw new Error('Failed to clone configuration data')
@@ -55,10 +58,10 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
 
     for (const path of snap.functionKeys) {
       setByPath(cfg as any, path, (...args: any[]) =>
-        this.sdk.invokeConfigurationFunction(path, ...args),
+        this.internalSdk.invokeConfigFunction(path, ...args),
       )
     }
-    this.configuration = cfg
+    this.config = cfg
 
     return this
   }

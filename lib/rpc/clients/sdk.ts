@@ -2,24 +2,25 @@
  * Aiuta RPC SDK implementation for web-sdk side
  */
 
-import type { SdkHandlers, SdkContext, SdkCapabilities } from '../api/sdk'
+import type { SdkApi, SdkContext } from '../api/sdk'
 import type { AppApi } from '../api/app'
+import type { InternalSdkMethods } from '../protocol/internal'
 import {
   PROTOCOL_VERSION,
   HANDSHAKE_TIMEOUT,
   HANDSHAKE_MESSAGE_HELLO,
   HANDSHAKE_MESSAGE_ACK,
+  AnyFn,
 } from '../protocol/core'
 import { AiutaRpcBase } from './base'
-import type { AnyFn } from '../protocol/core'
 import { createRpcClient, createRpcServer } from '../protocol/transport'
 import { extractFunctionPaths, jsonSafeClone } from '../protocol/utils'
 
 /**
- * Aiuta RPC SDK - manages communication with single iframe application
+ * Aiuta SDK RPC - manages communication with single iframe application
  */
-export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase<
-  SdkHandlers,
+export class AiutaSdkRpc<TConfig = Record<string, unknown>> extends AiutaRpcBase<
+  SdkApi,
   AppApi,
   SdkContext<TConfig>
 > {
@@ -83,33 +84,29 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
         const port1 = ch.port1
         const port2 = ch.port2
 
-        const extra: Record<string, AnyFn> = {
-          getConfigurationSnapshot: async () => {
+        const internalMethods: InternalSdkMethods = {
+          getConfigSnapshot: async () => {
             const result = {
-              data: jsonSafeClone(this._context.configuration),
-              functionKeys: extractFunctionPaths(this._context.configuration),
+              data: jsonSafeClone(this._context.config) as Record<string, unknown>,
+              functionKeys: extractFunctionPaths(this._context.config),
             }
             return result
           },
-          invokeConfigurationFunction: async (path: string, ...args: any[]) => {
+          invokeConfigFunction: async (path: string, ...args: any[]) => {
             const parts = path.split('.')
-            let cur: any = this._context.configuration
+            let cur: any = this._context.config
             for (const p of parts) cur = cur?.[p]
             if (typeof cur !== 'function')
               throw new Error(`Configuration function not found: ${path}`)
             return await cur(...args)
           },
-          getCapabilities: async (): Promise<SdkCapabilities> => ({
-            protocolVersion: PROTOCOL_VERSION,
-            sdkVersion: this._context.sdkVersion,
-            methods: Object.keys(registry),
-          }),
         }
 
-        const registry = this.buildRegistry({
-          ...extra,
-          trackEvent: (event: Record<string, unknown>) => this._handlers.trackEvent?.(event),
-        })
+        const allHandlers = {
+          ...this.buildRegistry(),
+          ...(internalMethods as Record<string, AnyFn>),
+        }
+        const registry = allHandlers
         const methods = Object.keys(registry)
 
         const ack = {
@@ -170,7 +167,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
    * Get app API
    */
   get app() {
-    if (!this.appClient) throw new Error('AiutaRpcSdk: not connected')
+    if (!this.appClient) throw new Error('AiutaSdkRpc: not connected')
     return this.appClient.api
   }
 
