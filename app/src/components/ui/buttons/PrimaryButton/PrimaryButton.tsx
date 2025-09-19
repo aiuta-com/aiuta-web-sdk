@@ -1,11 +1,11 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { PrimaryButtonProps } from './types'
 import styles from './PrimaryButton.module.scss'
 
 export const PrimaryButton = (props: PrimaryButtonProps) => {
   const { disabled, children, iconUrl, onClick, className } = props
 
-  const buttonClasses = React.useMemo(() => {
+  const buttonClasses = useMemo(() => {
     const classes = [styles.primaryButton]
     if (disabled) {
       classes.push(styles.primaryButtonDisabled)

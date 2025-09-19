@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
 import {
@@ -23,14 +23,14 @@ import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
 
 export default function App() {
   const { modalType, cssUrl, initialPath } = useUrlParams()
-  const { rpcApp } = useRpcInitialization()
+  const { rpc } = useRpcInitialization()
 
   const loggerComponent = modalType ? `aiuta:modal:${modalType}` : 'aiuta:iframe'
 
   // Handle bootstrap to main app transition after RPC is ready
-  React.useEffect(() => {
+  useEffect(() => {
     // Check if we're running inside bootstrap environment
-    if (window.aiutaBootstrap?.ready && rpcApp) {
+    if (window.aiutaBootstrap?.ready && rpc) {
       // Wait for RPC to be fully established before hiding bootstrap
       const timer = setTimeout(() => {
         window.aiutaBootstrap?.hideBootstrap()
@@ -38,11 +38,11 @@ export default function App() {
 
       return () => clearTimeout(timer)
     }
-  }, [rpcApp])
+  }, [rpc])
 
   return (
     <LoggerProvider component={loggerComponent}>
-      <RpcProvider rpcApp={rpcApp}>
+      <RpcProvider rpc={rpc}>
         <AppRouter modalType={modalType} cssUrl={cssUrl} initialPath={initialPath} />
       </RpcProvider>
     </LoggerProvider>

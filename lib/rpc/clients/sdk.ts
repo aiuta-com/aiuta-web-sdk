@@ -6,11 +6,12 @@ import type { SdkHandlers, SdkContext, SdkCapabilities } from '../api/sdk'
 import type { AppApi } from '../api/app'
 import {
   PROTOCOL_VERSION,
-  DEFAULT_HANDSHAKE_TIMEOUT,
+  HANDSHAKE_TIMEOUT,
   HANDSHAKE_MESSAGE_HELLO,
   HANDSHAKE_MESSAGE_ACK,
 } from '../protocol/core'
-import { AiutaRpcBase, type AnyFn } from '../shared/base'
+import { AiutaRpcBase } from './base'
+import type { AnyFn } from '../protocol/core'
 import { createRpcClient, createRpcServer } from '../protocol/transport'
 import { extractFunctionPaths, jsonSafeClone } from '../protocol/utils'
 
@@ -23,8 +24,6 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
   SdkContext<TConfig>
 > {
   private appClient?: ReturnType<typeof createRpcClient<AppApi>>
-  private appVersion?: string
-  private iframe?: HTMLIFrameElement
   private handshakeListener?: (event: MessageEvent) => void
 
   /**
@@ -63,7 +62,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
           this.handshakeListener = undefined
         }
         reject(new Error('SDK handshake timeout'))
-      }, DEFAULT_HANDSHAKE_TIMEOUT)
+      }, HANDSHAKE_TIMEOUT)
 
       this.handshakeListener = (e: MessageEvent) => {
         // Quick filter: only process messages from correct iframe
@@ -87,16 +86,17 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
         const extra: Record<string, AnyFn> = {
           getConfigurationSnapshot: async () => {
             const result = {
-              data: jsonSafeClone(this._context.cfg),
-              functionKeys: extractFunctionPaths(this._context.cfg),
+              data: jsonSafeClone(this._context.configuration),
+              functionKeys: extractFunctionPaths(this._context.configuration),
             }
             return result
           },
-          invokeConfigFunction: async (path: string, ...args: any[]) => {
+          invokeConfigurationFunction: async (path: string, ...args: any[]) => {
             const parts = path.split('.')
-            let cur: any = this._context.cfg
+            let cur: any = this._context.configuration
             for (const p of parts) cur = cur?.[p]
-            if (typeof cur !== 'function') throw new Error(`Config function not found: ${path}`)
+            if (typeof cur !== 'function')
+              throw new Error(`Configuration function not found: ${path}`)
             return await cur(...args)
           },
           getCapabilities: async (): Promise<SdkCapabilities> => ({
@@ -108,8 +108,7 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
 
         const registry = this.buildRegistry({
           ...extra,
-          trackEvent: (event: Record<string, unknown>) =>
-            this._handlers.trackEvent?.(event, { appVersion: d.appVersion }),
+          trackEvent: (event: Record<string, unknown>) => this._handlers.trackEvent?.(event),
         })
         const methods = Object.keys(registry)
 
@@ -134,9 +133,10 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
           return
         }
 
-        // Store connection info
-        this.appVersion = d.appVersion
-        this.iframe = iframeEl
+        // Connection established successfully - enrich context with app version
+        if (d.appVersion) {
+          this._context.appVersion = d.appVersion
+        }
 
         clearTimeout(timeout)
         window.removeEventListener('message', this.handshakeListener!)
@@ -182,17 +182,6 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
   }
 
   /**
-   * Get connection info
-   */
-  getConnectionInfo() {
-    if (!this.appClient) throw new Error('AiutaRpcSdk: not connected')
-    return {
-      appVersion: this.appVersion,
-      iframe: this.iframe,
-    }
-  }
-
-  /**
    * Close connection and cleanup resources
    */
   close() {
@@ -203,10 +192,6 @@ export class AiutaRpcSdk<TConfig = Record<string, unknown>> extends AiutaRpcBase
       this.appClient.close()
       this.appClient = undefined
     }
-
-    // Cleanup connection info
-    this.appVersion = undefined
-    this.iframe = undefined
 
     // Remove handshake listener
     if (this.handshakeListener) {

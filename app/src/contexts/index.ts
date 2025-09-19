@@ -1,7 +1,6 @@
 export {
   RpcProvider,
   useRpc,
-  useRpcApp,
   useRpcEffect,
   useRpcCall,
   useRpcMethod,

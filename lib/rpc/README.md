@@ -196,19 +196,17 @@ const token = await rpc.config.auth.getToken?.({ imageId: '123' })
 
 ## 🧪 Advanced Usage
 
-For custom implementations or debugging:
+For custom implementations:
 
 ```typescript
-// Direct module imports for advanced usage
-import { AiutaRpcSdk } from '@lib/rpc/clients/sdk'
-import type { RpcReq, RpcRes } from '@lib/rpc/protocol/core'
-import { createRpcClient } from '@lib/rpc/protocol/transport'
-import { AiutaRpcBase, type AnyFn } from '@lib/rpc/shared/base'
+// Extend public classes for custom behavior
+import { AiutaRpcSdk, AiutaRpcApp } from '@lib/rpc'
 
-// Custom RPC implementation
 class CustomRpcSdk extends AiutaRpcSdk {
-  async handleCustomProtocol(req: RpcReq): Promise<RpcRes> {
-    // custom logic
+  // Override or extend public methods
+  async connect(iframe: HTMLIFrameElement) {
+    // custom connection logic
+    return super.connect(iframe)
   }
 }
 ```
@@ -227,10 +225,9 @@ class CustomRpcSdk extends AiutaRpcSdk {
 The modular design enables optimal tree-shaking:
 
 ```typescript
-// Only import what you need
-import type { SdkApi } from '@lib/rpc/api/sdk' // ~1KB
-import type { AppApi } from '@lib/rpc/api/app' // ~0.5KB
-import type { RpcReq } from '@lib/rpc/protocol/core' // ~0.3KB
+// Only import what you need - clean public API
+import { AiutaRpcSdk, AiutaRpcApp } from '@lib/rpc'
+import type { SdkApi, AppApi } from '@lib/rpc'
 
 // No unnecessary internal types in your bundle
 ```

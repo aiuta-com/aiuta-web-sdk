@@ -27,4 +27,5 @@ export type AppHandlers = {
  */
 export interface AppContext {
   appVersion: string
+  sdkVersion?: string // Set after successful handshake
 }

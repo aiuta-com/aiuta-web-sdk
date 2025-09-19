@@ -7,11 +7,11 @@ import type { SdkApi } from '../api/sdk'
 import type { AppHandlers, AppContext } from '../api/app'
 import {
   PROTOCOL_VERSION,
-  DEFAULT_HANDSHAKE_TIMEOUT,
+  HANDSHAKE_TIMEOUT,
   HANDSHAKE_MESSAGE_HELLO,
   HANDSHAKE_MESSAGE_ACK,
 } from '../protocol/core'
-import { AiutaRpcBase } from '../shared/base'
+import { AiutaRpcBase } from './base'
 import { createRpcClient, createRpcServer } from '../protocol/transport'
 import { jsonSafeClone, setByPath, rand } from '../protocol/utils'
 
@@ -21,10 +21,10 @@ import { jsonSafeClone, setByPath, rand } from '../protocol/utils'
  */
 export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
   sdk!: SdkApi
-  config!: AiutaConfiguration
-  sdkInfo!: { protocolVersion: string; sdkVersion: string }
+  configuration!: AiutaConfiguration
   private expectedParentOrigin?: string
   private handshakeListener?: (event: MessageEvent) => void
+  private sdkClient?: ReturnType<typeof createRpcClient<SdkApi>>
 
   /**
    * Connect to parent SDK with secure handshake
@@ -35,17 +35,16 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
     this.expectedParentOrigin = this.getExpectedParentOriginFromUrl()
 
     // 2. Perform secure handshake with origin validation
-    const { port, sdkVersion, methodsFromAck } = await this.performSecureHandshake()
+    const { port, methodsFromAck } = await this.performSecureHandshake()
 
     // 3. Setup RPC connection (both client and server for bidirectional communication)
     // Create server for handling calls from SDK (e.g., tryOn)
     createRpcServer(port, this.buildRegistry())
 
     // Create client for calling SDK methods (e.g., getConfigurationSnapshot)
-    this._client = createRpcClient<SdkApi>(port)
-    this.sdk = this._client.api
+    this.sdkClient = createRpcClient<SdkApi>(port)
+    this.sdk = this.sdkClient.api
 
-    this.sdkInfo = { protocolVersion: PROTOCOL_VERSION, sdkVersion }
     this._supports = new Set(methodsFromAck ?? [])
 
     const snap = await this.sdk.getConfigurationSnapshot()
@@ -55,9 +54,11 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
     }
 
     for (const path of snap.functionKeys) {
-      setByPath(cfg as any, path, (...args: any[]) => this.sdk.invokeConfigFunction(path, ...args))
+      setByPath(cfg as any, path, (...args: any[]) =>
+        this.sdk.invokeConfigurationFunction(path, ...args),
+      )
     }
-    this.config = cfg
+    this.configuration = cfg
 
     return this
   }
@@ -86,14 +87,12 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
    */
   private async performSecureHandshake(): Promise<{
     port: MessagePort
-    sdkVersion: string
     methodsFromAck?: string[]
   }> {
     const nonce = rand()
 
     return new Promise<{
       port: MessagePort
-      sdkVersion: string
       methodsFromAck?: string[]
     }>((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -101,7 +100,7 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
           window.removeEventListener('message', this.handshakeListener)
         }
         reject(new Error('App handshake timeout'))
-      }, DEFAULT_HANDSHAKE_TIMEOUT)
+      }, HANDSHAKE_TIMEOUT)
 
       this.handshakeListener = (e: MessageEvent) => {
         // Validate origin
@@ -136,7 +135,13 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
           window.removeEventListener('message', this.handshakeListener)
           this.handshakeListener = undefined
         }
-        resolve({ port: p, sdkVersion: d.sdkVersion ?? 'unknown', methodsFromAck: d.methods })
+
+        // Enrich context with SDK version
+        if (d.sdkVersion) {
+          this._context.sdkVersion = d.sdkVersion
+        }
+
+        resolve({ port: p, methodsFromAck: d.methods })
       }
 
       window.addEventListener('message', this.handshakeListener)
@@ -161,6 +166,14 @@ export class AiutaRpcApp extends AiutaRpcBase<AppHandlers, SdkApi, AppContext> {
    */
   close() {
     super.close()
+
+    // Close RPC client
+    if (this.sdkClient) {
+      this.sdkClient.close()
+      this.sdkClient = undefined
+    }
+
+    // Remove handshake listener
     if (this.handshakeListener) {
       window.removeEventListener('message', this.handshakeListener)
       this.handshakeListener = undefined

@@ -3,19 +3,15 @@
  */
 
 import type { RpcReq, RpcRes, RpcClientResult, RpcServerResult } from './core'
-import { DEFAULT_RPC_TIMEOUT } from './core'
-import type { AnyFn } from '../shared/base'
+import { RPC_TIMEOUT } from './core'
+import type { AnyFn } from './core'
 
 /**
  * Create an RPC client for calling remote methods
  * @param port - MessagePort for communication
- * @param timeoutMs - Timeout for RPC calls in milliseconds
  * @returns RPC client with typed API
  */
-export function createRpcClient<TApi extends object>(
-  port: MessagePort,
-  timeoutMs = DEFAULT_RPC_TIMEOUT,
-): RpcClientResult<TApi> {
+export function createRpcClient<TApi extends object>(port: MessagePort): RpcClientResult<TApi> {
   let seq = 0
   let isClosed = false
   const pending = new Map<number, { res: (v: any) => void; rej: (e: any) => void; t: number }>()
@@ -46,7 +42,7 @@ export function createRpcClient<TApi extends object>(
       const timer = window.setTimeout(() => {
         pending.delete(id)
         rej(new Error(`RPC timeout: ${method}`))
-      }, timeoutMs)
+      }, RPC_TIMEOUT)
       pending.set(id, { res, rej, t: timer })
       const msg: RpcReq = { t: 'call', id, m: method, a: args }
       try {

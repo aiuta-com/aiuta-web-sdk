@@ -2,11 +2,9 @@
  * Base class for Aiuta RPC instances
  */
 
-import type { RpcClientResult } from '../protocol/core'
+import type { AnyFn } from '../protocol/core'
 
 /* ---------- Internal Base Types ---------- */
-
-export type AnyFn = (...args: any[]) => any
 
 /**
  * Base configuration for RPC instances
@@ -14,23 +12,6 @@ export type AnyFn = (...args: any[]) => any
 export interface RpcBaseConfig<THandlers, TContext> {
   context: TContext
   handlers: THandlers
-}
-
-/**
- * Connection information for multi-iframe support
- */
-export interface ConnectionInfo {
-  client: any // RPC client instance
-  appVersion?: string
-  iframe: HTMLIFrameElement
-}
-
-/**
- * Connection options for SDK.connect()
- */
-export interface ConnectionOptions {
-  connectionId?: string
-  expectedIframeOrigin?: string
 }
 
 /**
@@ -42,7 +23,6 @@ export abstract class AiutaRpcBase<
   TRemoteApi extends object,
   TContext extends object,
 > {
-  protected _client?: RpcClientResult<TRemoteApi>
   protected _supports = new Set<string>()
   protected _context: TContext
   protected _handlers: TLocalHandlers
@@ -83,7 +63,6 @@ export abstract class AiutaRpcBase<
    * Override in subclasses for additional cleanup
    */
   close() {
-    this._client?.close()
-    // Override in subclasses for additional cleanup
+    // Override in subclasses for cleanup
   }
 }

@@ -17,19 +17,16 @@ export default class MessageHandler {
     private readonly logger: Logger,
   ) {
     const handlers: SdkHandlers = {
-      trackEvent: (event, ctx) => {
-        if (ctx.appVersion) {
-          this.analytics.setIframeVersion(ctx.appVersion)
-        }
+      trackEvent: (event) => {
         this.analytics.track({ data: event })
       },
-      setInteractive: (interactive: boolean) => {
+      setInteractive: (interactive) => {
         this.iframeManager.setInteractive(interactive)
       },
     }
 
     const context: SdkContext<AiutaConfiguration> = {
-      cfg: this.configuration,
+      configuration: this.configuration,
       sdkVersion: __SDK_VERSION__,
     }
 
@@ -45,10 +42,11 @@ export default class MessageHandler {
       if (iframe) {
         if (!this.rpc.isConnected()) {
           await this.rpc.connect(iframe)
-          const sdkVersion = this.rpc.context.sdkVersion
-          if (sdkVersion) {
-            this.analytics.setIframeVersion(sdkVersion)
+
+          if (this.rpc.context.appVersion) {
+            this.analytics.setIframeVersion(this.rpc.context.appVersion)
           }
+
           this.analytics.track({ data: { type: 'session', event: 'iframeLoaded' } })
         }
 

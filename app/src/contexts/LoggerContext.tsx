@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useRef } from 'react'
+import React, { createContext, useContext, useState, useRef, useEffect, useMemo } from 'react'
 import { createLogger, type Logger } from '@lib/logger'
 
 export interface ReactLogger extends Logger {
@@ -39,7 +39,7 @@ export const LoggerProvider = ({
   const bufferTimeout = useRef<NodeJS.Timeout | null>(null)
 
   // Sync enabled state with logger and replay buffered messages
-  React.useEffect(() => {
+  useEffect(() => {
     baseLogger.setEnabled(enabled)
 
     if (enabled && bufferedMessages.current.length > 0) {
@@ -58,7 +58,7 @@ export const LoggerProvider = ({
   }, [baseLogger, enabled])
 
   // Start buffer cleanup timeout when logger is first created (disabled)
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled && !bufferTimeout.current) {
       bufferTimeout.current = setTimeout(() => {
         bufferedMessages.current = []
@@ -91,7 +91,7 @@ export const LoggerProvider = ({
     }
 
   // Create React logger with deduplication and buffering methods
-  const reactLogger: ReactLogger = React.useMemo(
+  const reactLogger: ReactLogger = useMemo(
     () => ({
       debug: createBufferingMethod('debug'),
       info: createBufferingMethod('info'),

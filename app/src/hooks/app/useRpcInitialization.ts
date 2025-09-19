@@ -13,7 +13,7 @@ declare const __APP_VERSION__: string
  */
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
-  const [rpcApp, setRpcApp] = useState<AiutaRpcApp | null>(null)
+  const [rpc, setRpc] = useState<AiutaRpcApp | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export const useRpcInitialization = () => {
           dispatch(appSlice.actions.setIsAppVisible(true))
         }
 
-        const rpcAppInstance = new AiutaRpcApp({
+        const rpc = new AiutaRpcApp({
           context: { appVersion: __APP_VERSION__ },
           handlers: {
             tryOn: async (productId: string) => {
@@ -43,11 +43,11 @@ export const useRpcInitialization = () => {
           },
         })
 
-        await rpcAppInstance.connect()
-        setRpcApp(rpcAppInstance)
+        await rpc.connect()
+        setRpc(rpc)
 
         // Initialize auth data once RPC is connected
-        initializeAuthData(rpcAppInstance)
+        initializeAuthData(rpc)
       } catch (error) {
         console.log('[RPC APP] Failed to initialize RPC', error)
       }
@@ -58,20 +58,20 @@ export const useRpcInitialization = () => {
 
   // Sync iframe interactivity with app visibility
   useEffect(() => {
-    if (rpcApp) {
-      rpcApp.sdk.setInteractive(isAppVisible)
+    if (rpc) {
+      rpc.sdk.setInteractive(isAppVisible)
     }
-  }, [rpcApp, isAppVisible])
+  }, [rpc, isAppVisible])
 
-  return { rpcApp }
+  return { rpc }
 }
 
 /**
  * Initialize authentication data from RPC config
  */
-const initializeAuthData = (rpcAppInstance: AiutaRpcApp) => {
+const initializeAuthData = (rpc: AiutaRpcApp) => {
   try {
-    const auth = rpcAppInstance.config.auth
+    const auth = rpc.configuration.auth
 
     if ('apiKey' in auth) {
       // API Key auth

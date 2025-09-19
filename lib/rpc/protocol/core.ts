@@ -11,12 +11,13 @@ export type RpcRes =
   | { t: 'resp'; id: number; ok: true; r: any }
   | { t: 'resp'; id: number; ok: false; e: string }
 
+export type AnyFn = (...args: any[]) => any
+
 /* ---------- Protocol Constants ---------- */
 
 export const PROTOCOL_VERSION = '1.0.0'
-export const DEFAULT_CONNECTION_ID = 'default'
-export const DEFAULT_RPC_TIMEOUT = 15_000
-export const DEFAULT_HANDSHAKE_TIMEOUT = 10_000
+export const RPC_TIMEOUT = 15_000
+export const HANDSHAKE_TIMEOUT = 10_000
 
 /* ---------- Handshake Message Types ---------- */
 
