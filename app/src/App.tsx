@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
 import {
@@ -9,7 +9,7 @@ import {
   Spinner,
   AppContainer,
 } from '@/components'
-import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
+import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
 
 import PhotoUploadPage from '@/pages/PhotoUploadPage'
 import Home from '@/pages/Home'
@@ -22,21 +22,9 @@ import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
 export default function App() {
   const { cssUrl, initialPath } = useUrlParams()
   const { rpc } = useRpcInitialization()
-
   const loggerComponent = 'aiuta:iframe'
 
-  // Handle bootstrap to main app transition after RPC is ready
-  useEffect(() => {
-    // Check if we're running inside bootstrap environment
-    if (window.aiutaBootstrap?.ready && rpc) {
-      // Wait for RPC to be fully established before hiding bootstrap
-      const timer = setTimeout(() => {
-        window.aiutaBootstrap?.hideBootstrap()
-      }, 100) // Small delay to ensure smooth transition
-
-      return () => clearTimeout(timer)
-    }
-  }, [rpc])
+  useBootstrapTransition(rpc)
 
   return (
     <LoggerProvider component={loggerComponent}>

@@ -13,7 +13,7 @@ const initialState: AppState = {
   isInitialized: false,
   isLoading: false,
   hasFooter: true,
-  isAppVisible: true,
+  isAppVisible: false, // Start hidden to allow CSS transition
 }
 
 export const appSlice = createSlice({

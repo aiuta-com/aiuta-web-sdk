@@ -9,18 +9,35 @@ import { AiutaAppRpc } from '@lib/rpc'
 declare const __APP_VERSION__: string
 
 /**
+ * Delay for first-time iframe appearance animation
+ * Allows DOM to fully render before triggering CSS transition
+ */
+const FIRST_SHOW_DELAY = 200
+
+/**
  * Hook for RPC initialization and management
  */
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
   const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
+  const [isFirstShow, setIsFirstShow] = useState(true)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
   useEffect(() => {
     const initializeRpc = async () => {
       try {
         const showApp = () => {
-          dispatch(appSlice.actions.setIsAppVisible(true))
+          if (isFirstShow) {
+            // First time: delay to ensure iframe and AppContainer are fully rendered
+            // This prevents size flickering during CSS transition
+            setTimeout(() => {
+              dispatch(appSlice.actions.setIsAppVisible(true))
+              setIsFirstShow(false) // Mark that first show is complete
+            }, FIRST_SHOW_DELAY)
+          } else {
+            // Subsequent times: show immediately
+            dispatch(appSlice.actions.setIsAppVisible(true))
+          }
         }
 
         const rpc = new AiutaAppRpc({

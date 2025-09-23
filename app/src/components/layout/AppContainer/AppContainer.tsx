@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector, isAppVisibleSelector } from '@/store/slices/appSlice'
-import { useWindowResize } from '@/hooks'
+import { useWindowResize, useParentScrollPrevention } from '@/hooks'
 import styles from './AppContainer.module.scss'
 
 interface AppContainerProps {
@@ -13,11 +13,10 @@ interface AppContainerProps {
  * Now that iframe is fullscreen, app needs to manage its own dimensions
  */
 export const AppContainer = ({ children }: AppContainerProps) => {
-  // Handle window resize for mobile/desktop switching
   useWindowResize()
-
   const isMobile = useAppSelector(isMobileSelector)
   const isVisible = useAppSelector(isAppVisibleSelector)
+  useParentScrollPrevention(isVisible)
 
   const containerClasses = [
     styles.appContainer,

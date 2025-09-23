@@ -8,6 +8,11 @@
   transition: all ease-in-out 0.3s;
   z-index: 1;
   overflow: hidden; /* Ensure content respects border-radius */
+
+  /* Prevent parent page scroll when interacting with our app */
+  touch-action: manipulation; /* Allow pinch-zoom but block scroll gestures */
+  overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 // Desktop app styling (moved from SDK iframe styles)
