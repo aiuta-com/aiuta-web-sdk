@@ -5,17 +5,16 @@
     font-weight: 500;
     font-size: 14px;
     line-height: 18px;
-    color: var(--black);
+    color: var(--aiuta-color-primary);
     letter-spacing: -0.035em;
   }
   .abortedButton {
     width: 262px;
     margin-top: 31px;
-    background: var(--try-on-primary-color);
+    background: var(--aiuta-color-brand);
 
     p {
-      color: var(--white);
-      font-family: GT Maru;
+      color: var(--aiuta-color-on-dark);
       font-weight: 500;
       font-size: 14px;
       line-height: unset;

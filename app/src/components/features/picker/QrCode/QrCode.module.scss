@@ -42,12 +42,12 @@
 }
 
 .secondaryText {
-  color: var(--secondary-gray);
+  color: var(--aiuta-color-secondary);
 }
 
 .primaryText {
   cursor: pointer;
-  color: var(--try-on-primary-color);
+  color: var(--aiuta-color-brand);
 
   input {
     display: none;

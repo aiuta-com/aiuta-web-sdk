@@ -16,7 +16,9 @@
 
       h3 {
         margin-top: 16px;
-        color: var(--stone-cold);
+        color: var(
+          --aiuta-color-secondary
+        ); /* Was --stone-cold, using secondary as it's for subtitles */
       }
     }
   }

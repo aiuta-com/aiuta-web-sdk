@@ -21,12 +21,11 @@
 .errorMessage {
   p {
     max-width: 185px;
-    font-family: GT Maru;
     font-weight: 400;
     font-style: Regular;
     font-size: 14px;
     line-height: 18px;
-    color: var(--white);
+    color: var(--aiuta-color-on-dark);
     letter-spacing: -0.025em;
   }
 }
@@ -43,11 +42,10 @@
   min-height: 36px;
 
   p {
-    font-family: GT Maru;
     font-weight: 500;
     font-size: 14px;
     line-height: unset;
-    color: var(--black);
+    color: var(--aiuta-color-primary);
     letter-spacing: -0.035em;
   }
 }

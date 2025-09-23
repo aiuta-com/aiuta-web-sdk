@@ -1,7 +1,7 @@
 // QR mode container
 .qr-container {
   height: calc(100vh - 128px);
-  background: var(--background-primary, #ffffff);
+  background: var(--aiuta-color-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -10,7 +10,7 @@
 // Token mode container
 .token-container {
   min-height: 100vh;
-  background: var(--background-primary, #ffffff);
+  background: var(--aiuta-color-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,7 +54,6 @@
   background: #ffffff66;
   backdrop-filter: blur(10px);
   color: #000;
-  font-family: GT Maru;
   font-weight: 500;
   font-size: 15px;
   line-height: 19.29px;

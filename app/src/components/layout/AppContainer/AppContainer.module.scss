@@ -3,8 +3,8 @@
   position: fixed;
   display: flex;
   flex-direction: column;
-  background: var(--background); /* Use CSS custom property for theme support */
-  color: var(--foreground);
+  background: var(--aiuta-color-background); /* Use CSS custom property for theme support */
+  color: var(--aiuta-color-primary);
   transition: all ease-in-out 0.3s;
   z-index: 1;
   overflow: hidden; /* Ensure content respects border-radius */
@@ -37,4 +37,11 @@
   opacity: 0;
   pointer-events: none;
   right: -50%;
+}
+
+// Main content area - takes all space between PageBar and PoweredBy
+.appContainer main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
