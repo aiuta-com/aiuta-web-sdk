@@ -1,4 +1,5 @@
 export * from './app'
+export * from './ui'
 export * from './onboarding'
 export * from './pageBar'
 export * from './gallery'
