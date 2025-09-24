@@ -36,18 +36,13 @@ export const useAppInitialization = () => {
 
   const completeInitialization = useCallback(() => {
     dispatch(appSlice.actions.setIsInitialized(true))
-    dispatch(appSlice.actions.setIsLoading(false))
   }, [dispatch])
 
   const handleOnboardingComplete = useCallback(() => {
     const { hasPhotos } = getStoredData()
 
     navigateBasedOnState(hasPhotos)
-
-    // Complete initialization after navigation
-    setTimeout(() => {
-      completeInitialization()
-    }, 500)
+    completeInitialization()
   }, [getStoredData, navigateBasedOnState, completeInitialization])
 
   const handleFirstTimeUser = useCallback(() => {
@@ -65,18 +60,12 @@ export const useAppInitialization = () => {
   const initializeApp = useCallback(() => {
     if (!globalThis) return
 
-    // Show loading spinner
-    dispatch(appSlice.actions.setIsLoading(true))
-
-    // Delay to show onboarding animation
-    setTimeout(() => {
-      if (isOnboardingCompleted) {
-        handleOnboardingComplete()
-      } else {
-        handleFirstTimeUser()
-      }
-    }, 1000) // delay for onboarding display
-  }, [dispatch, isOnboardingCompleted, handleOnboardingComplete, handleFirstTimeUser])
+    if (isOnboardingCompleted) {
+      handleOnboardingComplete()
+    } else {
+      handleFirstTimeUser()
+    }
+  }, [isOnboardingCompleted, handleOnboardingComplete, handleFirstTimeUser])
 
   return { initializeApp }
 }

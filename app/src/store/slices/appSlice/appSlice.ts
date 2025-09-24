@@ -3,7 +3,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 export interface AppState {
   isMobile: boolean
   isInitialized: boolean
-  isLoading: boolean
   hasFooter: boolean
   isAppVisible: boolean
 }
@@ -11,7 +10,6 @@ export interface AppState {
 const initialState: AppState = {
   isMobile: false,
   isInitialized: false,
-  isLoading: false,
   hasFooter: true,
   isAppVisible: false, // Start hidden to allow CSS transition
 }
@@ -26,10 +24,6 @@ export const appSlice = createSlice({
 
     setIsInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload
-    },
-
-    setIsLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload
     },
 
     setHasFooter: (state, action: PayloadAction<boolean>) => {

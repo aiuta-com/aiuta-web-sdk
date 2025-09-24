@@ -44,7 +44,7 @@ export default function PhotoUploadMobile() {
                 alt="Selected photo preview"
                 className={styles.viewItem}
               />
-              {uploadState.isUploading && <Spinner />}
+              {uploadState.isUploading && <Spinner isVisible={uploadState.isUploading} />}
               {!uploadState.isUploading && (
                 <button className={styles.changePhotoBtn} onClick={handleButtonClick}>
                   Change photo

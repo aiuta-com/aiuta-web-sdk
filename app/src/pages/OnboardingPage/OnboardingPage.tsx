@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
-import { isMobileSelector, isInitializedSelector, isLoadingSelector } from '@/store/slices/appSlice'
+import { isMobileSelector, isInitializedSelector } from '@/store/slices/appSlice'
 import { UploadsStorage } from '@/utils'
 import { OnboardingDesktop } from './OnboardingDesktop'
 import { OnboardingMobile } from './OnboardingMobile'
@@ -11,7 +11,6 @@ import styles from './OnboardingPage.module.scss'
 export const OnboardingPage = ({}: OnboardingPageProps) => {
   const navigate = useNavigate()
   const isMobile = useAppSelector(isMobileSelector)
-  const isShowSpinner = useAppSelector(isLoadingSelector)
   const isInitialized = useAppSelector(isInitializedSelector)
 
   const handleCompleteOnboarding = useCallback(() => {
@@ -29,7 +28,7 @@ export const OnboardingPage = ({}: OnboardingPageProps) => {
   }, [navigate, isMobile])
 
   // Don't render until app is initialized
-  if (!isInitialized || isShowSpinner) {
+  if (!isInitialized) {
     return null
   }
 

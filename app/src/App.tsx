@@ -6,7 +6,6 @@ import {
   PoweredBy,
   FullScreenGallery,
   ShareModal,
-  Spinner,
   AppContainer,
   MainContent,
 } from '@/components'
@@ -48,7 +47,6 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
     <AppContainer>
       <MemoryRouter initialEntries={[initialPath || '/']}>
         {/* Global components */}
-        <Spinner />
         <FullScreenGallery />
         <ShareModal />
 
