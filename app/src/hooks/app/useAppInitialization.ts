@@ -75,7 +75,7 @@ export const useAppInitialization = () => {
       } else {
         handleFirstTimeUser()
       }
-    }, 2000) // 2 second delay for onboarding display
+    }, 1000) // delay for onboarding display
   }, [dispatch, isOnboardingCompleted, handleOnboardingComplete, handleFirstTimeUser])
 
   return { initializeApp }

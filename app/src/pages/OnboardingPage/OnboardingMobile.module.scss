@@ -13,7 +13,7 @@
   justify-content: center;
   min-height: 0;
   margin-bottom: 16px; /* Space before button */
-  overflow: visible; /* Allow carousel to be fully visible */
+  overflow: visible; /* Allow steps to animate beyond container edges */
 }
 
 .firstStepContent {
@@ -45,37 +45,32 @@
 }
 
 .consentContent {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .titlesBox {
   text-align: center;
   max-width: 280px;
+}
 
-  h2 {
-    color: #000;
-    font-weight: 500;
-    font-size: 24px;
-    line-height: 100%;
-    letter-spacing: -0.07em;
-    margin: 0 0 16px 0;
+.title {
+  text-align: center;
+  margin: 0 0 16px 0;
 
-    &.largeTilte {
-      font-weight: 700;
-    }
+  &.largeTilte {
+    font-weight: 700;
   }
+}
 
-  h3 {
-    color: #666666;
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0px;
-    margin: 0;
-  }
+.description {
+  color: var(--aiuta-color-secondary);
+  text-align: center;
+  margin: 0;
 }
 
 .stepImage {

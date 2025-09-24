@@ -1,70 +1,22 @@
 .onboardingStep {
-  transition: all ease-in-out 0.3s;
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition: all ease-in-out 0.25s;
   width: 100%;
   height: 100%;
-  display: flex;
-  gap: 40px; /* Minimum 40px between image and titles */
-  align-items: stretch;
-  justify-content: flex-end; /* Align content to bottom */
-  flex-direction: column;
-  overflow: hidden; /* Ensure content doesn't overflow */
-
-  // Position modifiers
-  &_first {
-    position: relative;
-  }
-
-  &_positioned {
-    position: absolute;
-    left: 0;
-    top: 0;
-  }
+  overflow: hidden;
 
   // State modifiers
-  &_inactive {
-    transform: translateX(1000px);
+  &_pending {
+    transform: translateX(110%);
   }
 
   &_active {
-    transform: translateX(0px);
+    transform: translateX(0);
   }
 
   &_completed {
-    transform: translateX(-1000px);
+    transform: translateX(-110%);
   }
-}
-
-.stepImage {
-  width: 100%;
-  flex: 1; /* Take all available space */
-  object-fit: contain; /* Maintain aspect ratio */
-  object-position: center; /* Center the image */
-  min-height: 0; /* Allow flex shrinking */
-}
-
-.titlesBox {
-  margin: 0 auto; /* Center horizontally */
-  max-width: 280px;
-  flex-shrink: 0; /* Fixed size at bottom */
-}
-
-.title {
-  color: #000;
-  font-weight: 500;
-  font-size: 20px;
-  line-height: 100%;
-  letter-spacing: -0.07em;
-  text-align: center;
-  margin: 0;
-}
-
-.description {
-  margin-top: 12px;
-  color: #666666;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 18px;
-  letter-spacing: -0.035em;
-  text-align: center;
-  margin-bottom: 0;
 }

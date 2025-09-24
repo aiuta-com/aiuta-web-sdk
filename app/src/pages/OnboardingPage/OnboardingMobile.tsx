@@ -46,17 +46,19 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const getStepState = (stepIndex: number) => {
     if (stepIndex < currentStep) return 'completed'
     if (stepIndex === currentStep) return 'active'
-    return 'inactive'
+    return 'pending'
   }
 
   return (
     <div className={styles.onboardingMobile}>
       <div className={styles.stepsContainer}>
-        <OnboardingStep state={getStepState(0)} isFirst={true}>
+        <OnboardingStep state={getStepState(0)}>
           <div className={styles.firstStepContent}>
             <div className={styles.titlesBox}>
-              <h2>Try on before buying</h2>
-              <h3>Just upload your photo and see how it looks</h3>
+              <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
+              <h3 className={`aiuta-label-regular ${styles.description}`}>
+                Just upload your photo and see how it looks
+              </h3>
             </div>
             <div className={styles.carouselContainer}>
               <OnboardingCarousel
@@ -71,11 +73,12 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
         <OnboardingStep state={getStepState(1)}>
           <div className={styles.stepContent}>
             <div className={styles.titlesBox}>
-              <h2>For the best results</h2>
-              <h3>Use a photo with good lighting, stand straight a plain background</h3>
+              <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
+              <h3 className={`aiuta-label-regular ${styles.description}`}>
+                Use a photo with good lighting, stand straight a plain background
+              </h3>
             </div>
             <img
-              loading="lazy"
               alt="Best results guide"
               className={styles.stepImage}
               src="./images/mobileLastStepOnboarding.png"

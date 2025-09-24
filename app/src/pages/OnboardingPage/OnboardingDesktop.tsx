@@ -36,23 +36,42 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
   return (
     <div className={styles.onboardingDesktop}>
       <div className={styles.stepsContainer}>
-        <OnboardingStep
-          state={getStepState(0)}
-          isFirst={true}
-          title="Try on before buying"
-          description="Just upload your photo and see how it looks"
-          imageUrl="./images/firstOnboarding.png"
-        />
+        <OnboardingStep state={getStepState(0)}>
+          <div className={styles.stepContent}>
+            <img
+              alt="Try on before buying"
+              className={styles.stepImage}
+              src="./images/firstOnboarding.png"
+            />
+            <div className={styles.titlesBox}>
+              <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
+              <h3 className={`aiuta-label-regular ${styles.description}`}>
+                Upload a photo and see how items look on you
+              </h3>
+            </div>
+          </div>
+        </OnboardingStep>
 
-        <OnboardingStep
-          state={getStepState(1)}
-          title="For the best results..."
-          description="Use a photo with good lighting, stand straight a plain background"
-          imageUrl="./images/lastOnboarding.png"
-        />
+        <OnboardingStep state={getStepState(1)}>
+          <div className={styles.stepContent}>
+            <img
+              alt="For the best results"
+              className={styles.stepImage}
+              src="./images/lastOnboarding.png"
+            />
+            <div className={styles.titlesBox}>
+              <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
+              <h3 className={`aiuta-label-regular ${styles.description}`}>
+                Use a photo with good lighting, stand straight a plain background
+              </h3>
+            </div>
+          </div>
+        </OnboardingStep>
 
         <OnboardingStep state={getStepState(2)}>
-          <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
+          <div className={styles.consentContent}>
+            <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
+          </div>
         </OnboardingStep>
       </div>
 

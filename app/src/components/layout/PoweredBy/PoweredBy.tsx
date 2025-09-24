@@ -16,12 +16,12 @@ export const PoweredBy = () => {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className={`${styles.label} aiuta-button-s`}
+          className={`aiuta-button-s ${styles.label}`}
         >
           {text}
         </a>
       ) : (
-        <p className={`${styles.label} aiuta-button-s`}>{text}</p>
+        <p className={`aiuta-button-s ${styles.label}`}>{text}</p>
       )}
     </footer>
   )

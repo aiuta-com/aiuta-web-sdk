@@ -12,5 +12,46 @@
   justify-content: center;
   min-height: 0;
   margin-bottom: 34px; /* Space before button */
-  overflow: hidden; /* Hide animated steps outside container */
+  overflow: visible; /* Allow steps to animate beyond container edges */
+}
+
+.stepContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+}
+
+.stepImage {
+  max-width: 100%;
+  max-height: 60%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.titlesBox {
+  text-align: center;
+  max-width: 260px;
+}
+
+.title {
+  text-align: center;
+  margin: 0 0 16px 0;
+}
+
+.description {
+  text-align: center;
+  margin: 0;
+}
+
+.consentContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }

@@ -25,7 +25,6 @@ export const OnboardingCarousel = ({
             onClick={() => onItemChange(index)}
           >
             <img
-              loading="lazy"
               alt={item.altText || `Thumbnail ${index + 1}`}
               src={item.miniImageUrl}
               className={styles.thumbnailImage}
@@ -36,7 +35,6 @@ export const OnboardingCarousel = ({
 
       {/* Main carousel image */}
       <img
-        loading="lazy"
         alt={currentItem?.altText || 'Onboarding step'}
         className={styles.carouselImage}
         src={currentItem?.imageUrl}

@@ -84,7 +84,7 @@ export const useOnboardingSteps = (config: OnboardingStepsConfig = {}) => {
     (stepIndex: number) => {
       if (stepIndex < currentStep) return 'completed'
       if (stepIndex === currentStep) return 'active'
-      return 'inactive'
+      return 'pending'
     },
     [currentStep],
   )

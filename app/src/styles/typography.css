@@ -13,6 +13,46 @@
 }
 
 /* Typography Classes */
+
+/* Titles */
+.aiuta-title-l {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+.aiuta-title-m {
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+/* Labels */
+.aiuta-label-regular {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.aiuta-label-subtle {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px;
+  opacity: 0.7;
+}
+
+/* Buttons */
+.aiuta-button-m {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+}
+
 .aiuta-button-s {
   font-size: 13px;
   font-style: normal;
