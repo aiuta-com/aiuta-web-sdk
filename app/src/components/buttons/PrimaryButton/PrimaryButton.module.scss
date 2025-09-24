@@ -3,19 +3,12 @@
   transition: all ease-in-out 0.3s;
   cursor: pointer;
   width: 100%;
-  border: none;
-  border-radius: 12px;
-  padding: 15px 0px 15px 0px;
   background: var(--aiuta-color-brand);
+  color: var(--aiuta-color-on-dark);
   display: flex;
   column-gap: 4px;
   align-items: center;
   justify-content: center;
-
-  font-weight: 500;
-  font-size: 17px;
-  color: var(--aiuta-color-on-dark);
-  letter-spacing: -0.07em;
 
   &:hover:not(:disabled) {
     opacity: 0.9;
@@ -24,19 +17,15 @@
   &:active:not(:disabled) {
     transform: translateY(1px);
   }
-}
 
-.primaryButtonDisabled {
-  opacity: 30%;
-  cursor: not-allowed;
+  &_disabled {
+    opacity: 30%;
+    cursor: not-allowed;
+  }
 }
 
 .icon {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-}
-
-.text {
-  // Text styles are inherited from parent button
 }

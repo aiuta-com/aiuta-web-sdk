@@ -1,5 +1,6 @@
 @import './colors.css';
 @import './typography.css';
+@import './shapes.css';
 @import './tweaks.css';
 
 * {
@@ -18,7 +19,9 @@ body {
   /* Typography */
   font-family: var(--aiuta-typeface);
   font-size: 16px;
-  line-height: 1.4;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
 
   /* Font rendering */
   -webkit-font-smoothing: antialiased;

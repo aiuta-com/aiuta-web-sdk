@@ -13,7 +13,9 @@
   text-align: center;
   margin: 0; /* Remove margin, center with flex */
   background-color: var(--aiuta-color-neutral);
-  border-radius: 50px; /* Fully rounded (pill shape) */
-  padding: 8px 12px;
   display: inline-block;
+
+  /* Override global aiuta-button-s shape for pill design */
+  border-radius: 50px !important; /* Fully rounded (pill shape) */
+  padding: 8px 12px !important;
 }

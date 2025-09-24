@@ -47,15 +47,16 @@
 
 /* Buttons */
 .aiuta-button-m {
-  font-size: 16px;
+  font-size: 17px;
   font-style: normal;
   font-weight: 500;
-  line-height: 24px;
+  line-height: 18px;
 }
 
 .aiuta-button-s {
-  font-size: 13px;
+  font-size: 14px;
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 18px;
+  letter-spacing: -0.14px;
 }

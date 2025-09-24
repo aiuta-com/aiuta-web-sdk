@@ -1,0 +1,18 @@
+/**
+ * Button shapes - border, padding, border-radius definitions
+ * Applied to typography classes for consistent button styling
+ */
+
+/* Button Medium Shape */
+.aiuta-button-m {
+  border: none;
+  border-radius: 12px;
+  padding: 15px 0;
+}
+
+/* Button Small Shape */
+.aiuta-button-s {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
