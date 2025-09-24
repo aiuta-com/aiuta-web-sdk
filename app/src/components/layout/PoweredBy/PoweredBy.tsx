@@ -11,18 +11,18 @@ export const PoweredBy = () => {
 
   return (
     <footer className={styles.poweredBy}>
-      <p className={styles.text}>
-        {url ? (
-          <>
-            Powered{' '}
-            <a href={url} target="_blank" rel="noopener noreferrer" className={styles.link}>
-              by Aiuta
-            </a>
-          </>
-        ) : (
-          text
-        )}
-      </p>
+      {url ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${styles.label} aiuta-button-s`}
+        >
+          {text}
+        </a>
+      ) : (
+        <p className={`${styles.label} aiuta-button-s`}>{text}</p>
+      )}
     </footer>
   )
 }

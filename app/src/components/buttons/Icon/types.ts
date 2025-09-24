@@ -4,6 +4,7 @@ export interface IconProps {
 
   // Basic props
   className?: string
+  alt?: string
 
   // Optional customization
   size?: number

@@ -43,12 +43,18 @@ const sanitizeSvgContent = (content: string): string => {
     .replace(/javascript:/gi, '') // Remove javascript: urls
 }
 
-export const Icon = ({ icon, className, size = 24, viewBox = '0 0 24 24' }: IconProps) => {
+export const Icon = ({
+  icon,
+  className,
+  alt = '',
+  size = 24,
+  viewBox = '0 0 24 24',
+}: IconProps) => {
   const iconClassName = [styles.icon, className || ''].filter(Boolean).join(' ')
 
   // External file (URL) - use img tag
   if (isUrl(icon)) {
-    return <img className={iconClassName} src={icon} alt="" width={size} height={size} />
+    return <img className={iconClassName} src={icon} alt={alt} width={size} height={size} />
   }
 
   // Full SVG - render as is (with sanitization only)

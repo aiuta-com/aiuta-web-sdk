@@ -4,25 +4,16 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  height: 60px; /* Fixed height */
-  padding: 0 16px; /* Horizontal padding since it's outside OnboardingPage */
-  background-color: white;
+  height: 60px;
+  padding: 0 16px;
   flex-shrink: 0; /* Don't shrink, fixed size */
 }
 
-.text {
-  font-size: 14px;
-  font-weight: 500;
+.label {
   text-align: center;
-  color: var(--aiuta-color-primary);
-  letter-spacing: -0.035em;
   margin: 0; /* Remove margin, center with flex */
-  background-color: #f8f8fa;
+  background-color: var(--aiuta-color-neutral);
   border-radius: 50px; /* Fully rounded (pill shape) */
   padding: 8px 12px;
   display: inline-block;
-}
-
-.link {
-  color: var(--aiuta-color-brand);
 }

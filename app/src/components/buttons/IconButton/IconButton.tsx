@@ -25,7 +25,7 @@ export const IconButton = ({
 
   return (
     <button className={buttonClassName} onClick={onClick} aria-label={label} type="button">
-      <Icon icon={icon} size={size} viewBox={viewBox} />
+      <Icon icon={icon} size={size} viewBox={viewBox} alt={label} />
     </button>
   )
 }
