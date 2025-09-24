@@ -5,35 +5,36 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: white;
 }
 
 .pageBar_mobile {
-  min-height: 44px;
-  padding: 0 10px;
+  min-height: 56px;
+  padding: 0 14px;
   justify-content: flex-end;
+}
+
+.pageTitle {
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 22px;
 }
 
 .titleContainer {
   width: 100%;
 }
 
-.title {
+.titleLabel {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   margin: 0;
-  color: #000;
   text-align: center;
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 22px;
-  letter-spacing: -0.035em;
 }
 
-.navigationIcon,
-.closeIcon {
+.actionButton,
+.closeButton {
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -42,13 +43,8 @@
   cursor: pointer;
   background: none;
   border: none;
-  color: #000;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 100%;
-  letter-spacing: -0.07em;
 }
 
 .selectButton_inactive {
-  color: #b2b2b2;
+  color: var(--aiuta-color-secondary);
 }

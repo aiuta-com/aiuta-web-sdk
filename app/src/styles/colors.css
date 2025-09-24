@@ -1,0 +1,20 @@
+/** 
+* Aiuta ColorTheme 
+* https://docs.aiuta.com/sdk/developer/configuration/ui/theme/color/
+*/
+:root {
+  /* Brand & Primary Colors */
+  --aiuta-color-brand: #4000ff;
+  --aiuta-color-primary: #000000;
+  --aiuta-color-secondary: #9f9f9f;
+
+  /* Contextual Colors (FOR USE ON SPECIFIC BACKGROUNDS ONLY) */
+  --aiuta-color-on-dark: #ffffff; /* White text for use ON dark/brand backgrounds */
+  --aiuta-color-on-light: #000000; /* Dark text for use ON light backgrounds (use sparingly) */
+
+  /* Background Colors */
+  --aiuta-color-background: #ffffff;
+  --aiuta-color-screen: #000000;
+  --aiuta-color-neutral: #f2f2f7;
+  --aiuta-color-border: #e5e5ea;
+}

@@ -124,6 +124,79 @@ hooks/
 - **Naming**: `{Domain}ApiService` (e.g., `TryOnApiService`)
 - **Analytics**: `{Domain}AnalyticsService` (e.g., `TryOnAnalyticsService`)
 
+### **Icon Components**
+
+#### **Icon Component (`@/components/buttons/Icon`)**
+
+Universal icon component supporting multiple icon formats:
+
+**Supported Formats:**
+
+1. **URL/Path**: `icon="./icons/close.svg"` → `<img>` tag
+2. **SVG Path**: `icon="M18.9495 5.05C19.3401..."` → `<svg><path d="..."/></svg>`
+3. **SVG Elements**: `icon="<path d='...'/><circle cx='10' cy='10' r='5'/>"` → `<svg><g>...</g></svg>`
+4. **Full SVG**: `icon="<svg viewBox='0 0 36 36'>...</svg>"` → rendered as-is (no wrapper)
+
+**Props:**
+
+- `icon: string` - Icon source (any of the 4 formats above)
+- `size?: number` - Size in pixels (default: 24, ignored for full SVG)
+- `viewBox?: string` - SVG viewBox (default: "0 0 24 24", ignored for full SVG)
+- `className?: string` - Additional CSS classes
+
+**Key Features:**
+
+- **currentColor support**: SVG icons inherit text color automatically
+- **XSS protection**: All user content sanitized via `sanitizeSvgContent`
+- **Format detection**: Automatically detects and handles icon format
+- **Full control for full SVG**: Custom size/viewBox preserved when passing complete `<svg>`
+
+#### **IconButton Component (`@/components/buttons/IconButton`)**
+
+Interactive button wrapper around `Icon` with enhanced mobile UX:
+
+**Props:** `IconButtonProps extends IconProps`
+
+- `label: string` - Accessibility label (required)
+- `onClick?: () => void` - Click handler
+- All `Icon` props inherited
+
+**Key Features:**
+
+- **Automatic mobile enhancement**: Touch padding applied on mobile devices via Redux `isMobile` state
+- **Accessibility**: Proper `aria-label` and button semantics
+- **Consistent styling**: Uses BEM methodology with mobile modifier (`.iconButton_mobile`)
+
+**Usage Examples:**
+
+```tsx
+// Simple SVG path
+<Icon icon="M18.9495 5.05..." size={20} />
+
+// External file
+<Icon icon="./icons/close.svg" />
+
+// Interactive button
+<IconButton icon="M18.9495..." label="Close" onClick={handleClose} />
+
+// Full SVG with custom viewBox (preserved)
+<Icon icon='<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40"/></svg>' />
+```
+
+**Component Organization:**
+
+```
+buttons/
+├── Icon/
+│   ├── Icon.tsx           # Core icon rendering logic
+│   ├── Icon.module.scss   # Basic icon styles
+│   └── types.ts           # IconProps interface
+└── IconButton/
+    ├── IconButton.tsx     # Button wrapper with mobile enhancement
+    ├── IconButton.module.scss # Button styles + mobile modifier
+    └── types.ts           # IconButtonProps extends IconProps
+```
+
 ## 🎨 **CSS & Styling**
 
 ### **CSS Modules + Auto-Generated BEM**

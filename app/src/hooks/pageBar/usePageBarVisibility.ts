@@ -61,9 +61,6 @@ export const usePageBarVisibility = () => {
     showSelectButton,
     showCloseButton,
 
-    // Icon states
-    historyIconSrc: isOnHistoryPage ? './icons/back.svg' : './icons/history.svg',
-
     // States
     isOnHistoryPage,
     isOnQrTokenPage,

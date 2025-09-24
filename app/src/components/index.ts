@@ -9,6 +9,8 @@ export { PoweredBy } from './layout/PoweredBy'
 
 // Buttons
 export { CheckboxLabel } from './buttons/CheckboxLabel'
+export { Icon } from './buttons/Icon'
+export { IconButton } from './buttons/IconButton'
 export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
 export { TryOnButton } from './buttons/TryOnButton'

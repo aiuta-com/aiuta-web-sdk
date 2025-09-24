@@ -1,0 +1,8 @@
+/**
+ * UI Tweaks & Adjustments
+ * Small customizations and interface enhancements
+ */
+:root {
+  /* Touch target enhancement for mobile interfaces */
+  --aiuta-touch-padding: 10px;
+}
