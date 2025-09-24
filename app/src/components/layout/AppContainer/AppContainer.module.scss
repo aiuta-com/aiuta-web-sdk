@@ -3,16 +3,11 @@
   position: fixed;
   display: flex;
   flex-direction: column;
-  background: var(--aiuta-color-background); /* Use CSS custom property for theme support */
+  background: var(--aiuta-color-background);
   color: var(--aiuta-color-primary);
-  transition: all ease-in-out 0.3s;
+  transition: all ease-in-out 0.2s;
   z-index: 1;
-  overflow: hidden; /* Ensure content respects border-radius */
-
-  /* Prevent parent page scroll when interacting with our app */
-  touch-action: manipulation; /* Allow pinch-zoom but block scroll gestures */
-  overscroll-behavior: contain; /* Prevent scroll chaining to parent */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  overflow: hidden;
 }
 
 // Desktop app styling (moved from SDK iframe styles)
@@ -22,8 +17,10 @@
   top: 12px;
   right: 12px;
   border-radius: 24px;
-  border: 1px solid #0000001a;
-  box-shadow: 0px 8px 28px -6px #0000001f;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 8px 28px -6px rgba(0, 0, 0, 0.12),
+    0 18px 88px -4px rgba(0, 0, 0, 0.14);
 }
 
 // Mobile fullscreen styling
@@ -33,20 +30,12 @@
   top: 0;
   right: 0;
   border-radius: 0;
-  border: 1px solid #ffffff;
+  border: none;
   box-shadow: none;
 }
 
 // Hidden state (can be controlled via props if needed)
 .appContainer_hidden {
-  opacity: 0;
   pointer-events: none;
-  right: -50%;
-}
-
-// Main content area - takes all space between PageBar and PoweredBy
-.appContainer main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  transform: translateX(110%);
 }

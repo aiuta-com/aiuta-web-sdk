@@ -2,30 +2,25 @@
 export { Section } from './layout/Section'
 export { PageBar } from './layout/PageBar'
 export { AppContainer } from './layout/AppContainer'
+export { MainContent } from './layout/MainContent'
+export { PoweredBy } from './layout/PoweredBy'
 
 // ===== UI COMPONENTS =====
 
-// Branding
-export { PoweredBy } from './ui/branding/PoweredBy'
-
 // Buttons
-export { PrimaryButton } from './ui/buttons/PrimaryButton'
-export { SecondaryButton } from './ui/buttons/SecondaryButton'
-export { TryOnButton } from './ui/buttons/TryOnButton'
-
-// Forms
-export { CheckboxLabel } from './ui/forms/CheckboxLabel'
+export { CheckboxLabel } from './buttons/CheckboxLabel'
+export { PrimaryButton } from './buttons/PrimaryButton'
+export { SecondaryButton } from './buttons/SecondaryButton'
+export { TryOnButton } from './buttons/TryOnButton'
 
 // Indicators
-export { Spinner } from './ui/indicators/Spinner/Spinner'
-export { CountDown } from './ui/indicators/CountDown/CountDown'
+export { Spinner } from './indicators/Spinner/Spinner'
+export { CountDown } from './indicators/CountDown/CountDown'
 
-// Snackbars
-export { ErrorSnackbar } from './ui/snackbars/ErrorSnackbar'
-export { SelectionSnackbar } from './ui/snackbars/SelectionSnackbar'
-
-// Overlays
-export { BottomSheet } from './ui/overlays/BottomSheet'
+// Popups
+export { BottomSheet } from './popups/BottomSheet'
+export { ErrorSnackbar } from './popups/ErrorSnackbar'
+export { SelectionSnackbar } from './popups/SelectionSnackbar'
 
 // ===== FEATURE COMPONENTS =====
 
@@ -53,9 +48,7 @@ export { ImageManager } from './features/tryOn/ImageManager'
 
 // Results
 export { DesktopResultActions } from './features/results/DesktopResultActions'
-
-// Sharing
-export { ShareModal } from './features/sharing/ShareModal'
+export { ShareModal } from './features/results/ShareModal'
 
 // ===== ALERTS =====
 export { AbortAlert } from './alerts/AbortAlert'

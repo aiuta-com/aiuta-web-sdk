@@ -8,6 +8,7 @@ import {
   ShareModal,
   Spinner,
   AppContainer,
+  MainContent,
 } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
 
@@ -48,7 +49,7 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
 
         {/* App layout */}
         <PageBar />
-        <main>
+        <MainContent>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
@@ -59,7 +60,7 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
             <Route path="/uploads-history" element={<UploadsHistoryPage />} />
             <Route path="/generations-history" element={<GenerationsHistoryPage />} />
           </Routes>
-        </main>
+        </MainContent>
         <PoweredBy />
       </MemoryRouter>
     </AppContainer>

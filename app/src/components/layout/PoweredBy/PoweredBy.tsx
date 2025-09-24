@@ -10,7 +10,7 @@ export const PoweredBy = () => {
   }
 
   return (
-    <div className={styles.poweredBy}>
+    <footer className={styles.poweredBy}>
       <p className={styles.text}>
         {url ? (
           <>
@@ -23,6 +23,6 @@ export const PoweredBy = () => {
           text
         )}
       </p>
-    </div>
+    </footer>
   )
 }
