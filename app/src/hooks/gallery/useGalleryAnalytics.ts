@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 
 type GalleryType = 'history' | 'previously' | 'uploads' | 'generations'
 
@@ -18,7 +18,7 @@ interface AnalyticsEvent {
  * Hook for managing gallery analytics events
  */
 export const useGalleryAnalytics = (galleryType: GalleryType) => {
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
   const productId = useAppSelector(productIdSelector)
 
   const trackEvent = useCallback(

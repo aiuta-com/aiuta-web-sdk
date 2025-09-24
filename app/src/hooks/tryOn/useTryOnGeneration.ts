@@ -7,7 +7,7 @@ import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { currentTryOnImageSelector } from '@/store/slices/tryOnSlice'
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
 import { usePhotoGallery } from './usePhotoGallery'
@@ -15,7 +15,7 @@ import { usePhotoGallery } from './usePhotoGallery'
 export const useTryOnGeneration = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
 
   const apiKey = useAppSelector(apiKeySelector)
   const subscriptionId = useAppSelector(subscriptionIdSelector)

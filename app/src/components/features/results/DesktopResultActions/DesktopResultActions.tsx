@@ -3,12 +3,12 @@ import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { DesktopResultActionsProps } from './types'
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 import styles from './DesktopResultActions.module.scss'
 
 export const DesktopResultActions = (props: DesktopResultActionsProps) => {
   const { activeGeneratedImageUrl } = props
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
 
   const productId = useAppSelector(productIdSelector)
 

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 // TODO: Replace with RPC - need to support modal opening from SDK
 // Required data: { imageUrl: string }
 // RPC method needed: openShareModal(data: { imageUrl: string })
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 import { useAppVisibility } from '@/hooks'
 import styles from './ShareModal.module.scss'
 
@@ -28,7 +28,7 @@ interface ShareModalProps {
 export const ShareModal = ({ imageUrl, onClose }: ShareModalProps) => {
   const [modalData, setModalData] = useState<ShareModalData | null>(null)
   const [hasShared, setHasShared] = useState(false)
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
   const { hideApp } = useAppVisibility()
 
   // Use props if provided, otherwise listen for messages (for standalone usage)

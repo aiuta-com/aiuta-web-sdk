@@ -27,6 +27,11 @@ export default function App() {
 
   useBootstrapTransition(rpc)
 
+  // Don't render anything until RPC is connected and config is loaded
+  if (!rpc) {
+    return null
+  }
+
   return (
     <LoggerProvider component={loggerComponent}>
       <RpcProvider rpc={rpc}>

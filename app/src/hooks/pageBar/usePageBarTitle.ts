@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 
 export const usePageBarTitle = () => {
-  const [title, setTitle] = useState('Virtual Try-On')
   const location = useLocation()
+  const defaultTitle = 'Virtual Try-On'
+  const [title, setTitle] = useState(defaultTitle)
 
   useEffect(() => {
     const pathName = location.pathname
@@ -11,7 +12,7 @@ export const usePageBarTitle = () => {
     // Set title based on current path
     switch (pathName) {
       case '/':
-        setTitle('Virtual Try-On')
+        setTitle(defaultTitle)
         break
       case '/qr':
         setTitle('Upload Photo')
@@ -32,10 +33,10 @@ export const usePageBarTitle = () => {
         if (pathName.startsWith('/qr/')) {
           setTitle('Upload Photo')
         } else {
-          setTitle('Virtual Try-On')
+          setTitle(defaultTitle)
         }
     }
-  }, [location.pathname])
+  }, [location.pathname, defaultTitle])
 
   return { title }
 }

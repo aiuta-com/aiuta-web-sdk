@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 import { useAppVisibility } from '@/hooks'
 import { productIdSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
@@ -20,7 +20,7 @@ export const usePageBarNavigation = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const dispatch = useAppDispatch()
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
   const { hideApp } = useAppVisibility()
 
   const pathName = location.pathname

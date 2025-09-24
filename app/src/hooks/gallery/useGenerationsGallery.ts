@@ -9,7 +9,7 @@ import {
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'
@@ -28,7 +28,7 @@ export const useGenerationsGallery = ({
   onShowDeleteModal,
 }: UseGenerationsGalleryProps = {}) => {
   const dispatch = useAppDispatch()
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)

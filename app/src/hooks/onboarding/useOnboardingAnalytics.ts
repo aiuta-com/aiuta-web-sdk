@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
-import { useRpcProxy } from '@/contexts'
+import { useRpc } from '@/contexts'
 
 export type OnboardingPageId = 'howItWorks' | 'bestResults' | 'consent'
 export type OnboardingEventType = 'page' | 'onboarding'
@@ -15,7 +15,7 @@ interface AnalyticsEvent {
 }
 
 export const useOnboardingAnalytics = () => {
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
   const productId = useAppSelector(productIdSelector)
 
   const trackEvent = useCallback(

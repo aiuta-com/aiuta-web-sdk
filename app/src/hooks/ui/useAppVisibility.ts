@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppDispatch } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
-import { useRpcProxy } from '@/contexts/RpcContext'
+import { useRpc } from '@/contexts/RpcContext'
 
 /**
  * Hook for managing app visibility
@@ -9,7 +9,7 @@ import { useRpcProxy } from '@/contexts/RpcContext'
  */
 export const useAppVisibility = () => {
   const dispatch = useAppDispatch()
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
 
   const hideApp = useCallback(() => {
     // Update app state to hide AppContainer

@@ -1,20 +1,12 @@
-import React, {
-  createContext,
-  useContext,
-  ReactNode,
-  useEffect,
-  useState,
-  useCallback,
-  useMemo,
-} from 'react'
+import React, { createContext, useContext, ReactNode } from 'react'
 import type { AiutaAppRpc } from '@lib/rpc'
 import { useLoggerConfig } from '@/hooks'
 
-const RpcContext = createContext<AiutaAppRpc | null | undefined>(undefined)
+const RpcContext = createContext<AiutaAppRpc | undefined>(undefined)
 
 interface RpcProviderProps {
   children: ReactNode
-  rpc: AiutaAppRpc | null
+  rpc: AiutaAppRpc
 }
 
 export function RpcProvider({ children, rpc }: RpcProviderProps) {
@@ -30,120 +22,10 @@ function RpcLoggerConfigWrapper({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
-export function useRpc(): AiutaAppRpc | null {
+export function useRpc(): AiutaAppRpc {
   const context = useContext(RpcContext)
   if (context === undefined) {
     throw new Error('useRpc must be used within a RpcProvider')
   }
   return context
-}
-
-// Hook that automatically runs callback when RPC becomes available
-export function useRpcEffect(
-  callback: (rpc: AiutaAppRpc) => void | Promise<void>,
-  deps: React.DependencyList = [],
-) {
-  const rpc = useRpc()
-
-  useEffect(() => {
-    if (rpc) {
-      callback(rpc)
-    }
-  }, [rpc, ...deps])
-}
-
-// Hook for RPC calls with automatic retry and error handling
-export function useRpcCall<T>(
-  call: (rpc: AiutaAppRpc) => Promise<T>,
-  deps: React.DependencyList = [],
-): { data: T | null; loading: boolean; error: Error | null } {
-  const rpc = useRpc()
-  const [data, setData] = useState<T | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<Error | null>(null)
-
-  useEffect(() => {
-    if (!rpc) return
-
-    setLoading(true)
-    setError(null)
-
-    call(rpc)
-      .then(setData)
-      .catch(setError)
-      .finally(() => setLoading(false))
-  }, [rpc, ...deps])
-
-  return { data, loading, error }
-}
-
-/**
- * Hook for simple RPC method calls without return handling
- * Automatically handles rpc availability and error logging
- */
-export function useRpcMethod() {
-  const rpc = useRpc()
-
-  return useCallback(
-    (method: (rpc: AiutaAppRpc) => Promise<any> | any) => {
-      if (!rpc) {
-        console.warn('[RPC] Method called but RPC not available')
-        return
-      }
-
-      try {
-        const result = method(rpc)
-        if (result && typeof result.catch === 'function') {
-          result.catch(console.error)
-        }
-      } catch (error) {
-        console.error('[RPC] Method call failed:', error)
-      }
-    },
-    [rpc],
-  )
-}
-
-/**
- * Creates a proxy RPC object that automatically waits for RPC to be available
- */
-function createRpcProxy(rpc: AiutaAppRpc | null): AiutaAppRpc {
-  const handler: ProxyHandler<any> = {
-    get(_, prop) {
-      // If RPC is available, use the real object
-      if (rpc) {
-        const value = (rpc as any)[prop]
-        if (typeof value === 'function') {
-          return value.bind(rpc)
-        }
-        // For nested objects (like rpc.sdk), return the real object directly
-        if (typeof value === 'object' && value !== null) {
-          return value
-        }
-        return value
-      }
-
-      // If RPC is not available, return a proxy for nested objects
-      if (prop === 'sdk' || prop === 'config') {
-        return createRpcProxy(null)
-      }
-
-      // For methods, return a function that warns and does nothing
-      return (...args: any[]) => {
-        console.warn(`[RPC] Method ${String(prop)} called but RPC not available`, args)
-        return Promise.resolve()
-      }
-    },
-  }
-
-  return new Proxy({}, handler) as AiutaAppRpc
-}
-
-/**
- * Hook that returns an always-available RPC object
- * Methods will automatically wait for RPC or warn if unavailable
- */
-export function useRpcProxy(): AiutaAppRpc {
-  const rpc = useRpc()
-  return useMemo(() => createRpcProxy(rpc), [rpc])
 }
