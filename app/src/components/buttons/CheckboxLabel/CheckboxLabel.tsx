@@ -19,7 +19,7 @@ export const CheckboxLabel = ({ labelText, checked = false, onChange }: Checkbox
         onChange={handleChange}
         className={styles.input}
       />
-      <label htmlFor={id} className={styles.label}>
+      <label htmlFor={id} className={`aiuta-label-regular ${styles.label}`}>
         {labelText}
       </label>
     </div>

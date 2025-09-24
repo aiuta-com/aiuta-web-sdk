@@ -69,9 +69,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
         </OnboardingStep>
 
         <OnboardingStep state={getStepState(2)}>
-          <div className={styles.consentContent}>
-            <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
-          </div>
+          <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
         </OnboardingStep>
       </div>
 
