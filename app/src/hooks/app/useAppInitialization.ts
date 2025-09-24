@@ -34,28 +34,21 @@ export const useAppInitialization = () => {
     [navigate, isMobile],
   )
 
-  const completeInitialization = useCallback(() => {
-    dispatch(appSlice.actions.setIsInitialized(true))
-  }, [dispatch])
-
   const handleOnboardingComplete = useCallback(() => {
     const { hasPhotos } = getStoredData()
 
     navigateBasedOnState(hasPhotos)
-    completeInitialization()
-  }, [getStoredData, navigateBasedOnState, completeInitialization])
+  }, [getStoredData, navigateBasedOnState])
 
   const handleFirstTimeUser = useCallback(() => {
     // Redirect to onboarding for first-time users
     navigate('/onboarding')
 
-    completeInitialization()
-
     // Hide footer on mobile for first-time users
     if (isMobile) {
       dispatch(appSlice.actions.setHasFooter(false))
     }
-  }, [navigate, completeInitialization, isMobile, dispatch])
+  }, [navigate, isMobile, dispatch])
 
   const initializeApp = useCallback(() => {
     if (!globalThis) return

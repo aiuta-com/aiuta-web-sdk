@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
-import { isMobileSelector, isInitializedSelector } from '@/store/slices/appSlice'
+import { isMobileSelector } from '@/store/slices/appSlice'
 import { UploadsStorage } from '@/utils'
 import { OnboardingDesktop } from './OnboardingDesktop'
 import { OnboardingMobile } from './OnboardingMobile'
@@ -11,7 +11,6 @@ import styles from './OnboardingPage.module.scss'
 export const OnboardingPage = ({}: OnboardingPageProps) => {
   const navigate = useNavigate()
   const isMobile = useAppSelector(isMobileSelector)
-  const isInitialized = useAppSelector(isInitializedSelector)
 
   const handleCompleteOnboarding = useCallback(() => {
     // Check if user has stored photos
@@ -26,11 +25,6 @@ export const OnboardingPage = ({}: OnboardingPageProps) => {
       navigate(isMobile ? '/view' : '/qr')
     }
   }, [navigate, isMobile])
-
-  // Don't render until app is initialized
-  if (!isInitialized) {
-    return null
-  }
 
   return (
     <div className={styles.onboardingPage}>
