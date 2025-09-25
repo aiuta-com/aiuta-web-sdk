@@ -1,29 +1,29 @@
 import React from 'react'
 import { useParams } from 'react-router-dom'
 import ImagePickerDesktop from './ImagePickerDesktop'
-import ImagePickerMobile from './ImagePickerMobile'
+import QrUploadHelper from '@/pages/QrUploadHelper'
 
 /**
  * ImagePickerPage - cross-device image upload via QR code
  *
  * Routes:
  * - /qr - Desktop QR code generation and polling
- * - /qr/:token - Mobile image upload interface
+ * - /qr/:token - QR upload helper interface
  *
  * Features:
  * - QR code generation for cross-device upload
  * - Real-time polling for uploaded images
  * - Direct device upload fallback
- * - Mobile-optimized upload interface
+ * - QR token-based upload flow
  */
 export default function ImagePickerPage() {
   const { token } = useParams<{ token: string }>()
 
-  // Mobile version for QR token route
+  // QR upload helper for token route
   if (token) {
-    return <ImagePickerMobile />
+    return <QrUploadHelper />
   }
 
-  // Desktop version for main QR route
+  // Desktop QR generator for main route
   return <ImagePickerDesktop />
 }

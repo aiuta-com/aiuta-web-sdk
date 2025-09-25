@@ -1,5 +1,4 @@
 import React, { useRef, useState, useEffect, ChangeEvent } from 'react'
-import { motion, easeInOut } from 'framer-motion'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
@@ -12,33 +11,11 @@ import {
   generatedImageUrlSelector,
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
-import {
-  UploadHistorySheet,
-  ErrorSnackbar,
-  Section,
-  TryOnButton,
-  DeletableImage,
-} from '@/components'
+import { UploadHistorySheet, ErrorSnackbar, TryOnButton, DeletableImage } from '@/components'
 import { AbortAlert, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './tryOn.module.scss'
-
-const initiallAnimationConfig = {
-  initial: {
-    opacity: 0,
-  },
-  animate: {
-    opacity: 1,
-  },
-  exit: {
-    opacity: 0,
-  },
-  transition: {
-    duration: 0.3,
-    ease: easeInOut,
-  },
-}
 
 export default function TryOnMobile() {
   const dispatch = useAppDispatch()
@@ -99,63 +76,57 @@ export default function TryOnMobile() {
   }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
   return (
-    <>
-      <Section
-        className={`${styles.sectionMobile} ${!isShowFooter ? styles.sectionMobileActive : ''}`}
-      >
-        <motion.div
-          key="tryon-mobile"
-          className={styles.tryOnContainerMobile}
-          {...initiallAnimationConfig}
-        >
-          <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
-          <ErrorSnackbar onRetry={regenerate} />
-          <div />
+    <div
+      className={`${styles.tryOnPageMobile} ${!isShowFooter ? styles.tryOnPageMobileActive : ''}`}
+    >
+      <div className={styles.tryOnContainerMobile}>
+        <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
+        <ErrorSnackbar onRetry={regenerate} />
+        <div />
 
-          <div className={styles.tryOnContentMobile}>
-            <ImageManager
-              uploadedImage={hasInputImage ? uploadedViewFile : undefined}
-              recentImage={recentImage || undefined}
-              isStartGeneration={isStartGeneration}
-              generatedImageUrl={generatedImageUrl}
-              onChangeImage={hasInputImage ? handleButtonClick : handleOpenSwip}
-              onUploadClick={handleButtonClick}
-            />
-          </div>
-
-          {showTryOnButton && (
-            <TryOnButton isShowTryOnIcon onClick={() => startTryOn()}>
-              Try On
-            </TryOnButton>
-          )}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleChoosePhoto}
-            style={{ display: 'none' }}
+        <div className={styles.tryOnContentMobile}>
+          <ImageManager
+            uploadedImage={hasInputImage ? uploadedViewFile : undefined}
+            recentImage={recentImage || undefined}
+            isStartGeneration={isStartGeneration}
+            generatedImageUrl={generatedImageUrl}
+            onChangeImage={hasInputImage ? handleButtonClick : handleOpenSwip}
+            onUploadClick={handleButtonClick}
           />
+        </div>
 
-          <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
-            <div className={styles.imageContent}>
-              {recentlyPhotos.length > 0
-                ? recentlyPhotos.map((item: InputImage, index) => (
-                    <DeletableImage
-                      key={`${item.id}-${index}-${recentlyPhotos.length}`}
-                      src={item.url}
-                      imageId={item.id}
-                      showTrashIcon={true}
-                      classNames={styles.previouslyImageBox}
-                      onDelete={removePhotoFromGallery}
-                      onClick={() => handleChooseNewPhoto(item.id, item.url)}
-                    />
-                  ))
-                : null}
-            </div>
-          </UploadHistorySheet>
-        </motion.div>
-      </Section>
-    </>
+        {showTryOnButton && (
+          <TryOnButton isShowTryOnIcon onClick={() => startTryOn()}>
+            Try On
+          </TryOnButton>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleChoosePhoto}
+          style={{ display: 'none' }}
+        />
+
+        <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
+          <div className={styles.imageContent}>
+            {recentlyPhotos.length > 0
+              ? recentlyPhotos.map((item: InputImage, index) => (
+                  <DeletableImage
+                    key={`${item.id}-${index}-${recentlyPhotos.length}`}
+                    src={item.url}
+                    imageId={item.id}
+                    showTrashIcon={true}
+                    classNames={styles.previouslyImageBox}
+                    onDelete={removePhotoFromGallery}
+                    onClick={() => handleChooseNewPhoto(item.id, item.url)}
+                  />
+                ))
+              : null}
+          </div>
+        </UploadHistorySheet>
+      </div>
+    </div>
   )
 }

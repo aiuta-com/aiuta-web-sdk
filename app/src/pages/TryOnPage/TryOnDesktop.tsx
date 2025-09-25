@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import { motion, easeInOut } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import {
@@ -12,27 +11,11 @@ import {
 // TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
 // Required data: { images: InputImage[], modalType?: string }
 
-import { ErrorSnackbar, Section, TryOnButton } from '@/components'
+import { ErrorSnackbar, TryOnButton } from '@/components'
 import { AbortAlert, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './tryOn.module.scss'
-
-const animationConfig = {
-  initial: {
-    opacity: 0,
-  },
-  animate: {
-    opacity: 1,
-  },
-  exit: {
-    opacity: 0,
-  },
-  transition: {
-    duration: 0.3,
-    ease: easeInOut,
-  },
-}
 
 export default function TryOnDesktop() {
   const navigate = useNavigate()
@@ -66,28 +49,26 @@ export default function TryOnDesktop() {
   }, [hasInputImage, getRecentPhoto])
 
   return (
-    <>
+    <div className={styles.tryOnPage}>
       <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
-      <Section>
-        <motion.div key="tryon-desktop" className={styles.tryOnContainer} {...animationConfig}>
-          <div className={styles.tryOnContent}>
-            <ImageManager
-              uploadedImage={hasInputImage ? uploadedViewFile : undefined}
-              recentImage={recentImage || undefined}
-              isStartGeneration={isStartGeneration}
-              generatedImageUrl={generatedImageUrl}
-              onChangeImage={handleChangePhoto}
-            />
-          </div>
-          {showTryOnButton && (hasInputImage || recentImage) && (
-            <TryOnButton isShowTryOnIcon onClick={() => startTryOn()}>
-              Try On
-            </TryOnButton>
-          )}
-        </motion.div>
-      </Section>
-    </>
+      <div className={styles.tryOnContainer}>
+        <div className={styles.tryOnContent}>
+          <ImageManager
+            uploadedImage={hasInputImage ? uploadedViewFile : undefined}
+            recentImage={recentImage || undefined}
+            isStartGeneration={isStartGeneration}
+            generatedImageUrl={generatedImageUrl}
+            onChangeImage={handleChangePhoto}
+          />
+        </div>
+        {showTryOnButton && (hasInputImage || recentImage) && (
+          <TryOnButton isShowTryOnIcon onClick={() => startTryOn()}>
+            Try On
+          </TryOnButton>
+        )}
+      </div>
+    </div>
   )
 }

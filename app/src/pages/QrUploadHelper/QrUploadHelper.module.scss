@@ -1,0 +1,140 @@
+// QR Upload Helper page layout
+.qrUploadHelper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Container for uploaded photo content
+.uploadedContent {
+  width: 360px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+// Box containing uploaded photo preview
+.uploadedBox {
+  height: 508px;
+  overflow: hidden;
+  border-radius: 26px;
+  margin-bottom: 18px;
+}
+
+// Preview container for uploaded image
+.uploadPreview {
+  position: relative;
+  height: 100%;
+  min-width: 300px;
+}
+
+// Displayed image item
+.viewItem {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Button to change uploaded photo
+.changePhotoButton {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 25px;
+  border: none;
+  border-radius: 9px;
+  background: #ffffff66;
+  backdrop-filter: blur(10px);
+  color: #000;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 19.29px;
+  letter-spacing: -0.035em;
+  cursor: pointer;
+  min-width: 160px;
+  text-wrap: nowrap;
+}
+
+// Upload banner with placeholder content
+.banner {
+  position: relative;
+  width: 301px;
+  height: 492px;
+  border-radius: 25px;
+  background: #f2f2f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Content area for upload button
+.uploadButtonContent {
+  position: absolute;
+  bottom: 16px;
+
+  button {
+    padding: 12px 21px;
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: -0.525px;
+  }
+}
+
+// Container for result display content
+.resultContent {
+  display: flex;
+  row-gap: 50px;
+  align-items: center;
+  flex-direction: column;
+}
+
+// Box containing result image
+.resultImageBox {
+  position: relative;
+  width: 160px;
+  height: 245px;
+}
+
+// Result image styling
+.resultImage {
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+// Success icon overlay
+.successIcon {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  border-radius: 50%;
+  background-color: white;
+  transform: translate(-50%, 20px);
+}
+
+// Information content section
+.infoContent {
+  h3 {
+    margin: 0 auto;
+    max-width: 342px;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 100%;
+    color: #000;
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+
+  h4 {
+    color: #000;
+    margin: 16px auto;
+    max-width: 267px;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0px;
+    text-align: center;
+  }
+}
