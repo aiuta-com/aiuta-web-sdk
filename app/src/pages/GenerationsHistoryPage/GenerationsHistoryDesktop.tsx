@@ -1,17 +1,9 @@
 import React, { useState } from 'react'
-import { motion, easeInOut } from 'framer-motion'
 import { Section } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
 import styles from './generationsHistory.module.scss'
-
-const animationConfig = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.3, ease: easeInOut },
-}
 
 /**
  * Desktop version of generations history page
@@ -29,11 +21,7 @@ export default function GenerationsHistoryDesktop() {
 
   return (
     <Section className={styles.sectionContent}>
-      <motion.div
-        key="generations-history-desktop"
-        className={styles.viewContent}
-        {...animationConfig}
-      >
+      <div className={styles.viewContent}>
         <ImageGallery
           images={gallery.images}
           variant="generated"
@@ -62,7 +50,7 @@ export default function GenerationsHistoryDesktop() {
           onLeftClick={handleCloseModal}
           onRightClick={gallery.deleteSelectedImages}
         />
-      </motion.div>
+      </div>
     </Section>
   )
 }

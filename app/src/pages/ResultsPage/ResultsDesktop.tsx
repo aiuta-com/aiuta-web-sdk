@@ -1,16 +1,8 @@
 import React from 'react'
-import { motion, easeInOut } from 'framer-motion'
 import { Section, ThumbnailList } from '@/components'
 import { DesktopResultActions } from '@/components'
 import { useResultsGallery } from '@/hooks'
 import styles from './ResultsPage.module.scss'
-
-const animationConfig = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.3, ease: easeInOut },
-}
 
 /**
  * Desktop version of results page with synchronized scrolling
@@ -31,7 +23,7 @@ export default function ResultsDesktop() {
 
   return (
     <Section>
-      <motion.div key="results-desktop" className={styles.resultsContainer} {...animationConfig}>
+      <div className={styles.resultsContainer}>
         <div
           ref={generatedImagesContentRef}
           className={styles.mainGallery}
@@ -65,7 +57,7 @@ export default function ResultsDesktop() {
         </div>
 
         {currentImage && <DesktopResultActions activeGeneratedImageUrl={currentImage.url} />}
-      </motion.div>
+      </div>
     </Section>
   )
 }

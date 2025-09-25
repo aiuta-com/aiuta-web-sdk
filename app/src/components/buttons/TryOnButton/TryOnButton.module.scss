@@ -1,6 +1,5 @@
 .tryOnButton {
   position: relative;
-  transition: all ease-in-out 0.3s;
   cursor: pointer;
   width: 100%;
   border: none;
@@ -11,6 +10,7 @@
   column-gap: 4px;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   font-weight: 500;
   font-size: 17px;
@@ -32,6 +32,10 @@
   flex-shrink: 0;
 }
 
-.text {
-  // Text styles are inherited from parent button
+.tryOnButton_hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  cursor: default !important;
+  transition: none !important;
 }

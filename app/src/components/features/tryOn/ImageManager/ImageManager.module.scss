@@ -1,5 +1,9 @@
 .imageManager {
   position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .changePhotoButton {
@@ -7,16 +11,10 @@
   bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
-  padding: 12px 25px;
-  border: none;
-  border-radius: 9px;
-  background: #ffffff66;
-  backdrop-filter: blur(10px);
-  color: #000;
-  font-weight: 500;
-  font-size: 15px;
-  letter-spacing: -0.035em;
+  padding: 12px 25px !important;
+  border: none !important;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(5px);
   cursor: pointer;
-  min-width: 160px;
   text-wrap: nowrap;
 }

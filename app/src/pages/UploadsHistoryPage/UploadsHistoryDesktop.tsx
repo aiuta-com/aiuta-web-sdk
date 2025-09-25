@@ -1,17 +1,9 @@
 import React, { useState } from 'react'
-import { motion, easeInOut } from 'framer-motion'
 import { Section, PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useUploadsGallery } from '@/hooks'
 import styles from './uploadsHistory.module.scss'
-
-const animationConfig = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-  transition: { duration: 0.3, ease: easeInOut },
-}
 
 /**
  * Desktop version of uploads history page
@@ -29,7 +21,7 @@ export default function UploadsHistoryDesktop() {
 
   return (
     <Section className={styles.sectionContent}>
-      <motion.div key="uploads-history-desktop" className={styles.viewContent} {...animationConfig}>
+      <div className={styles.viewContent}>
         <ImageGallery
           images={gallery.images}
           variant="uploaded"
@@ -60,7 +52,7 @@ export default function UploadsHistoryDesktop() {
           onLeftClick={handleCloseModal}
           onRightClick={gallery.deleteSelectedImages}
         />
-      </motion.div>
+      </div>
 
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
         + Upload new photo

@@ -15,7 +15,7 @@ import { UploadHistorySheet, ErrorSnackbar, TryOnButton, DeletableImage } from '
 import { AbortAlert, ImageManager } from '@/components'
 import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
-import styles from './tryOn.module.scss'
+import styles from './TryOn.module.scss'
 
 export default function TryOnMobile() {
   const dispatch = useAppDispatch()

@@ -11,4 +11,6 @@ export type TryOnButtonProps = {
   isShowTryOnIcon?: boolean
   /** Button content - typically "Try On" */
   children: string | ReactElement
+  /** Whether the button should be hidden (but still take up space) */
+  hidden?: boolean
 }
