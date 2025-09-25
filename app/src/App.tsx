@@ -11,7 +11,7 @@ import {
 } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
 
-import PhotoUploadPage from '@/pages/PhotoUploadPage'
+import ImagePickerPage from '@/pages/ImagePickerPage'
 import Home from '@/pages/Home'
 import OnboardingPage from '@/pages/OnboardingPage'
 import TryOnPage from '@/pages/TryOnPage'
@@ -56,8 +56,8 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/qr" element={<PhotoUploadPage />} />
-            <Route path="/qr/:token" element={<PhotoUploadPage />} />
+            <Route path="/qr" element={<ImagePickerPage />} />
+            <Route path="/qr/:token" element={<ImagePickerPage />} />
             <Route path="/view" element={<TryOnPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/uploads-history" element={<UploadsHistoryPage />} />

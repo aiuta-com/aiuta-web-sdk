@@ -2,13 +2,13 @@ import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { PrimaryButton, ErrorSnackbar, Spinner } from '@/components'
 import { useQrToken } from '@/hooks'
-import styles from './photoUpload.module.scss'
+import styles from './ImagePicker.module.scss'
 
 function useQuery() {
   return new URLSearchParams(useLocation().search)
 }
 
-export default function PhotoUploadMobile() {
+export default function ImagePickerMobile() {
   const { token } = useParams<{ token: string }>()
   const query = useQuery()
   const apiKey = query.get('apiKey') || ''

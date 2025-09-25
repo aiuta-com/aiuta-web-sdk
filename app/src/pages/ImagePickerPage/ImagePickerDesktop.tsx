@@ -2,9 +2,9 @@ import React, { useEffect, ChangeEvent } from 'react'
 import { motion } from 'framer-motion'
 import { ErrorSnackbar, QrCode } from '@/components'
 import { useQrUpload, useTryOnAnalytics } from '@/hooks'
-import styles from './photoUpload.module.scss'
+import styles from './ImagePicker.module.scss'
 
-export default function PhotoUploadDesktop() {
+export default function ImagePickerDesktop() {
   const { qrUrl, uploadFromDevice, startPolling } = useQrUpload()
   const { trackTryOnInitiated } = useTryOnAnalytics()
 
@@ -25,7 +25,7 @@ export default function PhotoUploadDesktop() {
   return (
     <motion.div
       className={styles.qrContainer}
-      key="photo-upload-desktop"
+      key="image-picker-desktop"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
