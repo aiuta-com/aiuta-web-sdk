@@ -20,8 +20,6 @@ export interface SelectionSnackbarProps {
   onSelectAll: () => void
   /** List of action buttons to display */
   actions: SelectionActionItem[]
-  /** Whether the component is displayed on mobile */
-  isMobile?: boolean
   /** Additional CSS class name */
   className?: string
 }

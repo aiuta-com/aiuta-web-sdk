@@ -5,6 +5,7 @@ import { selectedImagesSelector } from '@/store/slices/generationsSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
+import { combineClassNames } from '@/utils'
 import { SelectableImageProps } from './types'
 import styles from './SelectableImage.module.scss'
 
@@ -17,16 +18,12 @@ export const SelectableImage = (props: SelectableImageProps) => {
   const [isHovered, setIsHovered] = useState<boolean>(false)
 
   // Select appropriate selectors based on gallery type
-  const generationsSelectedImages = useAppSelector(selectedImagesSelector)
-  const uploadsSelectedImages = useAppSelector(selectedUploadsSelector)
-  const isSelectingGeneratedImages = useAppSelector(generationsIsSelectingSelector)
-  const isSelectingUploadsImages = useAppSelector(uploadsIsSelectingSelector)
-
-  // Get current gallery data
-  const selectedImages =
-    galleryType === 'uploads' ? uploadsSelectedImages : generationsSelectedImages
-  const isSelecting =
-    galleryType === 'uploads' ? isSelectingUploadsImages : isSelectingGeneratedImages
+  const selectedImages = useAppSelector(
+    galleryType === 'uploads' ? selectedUploadsSelector : selectedImagesSelector,
+  )
+  const isSelecting = useAppSelector(
+    galleryType === 'uploads' ? uploadsIsSelectingSelector : generationsIsSelectingSelector,
+  )
 
   const handleClick = useCallback(() => {
     onClick?.()
@@ -78,9 +75,11 @@ export const SelectableImage = (props: SelectableImageProps) => {
   // CSS classes computation
   const containerClasses = useMemo(
     () =>
-      [styles.selectableImage, isSelected ? styles.selectableImageActive : '', classNames || '']
-        .filter(Boolean)
-        .join(' '),
+      combineClassNames(
+        styles.selectableImage,
+        isSelected && styles.selectableImageActive,
+        classNames,
+      ),
     [isSelected, classNames],
   )
 

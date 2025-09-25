@@ -37,7 +37,7 @@ export { MobileUploadPrompt } from './features/picker/MobileUploadPrompt'
 export { UploadHistorySheet } from './features/picker/UploadHistorySheet'
 
 // Gallery
-export { ImageGallery, EmptyGalleryState } from './features/gallery/ImageGallery'
+export { ImageGallery } from './features/gallery/ImageGallery'
 export { ThumbnailList } from './features/gallery/ThumbnailList'
 export { FullScreenGallery } from './features/gallery/FullScreenGallery'
 export { SelectableImage } from './features/gallery/SelectableImage'

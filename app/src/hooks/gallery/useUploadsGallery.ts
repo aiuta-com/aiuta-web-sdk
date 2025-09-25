@@ -30,7 +30,7 @@ export const useUploadsGallery = ({
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedUploadsSelector)
   const recentlyPhotos = useAppSelector(inputImagesSelector)
-  const isSelectPreviouslyImages = useAppSelector(uploadsIsSelectingSelector)
+  const isSelecting = useAppSelector(uploadsIsSelectingSelector)
   const { uploadImage } = useImageUpload()
 
   // Convert Redux photos to ImageItem format
@@ -55,7 +55,7 @@ export const useUploadsGallery = ({
 
   // Handle image selection (for full screen view only - selection is handled by SelectableImage)
   function handleImageSelect(image: ImageItem) {
-    if (!isSelectPreviouslyImages) {
+    if (!isSelecting) {
       // Not in selection mode - show full screen
       if (isMobile) {
         // Mobile: set full screen URL in Redux
@@ -94,15 +94,25 @@ export const useUploadsGallery = ({
     // })
   }, [recentlyPhotos, selectedImages, clearSelection, dispatch, closeUploadsImagesModal])
 
-  // Handle select all action
-  const handleSelectAll = useCallback(() => {
-    const uploadsImagesId = recentlyPhotos.map(({ id }) => id)
-    dispatch(uploadsSlice.actions.setSelectedImages(uploadsImagesId))
-  }, [dispatch, recentlyPhotos])
+  // Toggle select all action
+  const toggleSelectAll = useCallback(() => {
+    const allImageIds = recentlyPhotos.map(({ id }) => id)
+    const allSelected =
+      allImageIds.length > 0 && allImageIds.every((id) => selectedImages.includes(id))
+
+    if (allSelected) {
+      // If all selected - clear selection
+      dispatch(uploadsSlice.actions.clearSelectedImages())
+    } else {
+      // Otherwise - select all
+      dispatch(uploadsSlice.actions.setSelectedImages(allImageIds))
+    }
+  }, [dispatch, recentlyPhotos, selectedImages])
 
   // Handle cancel selection
   const handleCancel = useCallback(() => {
     dispatch(uploadsSlice.actions.clearSelectedImages())
+    dispatch(uploadsSlice.actions.setIsSelecting(false))
   }, [dispatch])
 
   // Selection actions for SelectionSnackbar (only delete, no download for uploads)
@@ -137,8 +147,7 @@ export const useUploadsGallery = ({
     recentlyPhotos,
     selectedImages,
     hasSelection,
-    isSelectPreviouslyImages,
-    isMobile,
+    isSelecting,
     deleteSelectedImages,
     closeUploadsImagesModal,
     handlePhotoUpload,
@@ -147,7 +156,7 @@ export const useUploadsGallery = ({
     selectedCount: selectedImages.length,
     totalCount: recentlyPhotos.length,
     onCancel: handleCancel,
-    onSelectAll: handleSelectAll,
+    onSelectAll: toggleSelectAll,
     selectionActions,
   }
 }

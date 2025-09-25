@@ -24,17 +24,13 @@ export default function GenerationsHistoryMobile() {
       <div className={styles.viewContent}>
         <ImageGallery
           images={gallery.images}
-          variant="generated"
           onImageClick={gallery.handleImageClick}
           galleryType="generations"
-          emptyMessage="Once you try on first item your try-on history would be stored here"
           className={styles.imageContent}
-          isMobile
         />
 
         <SelectionSnackbar
           isVisible={gallery.hasSelection}
-          isMobile={gallery.isMobile}
           className={styles.historyBanner}
           selectedCount={gallery.selectedCount}
           totalCount={gallery.totalCount}

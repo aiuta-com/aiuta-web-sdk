@@ -24,18 +24,13 @@ export default function UploadsHistoryDesktop() {
       <div className={styles.viewContent}>
         <ImageGallery
           images={gallery.images}
-          variant="uploaded"
           onImageClick={gallery.handleImageClick}
-          onImageDelete={gallery.handleImageDelete}
-          enableSelection={gallery.isSelectPreviouslyImages}
           galleryType="uploads"
-          emptyMessage="Upload your first photo to see it here"
           className={styles.imageContent}
         />
 
         <SelectionSnackbar
           isVisible={gallery.hasSelection}
-          isMobile={false}
           className={styles.historyBanner}
           selectedCount={gallery.selectedCount}
           totalCount={gallery.totalCount}

@@ -1,35 +1,17 @@
-import React, { useMemo } from 'react'
+import React from 'react'
 import { SecondaryButton } from '@/components'
+import { combineClassNames } from '@/utils'
 import { SelectionSnackbarProps } from './types'
 import styles from './SelectionSnackbar.module.scss'
 
 export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
-  const {
-    isVisible,
-    selectedCount,
-    totalCount,
-    onCancel,
-    onSelectAll,
-    actions,
-    isMobile = false,
+  const { isVisible, selectedCount, totalCount, onCancel, onSelectAll, actions, className } = props
+
+  const containerClasses = combineClassNames(
+    styles.selectionSnackbar,
+    isVisible && styles.selectionSnackbar_visible,
     className,
-  } = props
-
-  const containerClasses = useMemo(() => {
-    const classes = [styles.selectionSnackbar]
-
-    if (isVisible && isMobile) {
-      classes.push(styles.selectionSnackbar_visibleMobile)
-    } else if (isVisible) {
-      classes.push(styles.selectionSnackbar_visible)
-    }
-
-    if (className) {
-      classes.push(className)
-    }
-
-    return classes.join(' ')
-  }, [isVisible, isMobile, className])
+  )
 
   const isAllSelected = selectedCount === totalCount
 
@@ -38,9 +20,11 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
       <div className={styles.content}>
         <div className={styles.controls}>
           <SecondaryButton text="Cancel" onClick={onCancel} classNames={styles.cancelButton} />
-          <p className={styles.selectAllText} onClick={onSelectAll}>
-            {isAllSelected ? `All ${totalCount} selected` : 'Select All'}
-          </p>
+          <SecondaryButton
+            text={isAllSelected ? `All ${totalCount} selected` : 'Select All'}
+            onClick={onSelectAll}
+            classNames={styles.selectAllButton}
+          />
         </div>
 
         <div className={styles.actions}>

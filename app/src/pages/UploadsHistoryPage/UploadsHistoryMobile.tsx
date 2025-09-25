@@ -24,19 +24,13 @@ export default function UploadsHistoryMobile() {
       <div className={styles.viewContent}>
         <ImageGallery
           images={gallery.images}
-          variant="uploaded"
           onImageClick={gallery.handleImageClick}
-          onImageDelete={gallery.handleImageDelete}
-          enableSelection={gallery.isSelectPreviouslyImages}
           galleryType="uploads"
-          emptyMessage="Upload your first photo to see it here"
           className={styles.imageContent}
-          isMobile
         />
 
         <SelectionSnackbar
           isVisible={gallery.hasSelection}
-          isMobile={gallery.isMobile}
           className={styles.historyBanner}
           selectedCount={gallery.selectedCount}
           totalCount={gallery.totalCount}

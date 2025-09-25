@@ -1,20 +1,17 @@
-import React, { useMemo } from 'react'
+import React from 'react'
+import { combineClassNames } from '@/utils'
 import { PrimaryButtonProps } from './types'
 import styles from './PrimaryButton.module.scss'
 
 export const PrimaryButton = (props: PrimaryButtonProps) => {
   const { disabled, children, iconUrl, onClick, className } = props
 
-  const buttonClasses = useMemo(() => {
-    const classes = ['aiuta-button-m', styles.primaryButton]
-    if (disabled) {
-      classes.push(styles.primaryButton_disabled)
-    }
-    if (className) {
-      classes.push(className)
-    }
-    return classes.join(' ')
-  }, [disabled, className])
+  const buttonClasses = combineClassNames(
+    'aiuta-button-m',
+    styles.primaryButton,
+    disabled && styles.primaryButton_disabled,
+    className,
+  )
 
   return (
     <button disabled={disabled} className={buttonClasses} onClick={onClick}>

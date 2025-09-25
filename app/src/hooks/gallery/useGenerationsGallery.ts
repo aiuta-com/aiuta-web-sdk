@@ -33,7 +33,7 @@ export const useGenerationsGallery = ({
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
   const productId = useAppSelector(productIdSelector)
-  const isSelectHistoryImages = useAppSelector(generationsIsSelectingSelector)
+  const isSelecting = useAppSelector(generationsIsSelectingSelector)
 
   // Convert Redux images to ImageItem format
   const images: ImageItem[] = generatedImages.map(({ id, url }) => ({ id, url }))
@@ -45,39 +45,29 @@ export const useGenerationsGallery = ({
     galleryType: 'generations',
     modalType: 'history',
     onImageSelect: handleImageSelect,
-    enableSelection: isSelectHistoryImages,
+    enableSelection: isSelecting,
   })
 
   const { trackImageDeleted, trackEvent } = gallery
 
+  // Toggle image selection for deletion
+  function toggleImageSelection(imageId: string) {
+    const newSelectedIds = gallery.isSelected(imageId)
+      ? selectedIds.filter((id) => id !== imageId)
+      : [...selectedIds, imageId]
+
+    dispatch(generationsSlice.actions.setSelectedImages(newSelectedIds))
+  }
+
   // Handle image selection (for selection or full screen view)
   function handleImageSelect(image: ImageItem) {
-    if (!isMobile) {
-      if (isSelectHistoryImages) {
-        // Desktop: toggle selection for deletion
-        if (gallery.isSelected(image.id)) {
-          dispatch(
-            generationsSlice.actions.setSelectedImages(selectedIds.filter((id) => id !== image.id)),
-          )
-        } else {
-          dispatch(generationsSlice.actions.setSelectedImages([...selectedIds, image.id]))
-        }
-      } else {
-        // Desktop: show full screen modal
-        gallery.showFullScreen(image)
-      }
+    if (isSelecting) {
+      toggleImageSelection(image.id)
     } else {
-      if (isSelectHistoryImages) {
-        // Mobile: toggle selection for deletion
-        if (gallery.isSelected(image.id)) {
-          dispatch(
-            generationsSlice.actions.setSelectedImages(selectedIds.filter((id) => id !== image.id)),
-          )
-        } else {
-          dispatch(generationsSlice.actions.setSelectedImages([...selectedIds, image.id]))
-        }
+      // Show full screen (different logic for desktop vs mobile)
+      if (!isMobile) {
+        gallery.showFullScreen(image)
       } else {
-        // Mobile: set full screen URL in Redux
         dispatch(uploadsSlice.actions.showImageFullScreen(image.url))
       }
     }
@@ -110,15 +100,25 @@ export const useGenerationsGallery = ({
     trackImageDeleted,
   ])
 
-  // Handle select all action
-  const handleSelectAll = useCallback(() => {
-    const generatedImagesId = generatedImages.map(({ id }) => id)
-    dispatch(generationsSlice.actions.setSelectedImages(generatedImagesId))
-  }, [dispatch, generatedImages])
+  // Toggle select all action
+  const toggleSelectAll = useCallback(() => {
+    const allImageIds = generatedImages.map(({ id }) => id)
+    const allSelected =
+      allImageIds.length > 0 && allImageIds.every((id) => selectedImages.includes(id))
+
+    if (allSelected) {
+      // If all selected - clear selection
+      dispatch(generationsSlice.actions.clearSelectedImages())
+    } else {
+      // Otherwise - select all
+      dispatch(generationsSlice.actions.setSelectedImages(allImageIds))
+    }
+  }, [dispatch, generatedImages, selectedImages])
 
   // Handle cancel selection
   const handleCancel = useCallback(() => {
     dispatch(generationsSlice.actions.clearSelectedImages())
+    dispatch(generationsSlice.actions.setIsSelecting(false))
   }, [dispatch])
 
   // Handle download selected images
@@ -188,15 +188,14 @@ export const useGenerationsGallery = ({
     generatedImages,
     selectedImages,
     hasSelection,
-    isSelectHistoryImages,
-    isMobile,
+    isSelecting,
     deleteSelectedImages,
     closeHistoryImagesModal,
     // Selection snackbar props
     selectedCount: selectedImages.length,
     totalCount: generatedImages.length,
     onCancel: handleCancel,
-    onSelectAll: handleSelectAll,
+    onSelectAll: toggleSelectAll,
     selectionActions,
   }
 }

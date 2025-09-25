@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
-import styles from './GenerationsHistory.module.scss'
 
 /**
  * Desktop version of generations history page
@@ -22,16 +21,12 @@ export default function GenerationsHistoryDesktop() {
     <>
       <ImageGallery
         images={gallery.images}
-        variant="generated"
         onImageClick={gallery.handleImageClick}
         galleryType="generations"
-        emptyMessage="Once you try on first item your try-on history would be stored here"
       />
 
       <SelectionSnackbar
-        isVisible={gallery.hasSelection}
-        isMobile={false}
-        className={styles.historyBanner}
+        isVisible={gallery.isSelecting}
         selectedCount={gallery.selectedCount}
         totalCount={gallery.totalCount}
         onCancel={gallery.onCancel}
