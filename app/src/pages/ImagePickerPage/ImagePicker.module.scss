@@ -6,34 +6,28 @@
   justify-content: center;
 }
 
-// QR code content container
-.qrContent {
+.content {
   display: flex;
-  row-gap: 36px;
+  row-gap: 48px;
   align-items: center;
   flex-direction: column;
 }
 
 // Upload information section
-.uploadInfo {
+.options {
   display: flex;
-  row-gap: 20px;
   align-items: center;
   flex-direction: column;
 }
 
 // Scan QR code text
-.scanText {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 22px;
+.qrHint {
   text-align: center;
-  letter-spacing: -0.035em;
   margin: 0;
 }
 
 // "Or" separator text
-.orText {
+.or {
   color: var(--aiuta-color-secondary);
   margin: 0;
 }
@@ -42,11 +36,7 @@
 .uploadButton {
   cursor: pointer;
   color: var(--aiuta-color-brand);
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 22px;
   text-align: center;
-  letter-spacing: -0.035em;
   margin: 0;
 }
 
