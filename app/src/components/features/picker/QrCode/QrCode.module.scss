@@ -1,10 +1,4 @@
-.qrCode {
-  display: flex;
-  row-gap: 36px;
-  align-items: center;
-  flex-direction: column;
-}
-
+// QR code container
 .qrBox {
   position: relative;
   max-width: 220px;
@@ -13,6 +7,7 @@
   overflow: hidden;
 }
 
+// Loading spinner overlay
 .spinnerOverlay {
   display: flex;
   align-items: center;
@@ -24,32 +19,4 @@
   padding: 10px;
   border-radius: 10px;
   transform: translate(-50%, -50%);
-}
-
-.infoContent {
-  display: flex;
-  row-gap: 20px;
-  align-items: center;
-  flex-direction: column;
-}
-
-.text {
-  font-weight: 500;
-  font-size: 16px;
-  line-height: 22px;
-  text-align: center;
-  letter-spacing: -0.035em;
-}
-
-.secondaryText {
-  color: var(--aiuta-color-secondary);
-}
-
-.primaryText {
-  cursor: pointer;
-  color: var(--aiuta-color-brand);
-
-  input {
-    display: none;
-  }
 }

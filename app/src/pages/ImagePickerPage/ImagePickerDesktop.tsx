@@ -1,5 +1,4 @@
 import React, { useEffect, ChangeEvent } from 'react'
-import { motion } from 'framer-motion'
 import { ErrorSnackbar, QrCode } from '@/components'
 import { useQrUpload, useTryOnAnalytics } from '@/hooks'
 import styles from './ImagePicker.module.scss'
@@ -23,16 +22,27 @@ export default function ImagePickerDesktop() {
   }
 
   return (
-    <motion.div
-      className={styles.qrContainer}
-      key="image-picker-desktop"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-    >
+    <div className={styles.imagePicker}>
       <ErrorSnackbar />
-      {qrUrl ? <QrCode onFileUpload={handleChoosePhoto} url={qrUrl} /> : null}
-    </motion.div>
+      {qrUrl ? (
+        <div className={styles.qrContent}>
+          <QrCode url={qrUrl} />
+          <div className={styles.uploadInfo}>
+            <p className={styles.scanText}>Scan the QR code</p>
+            <p className={styles.orText}>Or</p>
+            <label htmlFor="upload-file" className={styles.uploadButton}>
+              Click here to upload
+              <input
+                onChange={handleChoosePhoto}
+                type="file"
+                id="upload-file"
+                accept="image/*"
+                style={{ display: 'none' }}
+              />
+            </label>
+          </div>
+        </div>
+      ) : null}
+    </div>
   )
 }

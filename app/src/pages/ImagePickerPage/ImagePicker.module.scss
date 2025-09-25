@@ -1,17 +1,53 @@
-// Main container for QR upload mode
-.qrContainer {
+// Main ImagePicker component block
+.imagePicker {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-// Main container for token upload mode
-.tokenContainer {
-  flex: 1;
+// QR code content container
+.qrContent {
   display: flex;
+  row-gap: 36px;
   align-items: center;
-  justify-content: center;
+  flex-direction: column;
+}
+
+// Upload information section
+.uploadInfo {
+  display: flex;
+  row-gap: 20px;
+  align-items: center;
+  flex-direction: column;
+}
+
+// Scan QR code text
+.scanText {
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  text-align: center;
+  letter-spacing: -0.035em;
+  margin: 0;
+}
+
+// "Or" separator text
+.orText {
+  color: var(--aiuta-color-secondary);
+  margin: 0;
+}
+
+// Upload button label
+.uploadButton {
+  cursor: pointer;
+  color: var(--aiuta-color-brand);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 22px;
+  text-align: center;
+  letter-spacing: -0.035em;
+  margin: 0;
 }
 
 // Container for uploaded photo content

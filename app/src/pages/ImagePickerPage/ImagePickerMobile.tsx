@@ -33,7 +33,7 @@ export default function ImagePickerMobile() {
   }
 
   return (
-    <div className={styles.tokenContainer}>
+    <div className={styles.imagePicker}>
       <ErrorSnackbar />
       {uploadState.selectedFile && !uploadState.uploadedUrl ? (
         <div className={styles.uploadedContent}>
