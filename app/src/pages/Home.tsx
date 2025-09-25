@@ -1,27 +1,25 @@
-import React, { useEffect } from 'react'
-import { Spinner } from '@/components'
-import { useAppInitialization } from '@/hooks'
+import { useEffect } from 'react'
+import { useInitialRoute } from '@/hooks'
 
 /**
- * Home - App entry point and initializer
+ * Home - App entry point and router
  *
  * Handles:
- * - App initialization (RPC, storage, state)
- * - Loading state during initialization
- * - Automatic navigation based on user state (handled in useAppInitialization)
+ * - Initial route determination based on app state
+ * - Automatic navigation based on user state (handled in useInitialRoute)
  *
  * After initialization, users are automatically redirected to:
  * - /onboarding (if onboarding not completed)
  * - /view or /qr (if onboarding completed, based on mobile/desktop and stored photos)
  */
 export default function Home() {
-  const { initializeApp } = useAppInitialization()
+  const { navigateInitially } = useInitialRoute()
 
-  // Initialize app on mount
+  // Determine and navigate to initial route on mount
   useEffect(() => {
-    initializeApp()
-  }, [initializeApp])
+    navigateInitially()
+  }, [navigateInitially])
 
-  // Show loading spinner during initialization
-  return <Spinner isVisible={true} />
+  // Nothing to render - navigation happens immediately
+  return null
 }

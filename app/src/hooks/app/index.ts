@@ -1,4 +1,4 @@
-export { useAppInitialization } from './useAppInitialization'
+export { useInitialRoute } from './useInitialRoute'
 export { useRpcInitialization } from './useRpcInitialization'
 export { useUrlParams } from './useUrlParams'
 export { useLoggerConfig } from './useLoggerConfig'

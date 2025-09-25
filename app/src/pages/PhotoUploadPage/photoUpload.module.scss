@@ -1,7 +1,6 @@
 // QR mode container
 .qr-container {
-  height: calc(100vh - 128px);
-  background: var(--aiuta-color-background);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9,8 +8,7 @@
 
 // Token mode container
 .token-container {
-  min-height: 100vh;
-  background: var(--aiuta-color-background);
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;

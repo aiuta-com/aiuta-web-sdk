@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { OnboardingStep, OnboardingCarousel, Consent, PrimaryButton } from '@/components'
 import { CarouselItem } from '@/components/features/onboarding/OnboardingCarousel'
+import { useOnboardingSteps, useOnboardingAnalytics } from '@/hooks'
 import styles from './OnboardingMobile.module.scss'
 
 interface OnboardingMobileProps {
@@ -26,6 +27,9 @@ const CAROUSEL_ITEMS: CarouselItem[] = [
 ]
 
 export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
+  const { trackConsentsGiven, trackOnboardingFinished } = useOnboardingAnalytics()
+  const { completeOnboarding } = useOnboardingSteps()
+
   const [currentStep, setCurrentStep] = useState(0)
   const [carouselIndex, setCarouselIndex] = useState(0)
   const [isConsentChecked, setIsConsentChecked] = useState(false)
@@ -39,6 +43,9 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
       setCurrentStep(currentStep + 1)
     } else {
       // Complete onboarding
+      trackConsentsGiven()
+      trackOnboardingFinished()
+      completeOnboarding()
       onComplete()
     }
   }
