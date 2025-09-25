@@ -2,7 +2,7 @@ import React from 'react'
 import { Section, ThumbnailList } from '@/components'
 import { DesktopResultActions } from '@/components'
 import { useResultsGallery } from '@/hooks'
-import styles from './ResultsPage.module.scss'
+import styles from './Results.module.scss'
 
 /**
  * Desktop version of results page with synchronized scrolling

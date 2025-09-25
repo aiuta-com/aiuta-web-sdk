@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { Section } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
-import styles from './generationsHistory.module.scss'
+import styles from './GenerationsHistory.module.scss'
 
 /**
  * Desktop version of generations history page
@@ -20,37 +19,34 @@ export default function GenerationsHistoryDesktop() {
   })
 
   return (
-    <Section className={styles.sectionContent}>
-      <div className={styles.viewContent}>
-        <ImageGallery
-          images={gallery.images}
-          variant="generated"
-          onImageClick={gallery.handleImageClick}
-          galleryType="generations"
-          emptyMessage="Once you try on first item your try-on history would be stored here"
-          className={styles.imageContent}
-        />
+    <>
+      <ImageGallery
+        images={gallery.images}
+        variant="generated"
+        onImageClick={gallery.handleImageClick}
+        galleryType="generations"
+        emptyMessage="Once you try on first item your try-on history would be stored here"
+      />
 
-        <SelectionSnackbar
-          isVisible={gallery.hasSelection}
-          isMobile={false}
-          className={styles.historyBanner}
-          selectedCount={gallery.selectedCount}
-          totalCount={gallery.totalCount}
-          onCancel={gallery.onCancel}
-          onSelectAll={gallery.onSelectAll}
-          actions={gallery.selectionActions}
-        />
+      <SelectionSnackbar
+        isVisible={gallery.hasSelection}
+        isMobile={false}
+        className={styles.historyBanner}
+        selectedCount={gallery.selectedCount}
+        totalCount={gallery.totalCount}
+        onCancel={gallery.onCancel}
+        onSelectAll={gallery.onSelectAll}
+        actions={gallery.selectionActions}
+      />
 
-        <ConfirmationAlert
-          isVisible={isModalVisible}
-          message="Are you sure you want to delete these try-ons?"
-          leftButtonText="Keep"
-          rightButtonText="Delete"
-          onLeftClick={handleCloseModal}
-          onRightClick={gallery.deleteSelectedImages}
-        />
-      </div>
-    </Section>
+      <ConfirmationAlert
+        isVisible={isModalVisible}
+        message="Are you sure you want to delete these try-ons?"
+        leftButtonText="Keep"
+        rightButtonText="Delete"
+        onLeftClick={handleCloseModal}
+        onRightClick={gallery.deleteSelectedImages}
+      />
+    </>
   )
 }

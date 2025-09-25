@@ -1,7 +1,7 @@
 import React from 'react'
 import { Section } from '@/components'
 import { useResultsShare } from '@/hooks'
-import styles from './ResultsPage.module.scss'
+import styles from './Results.module.scss'
 
 /**
  * Mobile version of results page with share functionality

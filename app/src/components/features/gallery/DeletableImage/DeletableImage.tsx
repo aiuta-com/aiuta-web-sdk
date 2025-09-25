@@ -22,7 +22,7 @@ export const DeletableImage = (props: DeletableImageProps) => {
   return (
     <div className={containerClasses} onClick={handleClick}>
       <DeletionButton showTrashIcon={showTrashIcon} onDelete={handleDelete} />
-      <img src={src} width={115} height={180} loading="lazy" alt="Deletable image" />
+      <img src={src} loading="lazy" alt="Deletable image" />
     </div>
   )
 }

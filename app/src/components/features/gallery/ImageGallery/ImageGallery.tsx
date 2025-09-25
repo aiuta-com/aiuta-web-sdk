@@ -37,9 +37,7 @@ export const ImageGallery = ({
   }
 
   return (
-    <div
-      className={`${styles.imageContent} ${isMobile ? styles['imageContent--mobile'] : ''} ${className || ''}`}
-    >
+    <div className={`${styles.imageGallery} ${className || ''}`}>
       {images.map((image, index) => {
         const key = `${image.id}-${index}-${images.length}`
         const classNames = isMobile ? styles['selectableImage--mobile'] : ''

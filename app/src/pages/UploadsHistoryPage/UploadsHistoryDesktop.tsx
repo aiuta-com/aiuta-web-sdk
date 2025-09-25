@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import { Section, PrimaryButton } from '@/components'
+import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useUploadsGallery } from '@/hooks'
-import styles from './uploadsHistory.module.scss'
+import styles from './UploadsHistory.module.scss'
 
 /**
  * Desktop version of uploads history page
@@ -20,7 +20,7 @@ export default function UploadsHistoryDesktop() {
   })
 
   return (
-    <Section className={styles.sectionContent}>
+    <>
       <div className={styles.viewContent}>
         <ImageGallery
           images={gallery.images}
@@ -57,6 +57,6 @@ export default function UploadsHistoryDesktop() {
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
         + Upload new photo
       </PrimaryButton>
-    </Section>
+    </>
   )
 }

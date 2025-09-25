@@ -3,7 +3,7 @@ import { Section } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
-import styles from './generationsHistory.module.scss'
+import styles from './GenerationsHistory.module.scss'
 
 /**
  * Mobile version of generations history page

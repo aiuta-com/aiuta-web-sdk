@@ -1,9 +1,10 @@
-.imageContent {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
+.imageGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40px, min(160px, calc(33.333% - 6px))));
+  grid-auto-rows: max-content;
+  gap: 8px;
   overflow-y: auto;
-  max-height: 555px;
+  padding: 0 16px 16px;
 
   &::-webkit-scrollbar {
     display: none;

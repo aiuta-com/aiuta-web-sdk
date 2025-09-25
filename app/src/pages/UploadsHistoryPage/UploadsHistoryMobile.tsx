@@ -3,7 +3,7 @@ import { Section, PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useUploadsGallery } from '@/hooks'
-import styles from './uploadsHistory.module.scss'
+import styles from './UploadsHistory.module.scss'
 
 /**
  * Mobile version of uploads history page

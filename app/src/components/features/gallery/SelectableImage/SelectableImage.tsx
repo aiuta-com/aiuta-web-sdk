@@ -87,7 +87,7 @@ export const SelectableImage = (props: SelectableImageProps) => {
   return (
     <div className={containerClasses} onClick={handleClick}>
       {isCheckmarkVisible && <div className={styles.checkmark} />}
-      <img src={src} width={115} height={180} loading="lazy" alt="Selectable image" />
+      <img src={src} loading="lazy" alt="Selectable image" />
     </div>
   )
 }
