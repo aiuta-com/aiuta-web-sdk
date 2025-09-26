@@ -15,6 +15,9 @@ export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
 export { TryOnButton } from './buttons/TryOnButton'
 
+// Images
+export { RemoteImage } from './gallery/RemoteImage'
+
 // Indicators
 export { Spinner } from './indicators/Spinner/Spinner'
 export { CountDown } from './indicators/CountDown/CountDown'
@@ -27,30 +30,30 @@ export { SelectionSnackbar } from './popups/SelectionSnackbar'
 // ===== FEATURE COMPONENTS =====
 
 // Onboarding
-export { Consent } from './features/onboarding/Consent'
-export { OnboardingStep } from './features/onboarding/OnboardingStep'
-export { OnboardingCarousel } from './features/onboarding/OnboardingCarousel'
+export { Consent } from './onboarding/Consent'
+export { OnboardingStep } from './onboarding/OnboardingStep'
+export { OnboardingCarousel } from './onboarding/OnboardingCarousel'
 
 // Picker (Upload)
-export { QrCode } from './features/picker/QrCode'
-export { MobileUploadPrompt } from './features/picker/MobileUploadPrompt'
-export { UploadHistorySheet } from './features/picker/UploadHistorySheet'
+export { QrCode } from './picker/QrCode'
+export { MobileUploadPrompt } from './picker/MobileUploadPrompt'
+export { UploadHistorySheet } from './picker/UploadHistorySheet'
 
 // Gallery
-export { ImageGallery } from './features/gallery/ImageGallery'
-export { ThumbnailList } from './features/gallery/ThumbnailList'
-export { FullScreenGallery } from './features/gallery/FullScreenGallery'
-export { SelectableImage } from './features/gallery/SelectableImage'
-export { DeletableImage } from './features/gallery/DeletableImage'
+export { ImageGallery } from './gallery/ImageGallery'
+export { ThumbnailList } from './gallery/ThumbnailList'
+export { FullScreenGallery } from './gallery/FullScreenGallery'
+export { SelectableImage } from './gallery/SelectableImage'
+export { DeletableImage } from './gallery/DeletableImage'
 
 // Try-On
-export { TryOnAnimator } from './features/tryOn/TryOnAnimator'
-export { ProcessingStatus } from './features/tryOn/ProcessingStatus'
-export { ImageManager } from './features/tryOn/ImageManager'
+export { TryOnAnimator } from './tryOn/TryOnAnimator'
+export { ProcessingStatus } from './tryOn/ProcessingStatus'
+export { ImageManager } from './tryOn/ImageManager'
 
 // Results
-export { DesktopResultActions } from './features/results/DesktopResultActions'
-export { ShareModal } from './features/results/ShareModal'
+export { DesktopResultActions } from './results/DesktopResultActions'
+export { ShareModal } from './results/ShareModal'
 
 // ===== ALERTS =====
 export { AbortAlert } from './alerts/AbortAlert'

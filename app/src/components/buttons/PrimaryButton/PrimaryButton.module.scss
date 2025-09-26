@@ -9,13 +9,10 @@
   column-gap: 4px;
   align-items: center;
   justify-content: center;
+  padding: 16px;
 
   &:hover:not(:disabled) {
     opacity: 0.9;
-  }
-
-  &:active:not(:disabled) {
-    transform: translateY(1px);
   }
 
   &_disabled {

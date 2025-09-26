@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { CarouselItem } from '@/components/features/onboarding/OnboardingCarousel'
+import { CarouselItem } from '@/components/onboarding/OnboardingCarousel'
 
 export interface OnboardingCarouselConfig {
   /** Initial carousel index */

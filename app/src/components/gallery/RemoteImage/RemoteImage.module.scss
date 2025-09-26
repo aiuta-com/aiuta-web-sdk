@@ -1,0 +1,35 @@
+// Remote image container with loading states
+.remoteImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background: var(--aiuta-color-neutral);
+  display: block;
+
+  // Image element
+  .image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  // Show image when loaded
+  .image_loaded {
+    opacity: 1;
+  }
+
+  // Error state icon
+  .errorIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+  }
+}

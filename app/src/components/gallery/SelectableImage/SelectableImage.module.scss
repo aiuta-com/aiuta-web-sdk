@@ -7,20 +7,10 @@
   contain: size layout;
   overflow: hidden;
 
-  // Visual appearance
-  border-radius: 16px;
-
   // Behavior
   cursor: pointer;
   scroll-snap-align: start;
   transition: all 0.1s ease-in-out;
-
-  // Image element
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   // Selection checkmark (default state - in selection mode but not selected)
   .checkmark {
@@ -32,7 +22,7 @@
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.6);
     background: rgba(255, 255, 255, 0.5);
-    // transition: all 0.1s ease-in-out;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: center;

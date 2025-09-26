@@ -14,3 +14,13 @@
   border: none;
   border-radius: 8px;
 }
+
+/* Image Large Shape */
+.aiuta-image-l {
+  border-radius: 24px;
+}
+
+/* Image Medium Shape */
+.aiuta-image-m {
+  border-radius: 16px;
+}

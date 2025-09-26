@@ -6,7 +6,7 @@ import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { combineClassNames } from '@/utils'
-import { Icon } from '@/components'
+import { Icon, RemoteImage } from '@/components'
 import { SelectableImageProps } from './types'
 import styles from './SelectableImage.module.scss'
 
@@ -96,7 +96,7 @@ export const SelectableImage = (props: SelectableImageProps) => {
           />
         </div>
       )}
-      <img src={src} loading="lazy" alt="Selectable image" />
+      <RemoteImage src={src} alt="Image" shape="M" loading="lazy" />
     </div>
   )
 }
