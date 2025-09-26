@@ -14,7 +14,7 @@ import {
 
 import { ErrorSnackbar, TryOnButton } from '@/components'
 import { AbortAlert, ImageManager } from '@/components'
-import { useTryOnGeneration, usePhotoGallery } from '@/hooks'
+import { useTryOnGeneration, useUploadsGallery } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
@@ -25,7 +25,7 @@ export default function TryOnDesktop() {
   const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
   const isAborted = useAppSelector(isAbortedSelector)
 
-  const { getRecentPhoto } = usePhotoGallery()
+  const { getRecentPhoto } = useUploadsGallery()
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
 
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
@@ -34,11 +34,6 @@ export default function TryOnDesktop() {
   const handleChangePhoto = () => {
     navigate('/uploads-history')
   }
-
-  // TODO: Implement fullscreen functionality when needed
-  // const handleShowFullScreen = (activeImage: InputImage) => {
-  //   await rpc.sdk.openFullScreenModal({ activeImage })
-  // }
 
   const hasInputImage = uploadedViewFile.localUrl.length > 0
   const showTryOnButton = !isGenerating && !isAborted && !isButtonClicked

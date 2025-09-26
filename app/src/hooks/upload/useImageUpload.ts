@@ -1,20 +1,24 @@
+import { useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { appSlice } from '@/store/slices/appSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { TryOnApiService, InputImage } from '@/utils/api/tryOnApiService'
-import { usePhotoGallery } from '@/hooks/tryOn/usePhotoGallery'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
-export const useImageUpload = () => {
+interface UseImageUploadOptions {
+  withinGenerationFlow?: boolean
+}
+
+export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadOptions = {}) => {
   const dispatch = useAppDispatch()
   const apiKey = useAppSelector(apiKeySelector)
   const subscriptionId = useAppSelector(subscriptionIdSelector)
   const productId = useAppSelector(productIdSelector)
-  const { addPhotoToGallery } = usePhotoGallery()
   const { trackUploadError } = useTryOnAnalytics()
+
+  const [isUploading, setIsUploading] = useState(false)
 
   const uploadImage = async (
     file: File,
@@ -25,8 +29,12 @@ export const useImageUpload = () => {
     const endpointData = { apiKey, subscriptionId, skuId: productId }
 
     try {
-      dispatch(tryOnSlice.actions.setIsGenerating(true))
-      dispatch(appSlice.actions.setHasFooter(true))
+      setIsUploading(true)
+
+      // Only set generating state if within generation flow
+      if (withinGenerationFlow) {
+        dispatch(tryOnSlice.actions.setIsGenerating(true))
+      }
 
       const result = await TryOnApiService.uploadImage(file, endpointData)
 
@@ -43,20 +51,26 @@ export const useImageUpload = () => {
           }),
         )
 
-        // Add to gallery
-        addPhotoToGallery(uploadedImage)
-
         onSuccess?.(uploadedImage)
+
+        // Auto-reset upload state after a short delay to allow navigation
+        setTimeout(() => setIsUploading(false), 100)
       } else if (result.error) {
+        setIsUploading(false)
         handleUploadError(result.error)
       }
     } catch (error: any) {
+      setIsUploading(false)
       handleUploadError(error.message)
     }
   }
 
   const handleUploadError = (errorMessage: string) => {
-    dispatch(tryOnSlice.actions.setIsGenerating(false))
+    // Only reset generating state if within generation flow
+    if (withinGenerationFlow) {
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
+    }
+
     dispatch(
       errorSnackbarSlice.actions.showErrorSnackbar({
         retryButtonText: 'Try again',
@@ -69,5 +83,6 @@ export const useImageUpload = () => {
 
   return {
     uploadImage,
+    isUploading,
   }
 }

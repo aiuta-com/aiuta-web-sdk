@@ -1,18 +1,1 @@
-.viewContent {
-  height: 100%;
-  min-height: 100%;
-  display: flex;
-  row-gap: 5px;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.historyBanner {
-  transition: all 0.3s ease-in-out;
-  position: absolute;
-  z-index: 1;
-  width: 100%;
-  left: 7.5px;
-  max-width: 377px;
-  bottom: -200px;
-}
+/* No custom styles needed - using global component styles */

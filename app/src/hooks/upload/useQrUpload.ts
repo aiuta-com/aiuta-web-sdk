@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
+import { TryOnApiService } from '@/utils/api/tryOnApiService'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 interface UseQrUploadProps {
@@ -88,15 +89,27 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
         skuId: '', // QR uploads don't need skuId
       }
 
-      const result = await QrApiService.uploadImage(uploadState.selectedFile.file, endpointData)
-      await QrApiService.uploadQrPhoto(token, result)
+      const uploadResult = await TryOnApiService.uploadImage(
+        uploadState.selectedFile.file,
+        endpointData,
+      )
+
+      // Convert to QrUploadResult format
+      const qrResult = {
+        id: uploadResult.id,
+        url: uploadResult.url,
+        owner_type: (uploadResult.owner_type as 'user' | 'scanning') || 'user',
+        error: uploadResult.error,
+      }
+
+      await QrApiService.uploadQrPhoto(token, qrResult)
 
       // Simulate processing time for better UX
       setTimeout(() => {
         setUploadState((prev) => ({
           ...prev,
           isUploading: false,
-          uploadedUrl: result.url,
+          uploadedUrl: qrResult.url,
         }))
       }, 3000)
     } catch (error: any) {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { generationsSlice } from '@/store/slices/generationsSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
@@ -10,7 +11,7 @@ import { currentTryOnImageSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
-import { usePhotoGallery } from './usePhotoGallery'
+import { useUploadsGallery } from '@/hooks/gallery/useUploadsGallery'
 
 export const useTryOnGeneration = () => {
   const navigate = useNavigate()
@@ -29,9 +30,11 @@ export const useTryOnGeneration = () => {
     skuId: productId,
   }
 
-  const { addPhotoToGallery, getRecentPhoto } = usePhotoGallery()
   const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
     useTryOnAnalytics()
+
+  // Get recent photo function from uploads gallery
+  const { getRecentPhoto } = useUploadsGallery()
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -51,6 +54,16 @@ export const useTryOnGeneration = () => {
         dispatch(tryOnSlice.actions.setGeneratedImageUrl(url))
         dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
+        // Add uploaded image to uploads history after successful generation
+        if (uploadedViewFile.id) {
+          dispatch(
+            uploadsSlice.actions.addInputImage({
+              id: uploadedViewFile.id,
+              url: uploadedViewFile.url,
+            }),
+          )
+        }
+
         setTimeout(() => {
           dispatch(tryOnSlice.actions.setIsGenerating(false))
           navigate('/results')
@@ -60,7 +73,7 @@ export const useTryOnGeneration = () => {
         clearGenerationInterval()
       }
     },
-    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval],
+    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval, uploadedViewFile],
   )
 
   const handleGenerationError = useCallback(
@@ -200,11 +213,6 @@ export const useTryOnGeneration = () => {
       dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
       dispatch(tryOnSlice.actions.setIsGenerating(true))
 
-      // Add to gallery if this is an uploaded image
-      if (uploadedViewFile.id) {
-        addPhotoToGallery({ id: uploadedViewFile.id, url: uploadedViewFile.url })
-      }
-
       // Create operation
       const hasSubscriptionId =
         endpointData.subscriptionId && endpointData.subscriptionId.length > 0
@@ -237,7 +245,6 @@ export const useTryOnGeneration = () => {
       getRecentPhoto,
       trackTryOnInitiated,
       dispatch,
-      addPhotoToGallery,
       createOperationWithJwt,
       createOperationWithoutJwt,
       pollGenerationStatus,

@@ -1,10 +1,16 @@
 import React, { useEffect, ChangeEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ErrorSnackbar, QrCode, Spinner } from '@/components'
-import { useQrPrompt } from '@/hooks'
+import { useQrPrompt, useImageUpload } from '@/hooks'
+import { useAppDispatch } from '@/store/store'
+import { appSlice } from '@/store/slices/appSlice'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptPage() {
-  const { qrUrl, uploadFromDevice, startPolling, isDownloading, isUploading } = useQrPrompt()
+  const navigate = useNavigate()
+  const dispatch = useAppDispatch()
+  const { qrUrl, startPolling, isDownloading } = useQrPrompt()
+  const { uploadImage, isUploading } = useImageUpload()
 
   // Start QR polling on mount
   useEffect(() => {
@@ -15,7 +21,11 @@ export default function QrPromptPage() {
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target?.files?.[0]) {
-      await uploadFromDevice(event.target.files[0])
+      await uploadImage(event.target.files[0], () => {
+        // Navigate to try-on page with footer disabled (like QR flow)
+        dispatch(appSlice.actions.setHasFooter(false))
+        navigate('/tryon')
+      })
     }
   }
 

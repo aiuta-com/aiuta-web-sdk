@@ -3,7 +3,7 @@
   // Layout & positioning
   position: relative;
   width: 100%;
-  aspect-ratio: 115 / 180;
+  aspect-ratio: var(--aiuta-image-aspect-ratio);
   contain: size layout;
   overflow: hidden;
 

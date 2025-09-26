@@ -15,32 +15,6 @@ export class QrApiService {
   private static readonly BASE_URL = 'https://web-sdk.aiuta.com/api'
 
   /**
-   * Upload image file to server
-   */
-  static async uploadImage(file: File, endpointData: QrEndpointData): Promise<QrUploadResult> {
-    const hasSubscriptionId =
-      typeof endpointData.subscriptionId === 'string' && endpointData.subscriptionId.length > 0
-    const headers: Record<string, string> = {
-      'Content-Type': file.type,
-      'X-Filename': file.name,
-    }
-
-    if (hasSubscriptionId) {
-      headers['userid'] = endpointData.subscriptionId!
-    } else {
-      headers['keys'] = endpointData.apiKey
-    }
-
-    const response = await fetch(`${this.BASE_URL}/upload-image`, {
-      method: 'POST',
-      headers,
-      body: file,
-    })
-
-    return response.json()
-  }
-
-  /**
    * Upload photo via QR token
    */
   static async uploadQrPhoto(token: string, uploadResult: QrUploadResult): Promise<void> {

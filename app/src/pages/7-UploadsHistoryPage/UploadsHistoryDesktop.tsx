@@ -21,33 +21,30 @@ export default function UploadsHistoryDesktop() {
 
   return (
     <>
-      <div className={styles.viewContent}>
-        <ImageGallery
-          images={gallery.images}
-          onImageClick={gallery.handleImageClick}
-          galleryType="uploads"
-          className={styles.imageContent}
-        />
+      <ImageGallery
+        images={gallery.images}
+        onImageClick={gallery.handleImageClick}
+        galleryType="uploads"
+        className={styles.imageGallery}
+      />
 
-        <SelectionSnackbar
-          isVisible={gallery.hasSelection}
-          className={styles.historyBanner}
-          selectedCount={gallery.selectedCount}
-          totalCount={gallery.totalCount}
-          onCancel={gallery.onCancel}
-          onSelectAll={gallery.onSelectAll}
-          onDelete={gallery.onDelete}
-        />
+      <SelectionSnackbar
+        isVisible={gallery.isSelecting}
+        selectedCount={gallery.selectedCount}
+        totalCount={gallery.totalCount}
+        onCancel={gallery.onCancel}
+        onSelectAll={gallery.onSelectAll}
+        onDelete={gallery.onDelete}
+      />
 
-        <ConfirmationAlert
-          isVisible={isModalVisible}
-          message="Are you sure you want to delete these uploads?"
-          leftButtonText="Keep"
-          rightButtonText="Delete"
-          onLeftClick={handleCloseModal}
-          onRightClick={gallery.deleteSelectedImages}
-        />
-      </div>
+      <ConfirmationAlert
+        isVisible={isModalVisible}
+        message="Are you sure you want to delete these uploads?"
+        leftButtonText="Keep"
+        rightButtonText="Delete"
+        onLeftClick={handleCloseModal}
+        onRightClick={gallery.deleteSelectedImages}
+      />
 
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
         + Upload new photo

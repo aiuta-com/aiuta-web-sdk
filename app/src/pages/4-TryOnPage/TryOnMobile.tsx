@@ -13,7 +13,7 @@ import {
 } from '@/store/slices/tryOnSlice'
 import { UploadHistorySheet, ErrorSnackbar, TryOnButton, DeletableImage } from '@/components'
 import { AbortAlert, ImageManager } from '@/components'
-import { useTryOnGeneration, usePhotoGallery, useImageUpload } from '@/hooks'
+import { useTryOnGeneration, useUploadsGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
@@ -28,9 +28,9 @@ export default function TryOnMobile() {
   const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
   const isOpenAbortedModal = useAppSelector(isAbortedSelector)
 
-  const { recentlyPhotos, removePhotoFromGallery } = usePhotoGallery()
+  const { recentlyPhotos, handleImageDelete: removePhotoFromGallery } = useUploadsGallery()
 
-  const { uploadImage } = useImageUpload()
+  const { uploadImage } = useImageUpload({ withinGenerationFlow: true })
 
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
 

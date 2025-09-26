@@ -2,12 +2,12 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import {
   selectedUploadsSelector,
   uploadsIsSelectingSelector,
   inputImagesSelector,
 } from '@/store/slices/uploadsSlice'
-import { isMobileSelector } from '@/store/slices/appSlice'
 import { useImageGallery } from './useImageGallery'
 import { useImageUpload } from '@/hooks/upload/useImageUpload'
 import { ImageItem } from './useFullScreenViewer'
@@ -26,11 +26,10 @@ export const useUploadsGallery = ({
 }: UseUploadsGalleryProps = {}) => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedUploadsSelector)
   const recentlyPhotos = useAppSelector(inputImagesSelector)
   const isSelecting = useAppSelector(uploadsIsSelectingSelector)
-  const { uploadImage } = useImageUpload()
+  const { uploadImage } = useImageUpload({ withinGenerationFlow: true })
 
   // Convert Redux photos to ImageItem format
   const images: ImageItem[] = recentlyPhotos.map(({ id, url }) => ({ id, url }))
@@ -52,17 +51,18 @@ export const useUploadsGallery = ({
     enableSelection: false, // Handle selection logic in handleImageSelect
   })
 
-  // Handle image selection (for full screen view only - selection is handled by SelectableImage)
+  // Handle image selection (for try-on, not full screen)
   function handleImageSelect(image: ImageItem) {
     if (!isSelecting) {
-      // Not in selection mode - show full screen
-      if (isMobile) {
-        // Mobile: set full screen URL in Redux
-        dispatch(uploadsSlice.actions.showImageFullScreen(image.url))
-      } else {
-        // Desktop: show full screen modal
-        gallery.showFullScreen(image)
-      }
+      // Not in selection mode - select image for try-on and navigate
+      dispatch(
+        tryOnSlice.actions.setCurrentImage({
+          id: image.id,
+          url: image.url,
+          localUrl: image.url,
+        }),
+      )
+      navigate('/tryon')
     }
     // In selection mode, SelectableImage handles the click
   }
@@ -134,6 +134,11 @@ export const useUploadsGallery = ({
     navigate('/qr')
   }, [navigate])
 
+  // Get most recent photo
+  const getRecentPhoto = useCallback(() => {
+    return recentlyPhotos.length > 0 ? recentlyPhotos[0] : null
+  }, [recentlyPhotos])
+
   return {
     ...gallery,
     images,
@@ -145,6 +150,7 @@ export const useUploadsGallery = ({
     closeUploadsImagesModal,
     handlePhotoUpload,
     navigateToUpload,
+    getRecentPhoto,
     // Selection snackbar props
     selectedCount: selectedImages.length,
     totalCount: recentlyPhotos.length,
