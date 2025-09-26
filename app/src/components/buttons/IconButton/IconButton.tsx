@@ -2,6 +2,7 @@ import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { Icon } from '@/components/buttons/Icon'
+import { combineClassNames } from '@/utils'
 import type { IconButtonProps } from './types'
 import styles from './IconButton.module.scss'
 
@@ -15,13 +16,11 @@ export const IconButton = ({
 }: IconButtonProps) => {
   const isMobile = useAppSelector(isMobileSelector)
 
-  const buttonClassName = [
+  const buttonClassName = combineClassNames(
     styles.iconButton,
-    isMobile ? styles.iconButton_mobile : '',
-    className || '',
-  ]
-    .filter(Boolean)
-    .join(' ')
+    isMobile && styles.iconButton_mobile,
+    className,
+  )
 
   return (
     <button className={buttonClassName} onClick={onClick} aria-label={label} type="button">

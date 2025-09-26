@@ -36,7 +36,8 @@ export default function GenerationsHistoryMobile() {
           totalCount={gallery.totalCount}
           onCancel={gallery.onCancel}
           onSelectAll={gallery.onSelectAll}
-          actions={gallery.selectionActions}
+          onDelete={gallery.onDelete}
+          onDownload={gallery.onDownload}
         />
 
         <ConfirmationAlert

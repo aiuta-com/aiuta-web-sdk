@@ -13,7 +13,6 @@ import { useRpc } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
 import { ImageItem } from './useFullScreenViewer'
-import type { SelectionActionItem } from '@/components/popups/SelectionSnackbar'
 
 interface UseGenerationsGalleryProps {
   onCloseModal?: () => void
@@ -154,18 +153,8 @@ export const useGenerationsGallery = ({
   }, [generatedImages, selectedImages, productId, rpc.sdk])
 
   // Selection actions for SelectionSnackbar
-  const selectionActions: SelectionActionItem[] = [
-    {
-      iconUrl: './icons/trash.svg',
-      label: 'Delete selected images',
-      onClick: onShowDeleteModal || (() => {}),
-    },
-    {
-      iconUrl: './icons/download.svg',
-      label: 'Download selected images',
-      onClick: handleDownloadSelectedImages,
-    },
-  ]
+  const handleDelete = onShowDeleteModal || (() => {})
+  const handleDownload = handleDownloadSelectedImages
 
   // Handle message events from parent window
   useEffect(() => {
@@ -196,6 +185,7 @@ export const useGenerationsGallery = ({
     totalCount: generatedImages.length,
     onCancel: handleCancel,
     onSelectAll: toggleSelectAll,
-    selectionActions,
+    onDelete: handleDelete,
+    onDownload: handleDownload,
   }
 }

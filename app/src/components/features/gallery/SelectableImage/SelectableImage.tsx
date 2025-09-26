@@ -6,6 +6,7 @@ import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { combineClassNames } from '@/utils'
+import { Icon } from '@/components'
 import { SelectableImageProps } from './types'
 import styles from './SelectableImage.module.scss'
 
@@ -77,7 +78,7 @@ export const SelectableImage = (props: SelectableImageProps) => {
     () =>
       combineClassNames(
         styles.selectableImage,
-        isSelected && styles.selectableImageActive,
+        isSelected && styles.selectableImage_selected,
         classNames,
       ),
     [isSelected, classNames],
@@ -85,7 +86,16 @@ export const SelectableImage = (props: SelectableImageProps) => {
 
   return (
     <div className={containerClasses} onClick={handleClick}>
-      {isCheckmarkVisible && <div className={styles.checkmark} />}
+      {isCheckmarkVisible && (
+        <div className={styles.checkmark}>
+          <Icon
+            icon="<path d='M1 5.5L5 9L11 1.5' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>"
+            size={12}
+            viewBox="0 0 12 10"
+            className={styles.checkmarkIcon}
+          />
+        </div>
+      )}
       <img src={src} loading="lazy" alt="Selectable image" />
     </div>
   )

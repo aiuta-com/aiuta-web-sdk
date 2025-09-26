@@ -11,7 +11,6 @@ import { isMobileSelector } from '@/store/slices/appSlice'
 import { useImageGallery } from './useImageGallery'
 import { useImageUpload } from '@/hooks/upload/useImageUpload'
 import { ImageItem } from './useFullScreenViewer'
-import type { SelectionActionItem } from '@/components/popups/SelectionSnackbar'
 
 interface UseUploadsGalleryProps {
   onCloseModal?: () => void
@@ -116,13 +115,7 @@ export const useUploadsGallery = ({
   }, [dispatch])
 
   // Selection actions for SelectionSnackbar (only delete, no download for uploads)
-  const selectionActions: SelectionActionItem[] = [
-    {
-      iconUrl: './icons/trash.svg',
-      label: 'Delete selected images',
-      onClick: onShowDeleteModal || (() => {}),
-    },
-  ]
+  const handleDelete = onShowDeleteModal || (() => {})
 
   // Handle new photo upload
   const handlePhotoUpload = useCallback(
@@ -157,6 +150,6 @@ export const useUploadsGallery = ({
     totalCount: recentlyPhotos.length,
     onCancel: handleCancel,
     onSelectAll: toggleSelectAll,
-    selectionActions,
+    onDelete: handleDelete,
   }
 }

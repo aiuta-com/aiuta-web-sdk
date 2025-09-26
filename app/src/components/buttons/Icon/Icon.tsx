@@ -1,4 +1,5 @@
 import React from 'react'
+import { combineClassNames } from '@/utils'
 import type { IconProps } from './types'
 import styles from './Icon.module.scss'
 
@@ -50,7 +51,7 @@ export const Icon = ({
   size = 24,
   viewBox = '0 0 24 24',
 }: IconProps) => {
-  const iconClassName = [styles.icon, className || ''].filter(Boolean).join(' ')
+  const iconClassName = combineClassNames(styles.icon, className)
 
   // External file (URL) - use img tag
   if (isUrl(icon)) {
@@ -66,16 +67,20 @@ export const Icon = ({
   // SVG content (elements like <path>, <rect>, etc.) - wrap in our SVG
   if (isSvgContent(icon)) {
     const sanitizedContent = sanitizeSvgContent(icon)
+
+    // Check if content contains fill attribute (fill-based icon)
+    const hasFill = sanitizedContent.includes('fill=')
+
     return (
       <svg
         className={iconClassName}
         width={size}
         height={size}
         viewBox={viewBox}
-        fill="currentColor"
-      >
-        <g dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
-      </svg>
+        fill={hasFill ? 'currentColor' : 'none'}
+        stroke={hasFill ? 'none' : 'currentColor'}
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+      />
     )
   }
 

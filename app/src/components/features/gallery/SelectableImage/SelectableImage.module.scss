@@ -1,169 +1,57 @@
+// Selectable image container
 .selectableImage {
-  scroll-snap-align: start;
-  cursor: pointer;
+  // Layout & positioning
   position: relative;
   width: 100%;
   aspect-ratio: 115 / 180;
   contain: size layout;
   overflow: hidden;
+
+  // Visual appearance
   border-radius: 16px;
-  border: 2px solid transparent;
-  transition: all 0.2s ease-in-out;
 
-  &.selectableImageActive {
-    border: 2px solid #4000ff;
+  // Behavior
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: all 0.1s ease-in-out;
 
-    .checkmark {
-      background: #4000ff;
-
-      &::after {
-        content: '';
-        position: absolute;
-        width: 10px;
-        height: 2px;
-        background: #fff;
-        top: 50%;
-        left: 50%;
-        border-radius: 10px;
-        transform: rotate(-50deg) translate(-3px, 1px);
-        transform-origin: 0;
-      }
-
-      &::before {
-        content: '';
-        position: absolute;
-        width: 5px;
-        height: 2px;
-        background: #fff;
-        top: 50%;
-        left: 50%;
-        border-radius: 10px;
-        transform: rotate(-143deg) translate(-1px, -2px);
-        transform-origin: 0;
-      }
-    }
-  }
-
+  // Image element
   img {
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
 
+  // Selection checkmark (default state - in selection mode but not selected)
   .checkmark {
-    transition: all 0.2s ease-in-out;
     position: absolute;
     top: 8px;
     right: 8px;
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 1px solid #fff;
-    background-color: #e4e7eb;
-  }
-
-  .deleteimage {
-    cursor: pointer;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background-color: #00000075;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.5);
+    // transition: all 0.1s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    span {
-      position: absolute;
-      height: 2px;
-      width: 10px;
-      background-color: #fff;
-      transform-origin: center;
-      border-radius: 10px;
-      transform: rotate(45deg);
-
-      &:last-of-type {
-        transform: rotate(-45deg);
-      }
+    // Hide checkmark icon when not selected
+    .checkmarkIcon {
+      opacity: 0;
     }
   }
+}
 
-  .previouslyTrashIcon {
-    position: absolute;
-    bottom: 9px;
-    right: 9px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
+// Selected state modifier
+.selectableImage_selected {
+  .checkmark {
+    background: var(--aiuta-color-brand);
 
-    img {
-      width: 18px !important;
-      height: 19px !important;
+    // Show checkmark icon when selected
+    .checkmarkIcon {
+      opacity: 1;
     }
-  }
-
-  .countDownContent {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: 20px 7px 9px 7px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    background-color: #000000b2;
-
-    &.countDownContentCentered {
-      justify-content: center;
-    }
-
-    .countDownInfo {
-      color: #fff;
-      font-weight: 500;
-      font-size: 14px;
-      line-height: 18px;
-      margin: 15px 0px;
-      letter-spacing: -0.035em;
-    }
-
-    .countDownBtn {
-      max-width: 77px;
-      max-height: 31px;
-      padding: 8px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-
-      p {
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: 0px;
-      }
-    }
-  }
-
-  .countDownCircle {
-    position: relative;
-    width: 52px;
-    height: 52px;
-    border: 3px solid #78797c;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 500;
   }
 }

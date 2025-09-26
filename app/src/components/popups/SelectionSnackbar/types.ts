@@ -1,12 +1,3 @@
-export interface SelectionActionItem {
-  /** Icon URL for the action button */
-  iconUrl: string
-  /** Accessible label for the action */
-  label: string
-  /** Click handler for the action */
-  onClick: () => void
-}
-
 export interface SelectionSnackbarProps {
   /** Whether the snackbar should be visible */
   isVisible: boolean
@@ -18,8 +9,10 @@ export interface SelectionSnackbarProps {
   onCancel: () => void
   /** Handler for select all action */
   onSelectAll: () => void
-  /** List of action buttons to display */
-  actions: SelectionActionItem[]
+  /** Handler for delete action (optional) */
+  onDelete?: () => void
+  /** Handler for download action (optional) */
+  onDownload?: () => void
   /** Additional CSS class name */
   className?: string
 }

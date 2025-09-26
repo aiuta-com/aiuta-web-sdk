@@ -55,13 +55,13 @@ export const PageBar = () => {
         </div>
       )}
 
-      {/* Right side - Select button or Close button */}
+      {/* Right side - Select/Cancel button or Close button */}
       {showSelectButton ? (
         <button
-          className={`${styles.pageTitle} ${styles.selectButton} ${isSelectionActive ? styles.selectButton_inactive : ''}`}
+          className={`${styles.pageTitle} ${styles.selectButton}`}
           onClick={handleToggleSelection}
         >
-          Select
+          {isSelectionActive ? 'Cancel' : 'Select'}
         </button>
       ) : showCloseButton ? (
         <IconButton

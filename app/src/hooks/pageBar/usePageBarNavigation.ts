@@ -101,6 +101,7 @@ export const usePageBarNavigation = () => {
         navigate('/qr')
       } else if (selectedImages.length > 0) {
         dispatch(generationsSlice.actions.clearSelectedImages())
+        dispatch(generationsSlice.actions.setIsSelecting(false))
         setTimeout(() => navigate(-1), 100)
       } else {
         const shouldNavigateToView = isMobile

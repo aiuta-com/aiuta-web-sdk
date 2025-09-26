@@ -17,4 +17,7 @@
   --aiuta-color-screen: #000000;
   --aiuta-color-neutral: #f2f2f7;
   --aiuta-color-border: #e5e5ea;
+
+  /* Selection */
+  --aiuta-color-selection-background: #000000;
 }

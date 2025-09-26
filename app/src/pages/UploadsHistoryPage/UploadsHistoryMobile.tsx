@@ -36,7 +36,7 @@ export default function UploadsHistoryMobile() {
           totalCount={gallery.totalCount}
           onCancel={gallery.onCancel}
           onSelectAll={gallery.onSelectAll}
-          actions={gallery.selectionActions}
+          onDelete={gallery.onDelete}
         />
 
         <ConfirmationAlert

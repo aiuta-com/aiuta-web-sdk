@@ -1,6 +1,6 @@
 .selectionSnackbar {
   position: absolute;
-  z-index: 1;
+  z-index: 10;
   left: 50%;
   bottom: 0;
   width: 100%;
@@ -13,7 +13,7 @@
   padding: 16px;
   margin-bottom: 16px;
   border-radius: 16px;
-  background-color: var(--aiuta-color-primary);
+  background-color: var(--aiuta-color-selection-background);
   display: flex;
   align-items: center;
   justify-content: space-between;
