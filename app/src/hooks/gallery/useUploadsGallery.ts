@@ -122,7 +122,7 @@ export const useUploadsGallery = ({
     async (file: File) => {
       await uploadImage(file, () => {
         // Navigate to try-on page after successful upload
-        navigate('/view')
+        navigate('/tryon')
       })
     },
     [uploadImage, navigate],

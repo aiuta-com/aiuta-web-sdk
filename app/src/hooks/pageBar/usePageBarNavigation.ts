@@ -54,7 +54,7 @@ export const usePageBarNavigation = () => {
     if (currentPath === '/qr') return 'imagePicker'
     if (currentPath === '/generated') return 'results'
     if (currentPath === '/generations-history') return 'history'
-    if (currentPath === '/view') return null // No analytics for view page
+    if (currentPath === '/tryon') return null // No analytics for tryon page
     return 'howItWorks'
   }
 
@@ -73,7 +73,7 @@ export const usePageBarNavigation = () => {
     // Navigate to view if has recent photos
     if (recentPhotosFromLocal.length > 0) {
       setTimeout(() => {
-        navigate('/view')
+        navigate('/tryon')
       }, 500)
     }
 
@@ -109,7 +109,7 @@ export const usePageBarNavigation = () => {
           : generatedImages.length === 0
 
         if (shouldNavigateToView) {
-          navigate('/view')
+          navigate('/tryon')
         } else {
           navigate(-1)
         }

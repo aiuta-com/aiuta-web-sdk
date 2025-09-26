@@ -19,10 +19,10 @@ export const OnboardingPage = ({}: OnboardingPageProps) => {
 
     if (hasPhotos) {
       // User has photos - go directly to try-on page
-      navigate('/view')
+      navigate('/tryon')
     } else {
-      // No photos - mobile goes to view, desktop to QR upload
-      navigate(isMobile ? '/view' : '/qr')
+      // No photos - mobile goes to tryon, desktop to QR upload
+      navigate(isMobile ? '/tryon' : '/qr')
     }
   }, [navigate, isMobile])
 

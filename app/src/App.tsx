@@ -11,13 +11,14 @@ import {
 } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
 
-import ImagePickerPage from '@/pages/ImagePickerPage'
 import Home from '@/pages/Home'
-import OnboardingPage from '@/pages/OnboardingPage'
-import TryOnPage from '@/pages/TryOnPage'
-import GenerationsHistoryPage from '@/pages/GenerationsHistoryPage'
-import ResultsPage from '@/pages/ResultsPage'
-import UploadsHistoryPage from '@/pages/UploadsHistoryPage'
+import OnboardingPage from '@/pages/1-OnboardingPage'
+import QrPromptPage from '@/pages/2-QrPromptPage/QrPromptPage'
+import QrUploadPage from '@/pages/3-QrUploadPage'
+import TryOnPage from '@/pages/4-TryOnPage'
+import ResultsPage from '@/pages/5-ResultsPage'
+import GenerationsHistoryPage from '@/pages/6-GenerationsHistoryPage'
+import UploadsHistoryPage from '@/pages/7-UploadsHistoryPage'
 
 export default function App() {
   const { cssUrl, initialPath } = useUrlParams()
@@ -56,9 +57,9 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/qr" element={<ImagePickerPage />} />
-            <Route path="/qr/:token" element={<ImagePickerPage />} />
-            <Route path="/view" element={<TryOnPage />} />
+            <Route path="/qr" element={<QrPromptPage />} />
+            <Route path="/qr/:token" element={<QrUploadPage />} />
+            <Route path="/tryon" element={<TryOnPage />} />
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/uploads-history" element={<UploadsHistoryPage />} />
             <Route path="/generations-history" element={<GenerationsHistoryPage />} />

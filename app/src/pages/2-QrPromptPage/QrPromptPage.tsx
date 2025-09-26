@@ -1,14 +1,11 @@
 import React, { useEffect, ChangeEvent } from 'react'
 import { ErrorSnackbar, QrCode, Spinner } from '@/components'
 import { useQrUpload, useTryOnAnalytics } from '@/hooks'
-import { useAppSelector } from '@/store/store'
-import { qrIsLoadingSelector } from '@/store/slices/qrSlice'
-import styles from './ImagePicker.module.scss'
+import styles from './QrPrompt.module.scss'
 
-export default function ImagePickerDesktop() {
-  const { qrUrl, uploadFromDevice, startPolling } = useQrUpload()
+export default function QrPromptPage() {
+  const { qrUrl, uploadFromDevice, startPolling, isDownloading, isUploading } = useQrUpload()
   const { trackTryOnInitiated } = useTryOnAnalytics()
-  const isShowQrSpinner = useAppSelector(qrIsLoadingSelector)
 
   // Start QR polling on mount
   useEffect(() => {
@@ -25,10 +22,10 @@ export default function ImagePickerDesktop() {
   }
 
   return (
-    <div className={styles.imagePicker}>
+    <div className={styles.qrPrompt}>
       <ErrorSnackbar />
       {qrUrl ? (
-        isShowQrSpinner ? (
+        isDownloading || isUploading ? (
           <Spinner isVisible={true} />
         ) : (
           <div className={styles.content}>

@@ -1,5 +1,5 @@
-// Main ImagePicker component block (Desktop QR generator)
-.imagePicker {
+// Main QrPrompt component block (Desktop QR generator)
+.qrPrompt {
   flex: 1;
   display: flex;
   align-items: center;
@@ -19,6 +19,7 @@
   display: flex;
   align-items: center;
   flex-direction: column;
+  gap: 20px;
 }
 
 // Scan QR code hint text

@@ -2,13 +2,13 @@ import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { PrimaryButton, ErrorSnackbar, Spinner } from '@/components'
 import { useQrToken } from '@/hooks'
-import styles from './QrUploadHelper.module.scss'
+import styles from './QrUploadPage.module.scss'
 
 function useQuery() {
   return new URLSearchParams(useLocation().search)
 }
 
-export default function QrUploadHelper() {
+export default function QrUploadPage() {
   const { token } = useParams<{ token: string }>()
   const query = useQuery()
   const apiKey = query.get('apiKey') || ''
@@ -33,7 +33,7 @@ export default function QrUploadHelper() {
   }
 
   return (
-    <div className={styles.qrUploadHelper}>
+    <div className={styles.qrUploadPage}>
       <ErrorSnackbar />
       {uploadState.selectedFile && !uploadState.uploadedUrl ? (
         <div className={styles.uploadedContent}>

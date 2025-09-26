@@ -14,7 +14,7 @@ export const usePoweredBy = (): UsePoweredByReturn => {
   const showFooterGlobally = useAppSelector(hasFooterSelector)
 
   // Routes where powered by should be hidden
-  const desktopHiddenRoutes = ['/view', '/generations-history', '/uploads-history', '/results']
+  const desktopHiddenRoutes = ['/tryon', '/generations-history', '/uploads-history', '/results']
   const mobileHiddenRoutes = ['/onboarding', '/generations-history', '/uploads-history']
 
   const hiddenRoutes = isMobile ? mobileHiddenRoutes : desktopHiddenRoutes

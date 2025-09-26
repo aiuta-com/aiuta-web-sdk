@@ -13,7 +13,7 @@
 .path {
   stroke: var(--aiuta-color-brand);
   stroke-linecap: round;
-  animation: dash 2s ease-in-out infinite;
+  animation: dash 2s linear infinite;
 }
 
 .spinnerVisible {
@@ -22,7 +22,7 @@
 
 @keyframes dash {
   0% {
-    stroke-opacity: 0.3;
+    stroke-opacity: 0.7;
     stroke-dasharray: 1, 160;
     stroke-dashoffset: 0;
   }
@@ -31,7 +31,7 @@
     stroke-dashoffset: -32;
   }
   100% {
-    stroke-dasharray: 80, 160;
-    stroke-dashoffset: -124;
+    stroke-dasharray: 1, 160;
+    stroke-dashoffset: -160;
   }
 }

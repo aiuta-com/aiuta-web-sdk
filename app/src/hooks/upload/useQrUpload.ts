@@ -5,7 +5,7 @@ import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { appSlice } from '@/store/slices/appSlice'
 import { qrSlice } from '@/store/slices/qrSlice'
-import { qrTokenSelector } from '@/store/slices/qrSlice'
+import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
@@ -20,10 +20,12 @@ export const useQrUpload = () => {
   const apiKey = useAppSelector(apiKeySelector)
   const subscriptionId = useAppSelector(subscriptionIdSelector)
   const productId = useAppSelector(productIdSelector)
+  const isDownloading = useAppSelector(qrIsLoadingSelector)
   const { trackUploadError } = useTryOnAnalytics()
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
   const [isPolling, setIsPolling] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   // Initialize QR token on mount
   useEffect(() => {
@@ -38,6 +40,7 @@ export const useQrUpload = () => {
       if (!productId || (!apiKey && !subscriptionId)) return
 
       const endpointData = { apiKey, subscriptionId, skuId: productId }
+      setIsUploading(true)
 
       try {
         const result = await QrApiService.uploadImage(file, endpointData as QrEndpointData)
@@ -52,7 +55,7 @@ export const useQrUpload = () => {
             }),
           )
           dispatch(appSlice.actions.setHasFooter(false))
-          navigate('/view')
+          navigate('/tryon')
 
           // Track success
           // Analytics will be handled by the caller component
@@ -61,6 +64,8 @@ export const useQrUpload = () => {
         }
       } catch (error: any) {
         handleUploadError(error.message)
+      } finally {
+        setIsUploading(false)
       }
     },
     [apiKey, subscriptionId, productId, dispatch, navigate],
@@ -89,7 +94,7 @@ export const useQrUpload = () => {
         await QrApiService.deleteQrToken(qrToken)
 
         // Navigate to try-on page
-        navigate('/view')
+        navigate('/tryon')
 
         // Stop polling
         stopPolling()
@@ -155,6 +160,8 @@ export const useQrUpload = () => {
     productId,
     qrUrl: getQrUrl(),
     isPolling,
+    isDownloading,
+    isUploading,
     uploadFromDevice,
     startPolling,
     stopPolling,
