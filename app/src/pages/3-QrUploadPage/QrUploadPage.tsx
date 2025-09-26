@@ -1,7 +1,7 @@
 import React, { useRef, ChangeEvent } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { PrimaryButton, ErrorSnackbar, Spinner } from '@/components'
-import { useQrToken } from '@/hooks'
+import { useQrUpload } from '@/hooks'
 import styles from './QrUploadPage.module.scss'
 
 function useQuery() {
@@ -14,7 +14,7 @@ export default function QrUploadPage() {
   const apiKey = query.get('apiKey') || ''
   const userId = query.get('userId') || ''
 
-  const { uploadState, selectFile, uploadFile } = useQrToken({
+  const { uploadState, selectFile, uploadFile } = useQrUpload({
     token,
     apiKey,
     subscriptionId: userId || undefined,

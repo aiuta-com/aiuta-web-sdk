@@ -1,19 +1,17 @@
 import React, { useEffect, ChangeEvent } from 'react'
 import { ErrorSnackbar, QrCode, Spinner } from '@/components'
-import { useQrUpload, useTryOnAnalytics } from '@/hooks'
+import { useQrPrompt } from '@/hooks'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptPage() {
-  const { qrUrl, uploadFromDevice, startPolling, isDownloading, isUploading } = useQrUpload()
-  const { trackTryOnInitiated } = useTryOnAnalytics()
+  const { qrUrl, uploadFromDevice, startPolling, isDownloading, isUploading } = useQrPrompt()
 
   // Start QR polling on mount
   useEffect(() => {
     if (qrUrl) {
       startPolling()
-      trackTryOnInitiated()
     }
-  }, [qrUrl, startPolling, trackTryOnInitiated])
+  }, [qrUrl, startPolling])
 
   const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target?.files?.[0]) {

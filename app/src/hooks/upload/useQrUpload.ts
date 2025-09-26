@@ -1,136 +1,65 @@
-import { useRef, useEffect, useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '@/store/store'
-import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { appSlice } from '@/store/slices/appSlice'
-import { qrSlice } from '@/store/slices/qrSlice'
-import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
-import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
-import { generateRandomString } from '@/utils/helpers/generateRandomString'
 
-export const useQrUpload = () => {
-  const navigate = useNavigate()
+interface UseQrUploadProps {
+  token?: string
+  apiKey: string
+  subscriptionId?: string
+}
+
+interface UploadState {
+  isUploading: boolean
+  uploadedUrl: string | null
+  selectedFile: { file: File; url: string } | null
+}
+
+export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps) => {
   const dispatch = useAppDispatch()
-
-  const qrToken = useAppSelector(qrTokenSelector)
-  const apiKey = useAppSelector(apiKeySelector)
-  const subscriptionId = useAppSelector(subscriptionIdSelector)
-  const productId = useAppSelector(productIdSelector)
-  const isDownloading = useAppSelector(qrIsLoadingSelector)
   const { trackUploadError } = useTryOnAnalytics()
 
-  const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [isPolling, setIsPolling] = useState(false)
-  const [isUploading, setIsUploading] = useState(false)
+  const [uploadState, setUploadState] = useState<UploadState>({
+    isUploading: false,
+    uploadedUrl: null,
+    selectedFile: null,
+  })
 
-  // Initialize QR token on mount
+  const cleanupUrlRef = useRef<string | null>(null)
+
+  // Set QR status to scanning on mount
   useEffect(() => {
-    if (!qrToken) {
-      dispatch(qrSlice.actions.setToken(generateRandomString()))
+    if (token) {
+      QrApiService.setQrScanning(token)
     }
-  }, [dispatch, qrToken])
+  }, [token])
 
-  // Upload file from current device
-  const uploadFromDevice = useCallback(
-    async (file: File) => {
-      if (!productId || (!apiKey && !subscriptionId)) return
-
-      const endpointData = { apiKey, subscriptionId, skuId: productId }
-      setIsUploading(true)
-
-      try {
-        const result = await QrApiService.uploadImage(file, endpointData as QrEndpointData)
-
-        if (result.owner_type === 'user') {
-          const localUrl = URL.createObjectURL(file)
-          dispatch(
-            tryOnSlice.actions.setCurrentImage({
-              id: result.id,
-              url: result.url,
-              localUrl,
-            }),
-          )
-          dispatch(appSlice.actions.setHasFooter(false))
-          navigate('/tryon')
-
-          // Track success
-          // Analytics will be handled by the caller component
-        } else if (result.error) {
-          handleUploadError(result.error)
-        }
-      } catch (error: any) {
-        handleUploadError(error.message)
-      } finally {
-        setIsUploading(false)
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (cleanupUrlRef.current) {
+        URL.revokeObjectURL(cleanupUrlRef.current)
       }
-    },
-    [apiKey, subscriptionId, productId, dispatch, navigate],
-  )
-
-  // Check for QR uploaded photo
-  const checkQrUpload = useCallback(async () => {
-    if (!qrToken || !productId || (!apiKey && !subscriptionId)) return
-
-    try {
-      const result = await QrApiService.getQrPhoto(qrToken)
-
-      if (result.owner_type === 'scanning') {
-        dispatch(qrSlice.actions.setIsLoading(true))
-      } else if (result.owner_type === 'user') {
-        dispatch(qrSlice.actions.setIsLoading(false))
-        dispatch(
-          tryOnSlice.actions.setCurrentImage({
-            id: result.id,
-            url: result.url,
-            localUrl: result.url,
-          }),
-        )
-
-        // Clean up QR token
-        await QrApiService.deleteQrToken(qrToken)
-
-        // Navigate to try-on page
-        navigate('/tryon')
-
-        // Stop polling
-        stopPolling()
-      }
-    } catch (error) {
-      console.error('QR polling error:', error)
-    }
-  }, [qrToken, apiKey, subscriptionId, productId, dispatch, navigate])
-
-  // Start polling for QR uploads
-  const startPolling = useCallback(() => {
-    if (isPolling || !qrToken) return
-
-    setIsPolling(true)
-    qrApiInterval.current = setInterval(checkQrUpload, 3000)
-  }, [isPolling, qrToken, checkQrUpload])
-
-  // Stop polling
-  const stopPolling = useCallback(() => {
-    if (qrApiInterval.current) {
-      clearInterval(qrApiInterval.current)
-      qrApiInterval.current = null
-      setIsPolling(false)
     }
   }, [])
 
-  // Generate QR URL
-  const getQrUrl = useCallback(() => {
-    if (!qrToken) return ''
-    if (!productId) return ''
-    // For JWT auth we need subscriptionId, for API key auth we need apiKey
-    if (!apiKey && !subscriptionId) return ''
+  // Select file for upload
+  const selectFile = useCallback((file: File) => {
+    // Cleanup previous URL
+    if (cleanupUrlRef.current) {
+      URL.revokeObjectURL(cleanupUrlRef.current)
+    }
 
-    const endpointData = { apiKey, subscriptionId, skuId: productId }
-    return QrApiService.generateQrUrl(qrToken, endpointData as QrEndpointData)
-  }, [qrToken, apiKey, subscriptionId, productId])
+    const objectUrl = URL.createObjectURL(file)
+    cleanupUrlRef.current = objectUrl
+
+    setUploadState((prev) => ({
+      ...prev,
+      selectedFile: { file, url: objectUrl },
+      uploadedUrl: null,
+    }))
+  }, [])
 
   // Handle upload errors
   const handleUploadError = useCallback(
@@ -146,24 +75,55 @@ export const useQrUpload = () => {
     [dispatch, trackUploadError],
   )
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopPolling()
+  // Upload selected file
+  const uploadFile = useCallback(async () => {
+    if (!uploadState.selectedFile || !token) return
+
+    try {
+      setUploadState((prev) => ({ ...prev, isUploading: true }))
+
+      const endpointData: QrEndpointData = {
+        apiKey,
+        subscriptionId,
+        skuId: '', // QR uploads don't need skuId
+      }
+
+      const result = await QrApiService.uploadImage(uploadState.selectedFile.file, endpointData)
+      await QrApiService.uploadQrPhoto(token, result)
+
+      // Simulate processing time for better UX
+      setTimeout(() => {
+        setUploadState((prev) => ({
+          ...prev,
+          isUploading: false,
+          uploadedUrl: result.url,
+        }))
+      }, 3000)
+    } catch (error: any) {
+      console.error('Upload error:', error)
+      setUploadState((prev) => ({ ...prev, isUploading: false }))
+      handleUploadError(error.message || 'Upload failed')
     }
-  }, [stopPolling])
+  }, [uploadState.selectedFile, token, apiKey, subscriptionId, handleUploadError])
+
+  // Reset state
+  const reset = useCallback(() => {
+    if (cleanupUrlRef.current) {
+      URL.revokeObjectURL(cleanupUrlRef.current)
+      cleanupUrlRef.current = null
+    }
+
+    setUploadState({
+      isUploading: false,
+      uploadedUrl: null,
+      selectedFile: null,
+    })
+  }, [])
 
   return {
-    qrToken,
-    apiKey,
-    subscriptionId,
-    productId,
-    qrUrl: getQrUrl(),
-    isPolling,
-    isDownloading,
-    isUploading,
-    uploadFromDevice,
-    startPolling,
-    stopPolling,
+    uploadState,
+    selectFile,
+    uploadFile,
+    reset,
   }
 }
