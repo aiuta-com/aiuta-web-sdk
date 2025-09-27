@@ -64,10 +64,19 @@ export const useTryOnGeneration = () => {
           )
         }
 
-        setTimeout(() => {
-          dispatch(tryOnSlice.actions.setIsGenerating(false))
+        // Preload the generated image for instant display on ResultsPage
+        const img = new Image()
+        img.onload = () => {
+          // Image is preloaded, navigate to results
           navigate('/results')
-        }, 500)
+          dispatch(tryOnSlice.actions.setIsGenerating(false))
+        }
+        img.onerror = () => {
+          // If preload fails, still navigate to results (will load there)
+          navigate('/results')
+          dispatch(tryOnSlice.actions.setIsGenerating(false))
+        }
+        img.src = url
 
         trackTryOnFinished()
         clearGenerationInterval()

@@ -1,7 +1,7 @@
 @import './colors.css';
-@import './typography.css';
+@import './typeset.css';
 @import './shapes.css';
-@import './tweaks.css';
+@import './guides.css';
 
 * {
   box-sizing: border-box;

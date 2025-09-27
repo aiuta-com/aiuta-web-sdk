@@ -5,15 +5,10 @@ import { useAppSelector } from '@/store/store'
 import {
   currentTryOnImageSelector,
   isGeneratingSelector,
-  generatedImageUrlSelector,
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
-
-// TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
-// Required data: { images: InputImage[], modalType?: string }
-
 import { ErrorSnackbar, TryOnButton } from '@/components'
-import { AbortAlert, ImageManager } from '@/components'
+import { AbortAlert, TryOnViewer } from '@/components'
 import { useTryOnGeneration, useUploadsGallery } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
@@ -22,7 +17,6 @@ export default function TryOnDesktop() {
   const navigate = useNavigate()
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
-  const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
   const isAborted = useAppSelector(isAbortedSelector)
 
   const { getRecentPhoto } = useUploadsGallery()
@@ -38,11 +32,7 @@ export default function TryOnDesktop() {
   const hasInputImage = uploadedViewFile.localUrl.length > 0
   const showTryOnButton = !isGenerating && !isAborted && !isButtonClicked
 
-  // Debug
-  console.log('State:', { isGenerating, isAborted, isButtonClicked, showTryOnButton })
-
   const handleTryOnClick = () => {
-    console.log('Button clicked, hiding immediately')
     flushSync(() => {
       setIsButtonClicked(true)
     })
@@ -64,28 +54,25 @@ export default function TryOnDesktop() {
   }, [isGenerating])
 
   return (
-    <div className={styles.tryOnPage}>
+    <div className={styles.tryOn}>
       <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
-      <div className={styles.tryOnContainer}>
-        <div className={styles.tryOnContent}>
-          <ImageManager
-            uploadedImage={hasInputImage ? uploadedViewFile : undefined}
-            recentImage={recentImage || undefined}
-            isStartGeneration={isGenerating}
-            generatedImageUrl={generatedImageUrl}
-            onChangeImage={handleChangePhoto}
-          />
-        </div>
-        <TryOnButton
-          isShowTryOnIcon
-          onClick={handleTryOnClick}
-          hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
-        >
-          Try On
-        </TryOnButton>
+      <div className={styles.content}>
+        <TryOnViewer
+          uploadedImageUrl={uploadedViewFile.localUrl}
+          recentImageUrl={recentImage?.url}
+          isGenerating={isGenerating}
+          onChangeImage={handleChangePhoto}
+        />
       </div>
+
+      <TryOnButton
+        onClick={handleTryOnClick}
+        hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
+      >
+        Try On
+      </TryOnButton>
     </div>
   )
 }

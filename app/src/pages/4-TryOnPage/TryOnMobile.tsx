@@ -4,15 +4,13 @@ import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { appSlice } from '@/store/slices/appSlice'
 import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
-import { hasFooterSelector } from '@/store/slices/appSlice'
 import {
   currentTryOnImageSelector,
   isGeneratingSelector,
-  generatedImageUrlSelector,
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
 import { UploadHistorySheet, ErrorSnackbar, TryOnButton, DeletableImage } from '@/components'
-import { AbortAlert, ImageManager } from '@/components'
+import { AbortAlert, TryOnViewer } from '@/components'
 import { useTryOnGeneration, useUploadsGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
@@ -22,10 +20,8 @@ export default function TryOnMobile() {
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isOpenSwip = useAppSelector(uploadsIsBottomSheetOpenSelector)
-  const isShowFooter = useAppSelector(hasFooterSelector)
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
-  const isStartGeneration = useAppSelector(isGeneratingSelector)
-  const generatedImageUrl = useAppSelector(generatedImageUrlSelector)
+  const isGenerating = useAppSelector(isGeneratingSelector)
   const isOpenAbortedModal = useAppSelector(isAbortedSelector)
 
   const { recentlyPhotos, handleImageDelete: removePhotoFromGallery } = useUploadsGallery()
@@ -66,7 +62,7 @@ export default function TryOnMobile() {
 
   const hasInputImage = uploadedViewFile.localUrl.length > 0
   const hasRecentPhotos = recentlyPhotos && recentlyPhotos.length > 0
-  const showTryOnButton = !isStartGeneration && (hasInputImage || recentImage)
+  const showTryOnButton = !isGenerating && (hasInputImage || recentImage)
 
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {
@@ -76,30 +72,23 @@ export default function TryOnMobile() {
   }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
   return (
-    <div
-      className={`${styles.tryOnPageMobile} ${!isShowFooter ? styles.tryOnPageMobileActive : ''}`}
-    >
-      <div className={styles.tryOnContainerMobile}>
+    <div className={styles.tryOn_mobile}>
+      <div className={styles.container_mobile}>
         <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
         <ErrorSnackbar onRetry={regenerate} />
         <div />
 
-        <div className={styles.tryOnContentMobile}>
-          <ImageManager
-            uploadedImage={hasInputImage ? uploadedViewFile : undefined}
-            recentImage={recentImage || undefined}
-            isStartGeneration={isStartGeneration}
-            generatedImageUrl={generatedImageUrl}
+        <div className={styles.content_mobile}>
+          <TryOnViewer
+            uploadedImageUrl={uploadedViewFile.localUrl}
+            recentImageUrl={recentImage?.url}
+            isGenerating={isGenerating}
             onChangeImage={hasInputImage ? handleButtonClick : handleOpenSwip}
             onUploadClick={handleButtonClick}
           />
         </div>
 
-        {showTryOnButton && (
-          <TryOnButton isShowTryOnIcon onClick={() => startTryOn()}>
-            Try On
-          </TryOnButton>
-        )}
+        {showTryOnButton && <TryOnButton onClick={() => startTryOn()}>Try On</TryOnButton>}
 
         <input
           ref={fileInputRef}
@@ -110,7 +99,7 @@ export default function TryOnMobile() {
         />
 
         <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
-          <div className={styles.imageContent}>
+          <div className={styles.imageContent_mobile}>
             {recentlyPhotos.length > 0
               ? recentlyPhotos.map((item: InputImage, index) => (
                   <DeletableImage
@@ -118,7 +107,7 @@ export default function TryOnMobile() {
                     src={item.url}
                     imageId={item.id}
                     showTrashIcon={true}
-                    classNames={styles.previouslyImageBox}
+                    classNames={styles.imageBox_mobile}
                     onDelete={removePhotoFromGallery}
                     onClick={() => handleChooseNewPhoto(item.id, item.url)}
                   />

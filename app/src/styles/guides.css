@@ -1,0 +1,15 @@
+/**
+ * UI Tweaks & Adjustments
+ * Small customizations and interface enhancements
+ */
+:root {
+  /* Touch target enhancement */
+  --aiuta-touch-padding: 10px;
+
+  /* Common aspect ratio for UGC */
+  --aiuta-aspect-ratio: 114 / 180;
+
+  /* Insents */
+  --aiuta-padding-v: 16px;
+  --aiuta-padding-b: 16px;
+}

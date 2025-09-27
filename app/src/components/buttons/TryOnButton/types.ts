@@ -7,10 +7,10 @@ import { ReactElement } from 'react'
 export type TryOnButtonProps = {
   /** Click handler */
   onClick: () => void
-  /** Whether to show the Try On icon (default: true) */
-  isShowTryOnIcon?: boolean
   /** Button content - typically "Try On" */
   children: string | ReactElement
   /** Whether the button should be hidden (but still take up space) */
   hidden?: boolean
+  /** Additional CSS class names */
+  className?: string
 }

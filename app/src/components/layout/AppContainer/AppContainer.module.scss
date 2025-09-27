@@ -1,4 +1,4 @@
-// App container styles - app manages its own sizing now
+// Main app container
 .appContainer {
   position: fixed;
   display: flex;
@@ -9,7 +9,7 @@
   overflow: hidden;
 }
 
-// Desktop app styling (moved from SDK iframe styles)
+// Desktop app styling
 .appContainer_desktop {
   width: 394px;
   height: 632px;
@@ -33,7 +33,7 @@
   box-shadow: none;
 }
 
-// Hidden state (can be controlled via props if needed)
+// Hidden state
 .appContainer_hidden {
   pointer-events: none;
   transform: translateX(110%);

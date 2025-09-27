@@ -49,7 +49,7 @@ export { DeletableImage } from './gallery/DeletableImage'
 // Try-On
 export { TryOnAnimator } from './tryOn/TryOnAnimator'
 export { ProcessingStatus } from './tryOn/ProcessingStatus'
-export { ImageManager } from './tryOn/ImageManager'
+export { TryOnViewer } from './tryOn/TryOnViewer'
 
 // Results
 export { DesktopResultActions } from './results/DesktopResultActions'
