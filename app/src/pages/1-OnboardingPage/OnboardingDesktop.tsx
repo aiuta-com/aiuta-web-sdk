@@ -43,7 +43,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
             src="./images/firstOnboarding.png"
           />
 
-          <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
+          <h2 className={`aiuta-title-m ${styles.title}`}>Try on before buying</h2>
           <h3 className={`aiuta-label-regular ${styles.description}`}>
             Upload a photo and see how items look on you
           </h3>
@@ -56,7 +56,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
             src="./images/lastOnboarding.png"
           />
 
-          <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
+          <h2 className={`aiuta-title-m ${styles.title}`}>For the best results</h2>
           <h3 className={`aiuta-label-regular ${styles.description}`}>
             Use a photo with good lighting, stand straight a plain background
           </h3>

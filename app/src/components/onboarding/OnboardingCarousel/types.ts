@@ -2,9 +2,7 @@ export interface CarouselItem {
   /** Main image URL for full display */
   imageUrl: string
   /** Thumbnail image URL for mini indicators */
-  miniImageUrl: string
-  /** Alt text for accessibility */
-  altText?: string
+  thumbnailUrl: string
 }
 
 export interface OnboardingCarouselProps {

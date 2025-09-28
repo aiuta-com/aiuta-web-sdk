@@ -11,86 +11,76 @@ interface OnboardingMobileProps {
 const CAROUSEL_ITEMS: CarouselItem[] = [
   {
     imageUrl: './images/mobileFirstOnboarding.png',
-    miniImageUrl: './images/mobileFirstMini.png',
-    altText: 'First onboarding step',
+    thumbnailUrl: './images/mobileFirstMini.png',
   },
   {
     imageUrl: './images/mobileMiddleOnboarding.png',
-    miniImageUrl: './images/mobileMiddleMini.png',
-    altText: 'Middle onboarding step',
+    thumbnailUrl: './images/mobileMiddleMini.png',
   },
   {
     imageUrl: './images/mobileLastOnboarding.png',
-    miniImageUrl: './images/mobileLastMini.png',
-    altText: 'Last onboarding step',
+    thumbnailUrl: './images/mobileLastMini.png',
   },
 ]
 
 export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const { trackConsentsGiven, trackOnboardingFinished } = useOnboardingAnalytics()
-  const { completeOnboarding } = useOnboardingSlides()
 
-  const [currentStep, setCurrentStep] = useState(0)
+  const {
+    currentSlide,
+    isConsentChecked,
+    setIsConsentChecked,
+    nextSlide,
+    getSlideState,
+    isLastSlide,
+    canProceed,
+    completeOnboarding,
+  } = useOnboardingSlides()
+
   const [carouselIndex, setCarouselIndex] = useState(0)
-  const [isConsentChecked, setIsConsentChecked] = useState(false)
 
   const handleNext = () => {
-    if (currentStep === 0 && carouselIndex < CAROUSEL_ITEMS.length - 1) {
+    if (currentSlide === 0 && carouselIndex < CAROUSEL_ITEMS.length - 1) {
       // Navigate through carousel on first step
       setCarouselIndex(carouselIndex + 1)
-    } else if (currentStep < 2) {
-      // Move to next main step
-      setCurrentStep(currentStep + 1)
-    } else {
-      // Complete onboarding
+    } else if (isLastSlide(currentSlide, 3)) {
+      // Track consent and completion
       trackConsentsGiven()
       trackOnboardingFinished()
       completeOnboarding()
       onComplete()
+    } else {
+      nextSlide()
     }
-  }
-
-  const getSlideState = (stepIndex: number) => {
-    if (stepIndex < currentStep) return 'completed'
-    if (stepIndex === currentStep) return 'active'
-    return 'pending'
   }
 
   return (
     <main className={styles.onboarding}>
       <div className={styles.slides}>
         <OnboardingSlide state={getSlideState(0)}>
-          <div className={styles.firstStepContent}>
-            <div className={styles.titlesBox}>
-              <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
-              <h3 className={`aiuta-label-regular ${styles.description}`}>
-                Just upload your photo and see how it looks
-              </h3>
-            </div>
-            <div className={styles.carouselContainer}>
-              <OnboardingCarousel
-                items={CAROUSEL_ITEMS}
-                activeIndex={carouselIndex}
-                onItemChange={setCarouselIndex}
-              />
-            </div>
-          </div>
+          <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
+          <h3 className={`aiuta-label-regular ${styles.description} ${styles.description_mobile}`}>
+            Just upload your photo and see how it looks
+          </h3>
+
+          <OnboardingCarousel
+            items={CAROUSEL_ITEMS}
+            activeIndex={carouselIndex}
+            onItemChange={setCarouselIndex}
+          />
         </OnboardingSlide>
 
         <OnboardingSlide state={getSlideState(1)}>
-          <div className={styles.stepContent}>
-            <div className={styles.titlesBox}>
-              <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
-              <h3 className={`aiuta-label-regular ${styles.description}`}>
-                Use a photo with good lighting, stand straight a plain background
-              </h3>
-            </div>
-            <img
-              alt="Best results guide"
-              className={styles.stepImage}
-              src="./images/mobileLastStepOnboarding.png"
-            />
-          </div>
+          <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
+          <h3 className={`aiuta-label-regular ${styles.description} ${styles.description_mobile}`}>
+            Use a photo with good lighting, stand straight a plain background
+          </h3>
+
+          <img
+            alt="Best results guide"
+            className={`${styles.image} ${styles.image_bestResults}`}
+            src="./images/mobileLastStepOnboarding.png"
+          />
         </OnboardingSlide>
 
         <OnboardingSlide state={getSlideState(2)}>
@@ -98,8 +88,8 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
         </OnboardingSlide>
       </div>
 
-      <PrimaryButton disabled={currentStep === 2 && !isConsentChecked} onClick={handleNext}>
-        {currentStep === 2 ? 'Start' : 'Next'}
+      <PrimaryButton disabled={!canProceed(currentSlide)} onClick={handleNext}>
+        {isLastSlide(currentSlide, 3) ? 'Start' : 'Next'}
       </PrimaryButton>
     </main>
   )

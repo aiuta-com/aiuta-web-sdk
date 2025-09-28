@@ -49,11 +49,9 @@ export const PageBar = () => {
       )}
 
       {/* Center - Title */}
-      {showTitle && (
-        <div className={styles.titleContainer}>
-          <h1 className={`${styles.pageTitle} ${styles.titleLabel}`}>{title}</h1>
-        </div>
-      )}
+      <div className={styles.titleContainer}>
+        {showTitle && <h1 className={`${styles.pageTitle} ${styles.titleLabel}`}>{title}</h1>}
+      </div>
 
       {/* Right side - Select/Cancel button or Close button */}
       {showSelectButton ? (

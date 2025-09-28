@@ -16,17 +16,17 @@
 
 /* Titles */
 .aiuta-title-l {
-  font-size: 20px;
+  font-size: 24px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 700;
   line-height: normal;
 }
 
 .aiuta-title-m {
-  font-size: 18px;
+  font-size: 20px;
   font-style: normal;
-  font-weight: 500;
-  line-height: 24px;
+  font-weight: 600;
+  line-height: normal;
 }
 
 /* Labels */

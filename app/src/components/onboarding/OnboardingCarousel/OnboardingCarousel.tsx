@@ -1,5 +1,6 @@
 import React from 'react'
 import { OnboardingCarouselProps } from './types'
+import { combineClassNames } from '@/utils'
 import styles from './OnboardingCarousel.module.scss'
 
 export const OnboardingCarousel = ({
@@ -8,7 +9,7 @@ export const OnboardingCarousel = ({
   onItemChange,
   className,
 }: OnboardingCarouselProps) => {
-  const containerClasses = [styles.onboardingCarousel, className].filter(Boolean).join(' ')
+  const containerClasses = combineClassNames(styles.onboardingCarousel, className)
 
   const currentItem = items[activeIndex]
 
@@ -19,14 +20,15 @@ export const OnboardingCarousel = ({
         {items.map((item, index) => (
           <div
             key={index}
-            className={`${styles.thumbnailItem} ${
-              activeIndex === index ? styles.thumbnailItem_active : ''
-            }`}
+            className={combineClassNames(
+              styles.thumbnailItem,
+              activeIndex === index && styles.thumbnailItem_active,
+            )}
             onClick={() => onItemChange(index)}
           >
             <img
-              alt={item.altText || `Thumbnail ${index + 1}`}
-              src={item.miniImageUrl}
+              alt={`Thumbnail ${index + 1}`}
+              src={item.thumbnailUrl}
               className={styles.thumbnailImage}
             />
           </div>
@@ -35,7 +37,7 @@ export const OnboardingCarousel = ({
 
       {/* Main carousel image */}
       <img
-        alt={currentItem?.altText || 'Onboarding step'}
+        alt={`Try on example ${activeIndex + 1}`}
         className={styles.carouselImage}
         src={currentItem?.imageUrl}
       />
