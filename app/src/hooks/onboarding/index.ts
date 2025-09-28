@@ -1,3 +1,3 @@
 export { useOnboardingAnalytics } from './useOnboardingAnalytics'
-export { useOnboardingSteps } from './useOnboardingSteps'
+export { useOnboardingSlides } from './useOnboardingSlides'
 export { useOnboardingCarousel } from './useOnboardingCarousel'

@@ -2,7 +2,7 @@
 .tryOn {
   flex: 1 1 0;
   min-height: 0;
-  padding: 0px var(--aiuta-padding-h) var(--aiuta-padding-b);
+  padding: var(--aiuta-inset-container);
   display: flex;
   flex-direction: column;
   row-gap: 24px;
@@ -13,7 +13,7 @@
 // Mobile try-on layout
 .tryOn_mobile {
   height: 100%;
-  padding: 0px 14px;
+  padding: var(--aiuta-inset-container);
   display: flex;
   align-items: center;
 }

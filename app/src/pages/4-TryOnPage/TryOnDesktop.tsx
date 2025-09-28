@@ -54,7 +54,7 @@ export default function TryOnDesktop() {
   }, [isGenerating])
 
   return (
-    <div className={styles.tryOn}>
+    <main className={styles.tryOn}>
       <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
@@ -73,6 +73,6 @@ export default function TryOnDesktop() {
       >
         Try On
       </TryOnButton>
-    </div>
+    </main>
   )
 }

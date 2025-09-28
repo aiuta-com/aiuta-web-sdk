@@ -1,15 +1,24 @@
 /**
- * UI Tweaks & Adjustments
- * Small customizations and interface enhancements
+ * Guides - spacing, aspect ratio, touch target, etc.
  */
 :root {
   /* Touch target enhancement */
   --aiuta-touch-padding: 10px;
 
   /* Common aspect ratio for UGC */
-  --aiuta-aspect-ratio: 114 / 180;
+  --aiuta-aspect-ratio: 115 / 180;
 
   /* Insents */
-  --aiuta-padding-v: 16px;
-  --aiuta-padding-b: 16px;
+  --aiuta-inset-t: 8px;
+  --aiuta-inset-v: 16px;
+  --aiuta-inset-h: 16px;
+  --aiuta-inset-button: var(--aiuta-inset-v) var(--aiuta-inset-h);
+  --aiuta-inset-container: var(--aiuta-inset-t) var(--aiuta-inset-h) var(--aiuta-inset-v);
+
+  /* Spacing */
+  --aiuta-gap-x: 8px;
+  --aiuta-gap-v: 8px;
+  --aiuta-gap-h: 4px;
+
+  --aiuta-max-with: 380px;
 }

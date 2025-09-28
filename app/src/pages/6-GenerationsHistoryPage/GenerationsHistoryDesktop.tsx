@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
+import styles from './GenerationsHistory.module.scss'
 
 /**
  * Desktop version of generations history page
@@ -18,7 +19,7 @@ export default function GenerationsHistoryDesktop() {
   })
 
   return (
-    <>
+    <main className={styles.generationsHistory}>
       <ImageGallery
         images={gallery.images}
         onImageClick={gallery.handleImageClick}
@@ -43,6 +44,6 @@ export default function GenerationsHistoryDesktop() {
         onLeftClick={handleCloseModal}
         onRightClick={gallery.deleteSelectedImages}
       />
-    </>
+    </main>
   )
 }

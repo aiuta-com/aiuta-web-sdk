@@ -72,7 +72,7 @@ export default function TryOnMobile() {
   }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
   return (
-    <div className={styles.tryOn_mobile}>
+    <main className={styles.tryOn_mobile}>
       <div className={styles.container_mobile}>
         <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
         <ErrorSnackbar onRetry={regenerate} />
@@ -116,6 +116,6 @@ export default function TryOnMobile() {
           </div>
         </UploadHistorySheet>
       </div>
-    </div>
+    </main>
   )
 }

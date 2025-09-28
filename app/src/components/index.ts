@@ -2,7 +2,6 @@
 export { Section } from './layout/Section'
 export { PageBar } from './layout/PageBar'
 export { AppContainer } from './layout/AppContainer'
-export { MainContent } from './layout/MainContent'
 export { PoweredBy } from './layout/PoweredBy'
 
 // ===== UI COMPONENTS =====
@@ -31,7 +30,7 @@ export { SelectionSnackbar } from './popups/SelectionSnackbar'
 
 // Onboarding
 export { Consent } from './onboarding/Consent'
-export { OnboardingStep } from './onboarding/OnboardingStep'
+export { OnboardingSlide } from './onboarding/OnboardingSlide'
 export { OnboardingCarousel } from './onboarding/OnboardingCarousel'
 
 // Picker (Upload)

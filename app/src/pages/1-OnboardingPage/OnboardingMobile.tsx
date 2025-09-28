@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { OnboardingStep, OnboardingCarousel, Consent, PrimaryButton } from '@/components'
+import { OnboardingSlide, OnboardingCarousel, Consent, PrimaryButton } from '@/components'
 import { CarouselItem } from '@/components/onboarding/OnboardingCarousel'
-import { useOnboardingSteps, useOnboardingAnalytics } from '@/hooks'
-import styles from './OnboardingMobile.module.scss'
+import { useOnboardingSlides, useOnboardingAnalytics } from '@/hooks'
+import styles from './Onboarding.module.scss'
 
 interface OnboardingMobileProps {
   onComplete: () => void
@@ -28,7 +28,7 @@ const CAROUSEL_ITEMS: CarouselItem[] = [
 
 export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const { trackConsentsGiven, trackOnboardingFinished } = useOnboardingAnalytics()
-  const { completeOnboarding } = useOnboardingSteps()
+  const { completeOnboarding } = useOnboardingSlides()
 
   const [currentStep, setCurrentStep] = useState(0)
   const [carouselIndex, setCarouselIndex] = useState(0)
@@ -50,16 +50,16 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     }
   }
 
-  const getStepState = (stepIndex: number) => {
+  const getSlideState = (stepIndex: number) => {
     if (stepIndex < currentStep) return 'completed'
     if (stepIndex === currentStep) return 'active'
     return 'pending'
   }
 
   return (
-    <div className={styles.onboardingMobile}>
-      <div className={styles.stepsContainer}>
-        <OnboardingStep state={getStepState(0)}>
+    <main className={styles.onboarding}>
+      <div className={styles.slides}>
+        <OnboardingSlide state={getSlideState(0)}>
           <div className={styles.firstStepContent}>
             <div className={styles.titlesBox}>
               <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
@@ -75,9 +75,9 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
               />
             </div>
           </div>
-        </OnboardingStep>
+        </OnboardingSlide>
 
-        <OnboardingStep state={getStepState(1)}>
+        <OnboardingSlide state={getSlideState(1)}>
           <div className={styles.stepContent}>
             <div className={styles.titlesBox}>
               <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
@@ -91,16 +91,16 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
               src="./images/mobileLastStepOnboarding.png"
             />
           </div>
-        </OnboardingStep>
+        </OnboardingSlide>
 
-        <OnboardingStep state={getStepState(2)}>
+        <OnboardingSlide state={getSlideState(2)}>
           <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
-        </OnboardingStep>
+        </OnboardingSlide>
       </div>
 
       <PrimaryButton disabled={currentStep === 2 && !isConsentChecked} onClick={handleNext}>
         {currentStep === 2 ? 'Start' : 'Next'}
       </PrimaryButton>
-    </div>
+    </main>
   )
 }

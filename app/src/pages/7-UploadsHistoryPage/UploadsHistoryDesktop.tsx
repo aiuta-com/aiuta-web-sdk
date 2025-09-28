@@ -20,7 +20,7 @@ export default function UploadsHistoryDesktop() {
   })
 
   return (
-    <>
+    <main className={styles.uploadsHistory}>
       <ImageGallery
         images={gallery.images}
         onImageClick={gallery.handleImageClick}
@@ -49,6 +49,6 @@ export default function UploadsHistoryDesktop() {
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
         + Upload new photo
       </PrimaryButton>
-    </>
+    </main>
   )
 }

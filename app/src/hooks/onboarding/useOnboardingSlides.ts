@@ -8,15 +8,15 @@ import {
 import { useOnboardingAnalytics } from './useOnboardingAnalytics'
 import { OnboardingPageId } from './useOnboardingAnalytics'
 
-export interface OnboardingStepsConfig {
+export interface OnboardingSlidesConfig {
   /** Whether to track analytics automatically */
   enableAnalytics?: boolean
-  /** Initial step index */
-  initialStep?: number
+  /** Initial slide index */
+  initialSlide?: number
 }
 
-export const useOnboardingSteps = (config: OnboardingStepsConfig = {}) => {
-  const { enableAnalytics = true, initialStep = 0 } = config
+export const useOnboardingSlides = (config: OnboardingSlidesConfig = {}) => {
+  const { enableAnalytics = true, initialSlide = 0 } = config
 
   const dispatch = useAppDispatch()
   const { trackPageView } = useOnboardingAnalytics()
@@ -25,13 +25,13 @@ export const useOnboardingSteps = (config: OnboardingStepsConfig = {}) => {
   const globalCurrentStep = useAppSelector(onboardingCurrentStepSelector)
   const isOnboardingCompleted = useAppSelector(onboardingIsCompletedSelector)
 
-  // Local state for component-specific step management
-  const [currentStep, setCurrentStep] = useState(initialStep)
+  // Local state for component-specific slide management
+  const [currentSlide, setCurrentSlide] = useState(initialSlide)
   const [isConsentChecked, setIsConsentChecked] = useState(false)
 
-  // Map step index to analytics page ID
-  const getPageIdForStep = useCallback((stepIndex: number): OnboardingPageId | null => {
-    switch (stepIndex) {
+  // Map slide index to analytics page ID
+  const getPageIdForSlide = useCallback((slideIndex: number): OnboardingPageId | null => {
+    switch (slideIndex) {
       case 0:
         return 'howItWorks'
       case 1:
@@ -43,27 +43,27 @@ export const useOnboardingSteps = (config: OnboardingStepsConfig = {}) => {
     }
   }, [])
 
-  // Track analytics when step changes
+  // Track analytics when slide changes
   useEffect(() => {
     if (enableAnalytics && !isOnboardingCompleted) {
-      const pageId = getPageIdForStep(currentStep)
+      const pageId = getPageIdForSlide(currentSlide)
       if (pageId) {
         trackPageView(pageId)
       }
     }
-  }, [currentStep, enableAnalytics, isOnboardingCompleted, getPageIdForStep, trackPageView])
+  }, [currentSlide, enableAnalytics, isOnboardingCompleted, getPageIdForSlide, trackPageView])
 
-  // Step navigation functions
-  const nextStep = useCallback(() => {
-    setCurrentStep((prev) => prev + 1)
+  // Slide navigation functions
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => prev + 1)
   }, [])
 
-  const previousStep = useCallback(() => {
-    setCurrentStep((prev) => Math.max(0, prev - 1))
+  const previousSlide = useCallback(() => {
+    setCurrentSlide((prev) => Math.max(0, prev - 1))
   }, [])
 
-  const goToStep = useCallback((stepIndex: number) => {
-    setCurrentStep(stepIndex)
+  const goToSlide = useCallback((slideIndex: number) => {
+    setCurrentSlide(slideIndex)
   }, [])
 
   // Redux actions
@@ -76,23 +76,23 @@ export const useOnboardingSteps = (config: OnboardingStepsConfig = {}) => {
   }, [dispatch])
 
   // Helper functions
-  const isLastStep = useCallback((step: number, totalSteps: number) => {
-    return step >= totalSteps - 1
+  const isLastSlide = useCallback((slide: number, totalSlides: number) => {
+    return slide >= totalSlides - 1
   }, [])
 
-  const getStepState = useCallback(
-    (stepIndex: number) => {
-      if (stepIndex < currentStep) return 'completed'
-      if (stepIndex === currentStep) return 'active'
+  const getSlideState = useCallback(
+    (slideIndex: number) => {
+      if (slideIndex < currentSlide) return 'completed'
+      if (slideIndex === currentSlide) return 'active'
       return 'pending'
     },
-    [currentStep],
+    [currentSlide],
   )
 
   const canProceed = useCallback(
-    (step: number) => {
-      // Step 2 (consent) requires checkbox to be checked
-      if (step === 2) {
+    (slide: number) => {
+      // Slide 2 (consent) requires checkbox to be checked
+      if (slide === 2) {
         return isConsentChecked
       }
       return true
@@ -102,24 +102,24 @@ export const useOnboardingSteps = (config: OnboardingStepsConfig = {}) => {
 
   return {
     // State
-    currentStep,
+    currentSlide,
     isConsentChecked,
     isOnboardingCompleted,
     globalCurrentStep,
 
     // Actions
-    setCurrentStep,
+    setCurrentSlide,
     setIsConsentChecked,
-    nextStep,
-    previousStep,
-    goToStep,
+    nextSlide,
+    previousSlide,
+    goToSlide,
     completeOnboarding,
     updateGlobalStep,
 
     // Helpers
-    isLastStep,
-    getStepState,
+    isLastSlide,
+    getSlideState,
     canProceed,
-    getPageIdForStep,
+    getPageIdForSlide,
   }
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Section, PrimaryButton } from '@/components'
+import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { ConfirmationAlert } from '@/components'
 import { useUploadsGallery } from '@/hooks'
@@ -20,38 +20,36 @@ export default function UploadsHistoryMobile() {
   })
 
   return (
-    <Section className={styles.sectionContent}>
-      <div className={styles.viewContent}>
-        <ImageGallery
-          images={gallery.images}
-          onImageClick={gallery.handleImageClick}
-          galleryType="uploads"
-          className={styles.imageContent}
-        />
+    <main className={styles.uploadsHistory}>
+      <ImageGallery
+        images={gallery.images}
+        onImageClick={gallery.handleImageClick}
+        galleryType="uploads"
+        className={styles.imageContent}
+      />
 
-        <SelectionSnackbar
-          isVisible={gallery.hasSelection}
-          className={styles.historyBanner}
-          selectedCount={gallery.selectedCount}
-          totalCount={gallery.totalCount}
-          onCancel={gallery.onCancel}
-          onSelectAll={gallery.onSelectAll}
-          onDelete={gallery.onDelete}
-        />
+      <SelectionSnackbar
+        isVisible={gallery.hasSelection}
+        className={styles.historyBanner}
+        selectedCount={gallery.selectedCount}
+        totalCount={gallery.totalCount}
+        onCancel={gallery.onCancel}
+        onSelectAll={gallery.onSelectAll}
+        onDelete={gallery.onDelete}
+      />
 
-        <ConfirmationAlert
-          isVisible={isModalVisible}
-          message="Are you sure you want to delete these uploads?"
-          leftButtonText="Keep"
-          rightButtonText="Delete"
-          onLeftClick={handleCloseModal}
-          onRightClick={gallery.deleteSelectedImages}
-        />
-      </div>
+      <ConfirmationAlert
+        isVisible={isModalVisible}
+        message="Are you sure you want to delete these uploads?"
+        leftButtonText="Keep"
+        rightButtonText="Delete"
+        onLeftClick={handleCloseModal}
+        onRightClick={gallery.deleteSelectedImages}
+      />
 
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
         + Upload new photo
       </PrimaryButton>
-    </Section>
+    </main>
   )
 }

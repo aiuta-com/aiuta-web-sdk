@@ -1,3 +1,5 @@
+import fs from 'fs'
+
 /**
  * Convert camelCase to kebab-case
  */
@@ -11,38 +13,48 @@ export const camelToKebab = (str: string): string => {
 /**
  * BEM (Block Element Modifier) class name generator for CSS modules
  * Generates consistent CSS class names following BEM methodology with aiuta- prefix
+ * Supports @block annotation to override block name for all classes in file
  */
 export const generateScopedName = (name: string, filename: string): string => {
   const componentMatch = filename.match(/([^/]+)\.module\.(css|scss)$/)
   const componentName = componentMatch ? componentMatch[1] : 'component'
 
-  const kebabComponent = camelToKebab(componentName)
+  // Try to read block name from file annotation
+  let blockName = componentName
+  try {
+    const fileContent = fs.readFileSync(filename, 'utf-8')
+    const blockMatch = fileContent.match(/\/\*\s*@block\s+([^\s]+)\s*\*\//)
+    if (blockMatch) {
+      blockName = blockMatch[1]
+    }
+  } catch {
+    // Fallback to componentName if can't read file
+  }
+
+  const kebabBlock = camelToKebab(blockName)
   const kebabClassName = camelToKebab(name)
-
-  // If class name matches component name (main block), return just the block
-  if (kebabClassName === kebabComponent) {
-    return `aiuta-${kebabComponent}`
-  }
-
-  // Check if this is a modifier of the main component with _ prefix
-  // e.g., selectionSnackbar_visible -> selectionSnackbar + visible (modifier)
   const componentCamelCase = componentName.charAt(0).toLowerCase() + componentName.slice(1)
-  if (name.startsWith(`${componentCamelCase}_`)) {
-    const modifier = name.substring(`${componentCamelCase}_`.length)
-    const kebabModifier = camelToKebab(modifier)
-    return `aiuta-${kebabComponent}--${kebabModifier}`
-  }
 
   // Check if this is a modifier with _ prefix
-  // e.g., container_active -> container + active (modifier)
   if (name.includes('_')) {
     const [baseClass, modifier] = name.split('_', 2)
-    const kebabBaseClass = camelToKebab(baseClass)
     const kebabModifier = camelToKebab(modifier)
 
-    return `aiuta-${kebabComponent}__${kebabBaseClass}--${kebabModifier}`
+    // If base class matches component name, it's a block modifier
+    if (baseClass === componentCamelCase) {
+      return `aiuta-${kebabBlock}--${kebabModifier}`
+    }
+
+    // Otherwise it's an element modifier
+    const kebabBaseClass = camelToKebab(baseClass)
+    return `aiuta-${kebabBlock}__${kebabBaseClass}--${kebabModifier}`
+  }
+
+  // If class matches component name, it's the main block
+  if (name === componentCamelCase) {
+    return `aiuta-${kebabBlock}`
   }
 
   // Regular element
-  return `aiuta-${kebabComponent}__${kebabClassName}`
+  return `aiuta-${kebabBlock}__${kebabClassName}`
 }

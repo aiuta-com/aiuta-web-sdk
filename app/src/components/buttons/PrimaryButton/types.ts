@@ -8,10 +8,10 @@ export type PrimaryButtonProps = {
   disabled?: boolean
   /** Click handler */
   onClick: () => void
-  /** Optional icon URL to display before text */
-  iconUrl?: string
   /** Additional CSS class names */
   className?: string
+  /** Whether button should use max width behavior */
+  maxWidth?: boolean
   /** Button content */
   children: string | ReactElement
 }

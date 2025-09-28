@@ -1,14 +1,7 @@
 import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
-import {
-  PageBar,
-  PoweredBy,
-  FullScreenGallery,
-  ShareModal,
-  AppContainer,
-  MainContent,
-} from '@/components'
+import { PageBar, PoweredBy, FullScreenGallery, ShareModal, AppContainer } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
 
 import Home from '@/pages/Home'
@@ -53,18 +46,16 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
 
         {/* App layout */}
         <PageBar />
-        <MainContent>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/qr" element={<QrPromptPage />} />
-            <Route path="/qr/:token" element={<QrUploadPage />} />
-            <Route path="/tryon" element={<TryOnPage />} />
-            <Route path="/results" element={<ResultsPage />} />
-            <Route path="/uploads-history" element={<UploadsHistoryPage />} />
-            <Route path="/generations-history" element={<GenerationsHistoryPage />} />
-          </Routes>
-        </MainContent>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/qr" element={<QrPromptPage />} />
+          <Route path="/qr/:token" element={<QrUploadPage />} />
+          <Route path="/tryon" element={<TryOnPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
+          <Route path="/generations-history" element={<GenerationsHistoryPage />} />
+        </Routes>
         <PoweredBy />
       </MemoryRouter>
     </AppContainer>

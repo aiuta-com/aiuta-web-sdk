@@ -33,7 +33,7 @@ export default function QrUploadPage() {
   }
 
   return (
-    <div className={styles.qrUploadPage}>
+    <main className={styles.qrUploadPage}>
       <ErrorSnackbar />
       {uploadState.selectedFile && !uploadState.uploadedUrl ? (
         <div className={styles.uploadedContent}>
@@ -86,6 +86,6 @@ export default function QrUploadPage() {
         onChange={handleChoosePhoto}
         style={{ display: 'none' }}
       />
-    </div>
+    </main>
   )
 }

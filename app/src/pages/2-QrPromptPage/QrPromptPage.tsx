@@ -30,7 +30,7 @@ export default function QrPromptPage() {
   }
 
   return (
-    <div className={styles.qrPrompt}>
+    <main className={styles.qrPrompt}>
       <ErrorSnackbar />
       {qrUrl ? (
         isDownloading || isUploading ? (
@@ -55,6 +55,6 @@ export default function QrPromptPage() {
           </div>
         )
       ) : null}
-    </div>
+    </main>
   )
 }
