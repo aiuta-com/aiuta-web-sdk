@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { OnboardingSlide, OnboardingCarousel, Consent, PrimaryButton } from '@/components'
 import { CarouselItem } from '@/components/onboarding/OnboardingCarousel'
-import { useOnboardingSlides, useOnboardingAnalytics } from '@/hooks'
+import { useOnboardingSlides, useOnboardingAnalytics, useSwipeGesture } from '@/hooks'
 import styles from './Onboarding.module.scss'
 
 interface OnboardingMobileProps {
@@ -31,6 +31,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     isConsentChecked,
     setIsConsentChecked,
     nextSlide,
+    previousSlide,
     getSlideState,
     isLastSlide,
     canProceed,
@@ -40,11 +41,11 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const [carouselIndex, setCarouselIndex] = useState(0)
 
   const handleNext = () => {
+    if (!canProceed(currentSlide)) return
+
     if (currentSlide === 0 && carouselIndex < CAROUSEL_ITEMS.length - 1) {
-      // Navigate through carousel on first step
       setCarouselIndex(carouselIndex + 1)
     } else if (isLastSlide(currentSlide, 3)) {
-      // Track consent and completion
       trackConsentsGiven()
       trackOnboardingFinished()
       completeOnboarding()
@@ -54,8 +55,30 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     }
   }
 
+  const handlePrevious = () => {
+    if (currentSlide === 0 && carouselIndex > 0) {
+      setCarouselIndex(carouselIndex - 1)
+    } else if (currentSlide > 0) {
+      previousSlide()
+    }
+  }
+
+  const swipeHandlers = useSwipeGesture(({ direction }) => {
+    if (direction === 'left') {
+      handleNext()
+    } else if (direction === 'right') {
+      handlePrevious()
+    } else if (currentSlide === 0) {
+      if (direction === 'up' && carouselIndex < CAROUSEL_ITEMS.length - 1) {
+        setCarouselIndex(carouselIndex + 1)
+      } else if (direction === 'down' && carouselIndex > 0) {
+        setCarouselIndex(carouselIndex - 1)
+      }
+    }
+  })
+
   return (
-    <main className={styles.onboarding}>
+    <main className={styles.onboarding} {...swipeHandlers}>
       <div className={styles.slides}>
         <OnboardingSlide state={getSlideState(0)}>
           <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>

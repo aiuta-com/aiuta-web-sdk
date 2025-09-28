@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { usePageBarNavigation, usePageBarVisibility, usePageBarTitle } from '@/hooks'
+import { useNavigate } from 'react-router-dom'
+import {
+  usePageBarNavigation,
+  usePageBarVisibility,
+  usePageBarTitle,
+  useSwipeGesture,
+} from '@/hooks'
 import { IconButton } from '@/components'
 import { icons } from './icons'
 import styles from './PageBar.module.scss'
 
 export const PageBar = () => {
   const [hasMounted, setHasMounted] = useState(false)
+  const navigate = useNavigate()
 
   const { title } = usePageBarTitle()
   const {
@@ -22,6 +29,13 @@ export const PageBar = () => {
   const { handleCloseModal, handleHistoryNavigation, handleToggleSelection } =
     usePageBarNavigation()
 
+  // Swipe navigation - right swipe goes back (only on history pages)
+  const swipeHandlers = useSwipeGesture(({ direction }) => {
+    if (direction === 'right' && isOnHistoryPage) {
+      navigate(-1)
+    }
+  })
+
   useEffect(() => {
     setHasMounted(true)
   }, [])
@@ -35,7 +49,10 @@ export const PageBar = () => {
   const navigationLabel = isOnHistoryPage ? 'Back' : 'History'
 
   return (
-    <header className={`${styles.pageBar} ${isMobile ? styles.pageBar_mobile : ''}`}>
+    <header
+      className={`${styles.pageBar} ${isMobile ? styles.pageBar_mobile : ''}`}
+      {...swipeHandlers}
+    >
       {/* Left side - History/Back button */}
       {(showHistoryButton || showBackButton) && (
         <IconButton

@@ -38,13 +38,10 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
   useCustomCSS(cssUrl)
 
   return (
-    <AppContainer>
-      <MemoryRouter initialEntries={[initialPath || '/']}>
-        {/* Global components */}
-        <FullScreenGallery />
-        <ShareModal />
-
-        {/* App layout */}
+    <MemoryRouter initialEntries={[initialPath || '/']}>
+      <FullScreenGallery />
+      <ShareModal />
+      <AppContainer>
         <PageBar />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -57,7 +54,7 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
           <Route path="/generations-history" element={<GenerationsHistoryPage />} />
         </Routes>
         <PoweredBy />
-      </MemoryRouter>
-    </AppContainer>
+      </AppContainer>
+    </MemoryRouter>
   )
 }
