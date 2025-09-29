@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { ProcessingStatus, RemoteImage } from '@/components'
-import { MobileUploadPrompt } from '@/components'
 import { combineClassNames } from '@/utils'
 import styles from './TryOnViewer.module.scss'
 
@@ -8,16 +7,14 @@ interface TryOnViewerProps {
   uploadedImageUrl?: string
   recentImageUrl?: string
   isGenerating: boolean
-  onChangeImage?: () => void
-  onUploadClick?: () => void
+  onChangePhoto?: () => void
 }
 
 export const TryOnViewer = ({
   uploadedImageUrl,
   recentImageUrl,
   isGenerating,
-  onChangeImage,
-  onUploadClick,
+  onChangePhoto,
 }: TryOnViewerProps) => {
   const hasInputImage = uploadedImageUrl && uploadedImageUrl.length > 0
   const hasRecentImage = recentImageUrl && recentImageUrl.length > 0
@@ -60,48 +57,38 @@ export const TryOnViewer = ({
   const currentImageUrl = hasInputImage ? uploadedImageUrl : hasRecentImage ? recentImageUrl : null
 
   // If there is an image to show
-  if (currentImageUrl) {
-    return (
-      <div className={styles.container}>
-        <div
-          className={combineClassNames(
-            'aiuta-image-l',
-            styles.input,
-            isGenerating && styles.input_animating,
-          )}
-        >
-          <RemoteImage
-            src={currentImageUrl}
-            alt="Try-on image"
-            shape="L"
-            onLoad={handleImageLoad}
+  if (!currentImageUrl) {
+    return null
+  }
+
+  return (
+    <div className={styles.container}>
+      <div
+        className={combineClassNames(
+          'aiuta-image-l',
+          styles.input,
+          isGenerating && styles.input_animating,
+        )}
+      >
+        <RemoteImage src={currentImageUrl} alt="Try-on image" shape="L" onLoad={handleImageLoad} />
+
+        {isGenerating && (
+          <ProcessingStatus
+            stage={isGenerating ? 'scanning' : 'generating'}
+            className={styles.processingStatus}
           />
+        )}
 
-          {isGenerating && (
-            <ProcessingStatus
-              stage={isGenerating ? 'scanning' : 'generating'}
-              className={styles.processingStatus}
-            />
-          )}
-
-          {!isGenerating && (
-            <button
-              className={`aiuta-button-s ${styles.changePhotoButton}`}
-              style={{ opacity: buttonOpacity }}
-              onClick={onChangeImage}
-            >
-              Change photo
-            </button>
-          )}
-        </div>
+        {!isGenerating && (
+          <button
+            className={`aiuta-button-s ${styles.changePhotoButton}`}
+            style={{ opacity: buttonOpacity }}
+            onClick={onChangePhoto}
+          >
+            Change photo
+          </button>
+        )}
       </div>
-    )
-  }
-
-  // Empty state (mobile version only)
-  if (onUploadClick) {
-    return <MobileUploadPrompt onClick={onUploadClick} />
-  }
-
-  return null
+    </div>
+  )
 }

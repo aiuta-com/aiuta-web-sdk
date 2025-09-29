@@ -62,7 +62,7 @@ export default function TryOnDesktop() {
         uploadedImageUrl={uploadedViewFile.localUrl}
         recentImageUrl={recentImage?.url}
         isGenerating={isGenerating}
-        onChangeImage={handleChangePhoto}
+        onChangePhoto={handleChangePhoto}
       />
 
       <TryOnButton

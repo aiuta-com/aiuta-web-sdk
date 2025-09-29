@@ -9,45 +9,6 @@
   overflow: hidden;
 }
 
-// Mobile try-on layout
-.tryOn_mobile {
-  height: 100%;
-  padding: var(--aiuta-inset-container);
-  display: flex;
-  align-items: center;
-}
-
-.content {
-  flex: 1 1 0;
-  min-height: 0;
-  width: 100%;
-  padding: 0 40px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-// Mobile container
-.container_mobile {
-  width: 100%;
-  display: flex;
-  min-height: inherit;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-}
-
-// Mobile content area
-.content_mobile {
-  margin: 0 auto;
-  max-width: 280px;
-  max-height: 460px;
-  overflow: hidden;
-  border-radius: 20px;
-  margin-bottom: 5px;
-}
-
 // Image content for mobile gallery
 .imageContent_mobile {
   height: 254px;

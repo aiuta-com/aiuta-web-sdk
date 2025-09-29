@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, ChangeEvent } from 'react'
+import { flushSync } from 'react-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
@@ -9,7 +10,13 @@ import {
   isGeneratingSelector,
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
-import { UploadHistorySheet, ErrorSnackbar, TryOnButton, DeletableImage } from '@/components'
+import {
+  UploadHistorySheet,
+  ErrorSnackbar,
+  TryOnButton,
+  DeletableImage,
+  MobileUploadPrompt,
+} from '@/components'
 import { AbortAlert, TryOnViewer } from '@/components'
 import { useTryOnGeneration, useUploadsGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
@@ -22,15 +29,13 @@ export default function TryOnMobile() {
   const isOpenSwip = useAppSelector(uploadsIsBottomSheetOpenSelector)
   const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
-  const isOpenAbortedModal = useAppSelector(isAbortedSelector)
+  const isAborted = useAppSelector(isAbortedSelector)
 
   const { recentlyPhotos, handleImageDelete: removePhotoFromGallery } = useUploadsGallery()
-
   const { uploadImage } = useImageUpload({ withinGenerationFlow: true })
-
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
-
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
+  const [isButtonClicked, setIsButtonClicked] = useState(false)
 
   const handleOpenSwip = () => {
     dispatch(uploadsSlice.actions.setIsBottomSheetOpen(true))
@@ -62,7 +67,16 @@ export default function TryOnMobile() {
 
   const hasInputImage = uploadedViewFile.localUrl.length > 0
   const hasRecentPhotos = recentlyPhotos && recentlyPhotos.length > 0
-  const showTryOnButton = !isGenerating && (hasInputImage || recentImage)
+  const hasRecentImage = recentImage && recentImage.url && recentImage.url.length > 0
+  const showTryOnButton =
+    !isGenerating && !isAborted && !isButtonClicked && (hasInputImage || recentImage)
+
+  const handleTryOnClick = () => {
+    flushSync(() => {
+      setIsButtonClicked(true)
+    })
+    startTryOn()
+  }
 
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {
@@ -71,51 +85,68 @@ export default function TryOnMobile() {
     }
   }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
+  // Reset button clicked state when generation finishes
+  useEffect(() => {
+    if (!isGenerating) {
+      setIsButtonClicked(false)
+    }
+  }, [isGenerating])
+
+  // Determine which image to show
+  const currentImageUrl = hasInputImage
+    ? uploadedViewFile.localUrl
+    : hasRecentImage
+      ? recentImage?.url
+      : null
+
   return (
-    <main className={styles.tryOn_mobile}>
-      <div className={styles.container_mobile}>
-        <AbortAlert isOpen={isOpenAbortedModal} onClose={closeAbortedModal} />
-        <ErrorSnackbar onRetry={regenerate} />
-        <div />
+    <main className={styles.tryOn}>
+      <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
+      <ErrorSnackbar onRetry={regenerate} />
 
-        <div className={styles.content_mobile}>
-          <TryOnViewer
-            uploadedImageUrl={uploadedViewFile.localUrl}
-            recentImageUrl={recentImage?.url}
-            isGenerating={isGenerating}
-            onChangeImage={hasInputImage ? handleButtonClick : handleOpenSwip}
-            onUploadClick={handleButtonClick}
-          />
-        </div>
-
-        {showTryOnButton && <TryOnButton onClick={() => startTryOn()}>Try On</TryOnButton>}
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleChoosePhoto}
-          style={{ display: 'none' }}
+      {currentImageUrl ? (
+        <TryOnViewer
+          uploadedImageUrl={uploadedViewFile.localUrl}
+          recentImageUrl={recentImage?.url}
+          isGenerating={isGenerating}
+          onChangePhoto={hasInputImage ? handleButtonClick : handleOpenSwip}
         />
+      ) : (
+        <MobileUploadPrompt onClick={handleButtonClick} />
+      )}
 
-        <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
-          <div className={styles.imageContent_mobile}>
-            {recentlyPhotos.length > 0
-              ? recentlyPhotos.map((item: InputImage, index) => (
-                  <DeletableImage
-                    key={`${item.id}-${index}-${recentlyPhotos.length}`}
-                    src={item.url}
-                    imageId={item.id}
-                    showTrashIcon={true}
-                    classNames={styles.imageBox_mobile}
-                    onDelete={removePhotoFromGallery}
-                    onClick={() => handleChooseNewPhoto(item.id, item.url)}
-                  />
-                ))
-              : null}
-          </div>
-        </UploadHistorySheet>
-      </div>
+      <TryOnButton
+        onClick={handleTryOnClick}
+        hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
+      >
+        Try On
+      </TryOnButton>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleChoosePhoto}
+        style={{ display: 'none' }}
+      />
+
+      <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
+        <div className={styles.imageContent_mobile}>
+          {recentlyPhotos.length > 0
+            ? recentlyPhotos.map((item: InputImage, index) => (
+                <DeletableImage
+                  key={`${item.id}-${index}-${recentlyPhotos.length}`}
+                  src={item.url}
+                  imageId={item.id}
+                  showTrashIcon={true}
+                  classNames={styles.imageBox_mobile}
+                  onDelete={removePhotoFromGallery}
+                  onClick={() => handleChooseNewPhoto(item.id, item.url)}
+                />
+              ))
+            : null}
+        </div>
+      </UploadHistorySheet>
     </main>
   )
 }
