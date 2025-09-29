@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { Icon } from '@/components/buttons/Icon'
+import { Icon } from '@/components/ui/Icon'
 import { combineClassNames } from '@/utils'
 import type { IconButtonProps } from './types'
 import styles from './IconButton.module.scss'

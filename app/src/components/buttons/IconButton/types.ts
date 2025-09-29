@@ -1,4 +1,4 @@
-import type { IconProps } from '@/components/buttons/Icon'
+import type { IconProps } from '@/components/ui/Icon'
 
 export interface IconButtonProps extends IconProps {
   // Button-specific props

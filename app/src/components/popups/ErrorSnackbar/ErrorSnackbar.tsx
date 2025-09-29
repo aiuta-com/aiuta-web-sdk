@@ -11,7 +11,7 @@ import { ErrorSnackbarProps } from './types'
 import { icons } from './icons'
 import styles from './ErrorSnackbar.module.scss'
 
-const AUTO_HIDE_DELAY = 10000 // 10 seconds
+const AUTO_HIDE_DELAY = 15000
 
 export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
   const { onRetry, className } = props

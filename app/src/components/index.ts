@@ -1,22 +1,21 @@
-// ===== LAYOUT COMPONENTS =====
-export { Section } from './layout/Section'
-export { PageBar } from './layout/PageBar'
-export { AppContainer } from './layout/AppContainer'
-export { PoweredBy } from './layout/PoweredBy'
-
 // ===== UI COMPONENTS =====
+
+// General UI
+export { AppContainer } from './ui/AppContainer'
+export { PageBar } from './ui/PageBar'
+export { PoweredBy } from './ui/PoweredBy'
+export { Icon } from './ui/Icon'
 
 // Buttons
 export { CheckboxLabel } from './buttons/CheckboxLabel'
-export { Icon } from './buttons/Icon'
 export { IconButton } from './buttons/IconButton'
 export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
 export { TryOnButton } from './buttons/TryOnButton'
 
 // Images
-export { RemoteImage } from './gallery/RemoteImage'
-export { CrossFadeImage } from './gallery/CrossFadeImage'
+export { RemoteImage } from './images/RemoteImage'
+export { CrossFadeImage } from './images/CrossFadeImage'
 
 // Indicators
 export { Spinner } from './indicators/Spinner/Spinner'
@@ -43,8 +42,8 @@ export { UploadHistorySheet } from './picker/UploadHistorySheet'
 export { ImageGallery } from './gallery/ImageGallery'
 export { ThumbnailList } from './gallery/ThumbnailList'
 export { FullScreenGallery } from './gallery/FullScreenGallery'
-export { SelectableImage } from './gallery/SelectableImage'
-export { DeletableImage } from './gallery/DeletableImage'
+export { SelectableImage } from './images/SelectableImage'
+export { DeletableImage } from './images/DeletableImage'
 
 // Try-On
 export { TryOnAnimator } from './tryOn/TryOnAnimator'
