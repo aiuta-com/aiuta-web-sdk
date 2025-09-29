@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { TryOnAnimator, ProcessingStatus } from '@/components'
+import React, { useState, useEffect, useCallback } from 'react'
+import { ProcessingStatus, RemoteImage } from '@/components'
 import { MobileUploadPrompt } from '@/components'
+import { combineClassNames } from '@/utils'
 import styles from './TryOnViewer.module.scss'
 
 interface TryOnViewerProps {
@@ -20,7 +21,6 @@ export const TryOnViewer = ({
 }: TryOnViewerProps) => {
   const hasInputImage = uploadedImageUrl && uploadedImageUrl.length > 0
   const hasRecentImage = recentImageUrl && recentImageUrl.length > 0
-  const showChangeButton = !isGenerating
 
   // Fix backdrop-filter refresh with minimal opacity change
   const [buttonOpacity, setButtonOpacity] = useState(1)
@@ -41,7 +41,7 @@ export const TryOnViewer = ({
   }, [uploadedImageUrl, recentImageUrl])
 
   // Refresh when image actually loads
-  const handleImageLoad = () => {
+  const handleImageLoad = useCallback(() => {
     // Immediate refresh
     refreshBackdropFilter()
 
@@ -54,7 +54,7 @@ export const TryOnViewer = ({
     setTimeout(() => {
       refreshBackdropFilter()
     }, 300)
-  }
+  }, [])
 
   // Determine which image to show
   const currentImageUrl = hasInputImage ? uploadedImageUrl : hasRecentImage ? recentImageUrl : null
@@ -62,25 +62,38 @@ export const TryOnViewer = ({
   // If there is an image to show
   if (currentImageUrl) {
     return (
-      <div className={styles.tryOnViewer}>
-        <TryOnAnimator
-          imageUrl={currentImageUrl}
-          isAnimating={isGenerating}
-          onImageLoad={handleImageLoad}
-        />
-        <ProcessingStatus
-          isVisible={isGenerating}
-          stage={isGenerating ? 'scanning' : 'generating'}
-        />
-        {showChangeButton && (
-          <button
-            className={`aiuta-button-s ${styles.changePhotoButton}`}
-            style={{ opacity: buttonOpacity }}
-            onClick={onChangeImage}
-          >
-            Change photo
-          </button>
-        )}
+      <div className={styles.container}>
+        <div
+          className={combineClassNames(
+            'aiuta-image-l',
+            styles.input,
+            isGenerating && styles.input_animating,
+          )}
+        >
+          <RemoteImage
+            src={currentImageUrl}
+            alt="Try-on image"
+            shape="L"
+            onLoad={handleImageLoad}
+          />
+
+          {isGenerating && (
+            <ProcessingStatus
+              stage={isGenerating ? 'scanning' : 'generating'}
+              className={styles.processingStatus}
+            />
+          )}
+
+          {!isGenerating && (
+            <button
+              className={`aiuta-button-s ${styles.changePhotoButton}`}
+              style={{ opacity: buttonOpacity }}
+              onClick={onChangeImage}
+            >
+              Change photo
+            </button>
+          )}
+        </div>
       </div>
     )
   }

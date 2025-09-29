@@ -21,7 +21,8 @@
     "build:strict": "npm run build:app && npm run build:sdk:strict",
     "build": "npm run build:app && npm run build:sdk",
     "deploy:docs": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/app && cp -rf ./dist/app ../docs/docs",
-    "local": "npm run lint && npm run build:debug && npm run deploy:docs"
+    "local": "npm run lint && npm run build:debug && npm run deploy:docs",
+    "local:unsafe": "npm run build:debug && npm run deploy:docs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",

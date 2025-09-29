@@ -50,8 +50,8 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
           <Route path="/qr/:token" element={<QrUploadPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/results" element={<ResultsPage />} />
-          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
           <Route path="/generations-history" element={<GenerationsHistoryPage />} />
+          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
         </Routes>
         <PoweredBy />
       </AppContainer>

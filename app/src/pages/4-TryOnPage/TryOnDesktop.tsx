@@ -58,14 +58,12 @@ export default function TryOnDesktop() {
       <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
-      <div className={styles.content}>
-        <TryOnViewer
-          uploadedImageUrl={uploadedViewFile.localUrl}
-          recentImageUrl={recentImage?.url}
-          isGenerating={isGenerating}
-          onChangeImage={handleChangePhoto}
-        />
-      </div>
+      <TryOnViewer
+        uploadedImageUrl={uploadedViewFile.localUrl}
+        recentImageUrl={recentImage?.url}
+        isGenerating={isGenerating}
+        onChangeImage={handleChangePhoto}
+      />
 
       <TryOnButton
         onClick={handleTryOnClick}

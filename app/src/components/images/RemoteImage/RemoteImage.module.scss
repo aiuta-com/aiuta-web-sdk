@@ -1,21 +1,13 @@
 // Remote image container with error handling and shape support
 .remoteImage {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   background: var(--aiuta-color-neutral);
   display: block;
+  line-height: 0;
 
-  // CrossFadeImage fills the entire container
-  .crossFadeImage {
-    width: 100%;
-    height: 100%;
-  }
-
-  // Error state icon
   .errorIcon {
     position: absolute;
     top: 50%;

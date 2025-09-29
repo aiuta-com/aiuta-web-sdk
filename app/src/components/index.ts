@@ -46,7 +46,6 @@ export { SelectableImage } from './images/SelectableImage'
 export { DeletableImage } from './images/DeletableImage'
 
 // Try-On
-export { TryOnAnimator } from './tryOn/TryOnAnimator'
 export { ProcessingStatus } from './tryOn/ProcessingStatus'
 export { TryOnViewer } from './tryOn/TryOnViewer'
 

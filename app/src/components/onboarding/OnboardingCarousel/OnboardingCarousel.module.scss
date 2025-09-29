@@ -6,7 +6,7 @@
   position: relative;
   max-height: var(--aiuta-max-height);
   aspect-ratio: var(--aiuta-aspect-ratio);
-  max-width: calc(100% - 132px); /* Account for side margins 66px * 2 */
+  max-width: calc(100% - 132px);
   margin: 60px auto 24px;
 }
 

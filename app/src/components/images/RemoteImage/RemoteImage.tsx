@@ -28,7 +28,7 @@ export const RemoteImage = ({
 
   // Get shape class based on size
   const shapeClass = shape === 'L' ? 'aiuta-image-l' : 'aiuta-image-m'
-  const containerClasses = combineClassNames(styles.remoteImage, shapeClass, className)
+  const containerClasses = combineClassNames(shapeClass, styles.remoteImage, className)
 
   return (
     <div className={containerClasses}>
@@ -39,7 +39,6 @@ export const RemoteImage = ({
           loading={loading}
           onLoad={handleLoad}
           onError={handleError}
-          className={styles.crossFadeImage}
         />
       )}
 
