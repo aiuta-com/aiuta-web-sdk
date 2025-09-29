@@ -1,4 +1,5 @@
 import React from 'react'
+import { CrossFadeImage } from '@/components'
 import { OnboardingCarouselProps } from './types'
 import { combineClassNames } from '@/utils'
 import styles from './OnboardingCarousel.module.scss'
@@ -15,12 +16,18 @@ export const OnboardingCarousel = ({
 
   return (
     <div className={containerClasses}>
-      {/* Thumbnail indicators */}
+      <CrossFadeImage
+        src={currentItem?.imageUrl || ''}
+        alt={`Try on example ${activeIndex + 1}`}
+        className={combineClassNames('aiuta-image-l', styles.carouselImage)}
+      />
+
       <div className={styles.thumbnailsList}>
         {items.map((item, index) => (
           <div
             key={index}
             className={combineClassNames(
+              'aiuta-image-s',
               styles.thumbnailItem,
               activeIndex === index && styles.thumbnailItem_active,
             )}
@@ -34,13 +41,6 @@ export const OnboardingCarousel = ({
           </div>
         ))}
       </div>
-
-      {/* Main carousel image */}
-      <img
-        alt={`Try on example ${activeIndex + 1}`}
-        className={styles.carouselImage}
-        src={currentItem?.imageUrl}
-      />
     </div>
   )
 }

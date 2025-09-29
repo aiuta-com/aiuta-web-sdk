@@ -1,4 +1,4 @@
-// Remote image container with loading states
+// Remote image container with error handling and shape support
 .remoteImage {
   position: absolute;
   top: 0;
@@ -9,19 +9,10 @@
   background: var(--aiuta-color-neutral);
   display: block;
 
-  // Image element
-  .image {
+  // CrossFadeImage fills the entire container
+  .crossFadeImage {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-  }
-
-  // Show image when loaded
-  .image_loaded {
-    opacity: 1;
   }
 
   // Error state icon
@@ -30,6 +21,6 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1;
+    z-index: 3;
   }
 }

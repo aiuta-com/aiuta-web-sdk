@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { Icon } from '@/components'
+import { Icon, CrossFadeImage } from '@/components'
 import { combineClassNames } from '@/utils'
 import { RemoteImageProps } from './types'
 import styles from './RemoteImage.module.scss'
@@ -13,17 +13,14 @@ export const RemoteImage = ({
   onLoad,
   onError,
 }: RemoteImageProps) => {
-  const [isLoaded, setIsLoaded] = useState(false)
   const [hasError, setHasError] = useState(false)
 
   const handleLoad = useCallback(() => {
-    setIsLoaded(true)
     setHasError(false)
     onLoad?.()
   }, [onLoad])
 
   const handleError = useCallback(() => {
-    setIsLoaded(false)
     setHasError(true)
     onError?.()
   }, [onError])
@@ -31,19 +28,17 @@ export const RemoteImage = ({
   // Get shape class based on size
   const shapeClass = shape === 'L' ? 'aiuta-image-l' : 'aiuta-image-m'
   const containerClasses = combineClassNames(styles.remoteImage, shapeClass, className)
-  const imageClasses = combineClassNames(styles.image, isLoaded && styles.image_loaded)
 
   return (
     <div className={containerClasses}>
       {!hasError && (
-        <img
+        <CrossFadeImage
           src={src}
           alt={alt}
-          className={imageClasses}
           loading={loading}
-          decoding="async"
           onLoad={handleLoad}
           onError={handleError}
+          className={styles.crossFadeImage}
         />
       )}
 

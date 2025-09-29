@@ -10,16 +10,16 @@ interface OnboardingMobileProps {
 
 const CAROUSEL_ITEMS: CarouselItem[] = [
   {
-    imageUrl: './images/mobileFirstOnboarding.png',
-    thumbnailUrl: './images/mobileFirstMini.png',
+    imageUrl: './images/onboarding-carousel-1--image.png',
+    thumbnailUrl: './images/onboarding-carousel-1--thumb.png',
   },
   {
-    imageUrl: './images/mobileMiddleOnboarding.png',
-    thumbnailUrl: './images/mobileMiddleMini.png',
+    imageUrl: './images/onboarding-carousel-2--image.png',
+    thumbnailUrl: './images/onboarding-carousel-2--thumb.png',
   },
   {
-    imageUrl: './images/mobileLastOnboarding.png',
-    thumbnailUrl: './images/mobileLastMini.png',
+    imageUrl: './images/onboarding-carousel-3--image.png',
+    thumbnailUrl: './images/onboarding-carousel-3--thumb.png',
   },
 ]
 
@@ -102,7 +102,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
           <img
             alt="Best results guide"
             className={`${styles.image} ${styles.image_bestResults}`}
-            src="./images/mobileLastStepOnboarding.png"
+            src="./images/onboarding-best-results--mobile.png"
           />
         </OnboardingSlide>
 

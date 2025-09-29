@@ -57,7 +57,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
           <img
             alt="How it works guide"
             className={`${styles.image} ${styles.image_howItWorks}`}
-            src="./images/firstOnboarding.png"
+            src="./images/onboarding-how-it-works.png"
           />
 
           <h2 className={`aiuta-title-m ${styles.title}`}>Try on before buying</h2>
@@ -70,7 +70,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
           <img
             alt="Best results guide"
             className={`${styles.image} ${styles.image_bestResults}`}
-            src="./images/lastOnboarding.png"
+            src="./images/onboarding-best-results--desktop.png"
           />
 
           <h2 className={`aiuta-title-m ${styles.title}`}>For the best results</h2>

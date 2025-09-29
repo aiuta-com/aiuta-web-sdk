@@ -24,3 +24,8 @@
 .aiuta-image-m {
   border-radius: 16px;
 }
+
+/* Image Small Shape */
+.aiuta-image-s {
+  border-radius: 8px;
+}

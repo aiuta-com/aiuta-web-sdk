@@ -16,6 +16,7 @@ export { TryOnButton } from './buttons/TryOnButton'
 
 // Images
 export { RemoteImage } from './gallery/RemoteImage'
+export { CrossFadeImage } from './gallery/CrossFadeImage'
 
 // Indicators
 export { Spinner } from './indicators/Spinner/Spinner'

@@ -1,25 +1,28 @@
 .onboardingCarousel {
-  flex: 0 0 auto;
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 60px;
-  margin-bottom: 34px;
-  padding: 0 66px;
   position: relative;
+  max-height: var(--aiuta-max-height);
+  aspect-ratio: var(--aiuta-aspect-ratio);
+  max-width: calc(100% - 132px); /* Account for side margins 66px * 2 */
+  margin: 60px auto 24px;
 }
 
 .carouselImage {
-  display: block;
-  height: auto;
-  max-width: 100%;
-  max-height: min(60dvh, 100dvh - 300px, var(--aiuta-max-height));
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .thumbnailsList {
   position: absolute;
   top: 50%;
-  left: 66px;
+  left: 0;
   display: flex;
   row-gap: 6px;
   align-items: center;
@@ -29,18 +32,16 @@
 }
 
 .thumbnailItem {
-  /* Responsive sizing based on available height */
+  display: flex;
+  cursor: pointer;
   width: min(8vh, 64px);
   height: min(10vh, 88px);
-  display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
   background-color: white;
-  box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
+  box-shadow: 0 2.551px 13.2px 0 rgba(0, 0, 0, 0.12);
   transition: all 0.3s ease-in-out;
-  padding: 2px; /* Padding instead of fixed image sizes */
+  padding: 2px;
 
   &_active {
     width: min(10vh, 88px);
