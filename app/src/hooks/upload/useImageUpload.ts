@@ -71,12 +71,7 @@ export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadO
       dispatch(tryOnSlice.actions.setIsGenerating(false))
     }
 
-    dispatch(
-      errorSnackbarSlice.actions.showErrorSnackbar({
-        retryButtonText: 'Try again',
-        errorMessage: 'Something went wrong. Please try again later.',
-      }),
-    )
+    dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
 
     trackUploadError(errorMessage, errorMessage)
   }

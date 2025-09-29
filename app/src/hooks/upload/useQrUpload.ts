@@ -65,12 +65,7 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
   // Handle upload errors
   const handleUploadError = useCallback(
     (errorMessage: string) => {
-      dispatch(
-        errorSnackbarSlice.actions.showErrorSnackbar({
-          retryButtonText: 'Try again',
-          errorMessage: 'Something went wrong. Please try again later.',
-        }),
-      )
+      dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
       trackUploadError(errorMessage, errorMessage)
     },
     [dispatch, trackUploadError],

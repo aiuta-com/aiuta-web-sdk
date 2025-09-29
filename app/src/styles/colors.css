@@ -20,4 +20,7 @@
 
   /* Selection */
   --aiuta-color-selection-background: #000000;
+
+  /* Error */
+  --aiuta-color-error-background: #ef5754;
 }

@@ -90,12 +90,7 @@ export const useTryOnGeneration = () => {
       clearGenerationInterval()
       dispatch(tryOnSlice.actions.setIsGenerating(false))
 
-      dispatch(
-        errorSnackbarSlice.actions.showErrorSnackbar({
-          retryButtonText: 'Try again',
-          errorMessage: 'Something went wrong. Please try again later.',
-        }),
-      )
+      dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
 
       trackTryOnError(result.status, result.error || 'Unknown error')
     },
@@ -231,12 +226,7 @@ export const useTryOnGeneration = () => {
 
       if (!operationId) {
         dispatch(tryOnSlice.actions.setIsGenerating(false))
-        dispatch(
-          errorSnackbarSlice.actions.showErrorSnackbar({
-            retryButtonText: 'Try again',
-            errorMessage: 'Something went wrong. Please try again later.',
-          }),
-        )
+        dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
         return
       }
 
