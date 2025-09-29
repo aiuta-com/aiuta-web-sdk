@@ -23,6 +23,7 @@ export const usePageBarVisibility = () => {
   // Path checks
   const isOnHistoryPage = pathName === '/generations-history' || pathName === '/uploads-history'
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
+  const isOnOnboardingPage = pathName === '/onboarding'
 
   // Data availability
   const hasGeneratedImages = generatedImages.length > 0
@@ -33,12 +34,13 @@ export const usePageBarVisibility = () => {
   const isAnySelectionActive = isSelectingGenerations || isSelectingUploads
 
   // Desktop visibility logic
-  const showHistoryButtonDesktop = !isMobile && !isOnQrTokenPage && hasGeneratedImages
+  const showHistoryButtonDesktop =
+    !isMobile && !isOnQrTokenPage && !isOnOnboardingPage && hasGeneratedImages
   const showBackButtonDesktop =
     !isMobile && !isOnQrTokenPage && isOnHistoryPage && !hasGeneratedImages
 
   // Mobile visibility logic
-  const showHistoryButtonMobile = isMobile && hasGeneratedImages
+  const showHistoryButtonMobile = isMobile && !isOnOnboardingPage && hasGeneratedImages
   const showBackButtonMobile = isMobile && isOnHistoryPage
   const shouldShowMobileTitle = isMobile && isOnboardingCompleted
 
@@ -64,6 +66,7 @@ export const usePageBarVisibility = () => {
     // States
     isOnHistoryPage,
     isOnQrTokenPage,
+    isOnOnboardingPage,
     isMobile,
     isSelectionActive: isAnySelectionActive,
     hasAnyHistory,

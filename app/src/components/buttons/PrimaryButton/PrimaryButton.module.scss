@@ -11,6 +11,7 @@
   margin: var(--aiuta-inset-v) auto;
   padding: var(--aiuta-inset-button);
   transition: all ease-in-out 0.3s;
+  white-space: nowrap;
 
   &:hover:not(:disabled) {
     opacity: 0.9;

@@ -36,7 +36,7 @@ export default function QrPromptPage() {
         isDownloading || isUploading ? (
           <Spinner isVisible={true} />
         ) : (
-          <div className={styles.content}>
+          <>
             <QrCode url={qrUrl} />
             <div className={styles.options}>
               <p className={`aiuta-button-m ${styles.qrHint}`}>Scan the QR code</p>
@@ -52,7 +52,7 @@ export default function QrPromptPage() {
                 />
               </label>
             </div>
-          </div>
+          </>
         )
       ) : null}
     </main>
