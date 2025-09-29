@@ -1,0 +1,22 @@
+/* @block flex */
+.container {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--aiuta-inset-t) var(--aiuta-inset-h);
+}
+
+.content {
+  position: relative;
+  aspect-ratio: var(--aiuta-aspect-ratio);
+  height: 100%;
+  max-height: min(100%, var(--aiuta-max-height));
+  width: auto;
+  max-width: 100%;
+  flex: 0 1 auto;
+  overflow: hidden;
+}

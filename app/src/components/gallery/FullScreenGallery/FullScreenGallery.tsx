@@ -7,7 +7,7 @@ import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 // 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { useAppVisibility } from '@/hooks'
-import { ShareModal, ThumbnailList } from '@/components'
+import { Share, ThumbnailList } from '@/components'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
@@ -16,7 +16,7 @@ import styles from './FullScreenGallery.module.scss'
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
-  const [shareModalData, setShareModalData] = useState<{ imageUrl: string } | null>(null)
+  const [shareModalData, setShareData] = useState<{ imageUrl: string } | null>(null)
   const { hideApp } = useAppVisibility()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
@@ -65,12 +65,12 @@ export const FullScreenGallery = () => {
   const handleShareImage = useCallback(() => {
     if (!modalData?.activeImage) return
 
-    // Open ShareModal as overlay within the same iframe
-    setShareModalData({ imageUrl: modalData.activeImage.url })
+    // Open Share as overlay within the same iframe
+    setShareData({ imageUrl: modalData.activeImage.url })
   }, [modalData])
 
-  const handleCloseShareModal = useCallback(() => {
-    setShareModalData(null)
+  const handleCloseShare = useCallback(() => {
+    setShareData(null)
   }, [])
 
   const handleDeleteImage = useCallback(() => {
@@ -161,10 +161,10 @@ export const FullScreenGallery = () => {
           />
         </div>
 
-        {/* ShareModal overlay */}
+        {/* Share overlay */}
         {shareModalData && (
           <div className={styles.shareModalOverlay}>
-            <ShareModal imageUrl={shareModalData.imageUrl} onClose={handleCloseShareModal} />
+            <Share imageUrl={shareModalData.imageUrl} onClose={handleCloseShare} />
           </div>
         )}
       </div>

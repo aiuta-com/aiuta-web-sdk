@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
-import { CarouselItem } from '@/components/onboarding/OnboardingCarousel'
+import { CarouselItem } from '@/components/onboarding/Carousel'
 
-export interface OnboardingCarouselConfig {
+export interface CarouselConfig {
   /** Initial carousel index */
   initialIndex?: number
   /** Carousel items */
@@ -10,7 +10,7 @@ export interface OnboardingCarouselConfig {
   autoAdvance?: boolean
 }
 
-export const useOnboardingCarousel = (config: OnboardingCarouselConfig) => {
+export const useCarousel = (config: CarouselConfig) => {
   const { initialIndex = 0, items, autoAdvance = true } = config
 
   const [carouselIndex, setCarouselIndex] = useState(initialIndex)

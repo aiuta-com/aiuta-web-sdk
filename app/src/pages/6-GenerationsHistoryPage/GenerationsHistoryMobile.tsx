@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ImageGallery, SelectionSnackbar } from '@/components'
-import { ConfirmationAlert } from '@/components'
+import { Confirmation } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
 import styles from './GenerationsHistory.module.scss'
 
@@ -38,7 +38,7 @@ export default function GenerationsHistoryMobile() {
         onDownload={gallery.onDownload}
       />
 
-      <ConfirmationAlert
+      <Confirmation
         isVisible={isModalVisible}
         message="Are you sure you want to delete these try-ons?"
         leftButtonText="Keep"

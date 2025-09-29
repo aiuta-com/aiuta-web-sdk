@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { OnboardingSlide, OnboardingCarousel, Consent, PrimaryButton } from '@/components'
-import { CarouselItem } from '@/components/onboarding/OnboardingCarousel'
+import { Slide, Carousel, Consent, PrimaryButton } from '@/components'
+import { CarouselItem } from '@/components/onboarding/Carousel'
 import { useOnboardingSlides, useOnboardingAnalytics, useSwipeGesture } from '@/hooks'
 import styles from './Onboarding.module.scss'
 
@@ -80,20 +80,20 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   return (
     <main className={styles.onboarding} {...swipeHandlers}>
       <div className={styles.slides}>
-        <OnboardingSlide state={getSlideState(0)}>
+        <Slide state={getSlideState(0)}>
           <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
           <h3 className={`aiuta-label-regular ${styles.description} ${styles.description_mobile}`}>
             Just upload your photo and see how it looks
           </h3>
 
-          <OnboardingCarousel
+          <Carousel
             items={CAROUSEL_ITEMS}
             activeIndex={carouselIndex}
             onItemChange={setCarouselIndex}
           />
-        </OnboardingSlide>
+        </Slide>
 
-        <OnboardingSlide state={getSlideState(1)}>
+        <Slide state={getSlideState(1)}>
           <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
           <h3 className={`aiuta-label-regular ${styles.description} ${styles.description_mobile}`}>
             Use a photo with good lighting, stand straight a plain background
@@ -104,11 +104,11 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
             className={`${styles.image} ${styles.image_bestResults}`}
             src="./images/onboarding-best-results--mobile.png"
           />
-        </OnboardingSlide>
+        </Slide>
 
-        <OnboardingSlide state={getSlideState(2)}>
+        <Slide state={getSlideState(2)}>
           <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
-        </OnboardingSlide>
+        </Slide>
       </div>
 
       <PrimaryButton disabled={!canProceed(currentSlide)} onClick={handleNext}>

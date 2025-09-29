@@ -5,9 +5,10 @@ export { AppContainer } from './ui/AppContainer'
 export { PageBar } from './ui/PageBar'
 export { PoweredBy } from './ui/PoweredBy'
 export { Icon } from './ui/Icon'
+export { Flex } from './ui/Flex'
 
 // Buttons
-export { CheckboxLabel } from './buttons/CheckboxLabel'
+export { Checkbox } from './buttons/Checkbox'
 export { IconButton } from './buttons/IconButton'
 export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
@@ -30,13 +31,13 @@ export { SelectionSnackbar } from './popups/SelectionSnackbar'
 
 // Onboarding
 export { Consent } from './onboarding/Consent'
-export { OnboardingSlide } from './onboarding/OnboardingSlide'
-export { OnboardingCarousel } from './onboarding/OnboardingCarousel'
+export { Slide } from './onboarding/Slide'
+export { Carousel } from './onboarding/Carousel'
 
 // Picker (Upload)
 export { QrCode } from './picker/QrCode'
-export { MobileUploadPrompt } from './picker/MobileUploadPrompt'
-export { UploadHistorySheet } from './picker/UploadHistorySheet'
+export { UploadPrompt } from './picker/UploadPrompt'
+export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
 
 // Gallery
 export { ImageGallery } from './gallery/ImageGallery'
@@ -46,13 +47,13 @@ export { SelectableImage } from './images/SelectableImage'
 export { DeletableImage } from './images/DeletableImage'
 
 // Try-On
-export { ProcessingStatus } from './tryOn/ProcessingStatus'
-export { TryOnViewer } from './tryOn/TryOnViewer'
+export { TryOnStatus } from './tryOn/TryOnStatus'
+export { TryOnView } from './tryOn/TryOnView'
 
 // Results
-export { DesktopResultActions } from './results/DesktopResultActions'
-export { ShareModal } from './results/ShareModal'
+export { ResultActions } from './results/ResultActions'
+export { Share } from './results/Share'
 
 // ===== ALERTS =====
 export { AbortAlert } from './alerts/AbortAlert'
-export { ConfirmationAlert } from './alerts/ConfirmationAlert'
+export { Confirmation } from './alerts/Confirmation'

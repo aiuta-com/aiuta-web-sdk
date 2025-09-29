@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
-import { ConfirmationAlert } from '@/components'
+import { Confirmation } from '@/components'
 import { useUploadsGallery } from '@/hooks'
 import styles from './UploadsHistory.module.scss'
 
@@ -37,7 +37,7 @@ export default function UploadsHistoryDesktop() {
         onDelete={gallery.onDelete}
       />
 
-      <ConfirmationAlert
+      <Confirmation
         isVisible={isModalVisible}
         message="Are you sure you want to delete these uploads?"
         leftButtonText="Keep"

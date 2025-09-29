@@ -8,14 +8,14 @@ import {
 import { useOnboardingAnalytics } from './useOnboardingAnalytics'
 import { OnboardingPageId } from './useOnboardingAnalytics'
 
-export interface OnboardingSlidesConfig {
+export interface SlidesConfig {
   /** Whether to track analytics automatically */
   enableAnalytics?: boolean
   /** Initial slide index */
   initialSlide?: number
 }
 
-export const useOnboardingSlides = (config: OnboardingSlidesConfig = {}) => {
+export const useOnboardingSlides = (config: SlidesConfig = {}) => {
   const { enableAnalytics = true, initialSlide = 0 } = config
 
   const dispatch = useAppDispatch()

@@ -8,7 +8,7 @@ import {
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
 import { ErrorSnackbar, TryOnButton } from '@/components'
-import { AbortAlert, TryOnViewer } from '@/components'
+import { AbortAlert, TryOnView } from '@/components'
 import { useTryOnGeneration, useUploadsGallery } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
@@ -58,7 +58,7 @@ export default function TryOnDesktop() {
       <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
-      <TryOnViewer
+      <TryOnView
         uploadedImageUrl={uploadedViewFile.localUrl}
         recentImageUrl={recentImage?.url}
         isGenerating={isGenerating}

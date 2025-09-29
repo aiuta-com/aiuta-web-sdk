@@ -1,6 +1,6 @@
 import React from 'react'
 import { ThumbnailList } from '@/components'
-import { DesktopResultActions } from '@/components'
+import { ResultActions } from '@/components'
 import { useResultsGallery } from '@/hooks'
 import styles from './Results.module.scss'
 
@@ -55,7 +55,7 @@ export default function ResultsDesktop() {
         ))}
       </div>
 
-      {currentImage && <DesktopResultActions activeGeneratedImageUrl={currentImage.url} />}
+      {currentImage && <ResultActions activeGeneratedImageUrl={currentImage.url} />}
     </main>
   )
 }

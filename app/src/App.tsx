@@ -1,12 +1,12 @@
 import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
-import { PageBar, PoweredBy, FullScreenGallery, ShareModal, AppContainer } from '@/components'
+import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
 
 import Home from '@/pages/Home'
 import OnboardingPage from '@/pages/1-OnboardingPage'
-import QrPromptPage from '@/pages/2-QrPromptPage/QrPromptPage'
+import QrPromptPage from '@/pages/2-QrPromptPage'
 import QrUploadPage from '@/pages/3-QrUploadPage'
 import TryOnPage from '@/pages/4-TryOnPage'
 import ResultsPage from '@/pages/5-ResultsPage'
@@ -40,7 +40,7 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
   return (
     <MemoryRouter initialEntries={[initialPath || '/']}>
       <FullScreenGallery />
-      <ShareModal />
+      <Share />
       <AppContainer>
         <PageBar />
         <Routes>

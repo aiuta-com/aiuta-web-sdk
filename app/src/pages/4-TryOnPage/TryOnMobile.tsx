@@ -11,13 +11,13 @@ import {
   isAbortedSelector,
 } from '@/store/slices/tryOnSlice'
 import {
-  UploadHistorySheet,
+  UploadsHistorySheet,
   ErrorSnackbar,
   TryOnButton,
   DeletableImage,
-  MobileUploadPrompt,
+  UploadPrompt,
 } from '@/components'
-import { AbortAlert, TryOnViewer } from '@/components'
+import { AbortAlert, TryOnView } from '@/components'
 import { useTryOnGeneration, useUploadsGallery, useImageUpload } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
@@ -26,18 +26,19 @@ export default function TryOnMobile() {
   const dispatch = useAppDispatch()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const isOpenSwip = useAppSelector(uploadsIsBottomSheetOpenSelector)
-  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
+  const isBottomSheetOpen = useAppSelector(uploadsIsBottomSheetOpenSelector)
+  const currentTryOnImage = useAppSelector(currentTryOnImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const isAborted = useAppSelector(isAbortedSelector)
 
-  const { recentlyPhotos, handleImageDelete: removePhotoFromGallery } = useUploadsGallery()
+  const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
+    useUploadsGallery()
   const { uploadImage } = useImageUpload({ withinGenerationFlow: true })
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState(false)
 
-  const handleOpenSwip = () => {
+  const handleOpenBottomSheet = () => {
     dispatch(uploadsSlice.actions.setIsBottomSheetOpen(true))
   }
 
@@ -49,24 +50,24 @@ export default function TryOnMobile() {
     }, 300)
   }
 
-  const handleButtonClick = () => {
+  const handleFileInputClick = () => {
     fileInputRef.current?.click()
   }
 
-  const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target && event.target.files) {
       const file = event.target.files[0]
       if (!file) return
 
       await uploadImage(file, (result: InputImage) => {
         startTryOn(result)
-        if (isOpenSwip) dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+        if (isBottomSheetOpen) dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
       })
     }
   }
 
-  const hasInputImage = uploadedViewFile.localUrl.length > 0
-  const hasRecentPhotos = recentlyPhotos && recentlyPhotos.length > 0
+  const hasInputImage = currentTryOnImage.localUrl.length > 0
+  const hasRecentPhotos = recentPhotos && recentPhotos.length > 0
   const hasRecentImage = recentImage && recentImage.url && recentImage.url.length > 0
   const showTryOnButton =
     !isGenerating && !isAborted && !isButtonClicked && (hasInputImage || recentImage)
@@ -80,10 +81,10 @@ export default function TryOnMobile() {
 
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {
-      setRecentImage(recentlyPhotos[0])
+      setRecentImage(recentPhotos[0])
       dispatch(appSlice.actions.setHasFooter(true))
     }
-  }, [recentlyPhotos, hasInputImage, dispatch, hasRecentPhotos])
+  }, [recentPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
   // Reset button clicked state when generation finishes
   useEffect(() => {
@@ -94,7 +95,7 @@ export default function TryOnMobile() {
 
   // Determine which image to show
   const currentImageUrl = hasInputImage
-    ? uploadedViewFile.localUrl
+    ? currentTryOnImage.localUrl
     : hasRecentImage
       ? recentImage?.url
       : null
@@ -105,14 +106,14 @@ export default function TryOnMobile() {
       <ErrorSnackbar onRetry={regenerate} />
 
       {currentImageUrl ? (
-        <TryOnViewer
-          uploadedImageUrl={uploadedViewFile.localUrl}
+        <TryOnView
+          uploadedImageUrl={currentTryOnImage.localUrl}
           recentImageUrl={recentImage?.url}
           isGenerating={isGenerating}
-          onChangePhoto={hasInputImage ? handleButtonClick : handleOpenSwip}
+          onChangePhoto={hasInputImage ? handleFileInputClick : handleOpenBottomSheet}
         />
       ) : (
-        <MobileUploadPrompt onClick={handleButtonClick} />
+        <UploadPrompt onClick={handleFileInputClick} />
       )}
 
       <TryOnButton
@@ -126,16 +127,16 @@ export default function TryOnMobile() {
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        onChange={handleChoosePhoto}
+        onChange={handleFileInputChange}
         style={{ display: 'none' }}
       />
 
-      <UploadHistorySheet onClickButton={handleButtonClick} buttonText="+ Upload new photo">
+      <UploadsHistorySheet onClickButton={handleFileInputClick} buttonText="+ Upload new photo">
         <div className={styles.imageContent_mobile}>
-          {recentlyPhotos.length > 0
-            ? recentlyPhotos.map((item: InputImage, index) => (
+          {recentPhotos.length > 0
+            ? recentPhotos.map((item: InputImage, index) => (
                 <DeletableImage
-                  key={`${item.id}-${index}-${recentlyPhotos.length}`}
+                  key={`${item.id}-${index}-${recentPhotos.length}`}
                   src={item.url}
                   imageId={item.id}
                   showTrashIcon={true}
@@ -146,7 +147,7 @@ export default function TryOnMobile() {
               ))
             : null}
         </div>
-      </UploadHistorySheet>
+      </UploadsHistorySheet>
     </main>
   )
 }

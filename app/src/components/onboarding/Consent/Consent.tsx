@@ -1,5 +1,5 @@
 import React from 'react'
-import { CheckboxLabel } from '@/components'
+import { Checkbox } from '@/components'
 import { ConsentProps } from './types'
 import styles from './Consent.module.scss'
 
@@ -21,7 +21,7 @@ export const Consent = ({ isChecked, onCheckChange, className }: ConsentProps) =
           Terms&nbsp;of&nbsp;Use
         </a>
       </h3>
-      <CheckboxLabel
+      <Checkbox
         labelText="I agree to allow Aiuta to process my photo"
         checked={isChecked}
         onChange={onCheckChange}

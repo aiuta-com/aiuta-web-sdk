@@ -1,5 +1,5 @@
 import React from 'react'
-import { OnboardingSlide, Consent, PrimaryButton } from '@/components'
+import { Slide, Consent, PrimaryButton } from '@/components'
 import { useOnboardingSlides, useOnboardingAnalytics, useSwipeGesture } from '@/hooks'
 import styles from './Onboarding.module.scss'
 
@@ -53,7 +53,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
   return (
     <main className={styles.onboarding} {...swipeHandlers}>
       <div className={styles.slides}>
-        <OnboardingSlide state={getSlideState(0)}>
+        <Slide state={getSlideState(0)}>
           <img
             alt="How it works guide"
             className={`${styles.image} ${styles.image_howItWorks}`}
@@ -64,9 +64,9 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
           <h3 className={`aiuta-label-regular ${styles.description}`}>
             Upload a photo and see how items look on you
           </h3>
-        </OnboardingSlide>
+        </Slide>
 
-        <OnboardingSlide state={getSlideState(1)}>
+        <Slide state={getSlideState(1)}>
           <img
             alt="Best results guide"
             className={`${styles.image} ${styles.image_bestResults}`}
@@ -77,11 +77,11 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
           <h3 className={`aiuta-label-regular ${styles.description}`}>
             Use a photo with good lighting, stand straight a plain background
           </h3>
-        </OnboardingSlide>
+        </Slide>
 
-        <OnboardingSlide state={getSlideState(2)}>
+        <Slide state={getSlideState(2)}>
           <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
-        </OnboardingSlide>
+        </Slide>
       </div>
 
       <PrimaryButton disabled={!canProceed(currentSlide)} onClick={handleNext}>
