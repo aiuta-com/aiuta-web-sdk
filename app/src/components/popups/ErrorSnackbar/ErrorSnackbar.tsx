@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import {
   isErrorSnackbarVisibleSelector,
@@ -12,14 +12,36 @@ import { icons } from './icons'
 import styles from './ErrorSnackbar.module.scss'
 
 const AUTO_HIDE_DELAY = 15000
+const ANIMATION_DURATION = 200
 
 export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
   const { onRetry, className } = props
   const dispatch = useAppDispatch()
 
   const isVisible = useAppSelector(isErrorSnackbarVisibleSelector)
+  const [shouldRender, setShouldRender] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
 
   const hasRetry = onRetry && typeof onRetry === 'function'
+
+  // Handle showing/hiding animation and DOM rendering
+  useEffect(() => {
+    if (isVisible && !shouldRender) {
+      // Show: Add to DOM and start animation
+      setShouldRender(true)
+      // Force a reflow to ensure DOM is updated before animation
+      setTimeout(() => {
+        setIsAnimating(true)
+      }, ANIMATION_DURATION / 2)
+    } else if (!isVisible && shouldRender) {
+      // Hide: Start animation out
+      setIsAnimating(false)
+      // Remove from DOM after animation completes
+      setTimeout(() => {
+        setShouldRender(false)
+      }, ANIMATION_DURATION)
+    }
+  }, [isVisible, shouldRender])
 
   // Auto-hide after delay
   useEffect(() => {
@@ -48,7 +70,7 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
 
   const containerClasses = combineClassNames(
     styles.errorSnackbar,
-    isVisible && styles.errorSnackbar_visible,
+    !isAnimating && styles.errorSnackbar_hidden,
     className,
   )
 
@@ -58,6 +80,11 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
     // Prevent dismissing when clicking on the retry button
     e.stopPropagation()
     onRetry?.()
+  }
+
+  // Don't render if not needed
+  if (!shouldRender) {
+    return null
   }
 
   return (

@@ -5,12 +5,12 @@
   bottom: 0;
   width: 100%;
   max-width: var(--aiuta-max-width);
-  transform: translateX(-50%) translateY(100%);
+  transform: translateX(-50%) translateY(0);
   transition: transform 0.2s ease-in-out;
 }
 
-.selectionSnackbar_visible {
-  transform: translateX(-50%) translateY(0);
+.selectionSnackbar_hidden {
+  transform: translateX(-50%) translateY(100%);
 }
 
 .content {

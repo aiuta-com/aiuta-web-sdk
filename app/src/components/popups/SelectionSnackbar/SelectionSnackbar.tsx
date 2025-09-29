@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { SecondaryButton, IconButton } from '@/components'
 import { combineClassNames } from '@/utils'
 import { SelectionSnackbarProps } from './types'
 import { icons } from './icons'
 import styles from './SelectionSnackbar.module.scss'
+
+const ANIMATION_DURATION = 200
 
 export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
   const {
@@ -17,13 +19,40 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
     className,
   } = props
 
+  const [shouldRender, setShouldRender] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  // Handle showing/hiding animation and DOM rendering
+  useEffect(() => {
+    if (isVisible && !shouldRender) {
+      // Show: Add to DOM and start animation
+      setShouldRender(true)
+      // Force a reflow to ensure DOM is updated before animation
+      setTimeout(() => {
+        setIsAnimating(true)
+      }, ANIMATION_DURATION / 2)
+    } else if (!isVisible && shouldRender) {
+      // Hide: Start animation out
+      setIsAnimating(false)
+      // Remove from DOM after animation completes
+      setTimeout(() => {
+        setShouldRender(false)
+      }, ANIMATION_DURATION)
+    }
+  }, [isVisible, shouldRender])
+
   const containerClasses = combineClassNames(
     styles.selectionSnackbar,
-    isVisible && styles.selectionSnackbar_visible,
+    !isAnimating && styles.selectionSnackbar_hidden,
     className,
   )
 
   const isAllSelected = selectedCount === totalCount
+
+  // Don't render if not needed
+  if (!shouldRender) {
+    return null
+  }
 
   return (
     <div className={containerClasses}>

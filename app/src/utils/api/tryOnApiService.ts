@@ -21,7 +21,7 @@ export interface OperationResponse {
 }
 
 export class TryOnApiService {
-  private static readonly BASE_URL = 'https://1web-sdk.aiuta.com/api'
+  private static readonly BASE_URL = 'https://web-sdk.aiuta.com/api'
 
   static async uploadImage(
     file: File,
