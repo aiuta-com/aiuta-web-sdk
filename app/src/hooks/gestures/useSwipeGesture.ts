@@ -18,7 +18,6 @@ export interface SwipeGestureConfig {
 
 export interface SwipeHandlers {
   onTouchStart: (e: React.TouchEvent) => void
-  onTouchMove: (e: React.TouchEvent) => void
   onTouchEnd: (e: React.TouchEvent) => void
   ref: React.RefCallback<HTMLElement>
 }
@@ -27,7 +26,7 @@ export const useSwipeGesture = (
   onSwipe: (event: SwipeEvent) => void,
   config: SwipeGestureConfig = {},
 ): SwipeHandlers => {
-  const { delta = 30, maxDuration = 500 } = config
+  const { delta = 30, maxDuration = 1500 } = config
 
   const touchStartRef = useRef<{
     x: number
@@ -49,20 +48,6 @@ export const useSwipeGesture = (
     // Don't prevent default here - let touches work normally initially
   }, [])
 
-  const onTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!touchStartRef.current) return
-
-    // Check if this looks like a swipe gesture
-    const touch = e.touches[0]
-    const deltaX = Math.abs(touchStartRef.current.x - touch.clientX)
-    const deltaY = Math.abs(touchStartRef.current.y - touch.clientY)
-
-    // Only prevent default if significant movement (potential swipe)
-    if (deltaX > 10 || deltaY > 10) {
-      e.preventDefault()
-    }
-  }, [])
-
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {
       if (!touchStartRef.current) return
@@ -71,15 +56,15 @@ export const useSwipeGesture = (
       const endTime = Date.now()
       const duration = endTime - touchStartRef.current.time
 
+      const deltaX = touchStartRef.current.x - touch.clientX
+      const deltaY = touchStartRef.current.y - touch.clientY
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
       // Check if gesture was too slow
       if (duration > maxDuration) {
         touchStartRef.current = null
         return
       }
-
-      const deltaX = touchStartRef.current.x - touch.clientX
-      const deltaY = touchStartRef.current.y - touch.clientY
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
 
       // Check if gesture was too short (this is just a tap)
       if (distance < delta) {
@@ -178,7 +163,6 @@ export const useSwipeGesture = (
 
   return {
     onTouchStart,
-    onTouchMove,
     onTouchEnd,
     ref,
   }
