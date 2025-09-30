@@ -14,16 +14,11 @@
   white-space: nowrap;
   width: calc(100% - 2 * var(--aiuta-inset-h));
   max-width: var(--aiuta-max-width);
-
-  &:hover {
-    opacity: 0.9;
-  }
+  z-index: 1;
 }
 
-.icon {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
+.tryOnButton_mobile {
+  margin-top: 0;
 }
 
 .tryOnButton_hidden {
@@ -32,4 +27,10 @@
   pointer-events: none !important;
   cursor: default !important;
   transition: none !important;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }

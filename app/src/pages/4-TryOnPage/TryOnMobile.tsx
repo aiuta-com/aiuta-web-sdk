@@ -3,7 +3,6 @@ import { flushSync } from 'react-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { appSlice } from '@/store/slices/appSlice'
 import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import {
   currentTryOnImageSelector,
@@ -84,7 +83,6 @@ export default function TryOnMobile() {
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {
       setRecentImage(recentPhotos[0])
-      dispatch(appSlice.actions.setHasFooter(true))
     }
   }, [recentPhotos, hasInputImage, dispatch, hasRecentPhotos])
 
