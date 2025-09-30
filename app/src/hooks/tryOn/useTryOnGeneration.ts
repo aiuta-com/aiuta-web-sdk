@@ -37,12 +37,14 @@ export const useTryOnGeneration = () => {
   const { getRecentPhoto } = useUploadsGallery()
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const usedImageRef = useRef<InputImage | null>(null)
 
   const clearGenerationInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
     }
+    usedImageRef.current = null
     dispatch(tryOnSlice.actions.setOperationId(null))
   }, [dispatch])
 
@@ -54,12 +56,13 @@ export const useTryOnGeneration = () => {
         dispatch(tryOnSlice.actions.setGeneratedImageUrl(url))
         dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
-        // Add uploaded image to uploads history after successful generation
-        if (uploadedViewFile.id) {
+        // Add actually used image to uploads history after successful generation
+        const imageToStore = usedImageRef.current || uploadedViewFile
+        if (imageToStore.id) {
           dispatch(
             uploadsSlice.actions.addInputImage({
-              id: uploadedViewFile.id,
-              url: uploadedViewFile.url,
+              id: imageToStore.id,
+              url: imageToStore.url,
             }),
           )
         }
@@ -209,6 +212,9 @@ export const useTryOnGeneration = () => {
         console.error('No image selected for try-on')
         return
       }
+
+      // Store reference to the image actually used for generation
+      usedImageRef.current = targetImage
 
       // Track process start
       trackTryOnInitiated()

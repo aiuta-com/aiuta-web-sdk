@@ -33,7 +33,7 @@ export default function TryOnMobile() {
 
   const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
     useUploadsGallery()
-  const { uploadImage, isUploading } = useImageUpload({ withinGenerationFlow: true })
+  const { uploadImage, isUploading } = useImageUpload()
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState(false)
