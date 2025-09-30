@@ -15,6 +15,7 @@ import {
   TryOnButton,
   DeletableImage,
   UploadPrompt,
+  Spinner,
 } from '@/components'
 import { AbortAlert, TryOnView } from '@/components'
 import { useTryOnGeneration, useUploadsGallery, useImageUpload } from '@/hooks'
@@ -32,7 +33,7 @@ export default function TryOnMobile() {
 
   const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
     useUploadsGallery()
-  const { uploadImage } = useImageUpload({ withinGenerationFlow: true })
+  const { uploadImage, isUploading } = useImageUpload({ withinGenerationFlow: true })
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState(false)
@@ -105,23 +106,29 @@ export default function TryOnMobile() {
       <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
       <ErrorSnackbar onRetry={regenerate} />
 
-      {currentImageUrl ? (
-        <TryOnView
-          uploadedImageUrl={currentTryOnImage.localUrl}
-          recentImageUrl={recentImage?.url}
-          isGenerating={isGenerating}
-          onChangePhoto={hasInputImage ? handleFileInputClick : handleOpenBottomSheet}
-        />
+      {isUploading ? (
+        <Spinner isVisible={true} />
       ) : (
-        <UploadPrompt onClick={handleFileInputClick} />
-      )}
+        <>
+          {currentImageUrl ? (
+            <TryOnView
+              uploadedImageUrl={currentTryOnImage.localUrl}
+              recentImageUrl={recentImage?.url}
+              isGenerating={isGenerating}
+              onChangePhoto={hasInputImage ? handleFileInputClick : handleOpenBottomSheet}
+            />
+          ) : (
+            <UploadPrompt onClick={handleFileInputClick} />
+          )}
 
-      <TryOnButton
-        onClick={handleTryOnClick}
-        hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
-      >
-        Try On
-      </TryOnButton>
+          <TryOnButton
+            onClick={handleTryOnClick}
+            hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
+          >
+            Try On
+          </TryOnButton>
+        </>
+      )}
 
       <input
         ref={fileInputRef}
