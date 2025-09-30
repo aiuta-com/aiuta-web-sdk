@@ -14,10 +14,6 @@
   white-space: nowrap;
   z-index: 1;
 
-  &:hover:not(:disabled) {
-    opacity: 0.9;
-  }
-
   &_disabled {
     opacity: 30%;
     cursor: not-allowed;

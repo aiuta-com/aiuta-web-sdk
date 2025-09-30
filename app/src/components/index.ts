@@ -53,6 +53,7 @@ export { TryOnView } from './tryOn/TryOnView'
 // Results
 export { ResultActions } from './results/ResultActions'
 export { Share } from './results/Share'
+export { Disclaimer } from './results/Disclaimer'
 
 // ===== ALERTS =====
 export { AbortAlert } from './alerts/AbortAlert'

@@ -13,6 +13,7 @@ export const RemoteImage = ({
   loading = 'lazy',
   onLoad,
   onError,
+  ...rest
 }: RemoteImageProps) => {
   const [hasError, setHasError] = useState(false)
 
@@ -31,7 +32,7 @@ export const RemoteImage = ({
   const containerClasses = combineClassNames(shapeClass, styles.remoteImage, className)
 
   return (
-    <div className={containerClasses}>
+    <div className={containerClasses} {...rest}>
       {!hasError && (
         <CrossFadeImage
           src={src}

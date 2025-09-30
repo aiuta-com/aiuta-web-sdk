@@ -4,6 +4,7 @@ import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { ResultActionsProps } from './types'
 import { useRpc } from '@/contexts'
+import { icons } from './icons'
 import styles from './ResultActions.module.scss'
 
 export const ResultActions = (props: ResultActionsProps) => {
@@ -64,8 +65,20 @@ export const ResultActions = (props: ResultActionsProps) => {
 
   return (
     <div className={styles.resultActions}>
-      <SecondaryButton text="Share" iconUrl="./icons/share.svg" onClick={handleShare} />
-      <SecondaryButton text="Download" iconUrl="./icons/download.svg" onClick={handleDownload} />
+      <SecondaryButton
+        text="Share"
+        icon={icons.share}
+        shape="M"
+        onClick={handleShare}
+        classNames={styles.button}
+      />
+      <SecondaryButton
+        text="Download"
+        icon={icons.download}
+        shape="M"
+        onClick={handleDownload}
+        classNames={styles.button}
+      />
     </div>
   )
 }

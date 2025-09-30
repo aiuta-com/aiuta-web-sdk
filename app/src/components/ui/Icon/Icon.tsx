@@ -58,10 +58,33 @@ export const Icon = ({
     return <img className={iconClassName} src={icon} alt={alt} width={size} height={size} />
   }
 
-  // Full SVG - render as is (with sanitization only)
+  // Full SVG - parse attributes and render directly
   if (isFullSvg(icon)) {
     const sanitizedContent = sanitizeSvgContent(icon)
-    return <div dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
+
+    // Extract viewBox, width, height from the SVG
+    const viewBoxMatch = sanitizedContent.match(/viewBox="([^"]*)"/)
+    const widthMatch = sanitizedContent.match(/width="([^"]*)"/)
+    const heightMatch = sanitizedContent.match(/height="([^"]*)"/)
+
+    const extractedViewBox = viewBoxMatch ? viewBoxMatch[1] : viewBox
+    const extractedWidth = widthMatch ? widthMatch[1] : size
+    const extractedHeight = heightMatch ? heightMatch[1] : size
+
+    // Extract inner content (everything between <svg> tags)
+    const innerMatch = sanitizedContent.match(/<svg[^>]*>(.*)<\/svg>/s)
+    const innerContent = innerMatch ? innerMatch[1] : sanitizedContent
+
+    return (
+      <svg
+        className={iconClassName}
+        width={extractedWidth}
+        height={extractedHeight}
+        viewBox={extractedViewBox}
+        fill="none"
+        dangerouslySetInnerHTML={{ __html: innerContent }}
+      />
+    )
   }
 
   // SVG content (elements like <path>, <rect>, etc.) - wrap in our SVG

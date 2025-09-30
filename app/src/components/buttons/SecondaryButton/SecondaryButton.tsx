@@ -1,16 +1,19 @@
 import React from 'react'
+import { Icon } from '@/components'
 import { combineClassNames } from '@/utils'
 import { SecondaryButtonProps } from './types'
 import styles from './SecondaryButton.module.scss'
 
 export const SecondaryButton = (props: SecondaryButtonProps) => {
-  const { text, iconUrl, classNames, onClick } = props
+  const { text, icon, shape = 'S', classNames, onClick } = props
 
-  const buttonClasses = combineClassNames('aiuta-button-s', styles.secondaryButton, classNames)
+  // Get shape class based on size
+  const shapeClass = shape === 'M' ? 'aiuta-button-m' : 'aiuta-button-s'
+  const buttonClasses = combineClassNames(shapeClass, styles.secondaryButton, classNames)
 
   return (
     <button className={buttonClasses} onClick={onClick}>
-      {iconUrl && <img src={iconUrl} alt="" className={styles.icon} aria-hidden="true" />}
+      {icon && <Icon icon={icon} size={20} className={styles.icon} />}
       <span>{text}</span>
     </button>
   )

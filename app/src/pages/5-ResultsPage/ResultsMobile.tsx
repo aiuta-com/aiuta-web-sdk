@@ -1,35 +1,48 @@
 import React from 'react'
-import { useResultsShare } from '@/hooks'
+import { Flex, RemoteImage, IconButton, Disclaimer } from '@/components'
+import { useResultsGallery, useResultsShare, useSwipeGesture } from '@/hooks'
+import { combineClassNames } from '@/utils'
+import { icons } from './icons'
 import styles from './Results.module.scss'
 
 /**
- * Mobile version of results page with share functionality
+ * Mobile version of results page with share functionality and swipe navigation
  */
 export default function ResultsMobile() {
-  const { shareImage, handleMobileImageClick, hasImages, firstImage } = useResultsShare()
+  const { slideItemIndex, images, handleSliderItemClick } = useResultsGallery()
+  const { shareImage, handleMobileImageClick } = useResultsShare()
 
-  if (!hasImages || !firstImage) {
-    return null
-  }
+  const swipeHandlers = useSwipeGesture(({ direction }) => {
+    const isNext = direction === 'left' || direction === 'up'
+    const isPrev = direction === 'right' || direction === 'down'
+
+    if (isNext && slideItemIndex < images.length - 1) {
+      handleSliderItemClick(slideItemIndex + 1)
+    } else if (isPrev && slideItemIndex > 0) {
+      handleSliderItemClick(slideItemIndex - 1)
+    }
+  })
+
+  const currentImageUrl = images[slideItemIndex]?.url || ''
 
   return (
-    <main className={`${styles.resultsContainer} ${styles.mobilePage}`}>
-      <div className={styles.mobileGallery}>
-        <div className={styles.mobileImageContainer}>
-          <img
-            src={firstImage.url}
-            alt="Generated result"
-            width={280}
-            height={460}
-            loading="lazy"
-            className={styles.resultImage}
-            onClick={() => handleMobileImageClick(firstImage.url)}
-          />
-          <div className={styles.shareButton} onClick={() => shareImage(firstImage.url)}>
-            <img src={'./icons/shareMobile.svg'} alt="Share icon" className={styles.shareIcon} />
-          </div>
-        </div>
-      </div>
+    <main className={styles.results}>
+      <Flex contentClassName={combineClassNames('aiuta-image-l')}>
+        <RemoteImage
+          src={currentImageUrl}
+          alt="Generated result"
+          shape="L"
+          onClick={() => handleMobileImageClick(currentImageUrl)}
+          {...swipeHandlers}
+        />
+        <IconButton
+          icon={icons.share}
+          label="Share"
+          onClick={() => shareImage(currentImageUrl)}
+          className={styles.shareButton}
+        />
+      </Flex>
+      <Disclaimer className={styles.disclaimer} />
     </main>
   )
 }

@@ -1,0 +1,16 @@
+/* @block disclaimer */
+.disclaimer {
+  display: flex;
+  align-items: center;
+  padding: 4px 12px;
+  gap: 4px;
+  color: var(--aiuta-color-secondary);
+}
+
+.icon {
+  flex-shrink: 0;
+}
+
+.text {
+  flex: 1;
+}

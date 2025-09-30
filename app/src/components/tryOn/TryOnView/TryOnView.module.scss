@@ -1,5 +1,7 @@
 /* @block tryOn */
 .animation {
+  overflow: hidden;
+
   &::before {
     position: absolute;
     content: '';

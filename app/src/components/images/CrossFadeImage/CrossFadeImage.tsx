@@ -48,34 +48,39 @@ export const CrossFadeImage = ({
   }, [onLoad, isTransitioning])
 
   const handleNextLoad = useCallback(() => {
-    setIsNextLoaded(true)
-
-    // Wait for the fade-in animation to complete before switching
-    setTimeout(() => {
-      setCurrentSrc(nextSrc!)
-      setIsCurrentLoaded(true)
-      setNextSrc(null)
-      setIsNextLoaded(false)
-      setIsTransitioning(false)
-
-      // Use functional update to get current pendingSrc value
-      setPendingSrc((currentPendingSrc) => {
-        if (currentPendingSrc) {
-          // Update previousSrc to ensure we track the latest transition
-          previousSrc.current = currentPendingSrc
-          // Start next transition immediately
-          setTimeout(() => {
-            setNextSrc(currentPendingSrc)
-            setIsNextLoaded(false)
-            setIsTransitioning(true)
-          }, 0)
-          return null // Clear pendingSrc
-        } else {
-          onLoad?.()
-          return null // Keep pendingSrc as null
-        }
+    // Force a small delay to ensure CSS transition starts
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsNextLoaded(true)
       })
-    }, 300) // Match the CSS transition duration
+
+      // Wait for the fade-in animation to complete before switching
+      setTimeout(() => {
+        setCurrentSrc(nextSrc!)
+        setIsCurrentLoaded(true)
+        setNextSrc(null)
+        setIsNextLoaded(false)
+        setIsTransitioning(false)
+
+        // Use functional update to get current pendingSrc value
+        setPendingSrc((currentPendingSrc) => {
+          if (currentPendingSrc) {
+            // Update previousSrc to ensure we track the latest transition
+            previousSrc.current = currentPendingSrc
+            // Start next transition immediately
+            setTimeout(() => {
+              setNextSrc(currentPendingSrc)
+              setIsNextLoaded(false)
+              setIsTransitioning(true)
+            }, 0)
+            return null // Clear pendingSrc
+          } else {
+            onLoad?.()
+            return null // Keep pendingSrc as null
+          }
+        })
+      }, 300) // Match the CSS transition duration
+    })
   }, [nextSrc, onLoad])
 
   const handleCurrentError = useCallback(() => {

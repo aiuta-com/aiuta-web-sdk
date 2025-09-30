@@ -45,6 +45,14 @@
   opacity: 0.7;
 }
 
+.aiuta-label-disclaimer {
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0.22px;
+}
+
 /* Buttons */
 .aiuta-button-m {
   font-size: 17px;

@@ -1,4 +1,6 @@
-export interface RemoteImageProps {
+import { HTMLAttributes } from 'react'
+
+export interface RemoteImageProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
   /** Image source URL */
   src: string
   /** Alt text for accessibility */
