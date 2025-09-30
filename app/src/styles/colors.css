@@ -4,7 +4,8 @@
 */
 :root {
   /* Brand & Primary Colors */
-  --aiuta-color-brand: #4000ff;
+  --aiuta-color-brand: #000000;
+  --aiuta-color-try-on: #4000ff;
   --aiuta-color-primary: #000000;
   --aiuta-color-secondary: #9f9f9f;
 
