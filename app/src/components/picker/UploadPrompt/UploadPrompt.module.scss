@@ -1,23 +1,21 @@
 .uploadPrompt {
-  position: relative;
-  width: 301px;
-  height: 492px;
-  border-radius: 25px;
-  background: #f2f2f7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--aiuta-color-neutral);
+}
 
-  .buttonContainer {
-    position: absolute;
-    bottom: 16px;
+.silhouette {
+  position: absolute;
+  margin: 51px 67px 111px 88px;
+  width: calc(100% - 67px - 88px);
+  height: calc(100% - 51px - 111px);
+  object-fit: contain;
+  top: 0;
+  left: 0;
+}
 
-    button {
-      padding: 12px 21px;
-      font-size: 15px;
-      font-style: normal;
-      font-weight: 500;
-      letter-spacing: -0.525px;
-    }
-  }
+.button {
+  position: absolute !important;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  padding: 13px 24px !important;
 }

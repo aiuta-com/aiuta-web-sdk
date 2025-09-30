@@ -15,7 +15,7 @@ export const usePoweredBy = (): UsePoweredByReturn => {
 
   // Routes where powered by should be hidden
   const desktopHiddenRoutes = ['/tryon', '/generations-history', '/uploads-history', '/results']
-  const mobileHiddenRoutes = ['/onboarding', '/generations-history', '/uploads-history']
+  const mobileHiddenRoutes = ['/onboarding', '/tryon', '/generations-history', '/uploads-history']
 
   const hiddenRoutes = isMobile ? mobileHiddenRoutes : desktopHiddenRoutes
   const isHiddenByRoute = hiddenRoutes.includes(location.pathname)

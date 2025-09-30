@@ -61,7 +61,9 @@ export default function TryOnMobile() {
 
       await uploadImage(file, (result: InputImage) => {
         startTryOn(result)
-        if (isBottomSheetOpen) dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+        if (isBottomSheetOpen) {
+          dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+        }
       })
     }
   }
