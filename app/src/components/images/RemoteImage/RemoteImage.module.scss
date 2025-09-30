@@ -1,0 +1,20 @@
+// Remote image container with error handling and shape support
+.remoteImage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--aiuta-color-neutral);
+  display: block;
+  line-height: 0;
+
+  .errorIcon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+  }
+}

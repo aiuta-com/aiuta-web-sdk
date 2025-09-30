@@ -1,59 +1,204 @@
 # Aiuta RPC System
 
-Modern RPC communication system for secure interaction between Web SDK and iframe Application.
+RPC communication system for interaction between Web SDK and single iframe Application.
 
 ## 📁 Architecture
 
+### 🏗️ File Structure
+
 ```
-shared/rpc/
-├── index.ts        # 🎯 Main public API entry point
-├── core.ts         # ⚡ Core RPC protocol types & constants
-├── api-sdk.ts      # 🌐 SDK API contracts (App → SDK)
-├── api-app.ts      # 📱 App API contracts (SDK → App)
-├── base.ts         # 🏗️ Base class & internal types
-├── utils.ts        # 🔧 Utility functions
-├── generic.ts      # ⚙️ Generic RPC client/server logic
-├── rpc-sdk.ts      # 🌐 AiutaRpcSdk implementation
-└── rpc-app.ts      # 📱 AiutaRpcApp implementation
+lib/rpc/
+├── index.ts              # 🎯 Main public API entry point
+│
+├── api/                 # 📋 Public API interfaces
+│   ├── sdk.ts           # SDK API contracts (App → SDK)
+│   └── app.ts           # App API contracts (SDK → App)
+│
+├── clients/             # 🏢 RPC implementations
+│   ├── base.ts          # Base class & common types
+│   ├── sdk.ts           # AiutaSdkRpc implementation
+│   └── app.ts           # AiutaAppRpc implementation
+│
+└── protocol/            # ⚡ Core RPC protocol
+    ├── core.ts          # Protocol types & constants
+    ├── transport.ts     # MessagePort client/server logic
+    ├── utils.ts         # Utility functions
+    └── internal.ts      # Internal API contracts
+```
+
+### 🔄 How It Works Conceptually
+
+The RPC system establishes bidirectional communication between the parent window (SDK) and iframe (App):
+
+```
+┌─────────────────────┐                      ┌─────────────────────┐
+│   Parent Window     │                      │      Iframe         │
+│     (SDK Side)      │                      │    (App Side)       │
+│                     │                      │                     │
+│  ┌─────────────────┐│                      │┌─────────────────┐  │
+│  │  AiutaSdkRpc    ││◄──── Handshake  ────►││  AiutaAppRpc    │  │
+│  │                 ││                      ││                 │  │
+│  │ • Tracks events ││◄── MessageChannel ──►││ • Handles tryOn │  │
+│  │ • Controls      ││                      ││ • Proxies config│  │
+│  │   interactivity ││                      ││ • Makes SDK     │  │
+│  │                 ││                      ││   calls         │  │
+│  └─────────────────┘│                      │└─────────────────┘  │
+└─────────────────────┘                      └─────────────────────┘
+```
+
+### 🤝 Connection Flow
+
+1. **Initialization**
+
+   ```typescript
+   // SDK creates iframe with special URL parameters
+   iframe.src = `${appUrl}?parentOrigin=${encodeURIComponent(window.location.origin)}`
+
+   // Both sides create RPC instances
+   const sdkRpc = new AiutaSdkRpc({ context, handlers })
+   const appRpc = new AiutaAppRpc({ context, handlers })
+   ```
+
+2. **Handshake Protocol**
+
+   ```typescript
+   // App sends "hello" with nonce to parent
+   window.parent.postMessage(
+     {
+       type: 'aiuta:app:hello',
+       nonce: randomNonce,
+       appVersion: '1.0.0',
+     },
+     expectedParentOrigin,
+   )
+
+   // SDK responds with MessageChannel
+   const channel = new MessageChannel()
+   iframe.contentWindow.postMessage(
+     {
+       type: 'aiuta:sdk:ack',
+       nonce: receivedNonce,
+       sdkVersion: '1.0.0',
+     },
+     expectedIframeOrigin,
+     [channel.port2],
+   )
+   ```
+
+3. **Bidirectional RPC Setup**
+
+   ```typescript
+   // Both sides setup client/server over MessageChannel
+   createRpcServer(port, methodHandlers) // Handle incoming calls
+   createRpcClient(port) // Make outgoing calls
+   ```
+
+4. **Configuration Proxying**
+
+   ```typescript
+   // SDK sends configuration snapshot with function paths
+   const configSnapshot = {
+     data: { auth: { apiKey: 'key123' }, debug: { enabled: true } },
+     functionKeys: ['auth.getToken', 'auth.getUserId'],
+   }
+
+   // App rebuilds configuration with proxied functions
+   rpc.config.auth.getToken = (...args) => rpc.sdk.invokeConfigFunction('auth.getToken', ...args)
+   ```
+
+### 🔧 Message Filtering
+
+**Origin Filtering**: Filters out random messages from other scripts on the page.
+
+```typescript
+// App side - filters messages from expected parent only
+const expectedParentOrigin = new URLSearchParams(location.search).get('parentOrigin')
+if (event.origin !== expectedParentOrigin) return
+
+// SDK side - filters messages from expected iframe only
+if (e.source !== iframeEl.contentWindow || e.origin !== resolvedOrigin) return
+```
+
+**Nonce Matching**: Ensures handshake messages belong to the same session.
+
+```typescript
+const nonce = rand() // Simple random number
+// Nonce must match in handshake response
+```
+
+**MessageChannel Isolation**: After handshake, uses dedicated MessageChannel instead of global window messaging.
+
+### ⚡ Message Flow Examples
+
+**SDK → App Call** (e.g., `tryOn`)
+
+```
+SDK: rpc.app.tryOn('product-123')
+ ↓
+MessageChannel: { t: 'call', id: 1, m: 'tryOn', a: ['product-123'] }
+ ↓
+App: handlers.tryOn('product-123')
+ ↓
+MessageChannel: { t: 'resp', id: 1, ok: true, r: undefined }
+ ↓
+SDK: Promise resolves
+```
+
+**App → SDK Call** (e.g., `trackEvent`)
+
+```
+App: rpc.sdk.trackEvent({ action: 'try_on_started' })
+ ↓
+MessageChannel: { t: 'call', id: 2, m: 'trackEvent', a: [{ action: 'try_on_started' }] }
+ ↓
+SDK: handlers.trackEvent({ action: 'try_on_started' })
+ ↓
+MessageChannel: { t: 'resp', id: 2, ok: true, r: undefined }
+ ↓
+App: Promise resolves
+```
+
+**Config Function Proxying** (e.g., `getToken`)
+
+```
+App: rpc.config.auth.getToken({ imageId: '123' })
+ ↓ (Proxied automatically)
+App: rpc.sdk.invokeConfigFunction('auth.getToken', { imageId: '123' })
+ ↓
+MessageChannel: { t: 'call', id: 3, m: 'invokeConfigFunction', a: ['auth.getToken', { imageId: '123' }] }
+ ↓
+SDK: config.auth.getToken({ imageId: '123' })
+ ↓
+MessageChannel: { t: 'resp', id: 3, ok: true, r: 'jwt_token_xyz' }
+ ↓
+App: Promise resolves with 'jwt_token_xyz'
 ```
 
 ## 🚀 Quick Start
 
-### Basic Usage (95% of cases)
+### SDK Side (parent window)
 
 ```typescript
-import { AiutaRpcSdk, AiutaRpcApp } from '@lib/rpc'
-import type { SdkApi, AppApi } from '@lib/rpc'
-```
+import { AiutaSdkRpc } from '@lib/rpc'
 
-### SDK Side (web-sdk)
-
-```typescript
-import { AiutaRpcSdk } from '@lib/rpc'
-
-const rpc = new AiutaRpcSdk({
-  context: { cfg: config, sdkVersion: '1.0.0' },
+const rpc = new AiutaSdkRpc({
+  context: { config: configuration, sdkVersion: '1.0.0' },
   handlers: {
     trackEvent: (event) => analytics.track(event),
+    setInteractive: (interactive) => iframe.setInteractive(interactive),
   },
 })
 
-// Basic connection
 await rpc.connect(iframe)
 await rpc.app.tryOn('product-123')
-
-// Multi-iframe support
-await rpc.connect(mainIframe)
-await rpc.connect(modalIframe, { connectionId: 'modal' })
-await rpc.connection('modal').api.showModal({ imageUrl: 'url' })
 ```
 
-### App Side (iframe-content)
+### App Side (iframe content)
 
 ```typescript
-import { AiutaRpcApp } from '@lib/rpc'
+import { AiutaAppRpc } from '@lib/rpc'
 
-const rpc = new AiutaRpcApp({
+const rpc = new AiutaAppRpc({
   context: { appVersion: '1.0.0' },
   handlers: {
     tryOn: async (productId) => handleTryOn(productId),
@@ -62,162 +207,78 @@ const rpc = new AiutaRpcApp({
 
 await rpc.connect()
 
-// Direct config function calls (proxied)
+// Config functions are automatically proxied
 const token = await rpc.config.auth.getToken?.({ imageId: '123' })
-const userId = rpc.config.auth.getUserId?.()
 
-// Direct SDK calls
+// Call SDK methods directly
 await rpc.sdk.trackEvent({ action: 'try_on_started' })
+await rpc.sdk.setInteractive(false) // Make iframe click-through
 ```
 
-## 📋 API Contracts
+## 🔄 Backward Compatibility
 
-### SDK API (what App can call on SDK)
+The RPC system supports **bidirectional method detection** for gradual upgrades:
+
+### How It Works
+
+During handshake, both sides exchange their available methods:
 
 ```typescript
-interface SdkApi {
-  getConfigurationSnapshot(): Promise<{ data: Record<string, unknown>; functionKeys: string[] }>
-  invokeConfigFunction(path: string, ...args: any[]): Promise<any>
-  trackEvent(event: Record<string, unknown>): Promise<void>
-  getCapabilities(): Promise<SdkCapabilities>
+// App sends its methods in hello message
+{
+  type: 'aiuta:app:hello',
+  methods: ['tryOn', 'newMethod'] // ← App methods
 }
 
-type SdkHandlers = {
-  trackEvent?: (
-    event: Record<string, unknown>,
-    ctx: { appVersion?: string },
-  ) => void | Promise<void>
-}
-
-interface SdkContext {
-  cfg: Record<string, unknown>
-  sdkVersion: string
+// SDK responds with its methods in ack
+{
+  type: 'aiuta:sdk:ack',
+  methods: ['trackEvent', 'setInteractive'] // ← SDK methods
 }
 ```
 
-### App API (what SDK can call on App)
+### Usage
+
+**Check if method exists before calling:**
 
 ```typescript
-interface AppApi {
-  tryOn(productId: string): Promise<void>
+// SDK checking App methods
+if (rpc.supports('enhancedTryOn')) {
+  await rpc.app.enhancedTryOn(productId, options) // New method
+} else {
+  await rpc.app.tryOn(productId) // Fallback
 }
 
-type AppHandlers = {
-  tryOn: (productId: string) => Promise<void> | void
-}
-
-interface AppContext {
-  appVersion: string
-}
-```
-
-## 🛡️ Security Features
-
-- **Origin validation** - secure parent/iframe communication
-- **Handshake protocol** - two-step origin verification
-- **Timeout protection** - prevents hanging connections
-- **Safe serialization** - proper error handling for message data
-- **URL-based origin passing** - secure origin transmission via iframe URL
-
-## 🔧 Multi-iframe Support
-
-```typescript
-const rpc = new AiutaRpcSdk({ context, handlers })
-
-// Connect multiple iframes
-await rpc.connect(mainIframe) // default connection
-await rpc.connect(modalIframe, { connectionId: 'modal' }) // named connection
-await rpc.connect(helpIframe, { connectionId: 'help' }) // another connection
-
-// Use specific connections
-await rpc.connection('modal').api.showModal({ data })
-await rpc.connection('help').api.showHelp({ topic: 'sizing' })
-
-// Manage connections
-console.log(rpc.getConnections()) // ['default', 'modal', 'help']
-rpc.disconnect('modal')
-rpc.close() // close all connections
-```
-
-## ⚡ Config Proxying
-
-The RPC system automatically proxies configuration functions, allowing direct calls:
-
-```typescript
-// Instead of manual RPC calls
-const token = await rpc.sdk.invokeConfigFunction('auth.getToken', { imageId: '123' })
-
-// You can call functions directly (they're proxied automatically)
-const token = await rpc.config.auth.getToken?.({ imageId: '123' })
-const userId = rpc.config.auth.getUserId?.()
-```
-
-This works through automatic function path extraction and proxy setup during handshake.
-
-## 🔄 Migration from PostMessage
-
-### Before (PostMessage)
-
-```typescript
-SecureMessenger.sendToParent({ action: 'GET_JWT_TOKEN', imageId: '123' })
-window.addEventListener('message', (event) => {
-  if (event.data.type === 'JWT_TOKEN') {
-    const token = event.data.jwtToken
-  }
-})
-```
-
-### After (RPC)
-
-```typescript
-const token = await rpc.config.auth.getToken?.({ imageId: '123' })
-```
-
-## 🧪 Advanced Usage
-
-For custom implementations or debugging:
-
-```typescript
-// Direct module imports
-import { AiutaRpcSdk } from '@lib/rpc/rpc-sdk'
-import type { RpcReq, RpcRes } from '@lib/rpc/core'
-import { createRpcClient } from '@lib/rpc/generic'
-import { AiutaRpcBase, type ConnectionInfo } from '@lib/rpc/base'
-
-// Custom RPC implementation
-class CustomRpcSdk extends AiutaRpcSdk {
-  async handleCustomProtocol(req: RpcReq): Promise<RpcRes> {
-    // custom logic
-  }
+// App checking SDK methods
+if (rpc.supports('advancedAnalytics')) {
+  await rpc.sdk.advancedAnalytics(event) // New method
+} else {
+  await rpc.sdk.trackEvent(event) // Fallback
 }
 ```
 
-## 🎯 Design Principles
+### Deployment Scenarios
 
-- **Clean Public API** - Only essential types exported from main entry point
-- **Modular Architecture** - Each file has single responsibility
-- **Type Safety** - Full TypeScript support with strict contracts
-- **Security First** - Origin validation and secure communication
-- **Developer Experience** - Simple API for common cases, powerful for advanced usage
+**Scenario 1: New App, Old SDK**
 
-## 📦 Bundle Optimization
+- App has new methods, but SDK is old
+- App can detect SDK doesn't support new methods
+- App uses fallback behavior
 
-The modular design enables optimal tree-shaking:
+**Scenario 2: New SDK, Old App**
 
-```typescript
-// Only import what you need
-import type { SdkApi } from '@lib/rpc/api-sdk' // ~1KB
-import type { AppApi } from '@lib/rpc/api-app' // ~0.5KB
-import type { RpcReq } from '@lib/rpc/core' // ~0.3KB
+- SDK has new methods, but App is old
+- SDK can detect App doesn't support new methods
+- SDK uses fallback behavior
 
-// No unnecessary internal types in your bundle
-```
+**Scenario 3: Both Updated**
 
-## 🚀 Production Ready
+- Both sides detect new methods are available
+- Full new functionality enabled
 
-- ✅ **Security** - Protection against all known vulnerabilities
-- ✅ **Performance** - Optimized MessagePort communication
-- ✅ **Reliability** - Proper error handling and cleanup
-- ✅ **Scalability** - Multi-iframe support with connection management
-- ✅ **Maintainability** - Clean modular architecture
-- ✅ **Documentation** - Complete API contracts and examples
+## 📋 API Reference
+
+See the complete API contracts in:
+
+- **[`api/sdk.ts`](api/sdk.ts)** - SDK API (what App can call on SDK)
+- **[`api/app.ts`](api/app.ts)** - App API (what SDK can call on App)

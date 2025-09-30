@@ -1,0 +1,43 @@
+import React from 'react'
+import { PrimaryButton } from '@/components'
+import { ImageGallery, SelectionSnackbar } from '@/components'
+import { useUploadsGallery } from '@/hooks'
+import styles from './UploadsHistory.module.scss'
+
+/**
+ * UploadsHistoryPage - gallery of user uploaded photos
+ *
+ * Features:
+ * - View recently uploaded photos
+ * - Select photos for try-on
+ * - Delete photos from history
+ * - Upload new photos
+ * - Full-screen photo viewing
+ */
+export default function UploadsHistoryPage() {
+  const gallery = useUploadsGallery()
+
+  return (
+    <main className={styles.uploadsHistory}>
+      <ImageGallery
+        images={gallery.images}
+        onImageClick={gallery.handleImageClick}
+        galleryType="uploads"
+        className={styles.imageGallery}
+      />
+
+      <SelectionSnackbar
+        isVisible={gallery.isSelecting}
+        selectedCount={gallery.selectedCount}
+        totalCount={gallery.totalCount}
+        onCancel={gallery.onCancel}
+        onSelectAll={gallery.onSelectAll}
+        onDelete={gallery.deleteSelectedImages}
+      />
+
+      <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
+        + Upload new photo
+      </PrimaryButton>
+    </main>
+  )
+}

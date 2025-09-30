@@ -1,70 +1,99 @@
-import { useState, useCallback, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { generationsSlice } from '@/store/slices/generationsSlice'
-import { aiutaEndpointDataSelector } from '@/store/slices/configSlice/selectors'
-import { currentImageSelector } from '@/store/slices/uploadsSlice/selectors'
-import { useRpcProxy } from '@/contexts'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { currentTryOnImageSelector } from '@/store/slices/tryOnSlice'
+import { useRpc } from '@/contexts'
 import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
-import { usePhotoGallery } from './usePhotoGallery'
+import { useUploadsGallery } from '@/hooks/gallery/useUploadsGallery'
 
 export const useTryOnGeneration = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
-  const rpc = useRpcProxy()
+  const rpc = useRpc()
 
-  const endpointData = useAppSelector(aiutaEndpointDataSelector)
-  const uploadedViewFile = useAppSelector(currentImageSelector)
+  const apiKey = useAppSelector(apiKeySelector)
+  const subscriptionId = useAppSelector(subscriptionIdSelector)
+  const productId = useAppSelector(productIdSelector)
+  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
 
-  const { addPhotoToGallery, getRecentPhoto } = usePhotoGallery()
+  // Create combined endpoint data for API calls
+  const endpointData = {
+    apiKey,
+    subscriptionId,
+    skuId: productId,
+  }
+
   const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
     useTryOnAnalytics()
 
-  const [generatedImageUrl, addGeneratedImageUrl] = useState('')
-  const [isOpenAbortedModal, setIsOpenAbortedModal] = useState(false)
+  // Get recent photo function from uploads gallery
+  const { getRecentPhoto } = useUploadsGallery()
+
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const usedImageRef = useRef<InputImage | null>(null)
 
   const clearGenerationInterval = useCallback(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
       intervalRef.current = null
     }
-  }, [])
+    usedImageRef.current = null
+    dispatch(tryOnSlice.actions.setOperationId(null))
+  }, [dispatch])
 
   const handleGenerationSuccess = useCallback(
     (result: GenerationResult) => {
       if (result.generated_images && result.generated_images.length > 0) {
         const { id, url } = result.generated_images[0]
 
-        addGeneratedImageUrl(url)
+        dispatch(tryOnSlice.actions.setGeneratedImageUrl(url))
         dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
-        setTimeout(() => {
-          dispatch(generationsSlice.actions.setIsGenerating(false))
-          navigate('/generated')
-        }, 500)
+        // Add actually used image to uploads history after successful generation
+        const imageToStore = usedImageRef.current || uploadedViewFile
+        if (imageToStore.id) {
+          dispatch(
+            uploadsSlice.actions.addInputImage({
+              id: imageToStore.id,
+              url: imageToStore.url,
+            }),
+          )
+        }
+
+        // Preload the generated image for instant display on ResultsPage
+        const img = new Image()
+        img.onload = () => {
+          // Image is preloaded, navigate to results
+          navigate('/results')
+          dispatch(tryOnSlice.actions.setIsGenerating(false))
+        }
+        img.onerror = () => {
+          // If preload fails, still navigate to results (will load there)
+          navigate('/results')
+          dispatch(tryOnSlice.actions.setIsGenerating(false))
+        }
+        img.src = url
 
         trackTryOnFinished()
         clearGenerationInterval()
       }
     },
-    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval],
+    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval, uploadedViewFile],
   )
 
   const handleGenerationError = useCallback(
     (result: GenerationResult) => {
       clearGenerationInterval()
-      dispatch(generationsSlice.actions.setIsGenerating(false))
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
 
-      dispatch(
-        errorSnackbarSlice.actions.showErrorSnackbar({
-          retryButtonText: 'Try again',
-          errorMessage: 'Something went wrong. Please try again later.',
-        }),
-      )
+      dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
 
       trackTryOnError(result.status, result.error || 'Unknown error')
     },
@@ -74,10 +103,10 @@ export const useTryOnGeneration = () => {
   const handleGenerationAborted = useCallback(
     (result: GenerationResult) => {
       clearGenerationInterval()
-      dispatch(generationsSlice.actions.setIsGenerating(false))
-      setIsOpenAbortedModal(true)
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
+      dispatch(tryOnSlice.actions.setIsAborted(true))
 
-      trackTryOnAborted(result.error || 'Unknown reason')
+      trackTryOnAborted(result.error || 'No people detected in photo')
     },
     [dispatch, trackTryOnAborted, clearGenerationInterval],
   )
@@ -94,7 +123,7 @@ export const useTryOnGeneration = () => {
             handleGenerationSuccess(result)
             // Clear file in mobile version
             if (uploadedViewFile.id) {
-              dispatch(uploadsSlice.actions.clearCurrentImage())
+              dispatch(tryOnSlice.actions.clearCurrentImage())
             }
             break
           case 'FAILED':
@@ -184,34 +213,31 @@ export const useTryOnGeneration = () => {
         return
       }
 
+      // Store reference to the image actually used for generation
+      usedImageRef.current = targetImage
+
       // Track process start
       trackTryOnInitiated()
 
       // Update state
       dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
-      dispatch(generationsSlice.actions.setIsGenerating(true))
-
-      // Add to gallery if this is an uploaded image
-      if (uploadedViewFile.id) {
-        addPhotoToGallery({ id: uploadedViewFile.id, url: uploadedViewFile.url })
-      }
+      dispatch(tryOnSlice.actions.setIsGenerating(true))
 
       // Create operation
-      const hasUserId = endpointData.userId && endpointData.userId.length > 0
-      const operationId = hasUserId
+      const hasSubscriptionId =
+        endpointData.subscriptionId && endpointData.subscriptionId.length > 0
+      const operationId = hasSubscriptionId
         ? await createOperationWithJwt(targetImage.id)
         : await createOperationWithoutJwt(targetImage.id)
 
       if (!operationId) {
-        dispatch(generationsSlice.actions.setIsGenerating(false))
-        dispatch(
-          errorSnackbarSlice.actions.showErrorSnackbar({
-            retryButtonText: 'Try again',
-            errorMessage: 'Something went wrong. Please try again later.',
-          }),
-        )
+        dispatch(tryOnSlice.actions.setIsGenerating(false))
+        dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
         return
       }
+
+      // Save operation ID to Redux
+      dispatch(tryOnSlice.actions.setOperationId(operationId))
 
       // Start status polling
       intervalRef.current = setInterval(() => {
@@ -224,7 +250,6 @@ export const useTryOnGeneration = () => {
       getRecentPhoto,
       trackTryOnInitiated,
       dispatch,
-      addPhotoToGallery,
       createOperationWithJwt,
       createOperationWithoutJwt,
       pollGenerationStatus,
@@ -237,12 +262,10 @@ export const useTryOnGeneration = () => {
   }, [dispatch, startTryOn])
 
   const closeAbortedModal = useCallback(() => {
-    setIsOpenAbortedModal(false)
-  }, [])
+    dispatch(tryOnSlice.actions.setIsAborted(false))
+  }, [dispatch])
 
   return {
-    generatedImageUrl,
-    isOpenAbortedModal,
     startTryOn,
     regenerate,
     closeAbortedModal,

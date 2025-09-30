@@ -2,63 +2,50 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { InputImage } from '@lib/models'
 import { UploadsStorage } from '@/utils'
 
-interface ImageToTryOn extends InputImage {
+export interface ImageToTryOn extends InputImage {
   localUrl?: string
   file?: File
 }
 
-interface UploadsSliceState {
-  currentImage: Pick<ImageToTryOn, 'id' | 'url'> & { localUrl: string }
+export interface UploadsState {
+  selectedImages: Array<string>
   inputImages: Array<InputImage>
   fullScreenImageUrl: string | null
+  isSelecting: boolean
+  isBottomSheetOpen: boolean
 }
 
-const initialState: UploadsSliceState = {
-  currentImage: { id: '', url: '', localUrl: '' },
+const initialState: UploadsState = {
+  selectedImages: [],
   inputImages: UploadsStorage.getInputImages(),
   fullScreenImageUrl: null,
+  isSelecting: false,
+  isBottomSheetOpen: false,
 }
 
 export const uploadsSlice = createSlice({
   name: 'uploads',
   initialState,
   reducers: {
-    setCurrentImage: (state, action: PayloadAction<ImageToTryOn>) => {
-      const payload = action.payload
+    setSelectedImages: (state, action: PayloadAction<string[]>) => {
+      state.selectedImages = action.payload
+    },
 
-      // Clean up previous object URL if exists
-      if (state.currentImage.localUrl && state.currentImage.localUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(state.currentImage.localUrl)
-      }
-
-      if (payload.file) {
-        // Create object URL for local file preview
-        const localUrl = URL.createObjectURL(payload.file)
-        state.currentImage = {
-          id: payload.id,
-          url: payload.url,
-          localUrl,
-        }
+    toggleSelectedImage: (state, action: PayloadAction<string>) => {
+      const imageId = action.payload
+      if (state.selectedImages.includes(imageId)) {
+        state.selectedImages = state.selectedImages.filter((id) => id !== imageId)
       } else {
-        // Use server URL for both url and localUrl
-        state.currentImage = {
-          id: payload.id,
-          url: payload.url,
-          localUrl: payload.url,
-        }
+        state.selectedImages.push(imageId)
       }
+    },
+
+    clearSelectedImages: (state) => {
+      state.selectedImages = []
     },
 
     showImageFullScreen: (state, action: PayloadAction<string | null>) => {
       state.fullScreenImageUrl = action.payload
-    },
-
-    clearCurrentImage: (state) => {
-      // Clean up object URL to prevent memory leaks
-      if (state.currentImage.localUrl && state.currentImage.localUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(state.currentImage.localUrl)
-      }
-      state.currentImage = { id: '', url: '', localUrl: '' }
     },
 
     setInputImages: (state, action: PayloadAction<InputImage[]>) => {
@@ -71,6 +58,14 @@ export const uploadsSlice = createSlice({
       const newImage = action.payload
       const updatedImages = UploadsStorage.addInputImage(newImage)
       state.inputImages = updatedImages
+    },
+
+    setIsSelecting: (state, action: PayloadAction<boolean>) => {
+      state.isSelecting = action.payload
+    },
+
+    setIsBottomSheetOpen: (state, action: PayloadAction<boolean>) => {
+      state.isBottomSheetOpen = action.payload
     },
   },
 })

@@ -1,0 +1,74 @@
+.selectionSnackbar {
+  position: absolute;
+  z-index: 10;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  max-width: var(--aiuta-max-width);
+  transform: translateX(-50%) translateY(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+.selectionSnackbar_hidden {
+  transform: translateX(-50%) translateY(100%);
+}
+
+.content {
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  background-color: var(--aiuta-color-selection-background);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controls {
+  display: flex;
+  column-gap: 26px;
+  align-items: center;
+}
+
+.cancelButton {
+  height: auto;
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  background: var(--aiuta-color-on-dark);
+  color: var(--aiuta-color-primary);
+}
+
+.selectAllButton {
+  color: var(--aiuta-color-on-dark);
+  background: none;
+  border: none;
+  padding: 8px 0 !important;
+  margin: 0 !important;
+}
+
+.actions {
+  display: flex;
+  column-gap: 16px;
+  align-items: center;
+}
+
+.actionIcon {
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background-color: var(--aiuta-color-on-dark);
+  color: var(--aiuta-color-primary);
+  transition: all 0.2s ease;
+  padding: 6px !important;
+  margin: 0 !important;
+  box-sizing: border-box;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}

@@ -2,26 +2,22 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { GeneratedImage } from '@lib/models'
 import { GenerationsStorage } from '@/utils'
 
-interface GenerationsSliceState {
-  isGenerating: boolean
+export interface GenerationsState {
   selectedImages: Array<string>
   generatedImages: Array<GeneratedImage>
+  isSelecting: boolean
 }
 
-const initialState: GenerationsSliceState = {
+const initialState: GenerationsState = {
   selectedImages: [],
-  isGenerating: false,
   generatedImages: GenerationsStorage.getGeneratedImages(),
+  isSelecting: false,
 }
 
 export const generationsSlice = createSlice({
   name: 'generations',
   initialState,
   reducers: {
-    setIsGenerating: (state, action: PayloadAction<boolean>) => {
-      state.isGenerating = action.payload
-    },
-
     setSelectedImages: (state, action: PayloadAction<string[]>) => {
       state.selectedImages = action.payload
     },
@@ -49,6 +45,10 @@ export const generationsSlice = createSlice({
       const newImage = action.payload
       const updatedImages = GenerationsStorage.addGeneratedImage(newImage)
       state.generatedImages = updatedImages
+    },
+
+    setIsSelecting: (state, action: PayloadAction<boolean>) => {
+      state.isSelecting = action.payload
     },
   },
 })

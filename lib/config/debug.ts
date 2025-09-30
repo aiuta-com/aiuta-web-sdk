@@ -1,3 +1,3 @@
 export interface AiutaDebugSettings {
-  [key: string]: unknown
+  isLoggingEnabled: boolean
 }

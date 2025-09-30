@@ -1,4 +1,3 @@
-// Upload hooks - image upload functionality
 export { useImageUpload } from './useImageUpload'
+export { useQrPrompt } from './useQrPrompt'
 export { useQrUpload } from './useQrUpload'
-export { useQrToken } from './useQrToken'

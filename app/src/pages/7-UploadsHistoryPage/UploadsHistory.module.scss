@@ -1,0 +1,14 @@
+.uploadsHistory {
+  flex: 1 1 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.imageGallery {
+  margin-bottom: var(--aiuta-inset-v);
+}
+
+.uploadButton {
+  margin-top: auto;
+}

@@ -1,0 +1,47 @@
+// Selectable image container
+.selectableImage {
+  // Layout & positioning
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--aiuta-aspect-ratio);
+  contain: size layout;
+  overflow: hidden;
+
+  // Behavior
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: all 0.1s ease-in-out;
+
+  // Selection checkmark (default state - in selection mode but not selected)
+  .checkmark {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.5);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    // Hide checkmark icon when not selected
+    .checkmarkIcon {
+      opacity: 0;
+    }
+  }
+}
+
+// Selected state modifier
+.selectableImage_selected {
+  .checkmark {
+    background: var(--aiuta-color-brand);
+
+    // Show checkmark icon when selected
+    .checkmarkIcon {
+      opacity: 1;
+    }
+  }
+}

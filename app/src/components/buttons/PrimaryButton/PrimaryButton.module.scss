@@ -1,0 +1,28 @@
+/* @block buttonPrimary */
+.primaryButton {
+  display: flex;
+  position: relative;
+  flex-shrink: 0;
+  cursor: pointer;
+  background: var(--aiuta-color-brand);
+  color: var(--aiuta-color-on-dark);
+  align-items: center;
+  justify-content: center;
+  margin: var(--aiuta-inset-v) auto;
+  padding: var(--aiuta-inset-button);
+  transition: all ease-in-out 0.3s;
+  white-space: nowrap;
+  z-index: 1;
+
+  &_disabled {
+    opacity: 30%;
+    cursor: not-allowed;
+  }
+
+  &_maxWidth {
+    width: calc(100% - 2 * var(--aiuta-inset-h));
+    max-width: var(--aiuta-max-width);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}

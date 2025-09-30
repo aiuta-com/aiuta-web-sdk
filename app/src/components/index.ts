@@ -1,90 +1,60 @@
-// Core layout and structure
-import { Layout } from './layout/layout'
-import { Section } from './section/section'
-import { Sdk } from './sdk/sdk'
-import { ModalRenderer } from './ModalRenderer'
-import { AppRouter } from './AppRouter'
-import { SdkHeader } from './sdkHeader/sdkHeader'
-import { SdkFooter } from './sdkFooter/sdkFooter'
+// ===== UI COMPONENTS =====
 
-// UI Components
-import { ErrorSnackbar } from './ErrorSnackbar'
-import { Spinner } from './spinner/spinner'
-import { TryOnButton } from './tryOnButton/tryOnButton'
-import { SecondaryButton } from './secondaryButton/secondaryButton'
-import { TitleDescription } from './titleDescription/titleDescription'
-import { CheckboxLabel } from './checkboxLabel/checkboxLabel'
+// General UI
+export { AppContainer } from './ui/AppContainer'
+export { PageBar } from './ui/PageBar'
+export { PoweredBy } from './ui/PoweredBy'
+export { Icon } from './ui/Icon'
+export { Flex } from './ui/Flex'
 
-// Image Components
-import { ViewImage } from './viewImage/viewImage'
-import { SelectableImage } from './selectableImage/selectableImage'
-import { EmptyViewImage } from './emptyViewImage/emptyViewImage'
-import { MiniSliderItem } from './MiniSliderItem/miniSliderItem'
+// Buttons
+export { Checkbox } from './buttons/Checkbox'
+export { IconButton } from './buttons/IconButton'
+export { PrimaryButton } from './buttons/PrimaryButton'
+export { SecondaryButton } from './buttons/SecondaryButton'
+export { TryOnButton } from './buttons/TryOnButton'
 
-// Specialized Components
-import { QrCode } from './qrCode/qrCode'
-import { Swip } from './swip/swip'
-import { CountDownAnimation } from './CountDownAnimation/countDownAnimation'
+// Images
+export { RemoteImage } from './images/RemoteImage'
+export { CrossFadeImage } from './images/CrossFadeImage'
 
-// Modals and Overlays
-import { FullScreenImageModal } from './fullScreenImageModal/fullScreenImageModal'
-import { ShareModal } from './shareModal/shareModal'
-import { AbortModal } from './AbortModal'
+// Indicators
+export { Spinner } from './indicators/Spinner/Spinner'
+export { CountDown } from './indicators/CountDown/CountDown'
 
-// Feature Components
-import { Onboarding } from './onboarding/onboarding'
-import { GeneratedImageButtons } from './generatedImageButtons/generatedImageButtons'
-import { RemoveHistoryBanner } from './removeHistoryBanner/removeHistoryBanner'
-import { ImageManager } from './ImageManager'
+// Popups
+export { BottomSheet } from './popups/BottomSheet'
+export { ErrorSnackbar } from './popups/ErrorSnackbar'
+export { SelectionSnackbar } from './popups/SelectionSnackbar'
 
-// Animation Icons
-export { QrSpinner } from './animationIcons'
+// ===== FEATURE COMPONENTS =====
 
-// Galleries and Collections
-export { ImageGallery, EmptyGalleryState, SelectionBanner } from './imageGallery'
-export { ResultsSlider, ShareButton } from './resultsGallery'
+// Onboarding
+export { Consent } from './onboarding/Consent'
+export { Slide } from './onboarding/Slide'
+export { Carousel } from './onboarding/Carousel'
 
-// Modals
-export { AiutaModal, HistoryImagesRemoveModal } from './modals'
+// Picker (Upload)
+export { QrCode } from './picker/QrCode'
+export { UploadPrompt } from './picker/UploadPrompt'
+export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
 
-// Main exports
-export {
-  // Core layout
-  Layout,
-  Section,
-  ModalRenderer,
-  AppRouter,
-  Sdk,
-  SdkHeader,
-  SdkFooter,
+// Gallery
+export { ImageGallery } from './gallery/ImageGallery'
+export { ThumbnailList } from './gallery/ThumbnailList'
+export { FullScreenGallery } from './gallery/FullScreenGallery'
+export { SelectableImage } from './images/SelectableImage'
+export { DeletableImage } from './images/DeletableImage'
 
-  // UI Components
-  ErrorSnackbar,
-  Spinner,
-  TryOnButton,
-  SecondaryButton,
-  TitleDescription,
-  CheckboxLabel,
+// Try-On
+export { TryOnStatus } from './tryOn/TryOnStatus'
+export { TryOnView } from './tryOn/TryOnView'
 
-  // Image Components
-  ViewImage,
-  SelectableImage,
-  EmptyViewImage,
-  MiniSliderItem,
+// Results
+export { ResultActions } from './results/ResultActions'
+export { Share } from './results/Share'
+export { Disclaimer } from './results/Disclaimer'
 
-  // Specialized Components
-  QrCode,
-  Swip,
-  CountDownAnimation,
-
-  // Modals and Overlays
-  FullScreenImageModal,
-  ShareModal,
-  AbortModal,
-
-  // Feature Components
-  Onboarding,
-  GeneratedImageButtons,
-  RemoveHistoryBanner,
-  ImageManager,
-}
+// ===== ALERTS =====
+export { AbortAlert } from './alerts/AbortAlert'
+export { Confirmation } from './alerts/Confirmation'

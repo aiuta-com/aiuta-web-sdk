@@ -1,6 +1,9 @@
-// Export all hooks from organized groups
 export * from './app'
+export * from './ui'
+export * from './onboarding'
+export * from './pageBar'
 export * from './gallery'
 export * from './tryOn'
 export * from './upload'
 export * from './results'
+export * from './gestures'

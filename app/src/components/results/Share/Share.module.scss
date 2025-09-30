@@ -1,0 +1,71 @@
+.share {
+  min-width: 100vw;
+  min-height: 100vh;
+  position: fixed;
+  z-index: 99999;
+  top: 0px;
+  left: 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modalContent {
+  position: relative;
+  width: 467px;
+  height: 248px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 24px;
+}
+
+.title {
+  text-align: left;
+  margin: 0;
+}
+
+.closeButton {
+  cursor: pointer;
+  position: absolute;
+  right: 20px;
+  top: 12px;
+}
+
+.shareButtons {
+  display: flex;
+  column-gap: 24px;
+  align-items: center;
+  margin: 25px 0px 30px 0px;
+}
+
+.shareButton {
+  cursor: pointer;
+  max-height: 74px;
+}
+
+.copySection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  padding: 8px 12px 8px 16px;
+  background: #f2f2f7;
+}
+
+.urlText {
+  max-width: 300px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.49px;
+}
+
+.copyButton {
+  width: 70px;
+  height: 36px;
+  cursor: pointer;
+}

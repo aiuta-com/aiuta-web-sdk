@@ -1,0 +1,25 @@
+/**
+ * Guides - spacing, aspect ratio, touch target, etc.
+ */
+:root {
+  /* Touch target enhancement */
+  --aiuta-touch-padding: 10px;
+
+  /* Common aspect ratio for UGC */
+  --aiuta-aspect-ratio: 115 / 180;
+
+  /* Insents */
+  --aiuta-inset-t: 8px;
+  --aiuta-inset-v: 16px;
+  --aiuta-inset-h: 16px;
+  --aiuta-inset-button: var(--aiuta-inset-v) var(--aiuta-inset-h);
+  --aiuta-inset-container: var(--aiuta-inset-t) var(--aiuta-inset-h) var(--aiuta-inset-v);
+
+  /* Spacing */
+  --aiuta-gap-x: 8px;
+  --aiuta-gap-v: 8px;
+  --aiuta-gap-h: 4px;
+
+  --aiuta-max-width: 420px;
+  --aiuta-max-height: 780px;
+}

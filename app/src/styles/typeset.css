@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+/**
+ * Typography
+ * Flattened from components
+ * https://docs.aiuta.com/sdk/developer/configuration/ui/theme/
+ */
+:root {
+  /* Global font family */
+  --aiuta-typeface:
+    'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Typography Classes */
+
+/* Titles */
+.aiuta-title-l {
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.aiuta-title-m {
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+}
+
+/* Labels */
+.aiuta-label-regular {
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.aiuta-label-subtle {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px;
+  opacity: 0.7;
+}
+
+.aiuta-label-disclaimer {
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 18px;
+  letter-spacing: 0.22px;
+}
+
+/* Buttons */
+.aiuta-button-m {
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.aiuta-button-s {
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 18px;
+  letter-spacing: -0.14px;
+}

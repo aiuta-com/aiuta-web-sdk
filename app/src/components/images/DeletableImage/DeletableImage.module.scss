@@ -1,0 +1,31 @@
+// Deletable image container
+.deletableImage {
+  // Layout & positioning
+  position: relative;
+  height: 100%;
+  aspect-ratio: var(--aiuta-aspect-ratio);
+  contain: size layout;
+  overflow: hidden;
+
+  // Behavior
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: all 0.1s ease-in-out;
+
+  // Delete button positioned at bottom-right
+  .deleteButton {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    padding: 0;
+    color: var(--aiuta-color-on-dark);
+    backdrop-filter: blur(4px);
+  }
+}

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+
 // TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
 // Required data: { images: InputImage[], modalType?: string, activeImage?: InputImage }
 

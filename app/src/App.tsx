@@ -1,44 +1,76 @@
 import React from 'react'
+import { Route, Routes, MemoryRouter } from 'react-router-dom'
+import { RpcProvider, LoggerProvider } from './contexts'
+import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
+import {
+  useUrlParams,
+  useCustomCSS,
+  useRpcInitialization,
+  useBootstrapTransition,
+  useAppNavigation,
+} from '@/hooks'
 
-// contexts
-import { RpcProvider } from './contexts'
+import Home from '@/pages/Home'
+import OnboardingPage from '@/pages/1-OnboardingPage'
+import QrPromptPage from '@/pages/2-QrPromptPage'
+import QrUploadPage from '@/pages/3-QrUploadPage'
+import TryOnPage from '@/pages/4-TryOnPage'
+import ResultsPage from '@/pages/5-ResultsPage'
+import GenerationsHistoryPage from '@/pages/6-GenerationsHistoryPage'
+import UploadsHistoryPage from '@/pages/7-UploadsHistoryPage'
 
-// components
-import { ModalRenderer, AppRouter } from '@/components'
-
-// hooks
-import { useUrlParams, useCustomCSS, useModalOnlyStyles, useRpcInitialization } from '@/hooks'
-
-/**
- * Main App component - Entry point for the iframe application
- *
- * Handles:
- * - URL parameter parsing
- * - Custom CSS loading
- * - RPC initialization
- * - Modal-only rendering
- * - Full application routing
- */
 export default function App() {
-  // Parse URL parameters and determine app mode
-  const { isModalOnly, modalType, cssUrl, initialPath } = useUrlParams()
+  const { cssUrl, initialPath } = useUrlParams()
+  const { rpc } = useRpcInitialization()
+  const loggerComponent = 'aiuta:iframe'
 
-  // Initialize all app functionality
-  const { rpcApp } = useRpcInitialization()
+  useBootstrapTransition(rpc)
 
-  // Setup styling and modal hooks
-  useCustomCSS(cssUrl)
-  useModalOnlyStyles(isModalOnly)
-
-  // If this is a modal-only iframe, only show the appropriate modal
-  if (isModalOnly) {
-    return <ModalRenderer modalType={modalType} />
+  // Don't render anything until RPC is connected and config is loaded
+  if (!rpc) {
+    return null
   }
 
-  // Full application with routing
   return (
-    <RpcProvider rpcApp={rpcApp}>
-      <AppRouter initialPath={initialPath} />
-    </RpcProvider>
+    <LoggerProvider component={loggerComponent}>
+      <RpcProvider rpc={rpc}>
+        <AppRouter cssUrl={cssUrl} initialPath={initialPath} />
+      </RpcProvider>
+    </LoggerProvider>
+  )
+}
+
+function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: string }) {
+  useCustomCSS(cssUrl)
+
+  return (
+    <MemoryRouter initialEntries={[initialPath || '/']}>
+      <AppRouterContent />
+    </MemoryRouter>
+  )
+}
+
+function AppRouterContent() {
+  useAppNavigation()
+
+  return (
+    <>
+      <FullScreenGallery />
+      <Share />
+      <AppContainer>
+        <PageBar />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/qr" element={<QrPromptPage />} />
+          <Route path="/qr/:token" element={<QrUploadPage />} />
+          <Route path="/tryon" element={<TryOnPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/generations-history" element={<GenerationsHistoryPage />} />
+          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
+        </Routes>
+        <PoweredBy />
+      </AppContainer>
+    </>
   )
 }

@@ -1,0 +1,48 @@
+.pageBar {
+  position: relative;
+  min-height: 70px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pageBar_mobile {
+  min-height: 56px;
+  padding: 0 14px;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.pageTitle {
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.titleContainer {
+  width: 100%;
+}
+
+.titleLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  text-align: center;
+}
+
+.actionButton,
+.closeButton {
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.selectButton {
+  color: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+}

@@ -1,0 +1,31 @@
+/**
+ * Shapes - border, border-radius definitions
+ * Applied to components for consistent styling
+ */
+
+/* Button Medium Shape */
+.aiuta-button-m {
+  border: none;
+  border-radius: 12px;
+}
+
+/* Button Small Shape */
+.aiuta-button-s {
+  border: none;
+  border-radius: 8px;
+}
+
+/* Image Large Shape */
+.aiuta-image-l {
+  border-radius: 24px;
+}
+
+/* Image Medium Shape */
+.aiuta-image-m {
+  border-radius: 16px;
+}
+
+/* Image Small Shape */
+.aiuta-image-s {
+  border-radius: 8px;
+}

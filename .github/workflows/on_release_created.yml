@@ -20,8 +20,17 @@ jobs:
         run: |
           # Extract version from tag (remove 'v' prefix if present)
           VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
-          # Update version in package.json
-          npm version $VERSION --no-git-tag-version
+
+          # Get current version from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          # Only update if versions are different
+          if [ "$VERSION" != "$CURRENT_VERSION" ]; then
+            echo "Updating version from $CURRENT_VERSION to $VERSION"
+            npm version $VERSION --no-git-tag-version
+          else
+            echo "Version $VERSION is already up to date in package.json"
+          fi
 
       - name: Set up Node
         uses: actions/setup-node@v4

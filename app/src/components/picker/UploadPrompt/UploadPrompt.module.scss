@@ -1,0 +1,21 @@
+.uploadPrompt {
+  background: var(--aiuta-color-neutral);
+}
+
+.silhouette {
+  position: absolute;
+  margin: 51px 67px 111px 88px;
+  width: calc(100% - 67px - 88px);
+  height: calc(100% - 51px - 111px);
+  object-fit: contain;
+  top: 0;
+  left: 0;
+}
+
+.button {
+  position: absolute !important;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  padding: 13px 24px !important;
+}

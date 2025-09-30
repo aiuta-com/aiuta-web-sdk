@@ -1,74 +1,67 @@
 import { useState, useEffect } from 'react'
-import { useAppDispatch, store } from '@/store/store'
-import { configSlice } from '@/store/slices/configSlice'
-import { isMobileSelector } from '@/store/slices/configSlice/selectors'
-import { AiutaRpcApp } from '@lib/rpc'
-import type { AppHandlers } from '@lib/rpc'
+import { useAppDispatch, useAppSelector, store } from '@/store/store'
+import { appSlice } from '@/store/slices/appSlice'
+import { apiSlice } from '@/store/slices/apiSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { isAppVisibleSelector } from '@/store/slices/appSlice'
+import { dispatchNavigateToHome } from './useAppNavigation'
+import { AiutaAppRpc } from '@lib/rpc'
 
 declare const __APP_VERSION__: string
 
-// Mobile breakpoint constant
-const MOBILE_BREAKPOINT = 992
+/**
+ * Delay for iframe appearance animation
+ * Allows DOM to fully render before triggering CSS transition
+ */
+const SHOW_DELAY = 200
 
 /**
  * Hook for RPC initialization and management
  */
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
-  const [rpcApp, setRpcApp] = useState<AiutaRpcApp | null>(null)
+  const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
+  const isAppVisible = useAppSelector(isAppVisibleSelector)
 
   useEffect(() => {
     const initializeRpc = async () => {
       try {
-        const handlers: AppHandlers = {
-          tryOn: async (productId: string) => {
-            try {
-              // Update endpoint data with the product ID
-              const currentState = store.getState()
-              const currentEndpointData = currentState.config.aiutaEndpointData
+        const showApp = () => {
+          // Always navigate to home when showing the app
+          dispatchNavigateToHome()
 
-              const updatedEndpointData = {
-                ...currentEndpointData,
-                skuId: productId,
-              }
-
-              dispatch(configSlice.actions.setAiutaEndpointData(updatedEndpointData))
-              return // Explicitly return to complete the Promise
-            } catch (error) {
-              console.error('[RPC APP] Error in tryOn handler:', error)
-              throw error // Re-throw so RPC can handle the error
-            }
-          },
-
-          updateWindowSizes: async (sizes: { width: number; height: number }) => {
-            try {
-              // Get current isMobile state from store (not from closure)
-              const state = store.getState()
-              const currentIsMobile = isMobileSelector(state)
-
-              // Update mobile state based on window width
-              if (sizes.width <= MOBILE_BREAKPOINT && !currentIsMobile) {
-                dispatch(configSlice.actions.setIsMobile(true))
-              } else if (sizes.width > MOBILE_BREAKPOINT && currentIsMobile) {
-                dispatch(configSlice.actions.setIsMobile(false))
-              }
-            } catch (error) {
-              console.error('[RPC APP] Error handling updateWindowSizes:', error)
-              throw error
-            }
-          },
+          // Delay to ensure iframe and AppContainer are fully rendered
+          // This prevents size flickering during CSS transition
+          setTimeout(() => {
+            dispatch(appSlice.actions.setIsAppVisible(true))
+          }, SHOW_DELAY)
         }
 
-        const rpcAppInstance = new AiutaRpcApp({
+        const rpc = new AiutaAppRpc({
           context: { appVersion: __APP_VERSION__ },
-          handlers,
+          handlers: {
+            tryOn: async (productId: string) => {
+              try {
+                // Show app when tryOn is called
+                showApp()
+
+                // Update productId in tryOnSlice
+                dispatch(tryOnSlice.actions.setProductId(productId))
+
+                return // Explicitly return to complete the Promise
+              } catch (error) {
+                console.error('[RPC APP] Error in tryOn handler:', error)
+                throw error // Re-throw so RPC can handle the error
+              }
+            },
+          },
         })
 
-        await rpcAppInstance.connect()
-        setRpcApp(rpcAppInstance)
+        await rpc.connect()
+        setRpc(rpc)
 
         // Initialize auth data once RPC is connected
-        initializeAuthData(rpcAppInstance)
+        initializeAuthData(rpc)
       } catch (error) {
         console.log('[RPC APP] Failed to initialize RPC', error)
       }
@@ -77,30 +70,31 @@ export const useRpcInitialization = () => {
     initializeRpc()
   }, [dispatch])
 
-  return { rpcApp }
+  // Sync iframe interactivity with app visibility
+  useEffect(() => {
+    if (rpc) {
+      rpc.sdk.setInteractive(isAppVisible)
+    }
+  }, [rpc, isAppVisible])
+
+  return { rpc }
 }
 
 /**
  * Initialize authentication data from RPC config
  */
-const initializeAuthData = (rpcAppInstance: AiutaRpcApp) => {
+const initializeAuthData = (rpc: AiutaAppRpc) => {
   try {
-    const auth = rpcAppInstance.config.auth
-
-    let endpointData: any = {
-      status: 200,
-      skuId: '', // Will be set by SDK via tryOn
-    }
+    const auth = rpc.config.auth
 
     if ('apiKey' in auth) {
       // API Key auth
-      endpointData.apiKey = auth.apiKey
+      store.dispatch(apiSlice.actions.setApiKey(auth.apiKey))
     } else if ('subscriptionId' in auth) {
       // JWT auth
-      endpointData.userId = auth.subscriptionId
+      store.dispatch(apiSlice.actions.setSubscriptionId(auth.subscriptionId))
+      // Note: JWT token is obtained dynamically via getJwt callback when needed
     }
-
-    store.dispatch(configSlice.actions.setAiutaEndpointData(endpointData))
   } catch (error) {
     console.error('Failed to initialize auth data:', error)
   }

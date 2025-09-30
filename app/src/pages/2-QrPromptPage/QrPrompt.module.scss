@@ -1,0 +1,46 @@
+// Main QrPrompt component block (Desktop QR generator)
+.qrPrompt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  row-gap: 48px;
+  margin-bottom: 77px;
+}
+
+// QR code content container
+.content {
+  display: flex;
+  row-gap: 48px;
+  align-items: center;
+  flex-direction: column;
+}
+
+// Upload options section
+.options {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Scan QR code hint text
+.qrHint {
+  text-align: center;
+  margin: 0;
+}
+
+// "Or" separator text
+.or {
+  color: var(--aiuta-color-secondary);
+  margin: 0;
+}
+
+// Upload button label
+.uploadButton {
+  cursor: pointer;
+  color: var(--aiuta-color-brand);
+  text-align: center;
+  margin: 0;
+}

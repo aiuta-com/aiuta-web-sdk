@@ -1,0 +1,49 @@
+.errorSnackbar {
+  position: absolute;
+  z-index: 100;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  max-width: var(--aiuta-max-width);
+  transform: translateX(-50%) translateY(0);
+  transition: transform 0.2s ease-in-out;
+}
+
+.errorSnackbar_hidden {
+  transform: translateX(-50%) translateY(100%);
+}
+
+.content {
+  padding: 16px;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  background-color: var(--aiuta-color-error-background);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  row-gap: 12px;
+}
+
+.icon {
+  flex-shrink: 0;
+  margin-right: 12px;
+  color: var(--aiuta-color-on-dark);
+}
+
+.message {
+  flex: 1;
+
+  p {
+    color: var(--aiuta-color-on-dark);
+  }
+}
+
+.retryButton {
+  height: auto;
+  padding: 9px 16px !important;
+  min-height: 36px;
+  background: var(--aiuta-color-on-dark);
+  color: var(--aiuta-color-primary);
+  flex-shrink: 0;
+  margin: 0 !important;
+}

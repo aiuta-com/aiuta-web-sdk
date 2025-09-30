@@ -21,7 +21,8 @@
     "build:strict": "npm run build:app && npm run build:sdk:strict",
     "build": "npm run build:app && npm run build:sdk",
     "deploy:docs": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/app && cp -rf ./dist/app ../docs/docs",
-    "local": "npm run lint && npm run build:debug && npm run deploy:docs"
+    "local": "npm run lint && npm run build:debug && npm run deploy:docs",
+    "local:unsafe": "npm run build:debug && npm run deploy:docs"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
@@ -29,7 +30,6 @@
     "bowser": "^2.12.1",
     "dayjs": "^1.11.18",
     "formidable": "^3.5.4",
-    "framer-motion": "^12.23.12",
     "next-qrcode": "^2.5.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "@types/formidable": "^3.4.5",
+    "@types/html-minifier-terser": "^7.0.2",
     "@types/node": "^24.2.0",
     "@types/react": "^19.0.11",
     "@types/react-dom": "^19.0.11",
@@ -47,6 +48,7 @@
     "@typescript-eslint/parser": "^8.42.0",
     "@vitejs/plugin-react": "^5.0.0",
     "eslint": "^9.35.0",
+    "html-minifier-terser": "^7.2.0",
     "prettier": "^3.6.2",
     "sass-embedded": "^1.90.0",
     "typescript": "^5.9.2",

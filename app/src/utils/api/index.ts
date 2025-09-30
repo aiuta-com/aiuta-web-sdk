@@ -1,4 +1,3 @@
-// API services
 export {
   TryOnApiService,
   type EndpointData,
