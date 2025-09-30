@@ -6,8 +6,7 @@ import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 // TODO: Replace with RPC - need to support:
 // 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
 // 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
-import { useAppVisibility } from '@/hooks'
-import { Share, ThumbnailList } from '@/components'
+import { Share, ThumbnailList, RemoteImage, IconButton } from '@/components'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
@@ -17,7 +16,6 @@ export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
   const [shareModalData, setShareData] = useState<{ imageUrl: string } | null>(null)
-  const { hideApp } = useAppVisibility()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
 
@@ -37,10 +35,7 @@ export const FullScreenGallery = () => {
   const handleCloseModal = useCallback(() => {
     setModalData(null)
     dispatch(uploadsSlice.actions.showImageFullScreen(null))
-
-    // Hide app (includes SDK notification)
-    hideApp()
-  }, [dispatch, hideApp])
+  }, [dispatch])
 
   const handleDownloadImage = useCallback(async () => {
     if (!modalData?.activeImage) return
@@ -111,16 +106,23 @@ export const FullScreenGallery = () => {
   // Render simple fullscreen for single image (existing behavior)
   if (fullScreenImageUrl && !modalData) {
     return (
-      <div className={styles.fullScreenModal}>
-        <div className={styles.closeIconBox} onClick={handleCloseModal}>
-          <img src={'./icons/close.svg'} alt="Close Icon" className={styles.closeIcon} />
-        </div>
-        <img
-          width={100}
-          height={100}
-          alt="Full Screen Image"
+      <div className={styles.fullScreenModal} onClick={handleCloseModal}>
+        <IconButton
+          icon='<path d="M18.9495 5.05C19.3401 5.44052 19.3401 6.07369 18.9495 6.46421L13.4142 11.9995L18.9502 17.5355C19.3404 17.926 19.3404 18.5593 18.9502 18.9498C18.5598 19.3402 17.9266 19.34 17.536 18.9498L12 13.4137L6.46399 18.9498C6.07344 19.34 5.44021 19.3402 5.04978 18.9498C4.65955 18.5593 4.65958 17.926 5.04978 17.5355L10.5858 11.9995L5.05047 6.46421C4.65994 6.07369 4.65994 5.44052 5.05047 5.05C5.44101 4.65969 6.07423 4.65955 6.46468 5.05L12 10.5853L17.5353 5.05C17.9258 4.65954 18.559 4.65969 18.9495 5.05Z" fill="currentColor"/>'
+          label="Close fullscreen image"
+          onClick={(e) => {
+            e?.stopPropagation()
+            handleCloseModal()
+          }}
+          className={styles.closeButton}
+          size={20}
+        />
+        <RemoteImage
           src={fullScreenImageUrl}
+          alt="Full Screen Image"
+          shape={null}
           className={styles.fullImage}
+          onClick={handleCloseModal}
         />
       </div>
     )

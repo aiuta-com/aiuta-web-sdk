@@ -1,32 +1,31 @@
 .fullScreenModal {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 12;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #000000e5;
+  background-color: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
 
   .fullImage {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    max-height: 524px;
-    border-radius: 0px !important;
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;
+    cursor: pointer;
   }
 
-  .closeIconBox {
+  .closeButton {
     position: absolute;
-    top: 0;
-    left: 0;
-    padding: 12px;
-
-    .closeIcon {
-      filter: brightness(0) invert(1);
-    }
+    top: 16px;
+    left: 16px;
+    color: var(--aiuta-color-on-dark);
+    z-index: 1;
   }
 }
 
