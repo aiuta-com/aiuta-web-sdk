@@ -84,6 +84,7 @@ export const useUploadsGallery = ({
 
     // Update Redux state
     clearSelection() // Clear selection first
+    dispatch(uploadsSlice.actions.setIsSelecting(false)) // Exit selection mode
     dispatch(uploadsSlice.actions.setInputImages(remainingImages))
     closeUploadsImagesModal()
 

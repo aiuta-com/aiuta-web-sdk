@@ -1,23 +1,21 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
-import { Confirmation } from '@/components'
 import { useUploadsGallery } from '@/hooks'
 import styles from './UploadsHistory.module.scss'
 
 /**
- * Desktop version of uploads history page
+ * UploadsHistoryPage - gallery of user uploaded photos
+ *
+ * Features:
+ * - View recently uploaded photos
+ * - Select photos for try-on
+ * - Delete photos from history
+ * - Upload new photos
+ * - Full-screen photo viewing
  */
-export default function UploadsHistoryDesktop() {
-  const [isModalVisible, setIsModalVisible] = useState(false)
-
-  const handleShowModal = () => setIsModalVisible(true)
-  const handleCloseModal = () => setIsModalVisible(false)
-
-  const gallery = useUploadsGallery({
-    onCloseModal: () => setIsModalVisible(false),
-    onShowDeleteModal: handleShowModal,
-  })
+export default function UploadsHistoryPage() {
+  const gallery = useUploadsGallery()
 
   return (
     <main className={styles.uploadsHistory}>
@@ -34,16 +32,7 @@ export default function UploadsHistoryDesktop() {
         totalCount={gallery.totalCount}
         onCancel={gallery.onCancel}
         onSelectAll={gallery.onSelectAll}
-        onDelete={gallery.onDelete}
-      />
-
-      <Confirmation
-        isVisible={isModalVisible}
-        message="Are you sure you want to delete these uploads?"
-        leftButtonText="Keep"
-        rightButtonText="Delete"
-        onLeftClick={handleCloseModal}
-        onRightClick={gallery.deleteSelectedImages}
+        onDelete={gallery.deleteSelectedImages}
       />
 
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>

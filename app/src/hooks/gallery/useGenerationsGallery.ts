@@ -83,6 +83,7 @@ export const useGenerationsGallery = ({
 
     // Update Redux state
     clearSelection() // Clear selection first
+    dispatch(generationsSlice.actions.setIsSelecting(false)) // Exit selection mode
     dispatch(generationsSlice.actions.setGeneratedImages(remainingImages))
     closeHistoryImagesModal()
 

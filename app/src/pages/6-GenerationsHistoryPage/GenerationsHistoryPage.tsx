@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { ImageGallery, SelectionSnackbar, Confirmation } from '@/components'
+import React from 'react'
+import { ImageGallery, SelectionSnackbar } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
 import styles from './GenerationsHistory.module.scss'
 
@@ -13,15 +13,7 @@ import styles from './GenerationsHistory.module.scss'
  * - Bulk image management
  */
 export default function GenerationsHistoryPage() {
-  const [isModalVisible, setIsModalVisible] = useState(false)
-
-  const handleShowModal = () => setIsModalVisible(true)
-  const handleCloseModal = () => setIsModalVisible(false)
-
-  const gallery = useGenerationsGallery({
-    onCloseModal: () => setIsModalVisible(false),
-    onShowDeleteModal: handleShowModal,
-  })
+  const gallery = useGenerationsGallery()
 
   return (
     <main className={styles.generationsHistory}>
@@ -37,17 +29,8 @@ export default function GenerationsHistoryPage() {
         totalCount={gallery.totalCount}
         onCancel={gallery.onCancel}
         onSelectAll={gallery.onSelectAll}
-        onDelete={gallery.onDelete}
+        onDelete={gallery.deleteSelectedImages}
         onDownload={gallery.onDownload}
-      />
-
-      <Confirmation
-        isVisible={isModalVisible}
-        message="Are you sure you want to delete these try-ons?"
-        leftButtonText="Keep"
-        rightButtonText="Delete"
-        onLeftClick={handleCloseModal}
-        onRightClick={gallery.deleteSelectedImages}
       />
     </main>
   )
