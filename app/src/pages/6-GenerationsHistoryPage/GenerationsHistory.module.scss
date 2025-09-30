@@ -1,4 +1,6 @@
 .generationsHistory {
   flex: 1 1 0;
-  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }

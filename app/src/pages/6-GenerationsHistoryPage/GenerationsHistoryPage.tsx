@@ -1,13 +1,18 @@
 import React, { useState } from 'react'
-import { ImageGallery, SelectionSnackbar } from '@/components'
-import { Confirmation } from '@/components'
+import { ImageGallery, SelectionSnackbar, Confirmation } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
 import styles from './GenerationsHistory.module.scss'
 
 /**
- * Mobile version of generations history page
+ * GenerationsHistoryPage - gallery of generated try-on images
+ *
+ * Features:
+ * - View generated try-on results
+ * - Select multiple images for deletion
+ * - Full-screen image viewing
+ * - Bulk image management
  */
-export default function GenerationsHistoryMobile() {
+export default function GenerationsHistoryPage() {
   const [isModalVisible, setIsModalVisible] = useState(false)
 
   const handleShowModal = () => setIsModalVisible(true)
@@ -24,12 +29,10 @@ export default function GenerationsHistoryMobile() {
         images={gallery.images}
         onImageClick={gallery.handleImageClick}
         galleryType="generations"
-        className={styles.imageContent}
       />
 
       <SelectionSnackbar
-        isVisible={gallery.hasSelection}
-        className={styles.historyBanner}
+        isVisible={gallery.isSelecting}
         selectedCount={gallery.selectedCount}
         totalCount={gallery.totalCount}
         onCancel={gallery.onCancel}

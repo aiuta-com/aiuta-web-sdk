@@ -2,7 +2,13 @@ import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
-import { useUrlParams, useCustomCSS, useRpcInitialization, useBootstrapTransition } from '@/hooks'
+import {
+  useUrlParams,
+  useCustomCSS,
+  useRpcInitialization,
+  useBootstrapTransition,
+  useAppNavigation,
+} from '@/hooks'
 
 import Home from '@/pages/Home'
 import OnboardingPage from '@/pages/1-OnboardingPage'
@@ -39,6 +45,16 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
 
   return (
     <MemoryRouter initialEntries={[initialPath || '/']}>
+      <AppRouterContent />
+    </MemoryRouter>
+  )
+}
+
+function AppRouterContent() {
+  useAppNavigation()
+
+  return (
+    <>
       <FullScreenGallery />
       <Share />
       <AppContainer>
@@ -55,6 +71,6 @@ function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: str
         </Routes>
         <PoweredBy />
       </AppContainer>
-    </MemoryRouter>
+    </>
   )
 }

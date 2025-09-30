@@ -72,7 +72,7 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
               icon={icons.delete}
               label="Delete selected images"
               onClick={onDelete}
-              size={36}
+              size={24}
               viewBox="0 0 25 24"
               className={styles.actionIcon}
             />
@@ -82,7 +82,7 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
               icon={icons.download}
               label="Download selected images"
               onClick={onDownload}
-              size={36}
+              size={24}
               viewBox="0 0 21 20"
               className={styles.actionIcon}
             />

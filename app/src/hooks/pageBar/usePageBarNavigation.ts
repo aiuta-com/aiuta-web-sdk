@@ -7,12 +7,8 @@ import { useRpc } from '@/contexts'
 import { useAppVisibility } from '@/hooks'
 import { productIdSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
-import {
-  selectedImagesSelector,
-  generatedImagesSelector,
-} from '@/store/slices/generationsSlice/selectors'
+import { selectedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
-import { isMobileSelector } from '@/store/slices/appSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 
@@ -29,8 +25,6 @@ export const usePageBarNavigation = () => {
   const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
   const recentlyPhotos = useAppSelector(inputImagesSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
-  const generatedImages = useAppSelector(generatedImagesSelector)
-  const isMobile = useAppSelector(isMobileSelector)
   const isSelectingGenerations = useAppSelector(generationsIsSelectingSelector)
   const isSelectingUploads = useAppSelector(uploadsIsSelectingSelector)
 
@@ -104,15 +98,7 @@ export const usePageBarNavigation = () => {
         dispatch(generationsSlice.actions.setIsSelecting(false))
         setTimeout(() => navigate(-1), 100)
       } else {
-        const shouldNavigateToView = isMobile
-          ? !generatedImages.length
-          : generatedImages.length === 0
-
-        if (shouldNavigateToView) {
-          navigate('/tryon')
-        } else {
-          navigate(-1)
-        }
+        navigate(-1)
       }
     } else {
       // Navigate to target history page

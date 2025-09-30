@@ -31,7 +31,8 @@
 
 .cancelButton {
   height: auto;
-  padding: 8px 12px;
+  padding: 8px 12px !important;
+  margin: 0 !important;
   background: var(--aiuta-color-on-dark);
   color: var(--aiuta-color-primary);
 }
@@ -40,7 +41,8 @@
   color: var(--aiuta-color-on-dark);
   background: none;
   border: none;
-  padding: 0;
+  padding: 8px 0 !important;
+  margin: 0 !important;
 }
 
 .actions {
@@ -58,7 +60,8 @@
   background-color: var(--aiuta-color-on-dark);
   color: var(--aiuta-color-primary);
   transition: all 0.2s ease;
-  padding: 6px;
+  padding: 6px !important;
+  margin: 0 !important;
   box-sizing: border-box;
 
   &:hover {

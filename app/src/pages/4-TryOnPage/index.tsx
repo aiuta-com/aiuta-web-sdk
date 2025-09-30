@@ -15,6 +15,5 @@ import TryOnMobile from './TryOnMobile'
  */
 export default function TryOnPage() {
   const isMobile = useAppSelector(isMobileSelector)
-
   return isMobile ? <TryOnMobile /> : <TryOnDesktop />
 }

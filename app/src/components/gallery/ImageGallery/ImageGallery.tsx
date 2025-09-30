@@ -25,7 +25,7 @@ export const ImageGallery = ({
   }
 
   return (
-    <div className={combineClassNames(styles.imageGallery, className)}>
+    <div className={combineClassNames(styles.imageGallery, className)} data-scrollable="true">
       {images.map((image, index) => {
         const key = `${image.id}-${index}-${images.length}`
 
