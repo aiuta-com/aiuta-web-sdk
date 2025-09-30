@@ -87,8 +87,36 @@ export default function TryOnMobile() {
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {
       setRecentImage(recentPhotos[0])
+    } else if (hasInputImage && hasRecentPhotos && !recentImage) {
+      setRecentImage(recentPhotos[0])
+    } else if (!hasInputImage && !hasRecentPhotos) {
+      // No uploaded image and no recent photos - reset state
+      setRecentImage(null)
+      // Close bottom sheet if it's open
+      if (isBottomSheetOpen) {
+        dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+      }
+    } else if (hasInputImage && recentImage && !hasRecentPhotos) {
+      // Has uploaded image but recent image is no longer valid (deleted from history)
+      // This means user deleted all history, so reset everything to show upload prompt
+      setRecentImage(null)
+      dispatch(tryOnSlice.actions.clearCurrentImage()) // Clear uploaded image too
+      // Close bottom sheet if it's open
+      if (isBottomSheetOpen) {
+        dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+      }
+    } else if (hasInputImage && recentImage && hasRecentPhotos) {
+      // Check if current recentImage still exists in the photos list
+      const isRecentImageStillValid = recentPhotos.some((photo) => photo.id === recentImage.id)
+      if (!isRecentImageStillValid) {
+        setRecentImage(null)
+        // Close bottom sheet if it's open
+        if (isBottomSheetOpen) {
+          dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+        }
+      }
     }
-  }, [recentPhotos, hasInputImage, dispatch, hasRecentPhotos])
+  }, [recentPhotos, hasInputImage, dispatch, hasRecentPhotos, isBottomSheetOpen, recentImage])
 
   // Reset button clicked state when generation finishes
   useEffect(() => {
