@@ -26,25 +26,31 @@ export const useResultsShare = () => {
 
       try {
         // Fetch the image as blob for sharing
-        // const response = await fetch(urlToShare)
-        // const blob = await response.blob()
-        // const file = new File([blob], 'try-on-result.jpg', { type: blob.type })
+        const response = await fetch(urlToShare)
+        const blob = await response.blob()
 
-        // // Check if Web Share API is supported and can share files
-        // if (navigator.share && navigator.canShare?.({ files: [file] })) {
-        //   await navigator.share({
-        //     title: 'Try-On Result',
-        //     text: 'Check out my virtual try-on result!',
-        //     files: [file],
-        //   })
-        //   trackEvent('imageShared', { imageUrl: urlToShare, method: 'web-share-api' })
-        //   shareSuccessful = true
-        // } else
-        if (navigator.share) {
+        // Ensure proper MIME type for better thumbnail support
+        const mimeType = blob.type || 'image/jpeg'
+        const fileExtension = mimeType.includes('png') ? 'png' : 'jpg'
+        const file = new File([blob], `try-on.${fileExtension}`, {
+          type: mimeType,
+          lastModified: Date.now(),
+        })
+
+        // Check if Web Share API is supported and can share files
+        if (navigator.share && navigator.canShare?.({ files: [file] })) {
+          await navigator.share({
+            title: 'Virtual Try-On Result',
+            text: 'Check out how this looks on me!',
+            files: [file],
+          })
+          trackEvent('imageShared', { imageUrl: urlToShare, method: 'web-share-api' })
+          shareSuccessful = true
+        } else if (navigator.share) {
           // Fallback to sharing URL if files not supported
           await navigator.share({
-            title: 'Try-On Result',
-            text: 'Check out my virtual try-on result!',
+            title: 'Virtual Try-On Result',
+            text: 'Check out how this looks on me!',
             url: urlToShare,
           })
           trackEvent('imageShared', { imageUrl: urlToShare, method: 'web-share-api-url' })
