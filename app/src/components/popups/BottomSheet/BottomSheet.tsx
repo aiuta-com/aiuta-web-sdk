@@ -1,12 +1,14 @@
 import React, { useRef, TouchEvent, MouseEvent, useCallback } from 'react'
+import { combineClassNames } from '@/utils'
 import type { BottomSheetProps } from './types'
 import styles from './BottomSheet.module.scss'
 
-const SWIPE_DOWN_THRESHOLD = 200
+const SWIPE_DOWN_THRESHOLD = 100
 
 export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const initialMouseYRef = useRef<number | null>(null)
+  const lastPositionsRef = useRef<number[]>([])
   const isDraggingRef = useRef<boolean>(false)
 
   // Helper to get clientY from touch or mouse event
@@ -25,6 +27,12 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
     if (contentRef.current && initialMouseYRef.current !== null && isDraggingRef.current) {
       const deltaY = clientY - initialMouseYRef.current
 
+      // Store last few positions for velocity calculation (keep last 3)
+      lastPositionsRef.current.push(clientY)
+      if (lastPositionsRef.current.length > 3) {
+        lastPositionsRef.current.shift()
+      }
+
       // Only allow dragging down (positive deltaY)
       if (deltaY > 0) {
         contentRef.current.style.transform = `translateY(${deltaY}px)`
@@ -38,14 +46,23 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
       if (contentRef.current && initialMouseYRef.current !== null && isDraggingRef.current) {
         const deltaY = clientY - initialMouseYRef.current
 
-        // Only close if dragged down far enough
-        if (deltaY >= SWIPE_DOWN_THRESHOLD) {
+        // Calculate velocity based on last few positions
+        let velocity = 0
+        const positions = lastPositionsRef.current
+        if (positions.length >= 2) {
+          // Take velocity from last two positions
+          velocity = positions[positions.length - 1] - positions[positions.length - 2]
+        }
+
+        const shouldClose = deltaY >= SWIPE_DOWN_THRESHOLD && velocity >= 0
+
+        if (shouldClose) {
           onClose()
         }
 
-        // Reset transform and state
         contentRef.current.style.transform = ''
         initialMouseYRef.current = null
+        lastPositionsRef.current = []
         isDraggingRef.current = false
       }
     },
@@ -56,6 +73,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
   const handleDragStart = useCallback((clientY: number) => {
     if (contentRef.current && initialMouseYRef.current === null) {
       initialMouseYRef.current = clientY
+      lastPositionsRef.current = [clientY]
       isDraggingRef.current = true
     }
   }, [])
@@ -85,8 +103,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
   // Touch event handlers
   const handleTouchStart = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      // Prevent page scrolling when dragging the bottom sheet
-      event.preventDefault()
+      event.preventDefault() // Prevent parent page scrolling
       const clientY = getClientY(event)
       handleDragStart(clientY)
     },
@@ -95,8 +112,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
 
   const handleTouchMove = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
-      // Prevent page scrolling during drag
-      event.preventDefault()
+      event.preventDefault() // Prevent parent page scrolling
       const clientY = getClientY(event)
       handleDragMove(clientY)
     },
@@ -105,6 +121,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
 
   const handleTouchEnd = useCallback(
     (event: TouchEvent<HTMLDivElement>) => {
+      event.preventDefault() // Prevent parent page scrolling
       const clientY = getClientY(event)
       handleDragEnd(clientY)
     },
@@ -135,12 +152,13 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
 
   return (
     <div
-      className={`${styles.bottomSheet} ${isOpen ? styles.bottomSheetActive : ''}`}
+      className={combineClassNames(styles.bottomSheet, isOpen && styles.bottomSheet_active)}
       onClick={handleOverlayClick}
     >
       <div ref={contentRef} className={styles.content} onClick={handleContentClick}>
         <div
           className={styles.grabber}
+          data-scrollable="true"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}

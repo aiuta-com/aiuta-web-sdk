@@ -118,7 +118,7 @@ export default function TryOnMobile() {
               uploadedImageUrl={currentTryOnImage.localUrl}
               recentImageUrl={recentImage?.url}
               isGenerating={isGenerating}
-              onChangePhoto={hasInputImage ? handleFileInputClick : handleOpenBottomSheet}
+              onChangePhoto={hasRecentPhotos ? handleOpenBottomSheet : handleFileInputClick}
             />
           ) : (
             <UploadPrompt onClick={handleFileInputClick} />
