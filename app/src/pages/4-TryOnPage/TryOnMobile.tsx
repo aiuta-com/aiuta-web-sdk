@@ -13,12 +13,11 @@ import {
   UploadsHistorySheet,
   ErrorSnackbar,
   TryOnButton,
-  DeletableImage,
   UploadPrompt,
   Spinner,
 } from '@/components'
 import { AbortAlert, TryOnView } from '@/components'
-import { useTryOnGeneration, useUploadsGallery, useImageUpload } from '@/hooks'
+import { useTryOnGeneration, useImageUpload, useUploadsGallery } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
@@ -31,8 +30,7 @@ export default function TryOnMobile() {
   const isGenerating = useAppSelector(isGeneratingSelector)
   const isAborted = useAppSelector(isAbortedSelector)
 
-  const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
-    useUploadsGallery()
+  const { recentlyPhotos: recentPhotos } = useUploadsGallery()
   const { uploadImage, isUploading } = useImageUpload()
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
@@ -43,6 +41,9 @@ export default function TryOnMobile() {
   }
 
   const handleChooseNewPhoto = (id: string, url: string) => {
+    // Close the bottom sheet first
+    dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+
     setTimeout(() => {
       dispatch(tryOnSlice.actions.setIsGenerating(true))
       dispatch(tryOnSlice.actions.setCurrentImage({ id, url, localUrl: url }))
@@ -59,11 +60,13 @@ export default function TryOnMobile() {
       const file = event.target.files[0]
       if (!file) return
 
+      // Close the bottom sheet before starting upload
+      if (isBottomSheetOpen) {
+        dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+      }
+
       await uploadImage(file, (result: InputImage) => {
         startTryOn(result)
-        if (isBottomSheetOpen) {
-          dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
-        }
       })
     }
   }
@@ -138,23 +141,10 @@ export default function TryOnMobile() {
         style={{ display: 'none' }}
       />
 
-      <UploadsHistorySheet onClickButton={handleFileInputClick} buttonText="+ Upload new photo">
-        <div className={styles.imageContent_mobile}>
-          {recentPhotos.length > 0
-            ? recentPhotos.map((item: InputImage, index) => (
-                <DeletableImage
-                  key={`${item.id}-${index}-${recentPhotos.length}`}
-                  src={item.url}
-                  imageId={item.id}
-                  showTrashIcon={true}
-                  classNames={styles.imageBox_mobile}
-                  onDelete={removePhotoFromGallery}
-                  onClick={() => handleChooseNewPhoto(item.id, item.url)}
-                />
-              ))
-            : null}
-        </div>
-      </UploadsHistorySheet>
+      <UploadsHistorySheet
+        onClickButton={handleFileInputClick}
+        onImageSelect={handleChooseNewPhoto}
+      />
     </main>
   )
 }
