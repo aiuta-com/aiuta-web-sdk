@@ -92,7 +92,7 @@ export const usePageBarNavigation = () => {
     if (isOnHistoryPage) {
       // Clear selections and navigate back
       if (recentlyPhotos.length === 0) {
-        navigate('/qr')
+        navigate(-1)
       } else if (selectedImages.length > 0) {
         dispatch(generationsSlice.actions.clearSelectedImages())
         dispatch(generationsSlice.actions.setIsSelecting(false))
