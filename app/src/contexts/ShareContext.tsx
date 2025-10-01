@@ -1,9 +1,13 @@
 import React, { createContext, useContext, ReactNode } from 'react'
 import { useModalShare } from '@/hooks'
 
+type AnimationState = 'closed' | 'opening' | 'open' | 'closing'
+
 interface ShareContextType {
   modalData: { imageUrl: string } | null
+  animationState: AnimationState
   isOpen: boolean
+  isVisible: boolean
   openShareModal: (imageUrl: string) => void
   closeShareModal: () => void
 }

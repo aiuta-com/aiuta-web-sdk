@@ -13,7 +13,7 @@ import styles from './FullScreenGallery.module.scss'
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
-  const { openShareModal, isOpen: isShareOpen } = useShare()
+  const { openShareModal, isVisible: isShareVisible } = useShare()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
 
@@ -160,7 +160,7 @@ export const FullScreenGallery = () => {
         </div>
 
         {/* Share overlay */}
-        {isShareOpen && (
+        {isShareVisible && (
           <div className={styles.shareModalOverlay}>
             <Share />
           </div>

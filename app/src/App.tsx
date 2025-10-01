@@ -42,8 +42,6 @@ function MainAppContent() {
   return (
     <RpcProvider rpc={rpc}>
       <ShareProvider>
-        <FullScreenGallery />
-        <Share />
         <AppContainer>
           <PageBar />
           <Routes>
@@ -57,6 +55,9 @@ function MainAppContent() {
           </Routes>
           <PoweredBy />
         </AppContainer>
+
+        <FullScreenGallery />
+        <Share />
       </ShareProvider>
     </RpcProvider>
   )
