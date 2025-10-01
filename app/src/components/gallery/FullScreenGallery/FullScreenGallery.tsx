@@ -10,6 +10,7 @@ import { Share, ThumbnailList, RemoteImage, IconButton } from '@/components'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
+import { icons } from './icons'
 import styles from './FullScreenGallery.module.scss'
 
 export const FullScreenGallery = () => {
@@ -155,9 +156,11 @@ export const FullScreenGallery = () => {
 
         {/* Right content with close button */}
         <div className={styles.rightContent}>
-          <img
-            src="./icons/close.svg"
-            alt="Close"
+          <IconButton
+            icon={icons.close}
+            label="Close"
+            size={24}
+            viewBox="0 0 24 24"
             className={styles.closeButton}
             onClick={handleCloseModal}
           />

@@ -1,4 +1,6 @@
 import React from 'react'
+import { IconButton } from '@/components'
+import { icons } from '../icons'
 import styles from '../FullScreenGallery.module.scss'
 
 interface ActionButtonsPanelProps {
@@ -16,16 +18,31 @@ export const ActionButtonsPanel = ({
 }: ActionButtonsPanelProps) => {
   return (
     <div className={styles.actionButtons}>
-      <div className={styles.actionButton} onClick={onShare}>
-        <img src="./icons/shareFullScreen.svg" alt="Share" />
-      </div>
-      <div className={styles.actionButton} onClick={onDownload}>
-        <img src="./icons/downloadFullScreen.svg" alt="Download" />
-      </div>
+      <IconButton
+        icon={icons.share}
+        label="Share"
+        size={28}
+        viewBox="0 0 28 28"
+        className={styles.actionButton}
+        onClick={onShare}
+      />
+      <IconButton
+        icon={icons.download}
+        label="Download"
+        size={28}
+        viewBox="0 0 28 28"
+        className={styles.actionButton}
+        onClick={onDownload}
+      />
       {showDelete && onDelete && (
-        <div className={styles.actionButton} onClick={onDelete}>
-          <img src="./icons/deleteFullScreen.svg" alt="Delete" />
-        </div>
+        <IconButton
+          icon={icons.delete}
+          label="Delete"
+          size={28}
+          viewBox="0 0 28 28"
+          className={styles.actionButton}
+          onClick={onDelete}
+        />
       )}
     </div>
   )

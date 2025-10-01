@@ -5,6 +5,8 @@ import React, { useState, useEffect } from 'react'
 // RPC method needed: openShareModal(data: { imageUrl: string })
 import { useRpc } from '@/contexts'
 import { useAppVisibility } from '@/hooks'
+import { IconButton } from '@/components'
+import { icons } from './icons'
 import styles from './Share.module.scss'
 
 interface ShareData {
@@ -132,9 +134,11 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <img src="./icons/shareWithText.svg" alt="Share with" className={styles.title} />
 
-        <img
-          src="./icons/close.svg"
-          alt="Close"
+        <IconButton
+          icon={icons.close}
+          label="Close"
+          size={24}
+          viewBox="0 0 24 24"
           className={styles.closeButton}
           onClick={handleCloseModal}
         />
