@@ -5,6 +5,7 @@ import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { TryOnApiService, InputImage } from '@/utils/api/tryOnApiService'
+import { fixImageOrientation } from '@/utils'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 interface UseImageUploadOptions {
@@ -36,18 +37,39 @@ export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadO
         dispatch(tryOnSlice.actions.setIsGenerating(true))
       }
 
-      const result = await TryOnApiService.uploadImage(file, endpointData)
+      // Try to fix image orientation, fallback to original if fails
+      let fileToUpload = file
+      let localUrlForPreview = URL.createObjectURL(file)
+
+      try {
+        const fixed = await fixImageOrientation(file, {
+          outputMime: 'image/jpeg',
+        })
+
+        // Create corrected File from fixed blob
+        fileToUpload = new File([fixed.blob], file.name, {
+          type: fixed.mime,
+          lastModified: file.lastModified,
+        })
+
+        // Use corrected image for preview
+        localUrlForPreview = fixed.objectUrl
+      } catch (orientationError) {
+        console.warn('Failed to fix image orientation, using original:', orientationError)
+        // fileToUpload and localUrlForPreview already set to original values
+      }
+
+      const result = await TryOnApiService.uploadImage(fileToUpload, endpointData)
 
       if (result.owner_type === 'user') {
         const uploadedImage: InputImage = { id: result.id, url: result.url }
 
         // Update file state with local URL for preview
-        const localUrl = URL.createObjectURL(file)
         dispatch(
           tryOnSlice.actions.setCurrentImage({
             id: uploadedImage.id,
             url: uploadedImage.url,
-            localUrl,
+            localUrl: localUrlForPreview, // Use corrected or original image for preview
           }),
         )
 
