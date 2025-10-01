@@ -1,5 +1,4 @@
 import React, { useRef, ChangeEvent } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
 import {
   ErrorSnackbar,
   UploadPrompt,
@@ -11,29 +10,15 @@ import { useQrUpload } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './QrUpload.module.scss'
 
-function useQuery() {
-  return new URLSearchParams(useLocation().search)
-}
-
 export default function QrUploadMobile() {
-  const { token } = useParams<{ token: string }>()
-  const query = useQuery()
-  const apiKey = query.get('apiKey') || ''
-  const userId = query.get('userId') || ''
-
-  const { uploadState, selectFile, uploadFile } = useQrUpload({
-    token,
-    apiKey,
-    subscriptionId: userId || undefined,
-  })
-
+  const { uploadState, selectFile, uploadFile } = useQrUpload()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleButtonClick = () => {
+  const handleOpenFileDialog = () => {
     fileInputRef.current?.click()
   }
 
-  const handleChoosePhoto = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target?.files?.[0]) {
       selectFile(event.target.files[0])
     }
@@ -53,12 +38,12 @@ export default function QrUploadMobile() {
         <ErrorSnackbar />
 
         {!uploadState.selectedFile ? (
-          <UploadPrompt onClick={handleButtonClick} />
+          <UploadPrompt onClick={handleOpenFileDialog} />
         ) : !uploadState.uploadedUrl ? (
           <UploadPreview
             selectedFile={uploadState.selectedFile}
             isUploading={uploadState.isUploading}
-            onChangePhoto={handleButtonClick}
+            onChangePhoto={handleOpenFileDialog}
           />
         ) : (
           <UploadResult uploadedUrl={uploadState.uploadedUrl} />
@@ -78,7 +63,7 @@ export default function QrUploadMobile() {
           ref={fileInputRef}
           type="file"
           accept="image/*"
-          onChange={handleChoosePhoto}
+          onChange={handleFileSelect}
           style={{ display: 'none' }}
         />
       </main>

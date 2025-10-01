@@ -1,15 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
 import { useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { TryOnApiService } from '@/utils/api/tryOnApiService'
 import { resizeAndConvertImage } from '@/utils'
-
-interface UseQrUploadProps {
-  token?: string
-  apiKey: string
-  subscriptionId?: string
-}
 
 interface UploadState {
   isUploading: boolean
@@ -17,8 +12,16 @@ interface UploadState {
   selectedFile: { file: File; url: string } | null
 }
 
-export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps) => {
+function useQuery() {
+  return new URLSearchParams(useLocation().search)
+}
+
+export const useQrUpload = () => {
   const dispatch = useAppDispatch()
+  const { token } = useParams<{ token: string }>()
+  const query = useQuery()
+  const apiKey = query.get('key') || ''
+  const subscriptionId = query.get('sid') || ''
 
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
@@ -79,7 +82,7 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
 
       const endpointData: QrEndpointData = {
         apiKey,
-        subscriptionId,
+        subscriptionId: subscriptionId || undefined,
         skuId: '', // QR uploads don't need skuId
       }
 
@@ -102,14 +105,11 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
 
       await QrApiService.uploadQrPhoto(token, qrResult)
 
-      // Simulate processing time for better UX
-      setTimeout(() => {
-        setUploadState((prev) => ({
-          ...prev,
-          isUploading: false,
-          uploadedUrl: qrResult.url,
-        }))
-      }, 3000)
+      setUploadState((prev) => ({
+        ...prev,
+        isUploading: false,
+        uploadedUrl: qrResult.url,
+      }))
     } catch (error: any) {
       console.error('Upload error:', error)
       setUploadState((prev) => ({ ...prev, isUploading: false }))

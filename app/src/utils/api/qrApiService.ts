@@ -59,20 +59,4 @@ export class QrApiService {
     const response = await fetch(`${this.BASE_URL}/delete-qr-token?token=${token}`)
     await response.json()
   }
-
-  /**
-   * Generate QR URL for scanning
-   */
-  static generateQrUrl(token: string, endpointData: QrEndpointData): string {
-    const hasSubscriptionId = endpointData.subscriptionId && endpointData.subscriptionId.length > 0
-    const params = hasSubscriptionId
-      ? `userId=${endpointData.subscriptionId}`
-      : `apiKey=${endpointData.apiKey}`
-
-    // Get current app URL instead of hardcoded static URL
-    const currentUrl = new URL(window.location.href)
-    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`
-
-    return `${baseUrl}#/qr/${token}?${params}`
-  }
 }

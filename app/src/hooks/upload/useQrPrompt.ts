@@ -6,7 +6,7 @@ import { qrSlice } from '@/store/slices/qrSlice'
 import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
-import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
+import { QrApiService } from '@/utils/api/qrApiService'
 import { generateRandomString } from '@/utils/helpers/generateRandomString'
 
 export const useQrPrompt = () => {
@@ -82,13 +82,18 @@ export const useQrPrompt = () => {
   // Generate QR URL
   const getQrUrl = useCallback(() => {
     if (!qrToken) return ''
-    if (!productId) return ''
     // For JWT auth we need subscriptionId, for API key auth we need apiKey
     if (!apiKey && !subscriptionId) return ''
 
-    const endpointData = { apiKey, subscriptionId, skuId: productId }
-    return QrApiService.generateQrUrl(qrToken, endpointData as QrEndpointData)
-  }, [qrToken, apiKey, subscriptionId, productId])
+    const hasSubscriptionId = subscriptionId && subscriptionId.length > 0
+    const params = hasSubscriptionId ? `sid=${subscriptionId}` : `key=${apiKey}`
+
+    // Get current app URL instead of hardcoded static URL
+    const currentUrl = new URL(window.location.href)
+    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`
+
+    return `${baseUrl}#/qr/${qrToken}?${params}`
+  }, [qrToken, apiKey, subscriptionId])
 
   // Cleanup on unmount
   useEffect(() => {
