@@ -31,6 +31,19 @@
   border-radius: 0;
   border: none;
   box-shadow: none;
+
+  // Scale down for small screens
+  @media (max-height: 500px) {
+    zoom: 0.8;
+  }
+
+  @media (max-height: 400px) {
+    zoom: 0.65;
+  }
+
+  @media (max-height: 300px) {
+    zoom: 0.5;
+  }
 }
 
 // Hidden state
