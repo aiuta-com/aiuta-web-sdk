@@ -29,7 +29,7 @@ export const PoweredBy = () => {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className={`aiuta-button-s ${styles.label}`}
+        className={`aiuta-label-subtle ${styles.label}`}
       >
         {text}
       </a>

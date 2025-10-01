@@ -7,6 +7,7 @@ import {
   useSwipeGesture,
 } from '@/hooks'
 import { IconButton } from '@/components'
+import { combineClassNames } from '@/utils'
 import { icons } from './icons'
 import styles from './PageBar.module.scss'
 
@@ -67,13 +68,15 @@ export const PageBar = () => {
 
       {/* Center - Title */}
       <div className={styles.titleContainer}>
-        {showTitle && <h1 className={`${styles.pageTitle} ${styles.titleLabel}`}>{title}</h1>}
+        {showTitle && (
+          <h1 className={combineClassNames('aiuta-page-title', styles.titleLabel)}>{title}</h1>
+        )}
       </div>
 
       {/* Right side - Select/Cancel button or Close button */}
       {showSelectButton ? (
         <button
-          className={`${styles.pageTitle} ${styles.selectButton}`}
+          className={combineClassNames('aiuta-page-title', styles.selectButton)}
           onClick={handleToggleSelection}
         >
           {isSelectionActive ? 'Cancel' : 'Select'}

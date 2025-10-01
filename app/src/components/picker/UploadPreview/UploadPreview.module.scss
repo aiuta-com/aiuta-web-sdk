@@ -1,0 +1,16 @@
+// Button to change uploaded photo (similar to TryOnView changePhotoButton)
+.changeButton {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 25px;
+  border: none;
+  border-radius: 9px;
+  background: #ffffff66;
+  backdrop-filter: blur(10px);
+  color: #000;
+  cursor: pointer;
+  min-width: 160px;
+  text-wrap: nowrap;
+}

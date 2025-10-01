@@ -37,6 +37,8 @@ export { Carousel } from './onboarding/Carousel'
 // Picker (Upload)
 export { QrCode } from './picker/QrCode'
 export { UploadPrompt } from './picker/UploadPrompt'
+export { UploadPreview } from './picker/UploadPreview'
+export { UploadResult } from './picker/UploadResult'
 export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
 
 // Gallery

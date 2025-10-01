@@ -69,6 +69,10 @@ export class QrApiService {
       ? `userId=${endpointData.subscriptionId}`
       : `apiKey=${endpointData.apiKey}`
 
-    return `https://static.aiuta.com/sdk/v0/index.html#/qr/${token}?${params}`
+    // Get current app URL instead of hardcoded static URL
+    const currentUrl = new URL(window.location.href)
+    const baseUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`
+
+    return `${baseUrl}#/qr/${token}?${params}`
   }
 }

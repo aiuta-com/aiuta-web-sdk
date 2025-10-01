@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
-import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
+import { useUrlParams, useCustomCSS, useRpcInitialization, useStandaloneApp } from '@/hooks'
 
 import HomePageRouter from '@/pages/Home'
 import OnboardingPage from '@/pages/1-Onboarding'
@@ -20,13 +20,16 @@ export default function App() {
   return (
     <LoggerProvider component={loggerComponent}>
       <MemoryRouter initialEntries={[initialPath]}>
-        <AppContent />
+        <Routes>
+          <Route path="/qr/:token" element={<QrUploadContext />} />
+          <Route path="*" element={<MainAppContent />} />
+        </Routes>
       </MemoryRouter>
     </LoggerProvider>
   )
 }
 
-function AppContent() {
+function MainAppContent() {
   const { rpc } = useRpcInitialization()
   const { cssUrl } = useUrlParams()
   const { isReady } = useCustomCSS(cssUrl)
@@ -46,7 +49,6 @@ function AppContent() {
           <Route path="/" element={<HomePageRouter />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/qr" element={<QrPromptPage />} />
-          <Route path="/qr/:token" element={<QrUploadPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/generations" element={<GenerationsHistoryPage />} />
@@ -55,5 +57,23 @@ function AppContent() {
         <PoweredBy />
       </AppContainer>
     </RpcProvider>
+  )
+}
+
+function QrUploadContext() {
+  const { cssUrl } = useUrlParams()
+  const { isReady: isCssReady } = useCustomCSS(cssUrl)
+  const { isReady: isAppReady } = useStandaloneApp()
+
+  // Don't render until both app visibility and CSS are ready
+  if (!isAppReady || !isCssReady) {
+    return null
+  }
+
+  return (
+    <AppContainer>
+      <QrUploadPage />
+      <PoweredBy />
+    </AppContainer>
   )
 }

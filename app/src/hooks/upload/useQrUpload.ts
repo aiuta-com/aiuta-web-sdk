@@ -3,7 +3,7 @@ import { useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { TryOnApiService } from '@/utils/api/tryOnApiService'
-import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
+import { resizeAndConvertImage } from '@/utils'
 
 interface UseQrUploadProps {
   token?: string
@@ -19,7 +19,6 @@ interface UploadState {
 
 export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps) => {
   const dispatch = useAppDispatch()
-  const { trackUploadError } = useTryOnAnalytics()
 
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
@@ -66,9 +65,9 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
   const handleUploadError = useCallback(
     (errorMessage: string) => {
       dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
-      trackUploadError(errorMessage, errorMessage)
+      console.warn('QR Upload error:', errorMessage)
     },
-    [dispatch, trackUploadError],
+    [dispatch],
   )
 
   // Upload selected file
@@ -84,10 +83,14 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
         skuId: '', // QR uploads don't need skuId
       }
 
-      const uploadResult = await TryOnApiService.uploadImage(
-        uploadState.selectedFile.file,
-        endpointData,
-      )
+      // Process image (resize, convert, fix EXIF orientation)
+      const processed = await resizeAndConvertImage(uploadState.selectedFile.file)
+      const fileToUpload = new File([processed.blob], uploadState.selectedFile.file.name, {
+        type: processed.mime,
+        lastModified: uploadState.selectedFile.file.lastModified,
+      })
+
+      const uploadResult = await TryOnApiService.uploadImage(fileToUpload, endpointData)
 
       // Convert to QrUploadResult format
       const qrResult = {
