@@ -5,6 +5,7 @@ import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { TryOnApiService, InputImage } from '@/utils/api/tryOnApiService'
+import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 interface UseImageUploadOptions {
@@ -36,18 +37,25 @@ export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadO
         dispatch(tryOnSlice.actions.setIsGenerating(true))
       }
 
-      const result = await TryOnApiService.uploadImage(file, endpointData)
+      const processed = await resizeAndConvertImage(file)
+      const fileToUpload = new File([processed.blob], file.name, {
+        type: processed.mime,
+        lastModified: file.lastModified,
+      })
+
+      const localUrlForPreview = processed.objectUrl
+
+      const result = await TryOnApiService.uploadImage(fileToUpload, endpointData)
 
       if (result.owner_type === 'user') {
         const uploadedImage: InputImage = { id: result.id, url: result.url }
 
         // Update file state with local URL for preview
-        const localUrl = URL.createObjectURL(file)
         dispatch(
           tryOnSlice.actions.setCurrentImage({
             id: uploadedImage.id,
             url: uploadedImage.url,
-            localUrl,
+            localUrl: localUrlForPreview,
           }),
         )
 
