@@ -4,6 +4,7 @@ export interface AiutaUserInterface {
     customCssUrl?: string
     selectionSnackbar?: SelectionSnackbar
     errorSnackbar?: ErrorSnackbar
+    poweredBy?: PoweredBy
   }
 }
 
@@ -20,5 +21,11 @@ export interface ErrorSnackbar {
   strings?: {
     defaultErrorMessage?: string
     tryAgainButton?: string
+  }
+}
+
+export interface PoweredBy {
+  strings?: {
+    poweredByAiuta?: string
   }
 }
