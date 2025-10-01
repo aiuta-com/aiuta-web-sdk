@@ -60,7 +60,7 @@ export const PageBar = () => {
           label={navigationLabel}
           className={styles.actionButton}
           size={28}
-          onClick={() => handleHistoryNavigation('generations-history')}
+          onClick={() => handleHistoryNavigation('generations')}
           viewBox="0 0 36 36"
         />
       )}

@@ -26,7 +26,7 @@ export default function TryOnDesktop() {
   const [isButtonClicked, setIsButtonClicked] = useState(false)
 
   const handleChangePhoto = () => {
-    navigate('/uploads-history')
+    navigate('/uploads')
   }
 
   const hasInputImage = uploadedViewFile.localUrl.length > 0

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector, store } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
 import { apiSlice } from '@/store/slices/apiSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
-import { dispatchNavigateToHome } from './useAppNavigation'
 import { AiutaAppRpc } from '@lib/rpc'
 
 declare const __APP_VERSION__: string
@@ -20,6 +20,7 @@ const SHOW_DELAY = 200
  */
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
@@ -27,8 +28,8 @@ export const useRpcInitialization = () => {
     const initializeRpc = async () => {
       try {
         const showApp = () => {
-          // Always navigate to home when showing the app
-          dispatchNavigateToHome()
+          // Always navigate to home when showing the app, clearing history
+          navigate('/', { replace: true })
 
           // Delay to ensure iframe and AppContainer are fully rendered
           // This prevents size flickering during CSS transition
@@ -68,7 +69,7 @@ export const useRpcInitialization = () => {
     }
 
     initializeRpc()
-  }, [dispatch])
+  }, [dispatch, navigate])
 
   // Sync iframe interactivity with app visibility
   useEffect(() => {

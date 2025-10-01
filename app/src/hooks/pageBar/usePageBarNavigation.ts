@@ -47,7 +47,7 @@ export const usePageBarNavigation = () => {
     }
     if (currentPath === '/qr') return 'imagePicker'
     if (currentPath === '/generated') return 'results'
-    if (currentPath === '/generations-history') return 'history'
+    if (currentPath === '/generations') return 'history'
     if (currentPath === '/tryon') return null // No analytics for tryon page
     return 'howItWorks'
   }
@@ -82,10 +82,10 @@ export const usePageBarNavigation = () => {
   }
 
   const handleHistoryNavigation = (targetPath: string) => {
-    const isOnHistoryPage = pathName === '/generations-history' || pathName === '/uploads-history'
+    const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
 
     // Track exit from history page
-    if (pathName === '/generations-history' && isOnHistoryPage) {
+    if (pathName === '/generations' && isOnHistoryPage) {
       trackAnalyticsEvent('history')
     }
 
@@ -107,9 +107,9 @@ export const usePageBarNavigation = () => {
   }
 
   const handleToggleSelection = () => {
-    if (pathName === '/uploads-history') {
+    if (pathName === '/uploads') {
       dispatch(uploadsSlice.actions.setIsSelecting(!isSelectingUploads))
-    } else if (pathName === '/generations-history') {
+    } else if (pathName === '/generations') {
       dispatch(generationsSlice.actions.setIsSelecting(!isSelectingGenerations))
     }
   }
@@ -118,7 +118,7 @@ export const usePageBarNavigation = () => {
     handleCloseModal,
     handleHistoryNavigation,
     handleToggleSelection,
-    isOnHistoryPage: pathName === '/generations-history' || pathName === '/uploads-history',
+    isOnHistoryPage: pathName === '/generations' || pathName === '/uploads',
     currentPath: pathName,
   }
 }

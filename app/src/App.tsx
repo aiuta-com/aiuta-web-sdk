@@ -2,75 +2,58 @@ import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider } from './contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
-import {
-  useUrlParams,
-  useCustomCSS,
-  useRpcInitialization,
-  useBootstrapTransition,
-  useAppNavigation,
-} from '@/hooks'
+import { useUrlParams, useCustomCSS, useRpcInitialization } from '@/hooks'
 
-import Home from '@/pages/Home'
-import OnboardingPage from '@/pages/1-OnboardingPage'
-import QrPromptPage from '@/pages/2-QrPromptPage'
-import QrUploadPage from '@/pages/3-QrUploadPage'
-import TryOnPage from '@/pages/4-TryOnPage'
-import ResultsPage from '@/pages/5-ResultsPage'
-import GenerationsHistoryPage from '@/pages/6-GenerationsHistoryPage'
-import UploadsHistoryPage from '@/pages/7-UploadsHistoryPage'
+import HomePageRouter from '@/pages/Home'
+import OnboardingPage from '@/pages/1-Onboarding'
+import QrPromptPage from '@/pages/2-QrPrompt'
+import QrUploadPage from '@/pages/3-QrUpload'
+import TryOnPage from '@/pages/4-TryOn'
+import ResultsPage from '@/pages/5-Results'
+import GenerationsHistoryPage from '@/pages/6-GenerationsHistory'
+import UploadsHistoryPage from '@/pages/7-UploadsHistory'
 
 export default function App() {
-  const { cssUrl, initialPath } = useUrlParams()
-  const { rpc } = useRpcInitialization()
-  const loggerComponent = 'aiuta:iframe'
-
-  useBootstrapTransition(rpc)
-
-  // Don't render anything until RPC is connected and config is loaded
-  if (!rpc) {
-    return null
-  }
+  const { initialPath } = useUrlParams()
+  const loggerComponent = 'aiuta:app'
 
   return (
     <LoggerProvider component={loggerComponent}>
-      <RpcProvider rpc={rpc}>
-        <AppRouter cssUrl={cssUrl} initialPath={initialPath} />
-      </RpcProvider>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <AppContent />
+      </MemoryRouter>
     </LoggerProvider>
   )
 }
 
-function AppRouter({ cssUrl, initialPath }: { cssUrl?: string; initialPath?: string }) {
-  useCustomCSS(cssUrl)
+function AppContent() {
+  const { rpc } = useRpcInitialization()
+  const { cssUrl } = useUrlParams()
+  const { isReady } = useCustomCSS(cssUrl)
+
+  // Don't render until both RPC and CSS are ready
+  if (!rpc || !isReady) {
+    return null
+  }
 
   return (
-    <MemoryRouter initialEntries={[initialPath || '/']}>
-      <AppRouterContent />
-    </MemoryRouter>
-  )
-}
-
-function AppRouterContent() {
-  useAppNavigation()
-
-  return (
-    <>
+    <RpcProvider rpc={rpc}>
       <FullScreenGallery />
       <Share />
       <AppContainer>
         <PageBar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<HomePageRouter />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/qr" element={<QrPromptPage />} />
           <Route path="/qr/:token" element={<QrUploadPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/results" element={<ResultsPage />} />
-          <Route path="/generations-history" element={<GenerationsHistoryPage />} />
-          <Route path="/uploads-history" element={<UploadsHistoryPage />} />
+          <Route path="/generations" element={<GenerationsHistoryPage />} />
+          <Route path="/uploads" element={<UploadsHistoryPage />} />
         </Routes>
         <PoweredBy />
       </AppContainer>
-    </>
+    </RpcProvider>
   )
 }

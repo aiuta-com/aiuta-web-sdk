@@ -21,7 +21,7 @@ export const usePageBarVisibility = () => {
   const isSelectingUploads = useAppSelector(uploadsIsSelectingSelector)
 
   // Path checks
-  const isOnHistoryPage = pathName === '/generations-history' || pathName === '/uploads-history'
+  const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
   const isOnOnboardingPage = pathName === '/onboarding'
 

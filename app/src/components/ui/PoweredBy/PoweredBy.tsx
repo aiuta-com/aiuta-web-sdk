@@ -9,8 +9,8 @@ export const PoweredBy = () => {
   const isMobile = useAppSelector(isMobileSelector)
 
   // Routes where powered by should be hidden
-  const desktopHiddenRoutes = ['/generations-history', '/uploads-history', '/results']
-  const mobileHiddenRoutes = ['/onboarding', '/generations-history', '/uploads-history', '/results']
+  const desktopHiddenRoutes = ['/generations', '/uploads', '/results']
+  const mobileHiddenRoutes = ['/onboarding', '/generations', '/uploads', '/results']
 
   const hiddenRoutes = isMobile ? mobileHiddenRoutes : desktopHiddenRoutes
   const isHiddenByRoute = hiddenRoutes.includes(location.pathname)

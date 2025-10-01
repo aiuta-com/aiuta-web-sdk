@@ -1,14 +1,13 @@
 import { useEffect } from 'react'
-import type { AiutaAppRpc } from '@lib/rpc'
 
 /**
  * Custom hook to handle bootstrap to main app transition
- * Waits for RPC to be ready before hiding bootstrap overlay
+ * Should be called only when RPC is ready
  */
-export const useBootstrapTransition = (rpc: AiutaAppRpc | null) => {
+export const useBootstrapTransition = () => {
   useEffect(() => {
     // Check if we're running inside bootstrap environment
-    if (window.aiutaBootstrap?.ready && rpc) {
+    if (window.aiutaBootstrap?.ready) {
       // Wait for RPC to be fully established before hiding bootstrap
       const timer = setTimeout(() => {
         window.aiutaBootstrap?.hideBootstrap()
@@ -16,5 +15,5 @@ export const useBootstrapTransition = (rpc: AiutaAppRpc | null) => {
 
       return () => clearTimeout(timer)
     }
-  }, [rpc])
+  }, [])
 }

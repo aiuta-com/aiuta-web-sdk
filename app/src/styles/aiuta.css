@@ -1,7 +1,7 @@
 @import './colors.css';
-@import './typeset.css';
-@import './shapes.css';
 @import './guides.css';
+@import './shapes.css';
+@import './typeset.css';
 
 * {
   box-sizing: border-box;
@@ -11,7 +11,7 @@
 
 html,
 body,
-#root {
+#aiuta-root {
   height: 100%;
 }
 

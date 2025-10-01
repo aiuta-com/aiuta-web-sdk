@@ -1,23 +1,22 @@
 import { combineReducers } from '@reduxjs/toolkit'
-
-import { uploadsSlice } from './slices/uploadsSlice'
-import { generationsSlice } from './slices/generationsSlice'
-import { errorSnackbarSlice } from './slices/errorSnackbarSlice'
-import { tryOnSlice } from './slices/tryOnSlice'
-import { qrSlice } from './slices/qrSlice'
-import { onboardingSlice } from './slices/onboardingSlice'
-import { appSlice } from './slices/appSlice'
 import { apiSlice } from './slices/apiSlice'
+import { appSlice } from './slices/appSlice'
+import { errorSnackbarSlice } from './slices/errorSnackbarSlice'
+import { generationsSlice } from './slices/generationsSlice'
+import { onboardingSlice } from './slices/onboardingSlice'
+import { qrSlice } from './slices/qrSlice'
+import { tryOnSlice } from './slices/tryOnSlice'
+import { uploadsSlice } from './slices/uploadsSlice'
 
-const reducers = combineReducers({
-  [uploadsSlice.name]: uploadsSlice.reducer,
-  [generationsSlice.name]: generationsSlice.reducer,
-  [errorSnackbarSlice.name]: errorSnackbarSlice.reducer,
-  [tryOnSlice.name]: tryOnSlice.reducer,
-  [qrSlice.name]: qrSlice.reducer,
-  [onboardingSlice.name]: onboardingSlice.reducer,
-  [appSlice.name]: appSlice.reducer,
+const rootReducer = combineReducers({
   [apiSlice.name]: apiSlice.reducer,
+  [appSlice.name]: appSlice.reducer,
+  [errorSnackbarSlice.name]: errorSnackbarSlice.reducer,
+  [generationsSlice.name]: generationsSlice.reducer,
+  [onboardingSlice.name]: onboardingSlice.reducer,
+  [qrSlice.name]: qrSlice.reducer,
+  [tryOnSlice.name]: tryOnSlice.reducer,
+  [uploadsSlice.name]: uploadsSlice.reducer,
 })
 
-export default reducers
+export default rootReducer

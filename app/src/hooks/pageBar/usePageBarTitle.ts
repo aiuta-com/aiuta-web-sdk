@@ -5,9 +5,9 @@ export const usePageBarTitle = () => {
 
   const getTitle = () => {
     switch (location.pathname) {
-      case '/generations-history':
+      case '/generations':
         return 'History'
-      case '/uploads-history':
+      case '/uploads':
         return 'Previously used photos'
       default:
         return 'Virtual Try-On'
