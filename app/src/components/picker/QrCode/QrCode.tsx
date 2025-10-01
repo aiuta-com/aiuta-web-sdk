@@ -44,7 +44,7 @@ export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
         text={url}
         logo={{
           options: { width: 50 },
-          src: './icons/aiutaLogo.svg',
+          src: './aiuta.svg',
         }}
         options={{
           errorCorrectionLevel: 'M',

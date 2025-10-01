@@ -12,6 +12,7 @@ export { Checkbox } from './buttons/Checkbox'
 export { IconButton } from './buttons/IconButton'
 export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
+export { SocialButton } from './buttons/SocialButton'
 export { TryOnButton } from './buttons/TryOnButton'
 
 // Images

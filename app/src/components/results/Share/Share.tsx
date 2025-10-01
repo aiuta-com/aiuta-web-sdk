@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react'
 // RPC method needed: openShareModal(data: { imageUrl: string })
 import { useRpc } from '@/contexts'
 import { useAppVisibility } from '@/hooks'
-import { IconButton } from '@/components'
+import { IconButton, SocialButton, PrimaryButton } from '@/components'
 import { icons } from './icons'
 import styles from './Share.module.scss'
 
@@ -16,7 +16,8 @@ interface ShareData {
 interface ShareButton {
   id: string
   href?: string
-  iconSrc: string
+  icon: string
+  title: string
   shareMethod: 'whatsApp' | 'messenger' | 'copy'
 }
 
@@ -56,14 +57,16 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
   const shareButtons: ShareButton[] = [
     {
       id: 'whatsapp-share',
-      href: modalData ? 'https://wa.me/?text=${modalData.imageUrl}' : undefined,
-      iconSrc: './icons/whatsapp.svg',
+      href: modalData ? `https://wa.me/?text=${modalData.imageUrl}` : undefined,
+      icon: icons.whatsapp,
+      title: 'WhatsApp',
       shareMethod: 'whatsApp',
     },
     {
       id: 'messenger-share',
-      href: modalData ? 'https://www.messenger.com/new?text=${modalData.imageUrl}' : undefined,
-      iconSrc: './icons/messenger.svg',
+      href: modalData ? `https://www.messenger.com/new?text=${modalData.imageUrl}` : undefined,
+      icon: icons.messenger,
+      title: 'Messenger',
       shareMethod: 'messenger',
     },
   ]
@@ -131,8 +134,8 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
 
   return (
     <div className={styles.share} onClick={handleCloseModal}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <img src="./icons/shareWithText.svg" alt="Share with" className={styles.title} />
+      <main className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <h2 className="aiuta-page-title">Share with</h2>
 
         <IconButton
           icon={icons.close}
@@ -145,29 +148,28 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
 
         <div className={styles.shareButtons}>
           {shareButtons.map((button) => (
-            <a
+            <SocialButton
               key={button.id}
+              icon={button.icon}
+              title={button.title}
               href={button.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.shareButton}
               onClick={() => handleShare(button.shareMethod)}
-            >
-              <img src={button.iconSrc} alt={'Share via ${button.shareMethod}'} />
-            </a>
+            />
           ))}
         </div>
 
         <div className={styles.copySection}>
           <p className={styles.urlText}>{modalData.imageUrl}</p>
-          <img
-            src="./icons/copyButton.svg"
-            alt="Copy"
-            className={styles.copyButton}
+          <PrimaryButton
+            shape="S"
+            maxWidth={false}
             onClick={handleCopyToClipboard}
-          />
+            className={styles.copyButton}
+          >
+            Copy
+          </PrimaryButton>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
