@@ -39,28 +39,9 @@ export async function resizeAndConvertImage(
   const quality = opts.quality ?? 0.92
   const maxSide = opts.maxSide ?? 1500
 
-  // Helper function to return original file
-  const returnOriginal = (reason?: string): ProcessedImage => {
-    if (reason) {
-      console.warn('Falling back to original file:', reason)
-    }
-    const objectUrl = URL.createObjectURL(file)
-
-    return {
-      blob: file,
-      mime: file.type,
-      objectUrl,
-    }
-  }
-
   try {
     const img = await createImageElement(file)
     const targetDimensions = calculateTargetDimensions(img, maxSide)
-
-    console.log('Processing image:', {
-      from: { width: img.width, height: img.height },
-      to: targetDimensions,
-    })
 
     const drawParams: CanvasDrawParams = {
       srcW: img.width,
@@ -71,7 +52,13 @@ export async function resizeAndConvertImage(
 
     return await processOnCanvas(img, drawParams, outputMime, quality)
   } catch (error) {
-    return returnOriginal(`Processing failed: ${error}`)
+    console.warn('Resize and convert image failed, falling back to original file', error)
+
+    return {
+      blob: file,
+      mime: file.type,
+      objectUrl: URL.createObjectURL(file),
+    }
   }
 }
 
@@ -151,8 +138,6 @@ async function processOnCanvas(
  * Actual orientation correction happens when drawing to canvas
  */
 async function createImageElement(file: Blob): Promise<HTMLImageElement> {
-  console.log('Creating <img> element - browser will prepare EXIF orientation data')
-
   const url = URL.createObjectURL(file)
 
   try {
@@ -163,7 +148,6 @@ async function createImageElement(file: Blob): Promise<HTMLImageElement> {
       image.src = url
     })
 
-    console.log('Created img element', { width: img.width, height: img.height })
     return img
   } finally {
     URL.revokeObjectURL(url)
