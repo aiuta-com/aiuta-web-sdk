@@ -9,7 +9,7 @@ import {
 } from '@/store/slices/tryOnSlice'
 import { ErrorSnackbar, TryOnButton } from '@/components'
 import { AbortAlert, TryOnView } from '@/components'
-import { useTryOnGeneration, useUploadsGallery } from '@/hooks'
+import { useTryOnGeneration, useUploadsGallery, useTryOnStrings } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
@@ -21,6 +21,7 @@ export default function TryOnDesktop() {
 
   const { getRecentPhoto } = useUploadsGallery()
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
+  const { tryOn } = useTryOnStrings()
 
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState(false)
@@ -69,7 +70,7 @@ export default function TryOnDesktop() {
         onClick={handleTryOnClick}
         hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
       >
-        Try On
+        {tryOn}
       </TryOnButton>
     </main>
   )

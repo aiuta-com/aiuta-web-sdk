@@ -17,7 +17,7 @@ import {
   Spinner,
 } from '@/components'
 import { AbortAlert, TryOnView } from '@/components'
-import { useTryOnGeneration, useImageUpload, useUploadsGallery } from '@/hooks'
+import { useTryOnGeneration, useImageUpload, useUploadsGallery, useTryOnStrings } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
@@ -33,6 +33,7 @@ export default function TryOnMobile() {
   const { recentlyPhotos: recentPhotos } = useUploadsGallery()
   const { uploadImage, isUploading } = useImageUpload()
   const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
+  const { tryOn } = useTryOnStrings()
   const [recentImage, setRecentImage] = useState<InputImage | null>(null)
   const [isButtonClicked, setIsButtonClicked] = useState(false)
 
@@ -156,7 +157,7 @@ export default function TryOnMobile() {
             onClick={handleTryOnClick}
             hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
           >
-            Try On
+            {tryOn}
           </TryOnButton>
         </>
       )}

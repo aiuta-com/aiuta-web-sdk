@@ -2,23 +2,25 @@ import React, { useState, useEffect } from 'react'
 import { TryOnStatusProps } from './types'
 import { combineClassNames } from '@/utils/helpers/combineClassNames'
 import { Icon } from '@/components/ui/Icon'
+import { useTryOnStrings } from '@/hooks'
 import { icons } from './icons'
 import styles from './TryOnStatus.module.scss'
 
 export const TryOnStatus = ({ stage, className }: TryOnStatusProps) => {
-  const [displayText, setDisplayText] = useState('Scanning your body')
+  const { tryOnLoadingStatusScanningBody, tryOnLoadingStatusGeneratingOutfit } = useTryOnStrings()
+  const [displayText, setDisplayText] = useState(tryOnLoadingStatusScanningBody)
 
   useEffect(() => {
     if (stage === 'scanning') {
-      setDisplayText('Scanning your body')
+      setDisplayText(tryOnLoadingStatusScanningBody)
       const timer = setTimeout(() => {
-        setDisplayText('Generating outfit')
+        setDisplayText(tryOnLoadingStatusGeneratingOutfit)
       }, 4000)
       return () => clearTimeout(timer)
     } else if (stage === 'generating') {
-      setDisplayText('Generating outfit')
+      setDisplayText(tryOnLoadingStatusGeneratingOutfit)
     }
-  }, [stage])
+  }, [stage, tryOnLoadingStatusScanningBody, tryOnLoadingStatusGeneratingOutfit])
 
   return (
     <div className={combineClassNames('aiuta-button-s', styles.tryOnStatus, className)}>

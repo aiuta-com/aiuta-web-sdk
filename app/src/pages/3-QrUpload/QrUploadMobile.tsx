@@ -6,12 +6,14 @@ import {
   UploadResult,
   PrimaryButton,
 } from '@/components'
-import { useQrUpload } from '@/hooks'
+import { useQrUpload, useImagePickerStrings, useTryOnStrings } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './QrUpload.module.scss'
 
 export default function QrUploadMobile() {
   const { uploadState, selectFile, uploadFile } = useQrUpload()
+  const { nextButton } = useImagePickerStrings()
+  const { tryOnPageTitle } = useTryOnStrings()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleOpenFileDialog = () => {
@@ -31,7 +33,9 @@ export default function QrUploadMobile() {
   return (
     <>
       <header className={styles.header}>
-        <h1 className={combineClassNames('aiuta-page-title', styles.pageTitle)}>Virtual Try On</h1>
+        <h1 className={combineClassNames('aiuta-page-title', styles.pageTitle)}>
+          {tryOnPageTitle}
+        </h1>
       </header>
 
       <main className={styles.qrUpload}>
@@ -56,7 +60,7 @@ export default function QrUploadMobile() {
             !showNextButton && styles.nextButton_hidden,
           )}
         >
-          Next
+          {nextButton}
         </PrimaryButton>
 
         <input

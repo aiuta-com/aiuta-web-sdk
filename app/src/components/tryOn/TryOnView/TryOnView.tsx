@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { TryOnStatus, RemoteImage, Flex } from '@/components'
 import { combineClassNames } from '@/utils'
+import { useImagePickerStrings } from '@/hooks'
 import styles from './TryOnView.module.scss'
 
 interface TryOnViewProps {
@@ -16,6 +17,7 @@ export const TryOnView = ({
   isGenerating,
   onChangePhoto,
 }: TryOnViewProps) => {
+  const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
   const hasInputImage = uploadedImageUrl && uploadedImageUrl.length > 0
   const hasRecentImage = recentImageUrl && recentImageUrl.length > 0
 
@@ -78,7 +80,7 @@ export const TryOnView = ({
           style={{ opacity: buttonOpacity }}
           onClick={onChangePhoto}
         >
-          Change photo
+          {uploadsHistoryButtonChangePhoto}
         </button>
       )}
     </Flex>

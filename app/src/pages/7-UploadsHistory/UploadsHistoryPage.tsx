@@ -1,7 +1,7 @@
 import React from 'react'
 import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
-import { useUploadsGallery } from '@/hooks'
+import { useUploadsGallery, useImagePickerStrings } from '@/hooks'
 import styles from './UploadsHistory.module.scss'
 
 /**
@@ -16,6 +16,7 @@ import styles from './UploadsHistory.module.scss'
  */
 export default function UploadsHistoryPage() {
   const gallery = useUploadsGallery()
+  const { uploadsHistoryButtonNewPhoto } = useImagePickerStrings()
 
   return (
     <main className={styles.uploadsHistory}>
@@ -36,7 +37,7 @@ export default function UploadsHistoryPage() {
       />
 
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
-        + Upload new photo
+        {uploadsHistoryButtonNewPhoto}
       </PrimaryButton>
     </main>
   )

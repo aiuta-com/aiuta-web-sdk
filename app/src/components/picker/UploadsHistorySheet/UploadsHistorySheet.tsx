@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import { BottomSheet, PrimaryButton, DeletableImage } from '@/components'
-import { useUploadsGallery } from '@/hooks'
+import { useUploadsGallery, useImagePickerStrings } from '@/hooks'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import type { UploadsHistorySheetProps } from './types'
 import styles from './UploadsHistorySheet.module.scss'
@@ -11,6 +11,7 @@ import styles from './UploadsHistorySheet.module.scss'
 export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHistorySheetProps) => {
   const dispatch = useAppDispatch()
   const isOpen = useAppSelector(uploadsIsBottomSheetOpenSelector)
+  const { uploadsHistoryTitle, uploadsHistoryButtonNewPhoto } = useImagePickerStrings()
 
   const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
     useUploadsGallery()
@@ -26,7 +27,7 @@ export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHis
   return (
     <BottomSheet isOpen={isOpen} onClose={handleClose}>
       <div className={styles.title}>
-        <h2 className="aiuta-title-m">Previously used photos</h2>
+        <h2 className="aiuta-title-m">{uploadsHistoryTitle}</h2>
       </div>
 
       <div className={styles.content}>
@@ -46,7 +47,7 @@ export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHis
         </div>
       </div>
 
-      <PrimaryButton onClick={onClickButton}>+ Upload new photo</PrimaryButton>
+      <PrimaryButton onClick={onClickButton}>{uploadsHistoryButtonNewPhoto}</PrimaryButton>
     </BottomSheet>
   )
 }

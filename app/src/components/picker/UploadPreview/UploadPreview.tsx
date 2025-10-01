@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Spinner, RemoteImage, Flex } from '@/components'
 import { combineClassNames } from '@/utils'
-import { UploadPreviewProps } from './types'
+import { useImagePickerStrings } from '@/hooks'
+import type { UploadPreviewProps } from './types'
 import styles from './UploadPreview.module.scss'
 
 export const UploadPreview = ({ selectedFile, isUploading, onChangePhoto }: UploadPreviewProps) => {
+  const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
   // Fix backdrop-filter refresh with minimal opacity change
   const [buttonOpacity, setButtonOpacity] = useState(1)
 
@@ -56,7 +58,7 @@ export const UploadPreview = ({ selectedFile, isUploading, onChangePhoto }: Uplo
           style={{ opacity: buttonOpacity }}
           onClick={onChangePhoto}
         >
-          Change photo
+          {uploadsHistoryButtonChangePhoto}
         </button>
       )}
     </Flex>
