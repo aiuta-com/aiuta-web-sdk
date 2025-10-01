@@ -1,7 +1,12 @@
 import React, { useState } from 'react'
 import { Slide, Carousel, Consent, PrimaryButton } from '@/components'
 import { CarouselItem } from '@/components/onboarding/Carousel'
-import { useOnboardingSlides, useOnboardingAnalytics, useSwipeGesture } from '@/hooks'
+import {
+  useOnboardingSlides,
+  useOnboardingAnalytics,
+  useSwipeGesture,
+  useOnboardingStrings,
+} from '@/hooks'
 import styles from './Onboarding.module.scss'
 
 interface OnboardingMobileProps {
@@ -25,6 +30,14 @@ const CAROUSEL_ITEMS: CarouselItem[] = [
 
 export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const { trackConsentsGiven, trackOnboardingFinished } = useOnboardingAnalytics()
+  const {
+    onboardingButtonNext,
+    onboardingButtonStart,
+    onboardingHowItWorksTitle,
+    onboardingHowItWorksDescription,
+    onboardingBestResultsTitle,
+    onboardingBestResultsDescription,
+  } = useOnboardingStrings()
 
   const {
     currentSlide,
@@ -81,9 +94,9 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     <main className={styles.onboarding} {...swipeHandlers}>
       <div className={styles.slides}>
         <Slide state={getSlideState(0)}>
-          <h2 className={`aiuta-title-l ${styles.title}`}>Try on before buying</h2>
+          <h2 className={`aiuta-title-l ${styles.title}`}>{onboardingHowItWorksTitle}</h2>
           <h3 className={`aiuta-label-regular ${styles.description} ${styles.description_mobile}`}>
-            Just upload your photo and see how it looks
+            {onboardingHowItWorksDescription}
           </h3>
 
           <Carousel
@@ -94,9 +107,9 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
         </Slide>
 
         <Slide state={getSlideState(1)}>
-          <h2 className={`aiuta-title-l ${styles.title}`}>For the best results</h2>
+          <h2 className={`aiuta-title-l ${styles.title}`}>{onboardingBestResultsTitle}</h2>
           <h3 className={`aiuta-label-regular ${styles.description} ${styles.description_mobile}`}>
-            Use a photo with good lighting, stand straight a plain background
+            {onboardingBestResultsDescription}
           </h3>
 
           <img
@@ -112,7 +125,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
       </div>
 
       <PrimaryButton disabled={!canProceed(currentSlide)} onClick={handleNext}>
-        {isLastSlide(currentSlide, 3) ? 'Start' : 'Next'}
+        {isLastSlide(currentSlide, 3) ? onboardingButtonStart : onboardingButtonNext}
       </PrimaryButton>
     </main>
   )

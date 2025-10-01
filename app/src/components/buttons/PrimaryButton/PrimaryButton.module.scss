@@ -15,7 +15,7 @@
   z-index: 1;
 
   &_disabled {
-    opacity: 30%;
+    background: var(--aiuta-color-secondary);
     cursor: not-allowed;
   }
 

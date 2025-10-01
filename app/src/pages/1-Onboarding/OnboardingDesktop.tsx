@@ -1,6 +1,11 @@
 import React from 'react'
 import { Slide, Consent, PrimaryButton } from '@/components'
-import { useOnboardingSlides, useOnboardingAnalytics, useSwipeGesture } from '@/hooks'
+import {
+  useOnboardingSlides,
+  useOnboardingAnalytics,
+  useSwipeGesture,
+  useOnboardingStrings,
+} from '@/hooks'
 import styles from './Onboarding.module.scss'
 
 interface OnboardingDesktopProps {
@@ -9,6 +14,14 @@ interface OnboardingDesktopProps {
 
 export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
   const { trackConsentsGiven, trackOnboardingFinished } = useOnboardingAnalytics()
+  const {
+    onboardingButtonNext,
+    onboardingButtonStart,
+    onboardingHowItWorksTitle,
+    onboardingHowItWorksDescription,
+    onboardingBestResultsTitle,
+    onboardingBestResultsDescription,
+  } = useOnboardingStrings()
 
   const {
     currentSlide,
@@ -60,9 +73,9 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
             src="./images/onboarding-how-it-works.png"
           />
 
-          <h2 className={`aiuta-title-m ${styles.title}`}>Try on before buying</h2>
+          <h2 className={`aiuta-title-m ${styles.title}`}>{onboardingHowItWorksTitle}</h2>
           <h3 className={`aiuta-label-regular ${styles.description}`}>
-            Upload a photo and see how items look on you
+            {onboardingHowItWorksDescription}
           </h3>
         </Slide>
 
@@ -73,9 +86,9 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
             src="./images/onboarding-best-results--desktop.png"
           />
 
-          <h2 className={`aiuta-title-m ${styles.title}`}>For the best results</h2>
+          <h2 className={`aiuta-title-m ${styles.title}`}>{onboardingBestResultsTitle}</h2>
           <h3 className={`aiuta-label-regular ${styles.description}`}>
-            Use a photo with good lighting, stand straight a plain background
+            {onboardingBestResultsDescription}
           </h3>
         </Slide>
 
@@ -85,7 +98,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
       </div>
 
       <PrimaryButton disabled={!canProceed(currentSlide)} onClick={handleNext}>
-        {isLastSlide(currentSlide, 3) ? 'Start' : 'Next'}
+        {isLastSlide(currentSlide, 3) ? onboardingButtonStart : onboardingButtonNext}
       </PrimaryButton>
     </main>
   )

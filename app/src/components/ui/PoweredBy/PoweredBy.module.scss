@@ -16,6 +16,7 @@
   margin: 0;
   background-color: var(--aiuta-color-neutral);
   display: inline-block;
+  white-space: nowrap;
 
   /* Override global aiuta-button-s shape for pill design */
   border-radius: 50px !important;
