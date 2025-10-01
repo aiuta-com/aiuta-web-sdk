@@ -4,6 +4,7 @@ import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { ResultActionsProps } from './types'
 import { useRpc, useShare } from '@/contexts'
+import { useShareStrings } from '@/hooks'
 import { icons } from './icons'
 import styles from './ResultActions.module.scss'
 
@@ -11,6 +12,7 @@ export const ResultActions = (props: ResultActionsProps) => {
   const { activeGeneratedImageUrl } = props
   const rpc = useRpc()
   const { openShareModal } = useShare()
+  const { shareButton, downloadButton } = useShareStrings()
 
   const productId = useAppSelector(productIdSelector)
 
@@ -65,14 +67,14 @@ export const ResultActions = (props: ResultActionsProps) => {
   return (
     <div className={styles.resultActions}>
       <SecondaryButton
-        text="Share"
+        text={shareButton}
         icon={icons.share}
         shape="M"
         onClick={handleShare}
         classNames={styles.button}
       />
       <SecondaryButton
-        text="Download"
+        text={downloadButton}
         icon={icons.download}
         shape="M"
         onClick={handleDownload}

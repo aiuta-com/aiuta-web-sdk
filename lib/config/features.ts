@@ -1,3 +1,12 @@
 export interface AiutaFeatures {
-  [key: string]: unknown
+  share?: ShareFeature
+}
+
+export interface ShareFeature {
+  strings?: {
+    shareButton?: string
+    sharePageTitle?: string
+    copyButton?: string
+    downloadButton?: string
+  }
 }

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { useRpc, useShare } from '@/contexts'
 import { IconButton, SocialButton, PrimaryButton } from '@/components'
 import { combineClassNames } from '@/utils'
+import { useShareStrings } from '@/hooks'
 import { icons } from './icons'
 import styles from './Share.module.scss'
 
@@ -20,6 +21,7 @@ export const Share = () => {
   const [hasShared, setHasShared] = useState(false)
   const rpc = useRpc()
   const { modalData, animationState, isVisible, closeShareModal } = useShare()
+  const { sharePageTitle, copyButton } = useShareStrings()
 
   const shareButtons: ShareButton[] = [
     {
@@ -99,7 +101,7 @@ export const Share = () => {
     >
       {modalData && (
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-          <h2 className="aiuta-page-title">Share with</h2>
+          <h2 className="aiuta-page-title">{sharePageTitle}</h2>
 
           <IconButton
             icon={icons.close}
@@ -130,7 +132,7 @@ export const Share = () => {
               onClick={handleCopyToClipboard}
               className={styles.copyButton}
             >
-              Copy
+              {copyButton}
             </PrimaryButton>
           </div>
         </div>
