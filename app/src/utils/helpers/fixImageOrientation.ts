@@ -39,44 +39,30 @@ export async function fixImageOrientation(file: Blob, opts: FixOptions = {}): Pr
   const isJPEG = view.getUint16(0) === 0xffd8
   let orientation = 1 // default
 
+  // Read EXIF for debugging, but let browser handle orientation automatically
   if (isJPEG) {
     orientation = readExifOrientation(view) ?? 1
-
-    // Special handling for Live Photos - they may not need rotation
-    const fileName = (file as File).name || ''
-    const isLivePhoto = fileName.includes('IMG_') && fileName.includes('.jpeg')
-
-    console.log('EXIF Debug:', {
+    console.log('EXIF Debug (browser will handle automatically):', {
       isJPEG,
       orientation,
       fileSize: file.size,
       fileType: file.type,
-      fileName,
-      isLivePhoto,
+      fileName: (file as File).name || 'unknown',
     })
-
-    // For Live Photos, try skipping orientation fix
-    if (isLivePhoto) {
-      console.log('Live Photo detected - skipping orientation fix, using orientation = 1')
-      orientation = 1 // Force no rotation for Live Photos
-    }
   }
 
-  // 2) Create bitmap WITHOUT auto-orientation to handle rotation ourselves
-  const bitmap = await createBitmapNoAutoOrientation(file)
+  // 2) Create image element - let browser handle EXIF orientation automatically
+  const img = await createImageElement(file)
 
-  // 3) Calculate final dimensions considering 90° rotations
-  let srcW = bitmap.width
-  let srcH = bitmap.height
-  const swapWH = [5, 6, 7, 8].includes(orientation)
-  let dstW = swapWH ? srcH : srcW
-  let dstH = swapWH ? srcW : srcH
+  // 3) Use image dimensions as-is (browser already applied EXIF orientation)
+  let srcW = img.width
+  let srcH = img.height
+  let dstW = srcW
+  let dstH = srcH
 
-  console.log('Dimensions Debug:', {
-    orientation,
+  console.log('Image dimensions (browser handled EXIF):', {
     srcW,
     srcH,
-    swapWH,
     dstW,
     dstH,
   })
@@ -90,20 +76,16 @@ export async function fixImageOrientation(file: Blob, opts: FixOptions = {}): Pr
   dstW = Math.round(dstW * scale)
   dstH = Math.round(dstH * scale)
 
-  // 5) Draw on canvas with proper transformation
+  // 5) Draw on canvas WITHOUT any rotation (browser already handled it)
   const canvas = getCanvas(dstW, dstH)
   const ctx = canvas.getContext('2d')!
-  applyOrientationTransform(ctx, orientation, dstW, dstH)
-
-  // If scaling - account for source vs result difference
-  const drawW = swapWH ? Math.round(srcH * scale) : Math.round(srcW * scale)
-  const drawH = swapWH ? Math.round(srcW * scale) : Math.round(srcH * scale)
 
   // High quality smoothing for downscaling
   ctx.imageSmoothingEnabled = true
   ctx.imageSmoothingQuality = 'high'
 
-  ctx.drawImage(bitmap as any, 0, 0, srcW, srcH, 0, 0, drawW, drawH)
+  // Draw image as-is - no transformations needed
+  ctx.drawImage(img, 0, 0, srcW, srcH, 0, 0, dstW, dstH)
 
   const blob: Blob = await new Promise((resolve) =>
     canvas.toBlob((b) => resolve(b!), outputMime, quality),
@@ -170,51 +152,10 @@ function readExifOrientation(view: DataView): number | undefined {
 }
 
 /**
- * Create ImageBitmap without auto-orientation; fallback via <img>
+ * Create image element - let browser handle EXIF orientation automatically
  */
-async function createBitmapNoAutoOrientation(file: Blob): Promise<ImageBitmap | HTMLImageElement> {
-  // For Live Photos and problematic files, prefer <img> element
-  const fileName = (file as File).name || ''
-  const isLivePhoto = fileName.includes('IMG_') && fileName.includes('.jpeg')
-
-  if (isLivePhoto) {
-    console.log('Detected Live Photo, using <img> element for more predictable behavior')
-    const url = URL.createObjectURL(file)
-    const img = await loadImage(url)
-    URL.revokeObjectURL(url)
-    console.log('Created img element for Live Photo', { width: img.width, height: img.height })
-    return img
-  }
-
-  const supportsImageBitmap = 'createImageBitmap' in window
-  if (supportsImageBitmap) {
-    try {
-      // Try with imageOrientation: 'none' first
-      const bitmap = await createImageBitmap(file, {
-        imageOrientation: 'none',
-      } as ImageBitmapOptions)
-      console.log('Created bitmap with imageOrientation: none', {
-        width: bitmap.width,
-        height: bitmap.height,
-      })
-      return bitmap
-    } catch (error) {
-      console.log('Failed to create bitmap with imageOrientation: none, trying default:', error)
-      try {
-        // Fallback: try without imageOrientation option
-        const bitmap = await createImageBitmap(file)
-        console.log('Created bitmap with default options', {
-          width: bitmap.width,
-          height: bitmap.height,
-        })
-        return bitmap
-      } catch {
-        // fallback to <img> below
-      }
-    }
-  }
-  // Fallback via <img>: browser MAY already apply orientation during decode
-  console.log('Using <img> fallback for bitmap creation')
+async function createImageElement(file: Blob): Promise<HTMLImageElement> {
+  console.log('Using <img> element - let browser handle EXIF automatically')
   const url = URL.createObjectURL(file)
   const img = await loadImage(url)
   URL.revokeObjectURL(url)
@@ -237,50 +178,4 @@ function getCanvas(w: number, h: number): HTMLCanvasElement {
   canvas.width = w
   canvas.height = h
   return canvas
-}
-
-/**
- * Apply transformation for EXIF orientation
- */
-function applyOrientationTransform(
-  ctx: CanvasRenderingContext2D,
-  orientation: number,
-  w: number,
-  h: number,
-) {
-  console.log('Applying orientation transform:', { orientation, w, h })
-
-  switch (orientation) {
-    case 2: // flip X
-      ctx.translate(w, 0)
-      ctx.scale(-1, 1)
-      break
-    case 3: // 180°
-      ctx.translate(w, h)
-      ctx.rotate(Math.PI)
-      break
-    case 4: // flip Y
-      ctx.translate(0, h)
-      ctx.scale(1, -1)
-      break
-    case 5: // transpose: rotate 90° CW + flip X
-      ctx.rotate(0.5 * Math.PI)
-      ctx.scale(1, -1)
-      break
-    case 6: // 90° CW - try reverse rotation
-      ctx.rotate(-0.5 * Math.PI) // Changed from 0.5 to -0.5
-      ctx.translate(-w, 0) // Changed translate
-      break
-    case 7: // transverse: rotate 90° CW + flip Y
-      ctx.rotate(0.5 * Math.PI)
-      ctx.translate(w, -h)
-      ctx.scale(-1, 1)
-      break
-    case 8: // 90° CCW
-      ctx.rotate(-0.5 * Math.PI)
-      ctx.translate(-w, 0)
-      break
-    default: // 1 — no changes
-      break
-  }
 }
