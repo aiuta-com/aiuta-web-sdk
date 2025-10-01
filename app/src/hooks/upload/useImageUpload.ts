@@ -5,7 +5,7 @@ import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { TryOnApiService, InputImage } from '@/utils/api/tryOnApiService'
-import { fixImageOrientation } from '@/utils'
+import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
 
 interface UseImageUploadOptions {
@@ -37,27 +37,13 @@ export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadO
         dispatch(tryOnSlice.actions.setIsGenerating(true))
       }
 
-      // Try to fix image orientation, fallback to original if fails
-      let fileToUpload = file
-      let localUrlForPreview = URL.createObjectURL(file)
+      const processed = await resizeAndConvertImage(file)
+      const fileToUpload = new File([processed.blob], file.name, {
+        type: processed.mime,
+        lastModified: file.lastModified,
+      })
 
-      try {
-        const fixed = await fixImageOrientation(file, {
-          outputMime: 'image/jpeg',
-        })
-
-        // Create corrected File from fixed blob
-        fileToUpload = new File([fixed.blob], file.name, {
-          type: fixed.mime,
-          lastModified: file.lastModified,
-        })
-
-        // Use corrected image for preview
-        localUrlForPreview = fixed.objectUrl
-      } catch (orientationError) {
-        console.warn('Failed to fix image orientation, using original:', orientationError)
-        // fileToUpload and localUrlForPreview already set to original values
-      }
+      const localUrlForPreview = processed.objectUrl
 
       const result = await TryOnApiService.uploadImage(fileToUpload, endpointData)
 
@@ -69,7 +55,7 @@ export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadO
           tryOnSlice.actions.setCurrentImage({
             id: uploadedImage.id,
             url: uploadedImage.url,
-            localUrl: localUrlForPreview, // Use corrected or original image for preview
+            localUrl: localUrlForPreview,
           }),
         )
 
