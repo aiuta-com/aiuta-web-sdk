@@ -1,17 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
-// TODO: Replace with RPC - need to support modal opening from SDK
-// Required data: { imageUrl: string }
-// RPC method needed: openShareModal(data: { imageUrl: string })
-import { useRpc } from '@/contexts'
-import { useAppVisibility } from '@/hooks'
+import { useRpc, useShare } from '@/contexts'
 import { IconButton, SocialButton, PrimaryButton } from '@/components'
 import { icons } from './icons'
 import styles from './Share.module.scss'
-
-interface ShareData {
-  imageUrl: string
-}
 
 interface ShareButton {
   id: string
@@ -23,36 +15,10 @@ interface ShareButton {
 
 type ShareMethod = 'whatsApp' | 'messenger' | 'copy'
 
-interface ShareProps {
-  imageUrl?: string
-  onClose?: () => void
-}
-
-export const Share = ({ imageUrl, onClose }: ShareProps) => {
-  const [modalData, setModalData] = useState<ShareData | null>(null)
+export const Share = () => {
   const [hasShared, setHasShared] = useState(false)
   const rpc = useRpc()
-  const { hideApp } = useAppVisibility()
-
-  // Use props if provided, otherwise listen for messages (for standalone usage)
-  useEffect(() => {
-    if (imageUrl) {
-      setModalData({ imageUrl })
-      setHasShared(false)
-    } else {
-      // Listen for share modal messages (for standalone usage)
-      const handleMessage = (event: MessageEvent) => {
-        // TODO: Replace with RPC event - event.data?.action === 'openShareModal'
-        if (event.data?.action === 'OPEN_AIUTA_SHARE_MODAL') {
-          setModalData(event.data.data)
-          setHasShared(false)
-        }
-      }
-
-      window.addEventListener('message', handleMessage)
-      return () => window.removeEventListener('message', handleMessage)
-    }
-  }, [imageUrl])
+  const { modalData, closeShareModal } = useShare()
 
   const shareButtons: ShareButton[] = [
     {
@@ -75,15 +41,8 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
     if (!hasShared) {
       sendCancelAnalytics()
     }
-    setModalData(null)
+    closeShareModal()
     setHasShared(false)
-
-    // Use onClose prop if provided, otherwise hide widget
-    if (onClose) {
-      onClose()
-    } else {
-      hideApp()
-    }
   }
 
   const handleShare = (shareMethod: ShareMethod) => {

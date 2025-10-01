@@ -1,2 +1,3 @@
 export { useResultsGallery } from './useResultsGallery'
-export { useResultsShare } from './useResultsShare'
+export { useNavigatorShare } from './useNavigatorShare'
+export { useModalShare } from './useModalShare'

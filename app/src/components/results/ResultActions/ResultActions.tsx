@@ -3,25 +3,24 @@ import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { ResultActionsProps } from './types'
-import { useRpc } from '@/contexts'
+import { useRpc, useShare } from '@/contexts'
 import { icons } from './icons'
 import styles from './ResultActions.module.scss'
 
 export const ResultActions = (props: ResultActionsProps) => {
   const { activeGeneratedImageUrl } = props
   const rpc = useRpc()
+  const { openShareModal } = useShare()
 
   const productId = useAppSelector(productIdSelector)
 
   const handleShare = async () => {
-    // TODO: Replace with RPC call to SDK
-    // await rpc.sdk.openShareModal({
-    //   imageUrl: activeGeneratedImageUrl
-    // })
+    if (!activeGeneratedImageUrl) return
 
-    // Legacy messaging removed, implement RPC method openShareModal
-    console.warn('Share modal opening: implement RPC method openShareModal')
+    // Open share modal
+    openShareModal(activeGeneratedImageUrl)
 
+    // Track analytics
     const analytic = {
       data: {
         type: 'share',

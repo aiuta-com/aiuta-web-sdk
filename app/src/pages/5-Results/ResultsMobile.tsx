@@ -1,6 +1,6 @@
 import React from 'react'
 import { Flex, RemoteImage, IconButton, Disclaimer } from '@/components'
-import { useResultsGallery, useResultsShare, useSwipeGesture } from '@/hooks'
+import { useResultsGallery, useNavigatorShare, useSwipeGesture } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
 import styles from './Results.module.scss'
@@ -10,7 +10,7 @@ import styles from './Results.module.scss'
  */
 export default function ResultsMobile() {
   const { slideItemIndex, images, handleSliderItemClick } = useResultsGallery()
-  const { shareImage, handleMobileImageClick } = useResultsShare()
+  const { shareImage, handleMobileImageClick } = useNavigatorShare()
 
   const swipeHandlers = useSwipeGesture(({ direction }) => {
     const isNext = direction === 'left' || direction === 'up'

@@ -2,11 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
-
-// TODO: Replace with RPC - need to support:
-// 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
-// 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { Share, ThumbnailList, RemoteImage, IconButton } from '@/components'
+import { useShare } from '@/contexts'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
@@ -16,7 +13,7 @@ import styles from './FullScreenGallery.module.scss'
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
-  const [shareModalData, setShareData] = useState<{ imageUrl: string } | null>(null)
+  const { openShareModal, isOpen: isShareOpen } = useShare()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
 
@@ -61,13 +58,9 @@ export const FullScreenGallery = () => {
   const handleShareImage = useCallback(() => {
     if (!modalData?.activeImage) return
 
-    // Open Share as overlay within the same iframe
-    setShareData({ imageUrl: modalData.activeImage.url })
-  }, [modalData])
-
-  const handleCloseShare = useCallback(() => {
-    setShareData(null)
-  }, [])
+    // Open Share modal
+    openShareModal(modalData.activeImage.url)
+  }, [modalData, openShareModal])
 
   const handleDeleteImage = useCallback(() => {
     if (!modalData?.activeImage || !modalData?.images) return
@@ -167,9 +160,9 @@ export const FullScreenGallery = () => {
         </div>
 
         {/* Share overlay */}
-        {shareModalData && (
+        {isShareOpen && (
           <div className={styles.shareModalOverlay}>
-            <Share imageUrl={shareModalData.imageUrl} onClose={handleCloseShare} />
+            <Share />
           </div>
         )}
       </div>

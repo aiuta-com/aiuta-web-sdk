@@ -5,9 +5,9 @@ import { generatedImagesSelector } from '@/store/slices/generationsSlice/selecto
 import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
 
 /**
- * Hook for handling results sharing functionality
+ * Hook for handling native Web Share API functionality
  */
-export const useResultsShare = () => {
+export const useNavigatorShare = () => {
   const dispatch = useAppDispatch()
   const generatedImages = useAppSelector(generatedImagesSelector)
   const { trackEvent } = useGalleryAnalytics('generations')

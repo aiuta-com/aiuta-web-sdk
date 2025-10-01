@@ -1,6 +1,6 @@
 import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
-import { RpcProvider, LoggerProvider } from './contexts'
+import { RpcProvider, LoggerProvider, ShareProvider } from './contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
 import { useUrlParams, useCustomCSS, useRpcInitialization, useStandaloneApp } from '@/hooks'
 
@@ -41,21 +41,23 @@ function MainAppContent() {
 
   return (
     <RpcProvider rpc={rpc}>
-      <FullScreenGallery />
-      <Share />
-      <AppContainer>
-        <PageBar />
-        <Routes>
-          <Route path="/" element={<HomePageRouter />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/qr" element={<QrPromptPage />} />
-          <Route path="/tryon" element={<TryOnPage />} />
-          <Route path="/results" element={<ResultsPage />} />
-          <Route path="/generations" element={<GenerationsHistoryPage />} />
-          <Route path="/uploads" element={<UploadsHistoryPage />} />
-        </Routes>
-        <PoweredBy />
-      </AppContainer>
+      <ShareProvider>
+        <FullScreenGallery />
+        <Share />
+        <AppContainer>
+          <PageBar />
+          <Routes>
+            <Route path="/" element={<HomePageRouter />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/qr" element={<QrPromptPage />} />
+            <Route path="/tryon" element={<TryOnPage />} />
+            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/generations" element={<GenerationsHistoryPage />} />
+            <Route path="/uploads" element={<UploadsHistoryPage />} />
+          </Routes>
+          <PoweredBy />
+        </AppContainer>
+      </ShareProvider>
     </RpcProvider>
   )
 }
