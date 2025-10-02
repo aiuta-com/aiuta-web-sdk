@@ -7,6 +7,8 @@ import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { TryOnApiService, InputImage } from '@/utils/api/tryOnApiService'
 import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
+import { TryOnAnalyticsService } from '@/utils/analytics/tryOnAnalyticsService'
+import { useRpc } from '@/contexts'
 
 interface UseImageUploadOptions {
   withinGenerationFlow?: boolean
@@ -14,10 +16,13 @@ interface UseImageUploadOptions {
 
 export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadOptions = {}) => {
   const dispatch = useAppDispatch()
+  const rpc = useRpc()
   const apiKey = useAppSelector(apiKeySelector)
   const subscriptionId = useAppSelector(subscriptionIdSelector)
   const productId = useAppSelector(productIdSelector)
   const { trackUploadError } = useTryOnAnalytics()
+
+  const analytics = new TryOnAnalyticsService(rpc, productId)
 
   const [isUploading, setIsUploading] = useState(false)
 
@@ -58,6 +63,9 @@ export const useImageUpload = ({ withinGenerationFlow = false }: UseImageUploadO
             localUrl: localUrlForPreview,
           }),
         )
+
+        // Track successful photo upload
+        analytics.trackPhotoUploaded()
 
         onSuccess?.(uploadedImage)
 

@@ -3,7 +3,7 @@ export type ImageType = {
   url: string
 }
 
-export type ModalTypes = 'history' | 'previously'
+export type ModalTypes = 'uploads' | 'generations'
 
 export interface FullScreenModalData {
   activeImage: ImageType

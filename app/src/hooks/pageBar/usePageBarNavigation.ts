@@ -43,30 +43,22 @@ export const usePageBarNavigation = () => {
       if (currentStep === 2) return 'consent'
       return 'howItWorks'
     }
-    if (currentPath === '/qr') return 'imagePicker'
-    if (currentPath === '/generated') return 'results'
+    if (currentPath === '/qr') return 'qrPrompt'
+    if (currentPath === '/results') return 'results'
     if (currentPath === '/generations') return 'history'
-    if (currentPath === '/tryon') return null // No analytics for tryon page
-    return 'howItWorks'
+    if (currentPath === '/uploads') return 'imagePicker'
+    if (currentPath === '/tryon') return 'imagePicker'
+    return ''
   }
 
   const handleCloseModal = () => {
     if (typeof window === 'undefined') return
-
-    const recentPhotosFromLocal = JSON.parse(localStorage.getItem('tryon-recent-photos') || '[]')
 
     // Track loading exit if generating
     if (isGenerating) {
       trackAnalyticsEvent('loading')
       hideApp()
       return
-    }
-
-    // Navigate to view if has recent photos
-    if (recentPhotosFromLocal.length > 0) {
-      setTimeout(() => {
-        navigate('/tryon')
-      }, 500)
     }
 
     // Track analytics and close

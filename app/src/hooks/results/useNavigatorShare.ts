@@ -2,15 +2,17 @@ import { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
-import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { useRpc } from '@/contexts'
 
 /**
  * Hook for handling native Web Share API functionality
  */
 export const useNavigatorShare = () => {
   const dispatch = useAppDispatch()
+  const rpc = useRpc()
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const { trackEvent } = useGalleryAnalytics('generations')
+  const productId = useAppSelector(productIdSelector)
 
   // Share image via Web Share API
   const shareImage = useCallback(
@@ -41,7 +43,14 @@ export const useNavigatorShare = () => {
             text: 'Check out how this looks on me!',
             files: [file],
           })
-          trackEvent('imageShared', { imageUrl: urlToShare, method: 'web-share-api' })
+          rpc.sdk.trackEvent({
+            type: 'share',
+            event: 'succeeded',
+            pageId: 'results',
+            productIds: [productId],
+            imageUrl: urlToShare,
+            method: 'web-share-api',
+          })
           shareSuccessful = true
         } else if (navigator.share) {
           // Fallback to sharing URL if files not supported
@@ -50,7 +59,14 @@ export const useNavigatorShare = () => {
             text: 'Check out how this looks on me!',
             url: urlToShare,
           })
-          trackEvent('imageShared', { imageUrl: urlToShare, method: 'web-share-api-url' })
+          rpc.sdk.trackEvent({
+            type: 'share',
+            event: 'succeeded',
+            pageId: 'results',
+            productIds: [productId],
+            imageUrl: urlToShare,
+            method: 'web-share-api-url',
+          })
           shareSuccessful = true
         }
       } catch (error) {
@@ -65,16 +81,20 @@ export const useNavigatorShare = () => {
         }
       }
 
-      // If Web Share API failed or not available, do nothing
+      // If Web Share API failed or not available, track failure
       if (!shareSuccessful) {
         console.log('Sharing not available - Web Share API failed or not supported')
-        trackEvent('imageShareFailed', {
+        rpc.sdk.trackEvent({
+          type: 'share',
+          event: 'failed',
+          pageId: 'results',
+          productIds: [productId],
           imageUrl: urlToShare,
           error: 'Web Share API not available',
         })
       }
     },
-    [generatedImages, trackEvent],
+    [generatedImages, rpc, productId],
   )
 
   // Handle full screen image on mobile

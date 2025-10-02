@@ -54,8 +54,8 @@ export class GalleryAnalyticsService extends BaseAnalyticsService {
   trackImageShared(imageUrl: string) {
     this.rpc.sdk.trackEvent(
       this.createEvent({
-        type: 'results',
-        event: 'imageShared',
+        type: 'share',
+        event: 'succeeded',
         pageId: 'results',
         imageUrl,
       }),

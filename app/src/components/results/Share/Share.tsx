@@ -68,7 +68,7 @@ export const Share = () => {
   const sendAnalytics = (shareMethod: ShareMethod) => {
     const analytic = {
       type: 'share',
-      event: 'succeded',
+      event: 'succeeded',
       pageId: 'results',
       targetId: shareMethod,
     }

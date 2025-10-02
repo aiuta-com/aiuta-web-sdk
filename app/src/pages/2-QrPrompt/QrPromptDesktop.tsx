@@ -2,13 +2,27 @@ import React, { useEffect, ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ErrorSnackbar, QrCode, Spinner } from '@/components'
 import { useQrPrompt, useImageUpload, useImagePickerStrings } from '@/hooks'
+import { useRpc } from '@/contexts'
+import { useAppSelector } from '@/store/store'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptDesktop() {
   const navigate = useNavigate()
+  const rpc = useRpc()
+  const productId = useAppSelector(productIdSelector)
   const { qrUrl, startPolling, isDownloading } = useQrPrompt()
   const { uploadImage, isUploading } = useImageUpload()
   const { qrPromptHint, qrPromptOr, qrPromptUploadButton } = useImagePickerStrings()
+
+  // Track page view on mount
+  useEffect(() => {
+    rpc.sdk.trackEvent({
+      type: 'page',
+      pageId: 'qrPrompt',
+      productIds: [productId],
+    })
+  }, [rpc, productId])
 
   // Start QR polling on mount
   useEffect(() => {

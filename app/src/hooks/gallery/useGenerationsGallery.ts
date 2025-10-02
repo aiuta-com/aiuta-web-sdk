@@ -42,7 +42,7 @@ export const useGenerationsGallery = ({
   const gallery = useImageGallery({
     images,
     galleryType: 'generations',
-    modalType: 'history',
+    modalType: 'generations',
     onImageSelect: handleImageSelect,
     enableSelection: isSelecting,
   })

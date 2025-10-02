@@ -8,6 +8,7 @@ import {
   currentTryOnImageSelector,
   isGeneratingSelector,
   isAbortedSelector,
+  productIdSelector,
 } from '@/store/slices/tryOnSlice'
 import {
   UploadsHistorySheet,
@@ -18,17 +19,20 @@ import {
 } from '@/components'
 import { AbortAlert, TryOnView } from '@/components'
 import { useTryOnGeneration, useImageUpload, useUploadsGallery, useTryOnStrings } from '@/hooks'
+import { useRpc } from '@/contexts'
 import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
 export default function TryOnMobile() {
   const dispatch = useAppDispatch()
+  const rpc = useRpc()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const isBottomSheetOpen = useAppSelector(uploadsIsBottomSheetOpenSelector)
   const currentTryOnImage = useAppSelector(currentTryOnImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const isAborted = useAppSelector(isAbortedSelector)
+  const productId = useAppSelector(productIdSelector)
 
   const { recentlyPhotos: recentPhotos } = useUploadsGallery()
   const { uploadImage, isUploading } = useImageUpload()
@@ -84,6 +88,15 @@ export default function TryOnMobile() {
     })
     startTryOn()
   }
+
+  // Track page view on mount
+  useEffect(() => {
+    rpc.sdk.trackEvent({
+      type: 'page',
+      pageId: 'imagePicker',
+      productIds: [productId],
+    })
+  }, [rpc, productId])
 
   useEffect(() => {
     if (!hasInputImage && hasRecentPhotos) {

@@ -1,6 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
+import { useRpc } from '@/contexts'
+import { useAppSelector } from '@/store/store'
+import { productIdSelector } from '@/store/slices/tryOnSlice'
 import styles from './GenerationsHistory.module.scss'
 
 /**
@@ -13,7 +16,18 @@ import styles from './GenerationsHistory.module.scss'
  * - Bulk image management
  */
 export default function GenerationsHistoryPage() {
+  const rpc = useRpc()
+  const productId = useAppSelector(productIdSelector)
   const gallery = useGenerationsGallery()
+
+  // Track page view on mount
+  useEffect(() => {
+    rpc.sdk.trackEvent({
+      type: 'page',
+      pageId: 'history',
+      productIds: [productId],
+    })
+  }, [rpc, productId])
 
   return (
     <main className={styles.generationsHistory}>
