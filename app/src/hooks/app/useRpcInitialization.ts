@@ -25,6 +25,11 @@ export const useRpcInitialization = () => {
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
   useEffect(() => {
+    // Prevent multiple initialization attempts
+    if (rpc) {
+      return
+    }
+
     const initializeRpc = async () => {
       try {
         const showApp = () => {
@@ -64,12 +69,12 @@ export const useRpcInitialization = () => {
         // Initialize auth data once RPC is connected
         initializeAuthData(rpc)
       } catch (error) {
-        console.log('[RPC APP] Failed to initialize RPC', error)
+        console.error('[RPC APP] Failed to initialize RPC', error)
       }
     }
 
     initializeRpc()
-  }, [dispatch, navigate])
+  }, [dispatch, navigate, rpc]) // Add rpc to dependencies
 
   // Sync iframe interactivity with app visibility
   useEffect(() => {

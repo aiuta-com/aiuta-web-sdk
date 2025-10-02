@@ -22,14 +22,14 @@ export default function App() {
       <MemoryRouter initialEntries={[initialPath]}>
         <Routes>
           <Route path="/qr/:token" element={<QrUploadContext />} />
-          <Route path="*" element={<MainAppContent />} />
+          <Route path="*" element={<MainAppContext />} />
         </Routes>
       </MemoryRouter>
     </LoggerProvider>
   )
 }
 
-function MainAppContent() {
+function MainAppContext() {
   const { rpc } = useRpcInitialization()
   const { cssUrl } = useUrlParams()
   const { isReady } = useCustomCSS(cssUrl)
