@@ -1,32 +1,17 @@
 import React, { useState } from 'react'
 import { Slide, Carousel, Consent, PrimaryButton } from '@/components'
-import { CarouselItem } from '@/components/onboarding/Carousel'
 import {
   useOnboardingSlides,
   useOnboardingAnalytics,
   useSwipeGesture,
   useOnboardingStrings,
+  useOnboardingImages,
 } from '@/hooks'
 import styles from './Onboarding.module.scss'
 
 interface OnboardingMobileProps {
   onComplete: () => void
 }
-
-const CAROUSEL_ITEMS: CarouselItem[] = [
-  {
-    imageUrl: './images/onboarding-carousel-1--image.png',
-    thumbnailUrl: './images/onboarding-carousel-1--thumb.png',
-  },
-  {
-    imageUrl: './images/onboarding-carousel-2--image.png',
-    thumbnailUrl: './images/onboarding-carousel-2--thumb.png',
-  },
-  {
-    imageUrl: './images/onboarding-carousel-3--image.png',
-    thumbnailUrl: './images/onboarding-carousel-3--thumb.png',
-  },
-]
 
 export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const { trackConsentsGiven, trackOnboardingFinished } = useOnboardingAnalytics()
@@ -38,6 +23,8 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     onboardingBestResultsTitle,
     onboardingBestResultsDescription,
   } = useOnboardingStrings()
+
+  const { carouselItems, bestResultsMobileImage } = useOnboardingImages()
 
   const { currentSlide, nextSlide, previousSlide, getSlideState, isLastSlide, completeOnboarding } =
     useOnboardingSlides()
@@ -56,7 +43,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
   const handleNext = () => {
     if (!canProceed(currentSlide)) return
 
-    if (currentSlide === 0 && carouselIndex < CAROUSEL_ITEMS.length - 1) {
+    if (currentSlide === 0 && carouselIndex < carouselItems.length - 1) {
       setCarouselIndex(carouselIndex + 1)
     } else if (isLastSlide(currentSlide, 3)) {
       // Track completion
@@ -83,7 +70,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     } else if (direction === 'right') {
       handlePrevious()
     } else if (currentSlide === 0) {
-      if (direction === 'up' && carouselIndex < CAROUSEL_ITEMS.length - 1) {
+      if (direction === 'up' && carouselIndex < carouselItems.length - 1) {
         setCarouselIndex(carouselIndex + 1)
       } else if (direction === 'down' && carouselIndex > 0) {
         setCarouselIndex(carouselIndex - 1)
@@ -101,7 +88,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
           </h3>
 
           <Carousel
-            items={CAROUSEL_ITEMS}
+            items={carouselItems}
             activeIndex={carouselIndex}
             onItemChange={setCarouselIndex}
           />
@@ -116,7 +103,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
           <img
             alt="Best results guide"
             className={`${styles.image} ${styles.image_bestResults}`}
-            src="./images/onboarding-best-results--mobile.png"
+            src={bestResultsMobileImage}
           />
         </Slide>
 

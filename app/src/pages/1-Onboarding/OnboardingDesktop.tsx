@@ -5,6 +5,7 @@ import {
   useOnboardingAnalytics,
   useSwipeGesture,
   useOnboardingStrings,
+  useOnboardingImages,
 } from '@/hooks'
 import styles from './Onboarding.module.scss'
 
@@ -22,6 +23,8 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
     onboardingBestResultsTitle,
     onboardingBestResultsDescription,
   } = useOnboardingStrings()
+
+  const { howItWorksDesktopImage, bestResultsDesktopImage } = useOnboardingImages()
 
   const { currentSlide, nextSlide, previousSlide, getSlideState, isLastSlide, completeOnboarding } =
     useOnboardingSlides()
@@ -70,7 +73,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
           <img
             alt="How it works guide"
             className={`${styles.image} ${styles.image_howItWorks}`}
-            src="./images/onboarding-how-it-works.png"
+            src={howItWorksDesktopImage}
           />
 
           <h2 className={`aiuta-title-m ${styles.title}`}>{onboardingHowItWorksTitle}</h2>
@@ -83,7 +86,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
           <img
             alt="Best results guide"
             className={`${styles.image} ${styles.image_bestResults}`}
-            src="./images/onboarding-best-results--desktop.png"
+            src={bestResultsDesktopImage}
           />
 
           <h2 className={`aiuta-title-m ${styles.title}`}>{onboardingBestResultsTitle}</h2>

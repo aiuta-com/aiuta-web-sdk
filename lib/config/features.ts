@@ -26,6 +26,14 @@ export interface Onboarding {
 }
 
 export interface OnboardingHowItWorksPage {
+  images?: {
+    onboardingHowItWorksItems?: Array<{
+      itemPhoto?: string
+      itemPreview?: string
+    }>
+    onboardingHowItWorksDesktop?: string
+  }
+
   strings?: {
     onboardingHowItWorksTitle?: string
     onboardingHowItWorksDescription?: string
@@ -33,6 +41,11 @@ export interface OnboardingHowItWorksPage {
 }
 
 export interface OnboardingBestResultsPage {
+  images?: {
+    onboardingBestResultsDesktop?: string
+    onboardingBestResultsMobile?: string
+  }
+
   strings?: {
     onboardingBestResultsTitle?: string
     onboardingBestResultsDescription?: string
