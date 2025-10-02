@@ -24,5 +24,9 @@ export const AppContainer = ({ children }: AppContainerProps) => {
     !isVisible && styles.appContainer_hidden,
   )
 
-  return <div className={containerClasses}>{children}</div>
+  return (
+    <div className={containerClasses} data-testid="aiuta-app-container">
+      {children}
+    </div>
+  )
 }

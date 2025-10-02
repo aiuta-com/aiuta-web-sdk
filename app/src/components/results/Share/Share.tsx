@@ -94,6 +94,7 @@ export const Share = () => {
     <div
       className={combineClassNames(styles.share, styles[`share_${animationState}`])}
       onClick={handleCloseModal}
+      data-testid="aiuta-share-modal"
     >
       {modalData && (
         <div className={styles.modal} onClick={(e) => e.stopPropagation()}>

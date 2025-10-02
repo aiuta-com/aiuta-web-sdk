@@ -2,7 +2,13 @@ import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider, ShareProvider } from './contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
-import { useUrlParams, useCustomCSS, useRpcInitialization, useStandaloneApp } from '@/hooks'
+import {
+  useUrlParams,
+  useCustomCSS,
+  useRpcInitialization,
+  useStandaloneApp,
+  useOutsideClick,
+} from '@/hooks'
 
 import HomePageRouter from '@/pages/Home'
 import OnboardingPage from '@/pages/1-Onboarding'
@@ -42,24 +48,34 @@ function MainAppContext() {
   return (
     <RpcProvider rpc={rpc}>
       <ShareProvider>
-        <AppContainer>
-          <PageBar />
-          <Routes>
-            <Route path="/" element={<HomePageRouter />} />
-            <Route path="/onboarding" element={<OnboardingPage />} />
-            <Route path="/qr" element={<QrPromptPage />} />
-            <Route path="/tryon" element={<TryOnPage />} />
-            <Route path="/results" element={<ResultsPage />} />
-            <Route path="/generations" element={<GenerationsHistoryPage />} />
-            <Route path="/uploads" element={<UploadsHistoryPage />} />
-          </Routes>
-          <PoweredBy />
-        </AppContainer>
-
-        <FullScreenGallery />
-        <Share />
+        <MainAppContent />
       </ShareProvider>
     </RpcProvider>
+  )
+}
+
+function MainAppContent() {
+  useOutsideClick()
+
+  return (
+    <>
+      <AppContainer>
+        <PageBar />
+        <Routes>
+          <Route path="/" element={<HomePageRouter />} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="/qr" element={<QrPromptPage />} />
+          <Route path="/tryon" element={<TryOnPage />} />
+          <Route path="/results" element={<ResultsPage />} />
+          <Route path="/generations" element={<GenerationsHistoryPage />} />
+          <Route path="/uploads" element={<UploadsHistoryPage />} />
+        </Routes>
+        <PoweredBy />
+      </AppContainer>
+
+      <FullScreenGallery />
+      <Share />
+    </>
   )
 }
 
