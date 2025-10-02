@@ -1,4 +1,4 @@
-import React, { useRef, ChangeEvent, useEffect } from 'react'
+import React, { useRef, ChangeEvent } from 'react'
 import {
   ErrorSnackbar,
   UploadPrompt,
@@ -7,28 +7,14 @@ import {
   PrimaryButton,
 } from '@/components'
 import { useQrUpload, useImagePickerStrings, useTryOnStrings } from '@/hooks'
-import { useRpc } from '@/contexts'
-import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { combineClassNames } from '@/utils'
 import styles from './QrUpload.module.scss'
 
 export default function QrUploadMobile() {
-  const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
   const { uploadState, selectFile, uploadFile } = useQrUpload()
   const { qrUploadNextButton } = useImagePickerStrings()
   const { tryOnPageTitle } = useTryOnStrings()
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  // Track page view on mount
-  useEffect(() => {
-    rpc.sdk.trackEvent({
-      type: 'page',
-      pageId: 'qrUpload',
-      productIds: [productId],
-    })
-  }, [rpc, productId])
 
   const handleOpenFileDialog = () => {
     fileInputRef.current?.click()
