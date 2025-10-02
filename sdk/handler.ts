@@ -18,7 +18,7 @@ export default class MessageHandler {
   ) {
     const handlers: SdkApi = {
       trackEvent: (event) => {
-        this.analytics.track({ data: event })
+        this.analytics.track(event)
       },
       setInteractive: (interactive) => {
         this.iframeManager.setInteractive(interactive)
@@ -47,14 +47,14 @@ export default class MessageHandler {
             this.analytics.setIframeVersion(this.rpc.context.appVersion)
           }
 
-          this.analytics.track({ data: { type: 'session', event: 'iframeLoaded' } })
+          this.analytics.track({ type: 'session', event: 'iframeLoaded' })
         }
 
         await this.rpc.app.tryOn(productId)
       }
     } catch (error) {
       this.logger.error('Aiuta RPC tryOn failed:', error)
-      this.analytics.track({ data: { type: 'session', event: 'rpcFailed' } })
+      this.analytics.track({ type: 'session', event: 'rpcFailed' })
     }
   }
 }

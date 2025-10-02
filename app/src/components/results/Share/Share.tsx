@@ -67,12 +67,10 @@ export const Share = () => {
 
   const sendAnalytics = (shareMethod: ShareMethod) => {
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'succeded',
-        pageId: 'results',
-        targetId: shareMethod,
-      },
+      type: 'share',
+      event: 'succeded',
+      pageId: 'results',
+      targetId: shareMethod,
     }
 
     rpc.sdk.trackEvent(analytic)
@@ -80,11 +78,9 @@ export const Share = () => {
 
   const sendCancelAnalytics = () => {
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'canceled',
-        pageId: 'results',
-      },
+      type: 'share',
+      event: 'canceled',
+      pageId: 'results',
     }
 
     rpc.sdk.trackEvent(analytic)

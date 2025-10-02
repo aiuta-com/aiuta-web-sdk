@@ -30,11 +30,9 @@ export const usePageBarNavigation = () => {
 
   const trackAnalyticsEvent = (pageId: string, type: string = 'exit') => {
     const analytic = {
-      data: {
-        type,
-        pageId,
-        productIds: [productId],
-      },
+      type,
+      pageId,
+      productIds: [productId],
     }
     rpc.sdk.trackEvent(analytic)
   }

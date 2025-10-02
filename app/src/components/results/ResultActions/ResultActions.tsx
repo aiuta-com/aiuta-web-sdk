@@ -24,12 +24,10 @@ export const ResultActions = (props: ResultActionsProps) => {
 
     // Track analytics
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'initiated',
-        pageId: 'results',
-        productIds: [productId],
-      },
+      type: 'share',
+      event: 'initiated',
+      pageId: 'results',
+      productIds: [productId],
     }
 
     rpc.sdk.trackEvent(analytic)
@@ -53,12 +51,10 @@ export const ResultActions = (props: ResultActionsProps) => {
     }
 
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'downloaded',
-        pageId: 'results',
-        productIds: [productId],
-      },
+      type: 'share',
+      event: 'downloaded',
+      pageId: 'results',
+      productIds: [productId],
     }
 
     rpc.sdk.trackEvent(analytic)

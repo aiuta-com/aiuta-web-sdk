@@ -142,12 +142,10 @@ export const useGenerationsGallery = ({
     }
 
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'downloaded',
-        pageId: 'history',
-        productIds: [productId],
-      },
+      type: 'share',
+      event: 'downloaded',
+      pageId: 'history',
+      productIds: [productId],
     }
 
     rpc.sdk.trackEvent(analytic)

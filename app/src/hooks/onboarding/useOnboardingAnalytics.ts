@@ -26,10 +26,8 @@ export const useOnboardingAnalytics = () => {
       }
 
       const analytic = {
-        data: {
-          ...event,
-          productIds: [productId],
-        },
+        ...event,
+        productIds: [productId],
       }
 
       rpc.sdk.trackEvent(analytic)

@@ -45,13 +45,11 @@ export default class AnalyticsTracker {
 
   track(data: Record<string, any>) {
     if (this.handler) {
-      this.handler(data.data || data)
+      this.handler(data)
     }
 
-    return
-
     const body = {
-      ...data,
+      data,
       env: this.env,
       localDateTime: dayjs().format(),
     }

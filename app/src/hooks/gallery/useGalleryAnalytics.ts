@@ -6,12 +6,10 @@ import { useRpc } from '@/contexts'
 type GalleryType = 'history' | 'previously' | 'uploads' | 'generations'
 
 interface AnalyticsEvent {
-  data: {
-    type: string
-    pageId: string
-    event: string
-    productIds: string[]
-  }
+  type: string
+  pageId: string
+  event: string
+  productIds: string[]
 }
 
 /**
@@ -26,14 +24,12 @@ export const useGalleryAnalytics = (galleryType: GalleryType) => {
       if (!productId) return
 
       const analytic: AnalyticsEvent = {
-        data: {
-          type: galleryType === 'history' || galleryType === 'generations' ? 'history' : 'picker',
-          pageId:
-            galleryType === 'history' || galleryType === 'generations' ? 'history' : 'imagePicker',
-          event,
-          productIds: [productId],
-          ...additionalData,
-        },
+        type: galleryType === 'history' || galleryType === 'generations' ? 'history' : 'picker',
+        pageId:
+          galleryType === 'history' || galleryType === 'generations' ? 'history' : 'imagePicker',
+        event,
+        productIds: [productId],
+        ...additionalData,
       }
 
       rpc.sdk.trackEvent(analytic as unknown as Record<string, unknown>)
