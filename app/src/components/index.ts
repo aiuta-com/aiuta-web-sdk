@@ -8,7 +8,6 @@ export { Icon } from './ui/Icon'
 export { Flex } from './ui/Flex'
 
 // Buttons
-export { Checkbox } from './buttons/Checkbox'
 export { IconButton } from './buttons/IconButton'
 export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'

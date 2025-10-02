@@ -1,8 +1,8 @@
 import React, { useId } from 'react'
-import type { CheckboxProps } from './types'
-import styles from './Checkbox.module.scss'
+import type { ConsentCheckboxProps } from './types'
+import styles from './ConsentCheckbox.module.scss'
 
-export const Checkbox = ({ labelText, checked = false, onChange }: CheckboxProps) => {
+export const ConsentCheckbox = ({ consent, checked = false, onChange }: ConsentCheckboxProps) => {
   const id = useId()
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -10,8 +10,12 @@ export const Checkbox = ({ labelText, checked = false, onChange }: CheckboxProps
     onChange?.(newChecked)
   }
 
+  const renderConsentHtml = (html: string) => {
+    return <span dangerouslySetInnerHTML={{ __html: html }} />
+  }
+
   return (
-    <div className={styles.checkbox}>
+    <div className={styles.consentCheckbox}>
       <input
         id={id}
         type="checkbox"
@@ -20,7 +24,7 @@ export const Checkbox = ({ labelText, checked = false, onChange }: CheckboxProps
         className={styles.input}
       />
       <label htmlFor={id} className={`aiuta-label-regular ${styles.label}`}>
-        {labelText}
+        {renderConsentHtml(consent.html)}
       </label>
     </div>
   )

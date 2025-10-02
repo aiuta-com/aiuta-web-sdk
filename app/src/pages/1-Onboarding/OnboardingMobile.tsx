@@ -39,17 +39,17 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     onboardingBestResultsDescription,
   } = useOnboardingStrings()
 
-  const {
-    currentSlide,
-    isConsentChecked,
-    setIsConsentChecked,
-    nextSlide,
-    previousSlide,
-    getSlideState,
-    isLastSlide,
-    canProceed,
-    completeOnboarding,
-  } = useOnboardingSlides()
+  const { currentSlide, nextSlide, previousSlide, getSlideState, isLastSlide, completeOnboarding } =
+    useOnboardingSlides()
+
+  const [isConsentValid, setIsConsentValid] = React.useState(false)
+
+  const canProceed = (slide: number) => {
+    if (slide === 2) {
+      return isConsentValid
+    }
+    return true
+  }
 
   const [carouselIndex, setCarouselIndex] = useState(0)
 
@@ -59,6 +59,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
     if (currentSlide === 0 && carouselIndex < CAROUSEL_ITEMS.length - 1) {
       setCarouselIndex(carouselIndex + 1)
     } else if (isLastSlide(currentSlide, 3)) {
+      // Track completion
       trackConsentsGiven()
       trackOnboardingFinished()
       completeOnboarding()
@@ -120,7 +121,7 @@ export const OnboardingMobile = ({ onComplete }: OnboardingMobileProps) => {
         </Slide>
 
         <Slide state={getSlideState(2)}>
-          <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
+          <Consent onValidationChange={setIsConsentValid} />
         </Slide>
       </div>
 

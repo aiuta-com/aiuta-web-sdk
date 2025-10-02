@@ -1,7 +1,8 @@
-.checkbox {
+.consentCheckbox {
   display: flex;
   column-gap: 16px;
   align-items: flex-start;
+  margin-bottom: 16px;
 }
 
 .input {
@@ -33,8 +34,9 @@
 
 .label {
   cursor: pointer;
+  flex: 1;
 
   a {
-    display: block;
+    text-decoration: underline;
   }
 }

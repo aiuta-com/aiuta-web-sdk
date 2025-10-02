@@ -3,6 +3,7 @@ export interface AiutaFeatures {
   imagePicker?: ImagePicker
   tryOn?: TryOn
   share?: Share
+  consent?: ConsentStandaloneOnboardingPage
 }
 
 export interface Share {
@@ -107,4 +108,26 @@ export interface TryOnGenerationsHistory {
   strings?: {
     generationsHistoryPageTitle?: string
   }
+}
+
+export interface ConsentStandaloneOnboardingPage {
+  strings?: {
+    consentTitle?: string
+    consentDescriptionHtml?: string
+    consentButtonAccept?: string
+  }
+  data?: {
+    consents?: Consent[]
+  }
+}
+
+export interface Consent {
+  id: string
+  type: ConsentType
+  html: string
+}
+
+export enum ConsentType {
+  explicitRequired = 'explicitRequired',
+  explicitOptional = 'explicitOptional',
 }

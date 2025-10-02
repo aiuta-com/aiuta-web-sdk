@@ -23,23 +23,23 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
     onboardingBestResultsDescription,
   } = useOnboardingStrings()
 
-  const {
-    currentSlide,
-    isConsentChecked,
-    setIsConsentChecked,
-    nextSlide,
-    previousSlide,
-    getSlideState,
-    isLastSlide,
-    canProceed,
-    completeOnboarding,
-  } = useOnboardingSlides()
+  const { currentSlide, nextSlide, previousSlide, getSlideState, isLastSlide, completeOnboarding } =
+    useOnboardingSlides()
+
+  const [isConsentValid, setIsConsentValid] = React.useState(false)
+
+  const canProceed = (slide: number) => {
+    if (slide === 2) {
+      return isConsentValid
+    }
+    return true
+  }
 
   const handleNext = () => {
     if (!canProceed(currentSlide)) return
 
     if (isLastSlide(currentSlide, 3)) {
-      // Track consent and completion
+      // Track completion
       trackConsentsGiven()
       trackOnboardingFinished()
       completeOnboarding()
@@ -93,7 +93,7 @@ export const OnboardingDesktop = ({ onComplete }: OnboardingDesktopProps) => {
         </Slide>
 
         <Slide state={getSlideState(2)}>
-          <Consent isChecked={isConsentChecked} onCheckChange={setIsConsentChecked} />
+          <Consent onValidationChange={setIsConsentValid} />
         </Slide>
       </div>
 
