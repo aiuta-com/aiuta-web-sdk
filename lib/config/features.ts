@@ -1,8 +1,8 @@
 export interface AiutaFeatures {
-  share?: Share
   onboarding?: Onboarding
   imagePicker?: ImagePicker
   tryOn?: TryOn
+  share?: Share
 }
 
 export interface Share {
@@ -17,6 +17,7 @@ export interface Share {
 export interface Onboarding {
   howItWorksPage?: OnboardingHowItWorksPage
   bestResultsPage?: OnboardingBestResultsPage
+
   strings?: {
     onboardingButtonNext?: string
     onboardingButtonStart?: string
@@ -38,10 +39,27 @@ export interface OnboardingBestResultsPage {
 }
 
 export interface ImagePicker {
+  qrPrompt?: ImagePickerQrPrompt
+  qrUpload?: ImagePickerQrUpload
   uploadsHistory?: ImagePickerUploadsHistory
   strings?: {
     imagePickerButtonUploadImage?: string
-    nextButton?: string
+  }
+}
+
+export interface ImagePickerQrPrompt {
+  strings?: {
+    qrPromptHint?: string
+    qrPromptOr?: string
+    qrPromptUploadButton?: string
+  }
+}
+
+export interface ImagePickerQrUpload {
+  strings?: {
+    qrUploadNextButton?: string
+    qrUploadSuccessTitle?: string
+    qrUploadNextHint?: string
   }
 }
 
@@ -58,6 +76,7 @@ export interface TryOn {
   inputImageValidation?: TryOnInputImageValidation
   fitDisclaimer?: TryOnFitDisclaimer
   generationsHistory?: TryOnGenerationsHistory
+
   strings?: {
     tryOnPageTitle?: string
     tryOn?: string

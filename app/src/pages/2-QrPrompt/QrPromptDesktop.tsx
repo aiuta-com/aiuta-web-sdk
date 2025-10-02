@@ -1,13 +1,14 @@
 import React, { useEffect, ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ErrorSnackbar, QrCode, Spinner } from '@/components'
-import { useQrPrompt, useImageUpload } from '@/hooks'
+import { useQrPrompt, useImageUpload, useImagePickerStrings } from '@/hooks'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptDesktop() {
   const navigate = useNavigate()
   const { qrUrl, startPolling, isDownloading } = useQrPrompt()
   const { uploadImage, isUploading } = useImageUpload()
+  const { qrPromptHint, qrPromptOr, qrPromptUploadButton } = useImagePickerStrings()
 
   // Start QR polling on mount
   useEffect(() => {
@@ -35,10 +36,10 @@ export default function QrPromptDesktop() {
           <>
             <QrCode url={qrUrl} />
             <div className={styles.options}>
-              <p className={`aiuta-button-m ${styles.qrHint}`}>Scan the QR code</p>
-              <p className={`aiuta-label-regular ${styles.or}`}>Or</p>
+              <p className={`aiuta-button-m ${styles.qrHint}`}>{qrPromptHint}</p>
+              <p className={`aiuta-label-regular ${styles.or}`}>{qrPromptOr}</p>
               <label htmlFor="upload-file" className={`aiuta-button-m ${styles.uploadButton}`}>
-                Click here to upload
+                {qrPromptUploadButton}
                 <input
                   onChange={handleChoosePhoto}
                   type="file"

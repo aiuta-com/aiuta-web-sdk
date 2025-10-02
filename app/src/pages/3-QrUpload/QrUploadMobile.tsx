@@ -12,7 +12,7 @@ import styles from './QrUpload.module.scss'
 
 export default function QrUploadMobile() {
   const { uploadState, selectFile, uploadFile } = useQrUpload()
-  const { nextButton } = useImagePickerStrings()
+  const { qrUploadNextButton } = useImagePickerStrings()
   const { tryOnPageTitle } = useTryOnStrings()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -60,7 +60,7 @@ export default function QrUploadMobile() {
             !showNextButton && styles.nextButton_hidden,
           )}
         >
-          {nextButton}
+          {qrUploadNextButton}
         </PrimaryButton>
 
         <input
