@@ -8,10 +8,10 @@ export { Icon } from './ui/Icon'
 export { Flex } from './ui/Flex'
 
 // Buttons
-export { Checkbox } from './buttons/Checkbox'
 export { IconButton } from './buttons/IconButton'
 export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
+export { SocialButton } from './buttons/SocialButton'
 export { TryOnButton } from './buttons/TryOnButton'
 
 // Images
@@ -37,6 +37,8 @@ export { Carousel } from './onboarding/Carousel'
 // Picker (Upload)
 export { QrCode } from './picker/QrCode'
 export { UploadPrompt } from './picker/UploadPrompt'
+export { UploadPreview } from './picker/UploadPreview'
+export { UploadResult } from './picker/UploadResult'
 export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
 
 // Gallery

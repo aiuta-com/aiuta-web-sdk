@@ -2,20 +2,18 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
-
-// TODO: Replace with RPC - need to support:
-// 1. Modal opening from SDK: openFullScreenModal(data: { images: InputImage[], modalType?: string })
-// 2. Image removal: removeImages(action: 'history' | 'uploads', imageIds: string[])
 import { Share, ThumbnailList, RemoteImage, IconButton } from '@/components'
+import { useShare } from '@/contexts'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
+import { icons } from './icons'
 import styles from './FullScreenGallery.module.scss'
 
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
-  const [shareModalData, setShareData] = useState<{ imageUrl: string } | null>(null)
+  const { openShareModal, isVisible: isShareVisible } = useShare()
 
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
 
@@ -60,13 +58,9 @@ export const FullScreenGallery = () => {
   const handleShareImage = useCallback(() => {
     if (!modalData?.activeImage) return
 
-    // Open Share as overlay within the same iframe
-    setShareData({ imageUrl: modalData.activeImage.url })
-  }, [modalData])
-
-  const handleCloseShare = useCallback(() => {
-    setShareData(null)
-  }, [])
+    // Open Share modal
+    openShareModal(modalData.activeImage.url)
+  }, [modalData, openShareModal])
 
   const handleDeleteImage = useCallback(() => {
     if (!modalData?.activeImage || !modalData?.images) return
@@ -106,7 +100,11 @@ export const FullScreenGallery = () => {
   // Render simple fullscreen for single image (existing behavior)
   if (fullScreenImageUrl && !modalData) {
     return (
-      <div className={styles.fullScreenModal} onClick={handleCloseModal}>
+      <div
+        className={styles.fullScreenModal}
+        onClick={handleCloseModal}
+        data-testid="aiuta-fullscreen-gallery"
+      >
         <IconButton
           icon='<path d="M18.9495 5.05C19.3401 5.44052 19.3401 6.07369 18.9495 6.46421L13.4142 11.9995L18.9502 17.5355C19.3404 17.926 19.3404 18.5593 18.9502 18.9498C18.5598 19.3402 17.9266 19.34 17.536 18.9498L12 13.4137L6.46399 18.9498C6.07344 19.34 5.44021 19.3402 5.04978 18.9498C4.65955 18.5593 4.65958 17.926 5.04978 17.5355L10.5858 11.9995L5.05047 6.46421C4.65994 6.07369 4.65994 5.44052 5.05047 5.05C5.44101 4.65969 6.07423 4.65955 6.46468 5.05L12 10.5853L17.5353 5.05C17.9258 4.65954 18.559 4.65969 18.9495 5.05Z" fill="currentColor"/>'
           label="Close fullscreen image"
@@ -131,7 +129,7 @@ export const FullScreenGallery = () => {
   // Render advanced fullscreen modal
   if (modalData) {
     return (
-      <div className={styles.advancedFullScreenModal}>
+      <div className={styles.advancedFullScreenModal} data-testid="fullscreen-gallery">
         {/* Left sidebar with image thumbnails */}
         <ThumbnailList
           items={modalData.images || []}
@@ -155,18 +153,20 @@ export const FullScreenGallery = () => {
 
         {/* Right content with close button */}
         <div className={styles.rightContent}>
-          <img
-            src="./icons/close.svg"
-            alt="Close"
+          <IconButton
+            icon={icons.close}
+            label="Close"
+            size={24}
+            viewBox="0 0 24 24"
             className={styles.closeButton}
             onClick={handleCloseModal}
           />
         </div>
 
         {/* Share overlay */}
-        {shareModalData && (
+        {isShareVisible && (
           <div className={styles.shareModalOverlay}>
-            <Share imageUrl={shareModalData.imageUrl} onClose={handleCloseShare} />
+            <Share />
           </div>
         )}
       </div>

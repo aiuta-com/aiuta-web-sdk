@@ -42,7 +42,7 @@ export const useGenerationsGallery = ({
   const gallery = useImageGallery({
     images,
     galleryType: 'generations',
-    modalType: 'history',
+    modalType: 'generations',
     onImageSelect: handleImageSelect,
     enableSelection: isSelecting,
   })
@@ -142,12 +142,10 @@ export const useGenerationsGallery = ({
     }
 
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'downloaded',
-        pageId: 'history',
-        productIds: [productId],
-      },
+      type: 'share',
+      event: 'downloaded',
+      pageId: 'history',
+      productIds: [productId],
     }
 
     rpc.sdk.trackEvent(analytic)

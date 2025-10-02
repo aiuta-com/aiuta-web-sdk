@@ -1,3 +1,146 @@
 export interface AiutaFeatures {
-  [key: string]: unknown
+  onboarding?: Onboarding
+  imagePicker?: ImagePicker
+  tryOn?: TryOn
+  share?: Share
+  consent?: ConsentStandaloneOnboardingPage
+}
+
+export interface Share {
+  strings?: {
+    shareButton?: string
+    sharePageTitle?: string
+    copyButton?: string
+    downloadButton?: string
+  }
+}
+
+export interface Onboarding {
+  howItWorksPage?: OnboardingHowItWorksPage
+  bestResultsPage?: OnboardingBestResultsPage
+
+  strings?: {
+    onboardingButtonNext?: string
+    onboardingButtonStart?: string
+  }
+}
+
+export interface OnboardingHowItWorksPage {
+  images?: {
+    onboardingHowItWorksItems?: Array<{
+      itemPhoto?: string
+      itemPreview?: string
+    }>
+    onboardingHowItWorksDesktop?: string
+  }
+
+  strings?: {
+    onboardingHowItWorksTitle?: string
+    onboardingHowItWorksDescription?: string
+  }
+}
+
+export interface OnboardingBestResultsPage {
+  images?: {
+    onboardingBestResultsDesktop?: string
+    onboardingBestResultsMobile?: string
+  }
+
+  strings?: {
+    onboardingBestResultsTitle?: string
+    onboardingBestResultsDescription?: string
+  }
+}
+
+export interface ImagePicker {
+  qrPrompt?: ImagePickerQrPrompt
+  qrUpload?: ImagePickerQrUpload
+  uploadsHistory?: ImagePickerUploadsHistory
+  strings?: {
+    imagePickerButtonUploadImage?: string
+  }
+}
+
+export interface ImagePickerQrPrompt {
+  strings?: {
+    qrPromptHint?: string
+    qrPromptOr?: string
+    qrPromptUploadButton?: string
+  }
+}
+
+export interface ImagePickerQrUpload {
+  strings?: {
+    qrUploadNextButton?: string
+    qrUploadSuccessTitle?: string
+    qrUploadNextHint?: string
+  }
+}
+
+export interface ImagePickerUploadsHistory {
+  strings?: {
+    uploadsHistoryButtonNewPhoto?: string
+    uploadsHistoryTitle?: string
+    uploadsHistoryButtonChangePhoto?: string
+  }
+}
+
+export interface TryOn {
+  loadingPage?: TryOnLoadingPage
+  inputImageValidation?: TryOnInputImageValidation
+  fitDisclaimer?: TryOnFitDisclaimer
+  generationsHistory?: TryOnGenerationsHistory
+
+  strings?: {
+    tryOnPageTitle?: string
+    tryOn?: string
+  }
+}
+
+export interface TryOnLoadingPage {
+  strings?: {
+    tryOnLoadingStatusScanningBody?: string
+    tryOnLoadingStatusGeneratingOutfit?: string
+  }
+}
+
+export interface TryOnInputImageValidation {
+  strings?: {
+    invalidInputImageDescription?: string
+    invalidInputImageChangePhotoButton?: string
+  }
+}
+
+export interface TryOnFitDisclaimer {
+  strings?: {
+    fitDisclaimerTitle?: string
+  }
+}
+
+export interface TryOnGenerationsHistory {
+  strings?: {
+    generationsHistoryPageTitle?: string
+  }
+}
+
+export interface ConsentStandaloneOnboardingPage {
+  strings?: {
+    consentTitle?: string
+    consentDescriptionHtml?: string
+    consentButtonAccept?: string
+  }
+  data?: {
+    consents?: Consent[]
+  }
+}
+
+export interface Consent {
+  id: string
+  type: ConsentType
+  html: string
+}
+
+export enum ConsentType {
+  explicitRequired = 'explicitRequired',
+  explicitOptional = 'explicitOptional',
 }

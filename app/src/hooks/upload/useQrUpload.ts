@@ -1,15 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
 import { useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { TryOnApiService } from '@/utils/api/tryOnApiService'
-import { useTryOnAnalytics } from '@/hooks/tryOn/useTryOnAnalytics'
-
-interface UseQrUploadProps {
-  token?: string
-  apiKey: string
-  subscriptionId?: string
-}
+import { resizeAndConvertImage } from '@/utils'
 
 interface UploadState {
   isUploading: boolean
@@ -17,9 +12,16 @@ interface UploadState {
   selectedFile: { file: File; url: string } | null
 }
 
-export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps) => {
+function useQuery() {
+  return new URLSearchParams(useLocation().search)
+}
+
+export const useQrUpload = () => {
   const dispatch = useAppDispatch()
-  const { trackUploadError } = useTryOnAnalytics()
+  const { token } = useParams<{ token: string }>()
+  const query = useQuery()
+  const apiKey = query.get('key') || ''
+  const subscriptionId = query.get('sid') || ''
 
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
@@ -66,9 +68,9 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
   const handleUploadError = useCallback(
     (errorMessage: string) => {
       dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
-      trackUploadError(errorMessage, errorMessage)
+      console.warn('QR Upload error:', errorMessage)
     },
-    [dispatch, trackUploadError],
+    [dispatch],
   )
 
   // Upload selected file
@@ -80,14 +82,18 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
 
       const endpointData: QrEndpointData = {
         apiKey,
-        subscriptionId,
+        subscriptionId: subscriptionId || undefined,
         skuId: '', // QR uploads don't need skuId
       }
 
-      const uploadResult = await TryOnApiService.uploadImage(
-        uploadState.selectedFile.file,
-        endpointData,
-      )
+      // Process image (resize, convert, fix EXIF orientation)
+      const processed = await resizeAndConvertImage(uploadState.selectedFile.file)
+      const fileToUpload = new File([processed.blob], uploadState.selectedFile.file.name, {
+        type: processed.mime,
+        lastModified: uploadState.selectedFile.file.lastModified,
+      })
+
+      const uploadResult = await TryOnApiService.uploadImage(fileToUpload, endpointData)
 
       // Convert to QrUploadResult format
       const qrResult = {
@@ -99,14 +105,11 @@ export const useQrUpload = ({ token, apiKey, subscriptionId }: UseQrUploadProps)
 
       await QrApiService.uploadQrPhoto(token, qrResult)
 
-      // Simulate processing time for better UX
-      setTimeout(() => {
-        setUploadState((prev) => ({
-          ...prev,
-          isUploading: false,
-          uploadedUrl: qrResult.url,
-        }))
-      }, 3000)
+      setUploadState((prev) => ({
+        ...prev,
+        isUploading: false,
+        uploadedUrl: qrResult.url,
+      }))
     } catch (error: any) {
       console.error('Upload error:', error)
       setUploadState((prev) => ({ ...prev, isUploading: false }))

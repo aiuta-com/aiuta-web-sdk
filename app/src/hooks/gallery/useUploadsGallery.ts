@@ -45,7 +45,7 @@ export const useUploadsGallery = ({
   const gallery = useImageGallery({
     images,
     galleryType: 'uploads',
-    modalType: 'previously',
+    modalType: 'uploads',
     onImageSelect: handleImageSelect,
     onImageDelete: handleImageDelete,
     enableSelection: false, // Handle selection logic in handleImageSelect

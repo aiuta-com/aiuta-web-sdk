@@ -9,7 +9,7 @@ export interface ImageItem {
 }
 
 interface UseFullScreenViewerOptions {
-  modalType: 'history' | 'previously'
+  modalType: 'uploads' | 'generations'
   images: ImageItem[]
 }
 

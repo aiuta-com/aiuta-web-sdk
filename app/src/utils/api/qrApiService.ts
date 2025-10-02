@@ -59,16 +59,4 @@ export class QrApiService {
     const response = await fetch(`${this.BASE_URL}/delete-qr-token?token=${token}`)
     await response.json()
   }
-
-  /**
-   * Generate QR URL for scanning
-   */
-  static generateQrUrl(token: string, endpointData: QrEndpointData): string {
-    const hasSubscriptionId = endpointData.subscriptionId && endpointData.subscriptionId.length > 0
-    const params = hasSubscriptionId
-      ? `userId=${endpointData.subscriptionId}`
-      : `apiKey=${endpointData.apiKey}`
-
-    return `https://static.aiuta.com/sdk/v0/index.html#/qr/${token}?${params}`
-  }
 }

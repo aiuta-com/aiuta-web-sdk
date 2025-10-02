@@ -12,6 +12,8 @@ export type PrimaryButtonProps = {
   className?: string
   /** Whether button should use max width behavior */
   maxWidth?: boolean
+  /** Button shape size - determines global class */
+  shape?: 'S' | 'M'
   /** Button content */
   children: string | ReactElement
 }

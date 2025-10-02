@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useInitialRoute } from '@/hooks'
 
 /**
- * Home - App entry point and router
+ * HomePageRouter - App entry point and router
  *
  * Handles:
  * - Initial route determination based on app state
@@ -12,7 +12,7 @@ import { useInitialRoute } from '@/hooks'
  * - /onboarding (if onboarding not completed)
  * - /view or /qr (if onboarding completed, based on mobile/desktop and stored photos)
  */
-export default function Home() {
+export default function HomePageRouter() {
   const { navigateInitially } = useInitialRoute()
 
   // Determine and navigate to initial route on mount

@@ -6,7 +6,7 @@ import {
 } from '@/store/slices/errorSnackbarSlice'
 import { SecondaryButton, Icon } from '@/components'
 import { combineClassNames } from '@/utils'
-import { useSwipeGesture } from '@/hooks'
+import { useSwipeGesture, useErrorStrings } from '@/hooks'
 import { ErrorSnackbarProps } from './types'
 import { icons } from './icons'
 import styles from './ErrorSnackbar.module.scss'
@@ -18,6 +18,7 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
   const { onRetry, className } = props
   const dispatch = useAppDispatch()
 
+  const { defaultErrorMessage, tryAgainButton } = useErrorStrings()
   const isVisible = useAppSelector(isErrorSnackbarVisibleSelector)
   const [shouldRender, setShouldRender] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
@@ -93,14 +94,17 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
         <Icon icon={icons.warning} size={36} viewBox="0 0 36 36" className={styles.icon} />
         <div className={messageClasses}>
           <p>
-            Something went wrong.
-            <br />
-            Please try again later
+            {defaultErrorMessage.split('\n').map((line, index) => (
+              <React.Fragment key={index}>
+                {line}
+                {index < defaultErrorMessage.split('\n').length - 1 && <br />}
+              </React.Fragment>
+            ))}
           </p>
         </div>
         {hasRetry && (
           <SecondaryButton
-            text="Try Again"
+            text={tryAgainButton}
             classNames={styles.retryButton}
             onClick={handleButtonClick}
           />

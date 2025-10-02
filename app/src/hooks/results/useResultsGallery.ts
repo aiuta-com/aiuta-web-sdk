@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState, UIEvent } from 'react'
+import { useCallback, useRef, useState, UIEvent } from 'react'
 import { useAppSelector } from '@/store/store'
 import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { useFullScreenViewer } from '@/hooks/gallery/useFullScreenViewer'
-import { useGalleryAnalytics } from '@/hooks/gallery/useGalleryAnalytics'
 import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'
 
 const GENERATED_IMAGE_HEIGHT = 460
@@ -20,13 +19,7 @@ export const useResultsGallery = () => {
   // Convert Redux images to ImageItem format
   const images: ImageItem[] = generatedImages.map(({ id, url }) => ({ id, url }))
 
-  const { showFullScreen } = useFullScreenViewer({ modalType: 'history', images })
-  const { trackPageView } = useGalleryAnalytics('generations')
-
-  // Track page view on mount
-  useEffect(() => {
-    trackPageView()
-  }, [trackPageView])
+  const { showFullScreen } = useFullScreenViewer({ modalType: 'generations', images })
 
   // Handle slider item click with synchronized scrolling
   const handleSliderItemClick = useCallback((index: number) => {

@@ -1,67 +1,41 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 
-// TODO: Replace with RPC - need to support modal opening from SDK
-// Required data: { imageUrl: string }
-// RPC method needed: openShareModal(data: { imageUrl: string })
-import { useRpc } from '@/contexts'
-import { useAppVisibility } from '@/hooks'
+import { useRpc, useShare } from '@/contexts'
+import { IconButton, SocialButton, PrimaryButton } from '@/components'
+import { combineClassNames } from '@/utils'
+import { useShareStrings } from '@/hooks'
+import { icons } from './icons'
 import styles from './Share.module.scss'
-
-interface ShareData {
-  imageUrl: string
-}
 
 interface ShareButton {
   id: string
   href?: string
-  iconSrc: string
+  icon: string
+  title: string
   shareMethod: 'whatsApp' | 'messenger' | 'copy'
 }
 
 type ShareMethod = 'whatsApp' | 'messenger' | 'copy'
 
-interface ShareProps {
-  imageUrl?: string
-  onClose?: () => void
-}
-
-export const Share = ({ imageUrl, onClose }: ShareProps) => {
-  const [modalData, setModalData] = useState<ShareData | null>(null)
+export const Share = () => {
   const [hasShared, setHasShared] = useState(false)
   const rpc = useRpc()
-  const { hideApp } = useAppVisibility()
-
-  // Use props if provided, otherwise listen for messages (for standalone usage)
-  useEffect(() => {
-    if (imageUrl) {
-      setModalData({ imageUrl })
-      setHasShared(false)
-    } else {
-      // Listen for share modal messages (for standalone usage)
-      const handleMessage = (event: MessageEvent) => {
-        // TODO: Replace with RPC event - event.data?.action === 'openShareModal'
-        if (event.data?.action === 'OPEN_AIUTA_SHARE_MODAL') {
-          setModalData(event.data.data)
-          setHasShared(false)
-        }
-      }
-
-      window.addEventListener('message', handleMessage)
-      return () => window.removeEventListener('message', handleMessage)
-    }
-  }, [imageUrl])
+  const { modalData, animationState, isVisible, closeShareModal } = useShare()
+  const { sharePageTitle, copyButton } = useShareStrings()
 
   const shareButtons: ShareButton[] = [
     {
       id: 'whatsapp-share',
-      href: modalData ? 'https://wa.me/?text=${modalData.imageUrl}' : undefined,
-      iconSrc: './icons/whatsapp.svg',
+      href: modalData ? `https://wa.me/?text=${modalData.imageUrl}` : undefined,
+      icon: icons.whatsapp,
+      title: 'WhatsApp',
       shareMethod: 'whatsApp',
     },
     {
       id: 'messenger-share',
-      href: modalData ? 'https://www.messenger.com/new?text=${modalData.imageUrl}' : undefined,
-      iconSrc: './icons/messenger.svg',
+      href: modalData ? `https://www.messenger.com/new?text=${modalData.imageUrl}` : undefined,
+      icon: icons.messenger,
+      title: 'Messenger',
       shareMethod: 'messenger',
     },
   ]
@@ -70,15 +44,8 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
     if (!hasShared) {
       sendCancelAnalytics()
     }
-    setModalData(null)
+    closeShareModal()
     setHasShared(false)
-
-    // Use onClose prop if provided, otherwise hide widget
-    if (onClose) {
-      onClose()
-    } else {
-      hideApp()
-    }
   }
 
   const handleShare = (shareMethod: ShareMethod) => {
@@ -100,12 +67,10 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
 
   const sendAnalytics = (shareMethod: ShareMethod) => {
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'succeded',
-        pageId: 'results',
-        targetId: shareMethod,
-      },
+      type: 'share',
+      event: 'succeeded',
+      pageId: 'results',
+      targetId: shareMethod,
     }
 
     rpc.sdk.trackEvent(analytic)
@@ -113,57 +78,62 @@ export const Share = ({ imageUrl, onClose }: ShareProps) => {
 
   const sendCancelAnalytics = () => {
     const analytic = {
-      data: {
-        type: 'share',
-        event: 'canceled',
-        pageId: 'results',
-      },
+      type: 'share',
+      event: 'canceled',
+      pageId: 'results',
     }
 
     rpc.sdk.trackEvent(analytic)
   }
 
-  if (!modalData) {
+  if (!isVisible) {
     return null
   }
 
   return (
-    <div className={styles.share} onClick={handleCloseModal}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <img src="./icons/shareWithText.svg" alt="Share with" className={styles.title} />
+    <div
+      className={combineClassNames(styles.share, styles[`share_${animationState}`])}
+      onClick={handleCloseModal}
+      data-testid="aiuta-share-modal"
+    >
+      {modalData && (
+        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <h2 className="aiuta-page-title">{sharePageTitle}</h2>
 
-        <img
-          src="./icons/close.svg"
-          alt="Close"
-          className={styles.closeButton}
-          onClick={handleCloseModal}
-        />
-
-        <div className={styles.shareButtons}>
-          {shareButtons.map((button) => (
-            <a
-              key={button.id}
-              href={button.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.shareButton}
-              onClick={() => handleShare(button.shareMethod)}
-            >
-              <img src={button.iconSrc} alt={'Share via ${button.shareMethod}'} />
-            </a>
-          ))}
-        </div>
-
-        <div className={styles.copySection}>
-          <p className={styles.urlText}>{modalData.imageUrl}</p>
-          <img
-            src="./icons/copyButton.svg"
-            alt="Copy"
-            className={styles.copyButton}
-            onClick={handleCopyToClipboard}
+          <IconButton
+            icon={icons.close}
+            label="Close"
+            size={24}
+            viewBox="0 0 24 24"
+            className={styles.closeButton}
+            onClick={handleCloseModal}
           />
+
+          <div className={styles.shareButtons}>
+            {shareButtons.map((button) => (
+              <SocialButton
+                key={button.id}
+                icon={button.icon}
+                title={button.title}
+                href={button.href}
+                onClick={() => handleShare(button.shareMethod)}
+              />
+            ))}
+          </div>
+
+          <div className={styles.copySection}>
+            <p className={styles.urlText}>{modalData.imageUrl}</p>
+            <PrimaryButton
+              shape="S"
+              maxWidth={false}
+              onClick={handleCopyToClipboard}
+              className={styles.copyButton}
+            >
+              {copyButton}
+            </PrimaryButton>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

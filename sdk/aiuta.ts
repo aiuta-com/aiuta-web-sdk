@@ -23,7 +23,7 @@ export default class Aiuta {
       this.logger,
     )
 
-    this.analytics.track({ data: { type: 'configure' } })
+    this.analytics.track({ type: 'configure' })
   }
 
   async tryOn(productId: string) {
@@ -36,11 +36,9 @@ export default class Aiuta {
     this.messageHandler.startTryOn(productId)
 
     this.analytics.track({
-      data: {
-        type: 'session',
-        flow: 'tryOn',
-        productIds: [productId],
-      },
+      type: 'session',
+      flow: 'tryOn',
+      productIds: [productId],
     })
   }
 }

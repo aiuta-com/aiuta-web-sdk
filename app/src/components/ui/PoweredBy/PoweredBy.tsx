@@ -2,15 +2,17 @@ import React from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
+import { usePoweredByStrings } from '@/hooks'
 import styles from './PoweredBy.module.scss'
 
 export const PoweredBy = () => {
   const location = useLocation()
   const isMobile = useAppSelector(isMobileSelector)
+  const { poweredByAiuta } = usePoweredByStrings()
 
   // Routes where powered by should be hidden
-  const desktopHiddenRoutes = ['/generations-history', '/uploads-history', '/results']
-  const mobileHiddenRoutes = ['/onboarding', '/generations-history', '/uploads-history', '/results']
+  const desktopHiddenRoutes = ['/generations', '/uploads', '/results']
+  const mobileHiddenRoutes = ['/onboarding', '/generations', '/uploads', '/results']
 
   const hiddenRoutes = isMobile ? mobileHiddenRoutes : desktopHiddenRoutes
   const isHiddenByRoute = hiddenRoutes.includes(location.pathname)
@@ -20,7 +22,6 @@ export const PoweredBy = () => {
     return null
   }
 
-  const text = 'Powered by Aiuta'
   const url = 'https://www.aiuta.com/'
 
   return (
@@ -29,9 +30,9 @@ export const PoweredBy = () => {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className={`aiuta-button-s ${styles.label}`}
+        className={`aiuta-label-subtle ${styles.label}`}
       >
-        {text}
+        {poweredByAiuta}
       </a>
     </footer>
   )

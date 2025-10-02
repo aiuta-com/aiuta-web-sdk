@@ -1,11 +1,15 @@
 import React from 'react'
 import { Flex, PrimaryButton } from '@/components'
+import { useImagePickerStrings } from '@/hooks'
 import { UploadPromptProps } from './types'
 import styles from './UploadPrompt.module.scss'
 import { combineClassNames } from '@/utils'
 
 export const UploadPrompt = (props: UploadPromptProps) => {
-  const { onClick, buttonText = 'Upload a photo of you' } = props
+  const { onClick, buttonText } = props
+  const { imagePickerButtonUploadImage } = useImagePickerStrings()
+
+  const displayText = buttonText ?? imagePickerButtonUploadImage
 
   return (
     <Flex contentClassName={combineClassNames('aiuta-image-l', styles.uploadPrompt)}>
@@ -16,7 +20,7 @@ export const UploadPrompt = (props: UploadPromptProps) => {
       />
 
       <PrimaryButton onClick={onClick} className={styles.button} maxWidth={false}>
-        {buttonText}
+        {displayText}
       </PrimaryButton>
     </Flex>
   )

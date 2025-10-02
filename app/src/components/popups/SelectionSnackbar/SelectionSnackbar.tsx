@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { SecondaryButton, IconButton } from '@/components'
 import { combineClassNames } from '@/utils'
+import { useSelectionStrings } from '@/hooks'
 import { SelectionSnackbarProps } from './types'
 import { icons } from './icons'
 import styles from './SelectionSnackbar.module.scss'
@@ -19,6 +20,7 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
     className,
   } = props
 
+  const { cancel, selectAll, unselectAll } = useSelectionStrings()
   const [shouldRender, setShouldRender] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -58,9 +60,9 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
     <div className={containerClasses}>
       <div className={styles.content}>
         <div className={styles.controls}>
-          <SecondaryButton text="Cancel" onClick={onCancel} classNames={styles.cancelButton} />
+          <SecondaryButton text={cancel} onClick={onCancel} classNames={styles.cancelButton} />
           <SecondaryButton
-            text={isAllSelected ? 'Unselect All' : 'Select All'}
+            text={isAllSelected ? unselectAll : selectAll}
             onClick={onSelectAll}
             classNames={styles.selectAllButton}
           />

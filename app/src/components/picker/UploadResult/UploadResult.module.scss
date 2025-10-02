@@ -1,0 +1,40 @@
+// Main component block
+.uploadResult {
+  display: flex;
+  row-gap: 50px;
+  align-items: center;
+  flex-direction: column;
+}
+
+// Box containing result image
+.imageBox {
+  position: relative;
+  width: 160px;
+  aspect-ratio: var(--aiuta-aspect-ratio);
+}
+
+// Success icon overlay
+.successIcon {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  border-radius: 50%;
+  background-color: white;
+  transform: translate(-50%, 20px);
+}
+
+// Information content section
+.info {
+  h3 {
+    margin: 0 auto;
+    max-width: 342px;
+    text-align: center;
+  }
+
+  h4 {
+    margin: 16px auto;
+    max-width: 267px;
+    text-align: center;
+    color: var(--aiuta-color-secondary);
+  }
+}

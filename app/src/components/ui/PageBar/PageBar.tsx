@@ -5,8 +5,10 @@ import {
   usePageBarVisibility,
   usePageBarTitle,
   useSwipeGesture,
+  useSelectionStrings,
 } from '@/hooks'
 import { IconButton } from '@/components'
+import { combineClassNames } from '@/utils'
 import { icons } from './icons'
 import styles from './PageBar.module.scss'
 
@@ -28,6 +30,8 @@ export const PageBar = () => {
 
   const { handleCloseModal, handleHistoryNavigation, handleToggleSelection } =
     usePageBarNavigation()
+
+  const { select, cancel } = useSelectionStrings()
 
   // Swipe navigation - right swipe goes back (only on history pages)
   const swipeHandlers = useSwipeGesture(({ direction }) => {
@@ -60,23 +64,25 @@ export const PageBar = () => {
           label={navigationLabel}
           className={styles.actionButton}
           size={28}
-          onClick={() => handleHistoryNavigation('generations-history')}
+          onClick={() => handleHistoryNavigation('generations')}
           viewBox="0 0 36 36"
         />
       )}
 
       {/* Center - Title */}
       <div className={styles.titleContainer}>
-        {showTitle && <h1 className={`${styles.pageTitle} ${styles.titleLabel}`}>{title}</h1>}
+        {showTitle && (
+          <h1 className={combineClassNames('aiuta-page-title', styles.titleLabel)}>{title}</h1>
+        )}
       </div>
 
       {/* Right side - Select/Cancel button or Close button */}
       {showSelectButton ? (
         <button
-          className={`${styles.pageTitle} ${styles.selectButton}`}
+          className={combineClassNames('aiuta-page-title', styles.selectButton)}
           onClick={handleToggleSelection}
         >
-          {isSelectionActive ? 'Cancel' : 'Select'}
+          {isSelectionActive ? cancel : select}
         </button>
       ) : showCloseButton ? (
         <IconButton

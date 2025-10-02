@@ -1,0 +1,23 @@
+/* @block socialButton */
+.socialButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.icon {
+  width: 54px;
+  height: 54px;
+  margin-bottom: 8px;
+}
+
+.title {
+  text-align: center;
+}

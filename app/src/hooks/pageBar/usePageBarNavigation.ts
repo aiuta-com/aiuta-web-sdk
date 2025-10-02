@@ -30,11 +30,9 @@ export const usePageBarNavigation = () => {
 
   const trackAnalyticsEvent = (pageId: string, type: string = 'exit') => {
     const analytic = {
-      data: {
-        type,
-        pageId,
-        productIds: [productId],
-      },
+      type,
+      pageId,
+      productIds: [productId],
     }
     rpc.sdk.trackEvent(analytic)
   }
@@ -45,30 +43,22 @@ export const usePageBarNavigation = () => {
       if (currentStep === 2) return 'consent'
       return 'howItWorks'
     }
-    if (currentPath === '/qr') return 'imagePicker'
-    if (currentPath === '/generated') return 'results'
-    if (currentPath === '/generations-history') return 'history'
-    if (currentPath === '/tryon') return null // No analytics for tryon page
-    return 'howItWorks'
+    if (currentPath === '/qr') return 'qrPrompt'
+    if (currentPath === '/results') return 'results'
+    if (currentPath === '/generations') return 'history'
+    if (currentPath === '/uploads') return 'imagePicker'
+    if (currentPath === '/tryon') return 'imagePicker'
+    return ''
   }
 
   const handleCloseModal = () => {
     if (typeof window === 'undefined') return
-
-    const recentPhotosFromLocal = JSON.parse(localStorage.getItem('tryon-recent-photos') || '[]')
 
     // Track loading exit if generating
     if (isGenerating) {
       trackAnalyticsEvent('loading')
       hideApp()
       return
-    }
-
-    // Navigate to view if has recent photos
-    if (recentPhotosFromLocal.length > 0) {
-      setTimeout(() => {
-        navigate('/tryon')
-      }, 500)
     }
 
     // Track analytics and close
@@ -82,10 +72,10 @@ export const usePageBarNavigation = () => {
   }
 
   const handleHistoryNavigation = (targetPath: string) => {
-    const isOnHistoryPage = pathName === '/generations-history' || pathName === '/uploads-history'
+    const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
 
     // Track exit from history page
-    if (pathName === '/generations-history' && isOnHistoryPage) {
+    if (pathName === '/generations' && isOnHistoryPage) {
       trackAnalyticsEvent('history')
     }
 
@@ -107,9 +97,9 @@ export const usePageBarNavigation = () => {
   }
 
   const handleToggleSelection = () => {
-    if (pathName === '/uploads-history') {
+    if (pathName === '/uploads') {
       dispatch(uploadsSlice.actions.setIsSelecting(!isSelectingUploads))
-    } else if (pathName === '/generations-history') {
+    } else if (pathName === '/generations') {
       dispatch(generationsSlice.actions.setIsSelecting(!isSelectingGenerations))
     }
   }
@@ -118,7 +108,7 @@ export const usePageBarNavigation = () => {
     handleCloseModal,
     handleHistoryNavigation,
     handleToggleSelection,
-    isOnHistoryPage: pathName === '/generations-history' || pathName === '/uploads-history',
+    isOnHistoryPage: pathName === '/generations' || pathName === '/uploads',
     currentPath: pathName,
   }
 }

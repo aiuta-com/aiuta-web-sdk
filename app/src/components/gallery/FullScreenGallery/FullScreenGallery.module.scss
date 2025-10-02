@@ -132,11 +132,6 @@
       background-color: rgba(0, 0, 0, 0.5);
       transform: scale(1.05);
     }
-
-    img {
-      width: 28px;
-      height: 28px;
-    }
   }
 
   .closeButton {
@@ -147,15 +142,10 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease-in-out;
+    color: white;
 
     &:hover {
       transform: scale(1.1);
-    }
-
-    img {
-      width: 24px;
-      height: 24px;
-      filter: brightness(0) invert(1);
     }
   }
 

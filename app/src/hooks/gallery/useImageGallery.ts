@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { useFullScreenViewer, ImageItem } from './useFullScreenViewer'
@@ -7,8 +7,8 @@ import { useGalleryAnalytics } from './useGalleryAnalytics'
 
 interface UseImageGalleryOptions {
   images: ImageItem[]
-  galleryType: 'history' | 'previously' | 'uploads' | 'generations'
-  modalType: 'history' | 'previously'
+  galleryType: 'uploads' | 'generations'
+  modalType: 'uploads' | 'generations'
   onImageSelect?: (image: ImageItem) => void
   onImageDelete?: (imageId: string) => void
   enableSelection?: boolean
@@ -29,22 +29,18 @@ export const useImageGallery = ({
   const { showFullScreen } = useFullScreenViewer({ modalType, images })
   const { selectedIds, toggleSelection, clearSelection, isSelected, hasSelection } =
     useImageSelection()
-  const { trackPageView, trackImageSelected, trackImageDeleted, trackEvent } =
-    useGalleryAnalytics(galleryType)
-
-  // Track page view on mount
-  useEffect(() => {
-    trackPageView()
-  }, [trackPageView])
+  const { trackImageSelected, trackImageDeleted, trackEvent } = useGalleryAnalytics(galleryType)
 
   const handleImageClick = useCallback(
     (image: ImageItem) => {
       if (enableSelection) {
         toggleSelection(image.id)
-        trackImageSelected(image.id)
       } else if (onImageSelect) {
         onImageSelect(image)
-        trackImageSelected(image.id)
+        // Only track selection for uploads gallery, not for generations gallery
+        if (galleryType === 'uploads') {
+          trackImageSelected(image.id)
+        }
       } else if (isMobile) {
         // Mobile: show full screen modal for mobile when no select handler
         showFullScreen(image)
@@ -53,7 +49,15 @@ export const useImageGallery = ({
         showFullScreen(image)
       }
     },
-    [enableSelection, toggleSelection, onImageSelect, isMobile, showFullScreen, trackImageSelected],
+    [
+      enableSelection,
+      toggleSelection,
+      onImageSelect,
+      isMobile,
+      showFullScreen,
+      trackImageSelected,
+      galleryType,
+    ],
   )
 
   const handleImageDelete = useCallback(

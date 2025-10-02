@@ -15,7 +15,6 @@
 
   /* Background Colors */
   --aiuta-color-background: #ffffff;
-  --aiuta-color-screen: #000000;
   --aiuta-color-neutral: #f2f2f7;
   --aiuta-color-border: #e5e5ea;
 
@@ -24,4 +23,7 @@
 
   /* Error */
   --aiuta-color-error-background: #ef5754;
+
+  /* Screen dim for modals */
+  --aiuta-color-screen-dim: rgba(0, 0, 0, 0.7);
 }

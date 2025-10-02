@@ -19,8 +19,8 @@ export const useTryOnAnalytics = () => {
   }
 
   const trackTryOnFinished = () => {
-    const duration = Math.floor((Date.now() - startTimeRef.current) / 1000)
-    analytics.trackTryOnFinished(duration)
+    const totalDuration = Math.floor((Date.now() - startTimeRef.current) / 1000)
+    analytics.trackTryOnFinished({ totalDuration })
   }
 
   const trackTryOnError = (errorType: string, errorMessage: string, pageId?: string) => {

@@ -14,8 +14,8 @@ export default class IframeManager {
     userInterface: AiutaUserInterface | undefined,
     private readonly logger: Logger,
   ) {
-    if (userInterface?.customCssUrl) {
-      this.customCssUrl = userInterface.customCssUrl
+    if (userInterface?.theme?.customCssUrl) {
+      this.customCssUrl = userInterface.theme.customCssUrl
     }
   }
 

@@ -1,0 +1,43 @@
+import { useEffect } from 'react'
+import { useAppVisibility } from './useAppVisibility'
+
+/**
+ * Hook that handles clicks outside the app container
+ * Only works in main app context (not in QR Upload standalone mode)
+ */
+export const useOutsideClick = () => {
+  const { hideApp } = useAppVisibility()
+
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as Element
+
+      // Find the AppContainer element
+      const appContainer = document.querySelector('[data-testid="aiuta-app-container"]')
+
+      // Check if click is on modal overlays that should not close the app
+      const shareModal = document.querySelector('[data-testid="aiuta-share-modal"]')
+      const fullscreenGallery = document.querySelector('[data-testid="aiuta-fullscreen-gallery"]')
+
+      // If click is inside any modal, don't hide the app
+      if (shareModal?.contains(target) || fullscreenGallery?.contains(target)) {
+        return
+      }
+
+      // If click is outside AppContainer, hide the app
+      if (appContainer && !appContainer.contains(target)) {
+        hideApp()
+      }
+    }
+
+    // Add click listener to the root element
+    const rootElement = document.getElementById('aiuta-root')
+    if (rootElement) {
+      rootElement.addEventListener('click', handleClick)
+
+      return () => {
+        rootElement.removeEventListener('click', handleClick)
+      }
+    }
+  }, [hideApp])
+}

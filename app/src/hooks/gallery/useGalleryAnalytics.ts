@@ -3,15 +3,13 @@ import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 
-type GalleryType = 'history' | 'previously' | 'uploads' | 'generations'
+type GalleryType = 'uploads' | 'generations'
 
 interface AnalyticsEvent {
-  data: {
-    type: string
-    pageId: string
-    event: string
-    productIds: string[]
-  }
+  type: string
+  pageId: string
+  event: string
+  productIds: string[]
 }
 
 /**
@@ -26,14 +24,11 @@ export const useGalleryAnalytics = (galleryType: GalleryType) => {
       if (!productId) return
 
       const analytic: AnalyticsEvent = {
-        data: {
-          type: galleryType === 'history' || galleryType === 'generations' ? 'history' : 'picker',
-          pageId:
-            galleryType === 'history' || galleryType === 'generations' ? 'history' : 'imagePicker',
-          event,
-          productIds: [productId],
-          ...additionalData,
-        },
+        type: galleryType === 'generations' ? 'history' : 'picker',
+        pageId: galleryType === 'generations' ? 'history' : 'imagePicker',
+        event,
+        productIds: [productId],
+        ...additionalData,
       }
 
       rpc.sdk.trackEvent(analytic as unknown as Record<string, unknown>)
@@ -41,20 +36,10 @@ export const useGalleryAnalytics = (galleryType: GalleryType) => {
     [rpc, productId, galleryType],
   )
 
-  const trackPageView = useCallback(() => {
-    trackEvent(
-      galleryType === 'history' || galleryType === 'generations'
-        ? 'pageView'
-        : 'uploadsHistoryOpened',
-    )
-  }, [trackEvent, galleryType])
-
   const trackImageSelected = useCallback(
     (imageId: string) => {
       trackEvent(
-        galleryType === 'history' || galleryType === 'generations'
-          ? 'generatedImageSelected'
-          : 'uploadedPhotoSelected',
+        galleryType === 'generations' ? 'generatedImageSelected' : 'uploadedPhotoSelected',
         { imageId },
       )
     },
@@ -63,18 +48,14 @@ export const useGalleryAnalytics = (galleryType: GalleryType) => {
 
   const trackImageDeleted = useCallback(
     (imageId: string) => {
-      trackEvent(
-        galleryType === 'history' || galleryType === 'generations'
-          ? 'generatedImageDeleted'
-          : 'uploadedPhotoDeleted',
-        { imageId },
-      )
+      trackEvent(galleryType === 'generations' ? 'generatedImageDeleted' : 'uploadedPhotoDeleted', {
+        imageId,
+      })
     },
     [trackEvent, galleryType],
   )
 
   return {
-    trackPageView,
     trackImageSelected,
     trackImageDeleted,
     trackEvent,

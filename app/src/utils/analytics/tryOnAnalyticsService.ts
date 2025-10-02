@@ -11,6 +11,16 @@ export class TryOnAnalyticsService extends BaseAnalyticsService {
     )
   }
 
+  trackPhotoUploaded() {
+    this.rpc.sdk.trackEvent(
+      this.createEvent({
+        type: 'tryOn',
+        event: 'photoUploaded',
+        pageId: 'imagePicker',
+      }),
+    )
+  }
+
   trackTryOnStarted() {
     this.rpc.sdk.trackEvent(
       this.createEvent({
@@ -21,13 +31,18 @@ export class TryOnAnalyticsService extends BaseAnalyticsService {
     )
   }
 
-  trackTryOnFinished(tryOnDuration: number) {
+  trackTryOnFinished(durations: {
+    uploadDuration?: number
+    tryOnDuration?: number
+    downloadDuration?: number
+    totalDuration?: number
+  }) {
     this.rpc.sdk.trackEvent(
       this.createEvent({
         type: 'tryOn',
         event: 'tryOnFinished',
         pageId: 'loading',
-        tryOnDuration,
+        ...durations,
       }),
     )
   }
@@ -42,7 +57,7 @@ export class TryOnAnalyticsService extends BaseAnalyticsService {
         type: 'tryOn',
         event: 'tryOnAborted',
         abortReason,
-        pageId: 'result',
+        pageId: 'results',
       }),
     )
   }

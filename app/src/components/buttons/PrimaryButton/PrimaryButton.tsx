@@ -4,10 +4,12 @@ import { PrimaryButtonProps } from './types'
 import styles from './PrimaryButton.module.scss'
 
 export const PrimaryButton = (props: PrimaryButtonProps) => {
-  const { disabled, children, onClick, className, maxWidth = true } = props
+  const { disabled, children, onClick, className, maxWidth = true, shape = 'M' } = props
 
+  // Get shape class based on size
+  const shapeClass = shape === 'M' ? 'aiuta-button-m' : 'aiuta-button-s'
   const buttonClasses = combineClassNames(
-    'aiuta-button-m',
+    shapeClass,
     styles.primaryButton,
     disabled && styles.primaryButton_disabled,
     maxWidth && styles.primaryButton_maxWidth,

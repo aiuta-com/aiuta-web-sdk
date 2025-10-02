@@ -7,12 +7,12 @@ export interface AnalyticsEvent {
   errorMessage?: string
   tryOnDuration?: number
   abortReason?: string
-  [key: string]: any // для дополнительных свойств
+  [key: string]: any
 }
 
 export interface RpcProxy {
   sdk: {
-    trackEvent: (data: { data: AnalyticsEvent }) => void
+    trackEvent: (data: AnalyticsEvent) => void
   }
 }
 
@@ -25,13 +25,11 @@ export abstract class BaseAnalyticsService {
     protected productId?: string,
   ) {}
 
-  protected createEvent(eventData: Partial<AnalyticsEvent>): { data: AnalyticsEvent } {
+  protected createEvent(eventData: Partial<AnalyticsEvent>): AnalyticsEvent {
     return {
-      data: {
-        productIds: [this.productId || ''],
-        ...eventData,
-      } as AnalyticsEvent,
-    }
+      productIds: [this.productId || ''],
+      ...eventData,
+    } as AnalyticsEvent
   }
 
   trackPageView(pageId: string) {

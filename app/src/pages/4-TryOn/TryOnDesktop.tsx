@@ -1,0 +1,90 @@
+import React, { useEffect, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
+import { useAppSelector } from '@/store/store'
+import {
+  currentTryOnImageSelector,
+  isGeneratingSelector,
+  isAbortedSelector,
+  productIdSelector,
+} from '@/store/slices/tryOnSlice'
+import { ErrorSnackbar, TryOnButton } from '@/components'
+import { AbortAlert, TryOnView } from '@/components'
+import { useTryOnGeneration, useUploadsGallery, useTryOnStrings } from '@/hooks'
+import { useRpc } from '@/contexts'
+import { InputImage } from '@/utils/api/tryOnApiService'
+import styles from './TryOn.module.scss'
+
+export default function TryOnDesktop() {
+  const navigate = useNavigate()
+  const rpc = useRpc()
+  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
+  const isGenerating = useAppSelector(isGeneratingSelector)
+  const isAborted = useAppSelector(isAbortedSelector)
+  const productId = useAppSelector(productIdSelector)
+
+  const { getRecentPhoto } = useUploadsGallery()
+  const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
+  const { tryOn } = useTryOnStrings()
+
+  const [recentImage, setRecentImage] = useState<InputImage | null>(null)
+  const [isButtonClicked, setIsButtonClicked] = useState(false)
+
+  const handleChangePhoto = () => {
+    navigate('/uploads')
+  }
+
+  const hasInputImage = uploadedViewFile.localUrl.length > 0
+  const showTryOnButton = !isGenerating && !isAborted && !isButtonClicked
+
+  const handleTryOnClick = () => {
+    flushSync(() => {
+      setIsButtonClicked(true)
+    })
+    startTryOn()
+  }
+
+  // Track page view on mount
+  useEffect(() => {
+    rpc.sdk.trackEvent({
+      type: 'page',
+      pageId: 'imagePicker',
+      productIds: [productId],
+    })
+  }, [rpc, productId])
+
+  useEffect(() => {
+    if (!hasInputImage) {
+      const recent = getRecentPhoto()
+      setRecentImage(recent)
+    }
+  }, [hasInputImage, getRecentPhoto])
+
+  // Reset button clicked state when generation finishes
+  useEffect(() => {
+    if (!isGenerating) {
+      setIsButtonClicked(false)
+    }
+  }, [isGenerating])
+
+  return (
+    <main className={styles.tryOn}>
+      <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
+      <ErrorSnackbar onRetry={regenerate} />
+
+      <TryOnView
+        uploadedImageUrl={uploadedViewFile.localUrl}
+        recentImageUrl={recentImage?.url}
+        isGenerating={isGenerating}
+        onChangePhoto={handleChangePhoto}
+      />
+
+      <TryOnButton
+        onClick={handleTryOnClick}
+        hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
+      >
+        {tryOn}
+      </TryOnButton>
+    </main>
+  )
+}
