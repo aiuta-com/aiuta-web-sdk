@@ -102,7 +102,10 @@ export const FullScreenGallery = () => {
     return (
       <div
         className={styles.fullScreenModal}
-        onClick={handleCloseModal}
+        onClick={(e) => {
+          e.stopPropagation()
+          handleCloseModal()
+        }}
         data-testid="aiuta-fullscreen-gallery"
       >
         <IconButton
@@ -120,7 +123,10 @@ export const FullScreenGallery = () => {
           alt="Full Screen Image"
           shape={null}
           className={styles.fullImage}
-          onClick={handleCloseModal}
+          onClick={(e) => {
+            e?.stopPropagation()
+            handleCloseModal()
+          }}
         />
       </div>
     )
