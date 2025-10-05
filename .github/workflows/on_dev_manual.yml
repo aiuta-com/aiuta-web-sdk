@@ -16,7 +16,7 @@ jobs:
       - name: 📦 Build dev project
         run: npm run build:dev
         env:
-          AIUTA_APP_BRANCH: ${{ github.ref_name }}
+          AIUTA_APP_PATH: sdk/${{ github.ref_name }}
 
       - name: 🚀 Deploy to Dev
         uses: ./.github/actions/deploy-to-gcs.yml

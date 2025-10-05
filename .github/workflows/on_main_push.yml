@@ -16,6 +16,8 @@ jobs:
 
       - name: 📦 Build preprod project
         run: npm run build:preprod
+        env:
+          AIUTA_APP_PATH: sdk/main
 
       - name: 🚀 Deploy to Preprod
         uses: ./.github/actions/deploy-to-gcs.yml
@@ -26,6 +28,8 @@ jobs:
 
       - name: 📦 Build prod project
         run: npm run build
+        env:
+          AIUTA_APP_PATH: sdk/main
 
       - name: 🚀 Deploy to Prod
         uses: ./.github/actions/deploy-to-gcs.yml

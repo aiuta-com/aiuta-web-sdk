@@ -54,17 +54,12 @@ jobs:
       - name: 📦 Build & Archive
       - name: Build project
         run: npm run build
+        env:
+          AIUTA_APP_PATH: sdk/${{ env.PREFIXED_MAJOR_VERSION }}
 
       - name: 🗜️ Zip build output
         run: |
           (cd dist && zip -r ../release.zip .)
-
-      - name: 🚀 Deploy to Prod (full version)
-        uses: ./.github/actions/deploy-to-gcs.yml
-        with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
-          bucket_name: aiuta_prod_static
-          destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
 
       - name: 🚀 Deploy to Prod (major version)
         uses: ./.github/actions/deploy-to-gcs.yml
@@ -72,6 +67,13 @@ jobs:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
           bucket_name: aiuta_prod_static
           destination_path: sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
+
+      - name: 🚀 Deploy to Prod (full version)
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: aiuta_prod_static
+          destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
 
       - name: 🚀 Deploy to Prod (latest)
         uses: ./.github/actions/deploy-to-gcs.yml
