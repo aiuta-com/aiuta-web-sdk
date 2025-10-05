@@ -2,12 +2,9 @@
  * Constants, functions, and utilities used across different Vite configs
  */
 
-export const buildConfig = {
-  // Features
-  features: {
-    useBootstrap: false, // Toggle between bootstrap and direct main app loading
-  },
+import pkg from './package.json'
 
+export const buildConfig = {
   // Domain configurations
   domain: {
     dev: {
@@ -25,121 +22,97 @@ export const buildConfig = {
   },
 
   // API paths
-  apiPath: {
+  api: {
+    tryOn: 'digital-try-on/v1',
     analytics: 'analytics/v1/web-sdk-analytics',
   },
 
-  // Project structure paths
+  // Project structure
   path: {
     app: 'app',
     sdk: 'sdk',
     lib: 'lib',
     src: 'src',
     dist: 'dist',
-    bootstrap: 'bootstrap',
     assets: 'assets',
+    index: 'index.html',
   },
 
   // Branches
   branch: {
     default: 'main',
-  },
-
-  // File names
-  file: {
-    index: 'index.html',
-    indexJs: 'index.js',
-  },
-
-  // Build patterns
-  pattern: {
-    nameHash: '[name]-[hash]',
-    nameHashJs: '[name]-[hash].js',
-    nameHashExt: '[name]-[hash].[ext]',
-  },
-
-  // Placeholders for build replacement
-  placeholder: {
-    mainHash: '__MAIN_HASH__',
-  },
-
-  // Entry names
-  entry: {
-    main: 'main',
-    bootstrap: 'bootstrap',
-  },
-
-  // File extensions
-  ext: {
-    html: '.html',
-    js: '.js',
-    css: '.css',
-    scss: '.scss',
+    current: process.env.AIUTA_APP_BRANCH || 'dev',
   },
 } as const
 
 /**
- * Helper function to build URLs from domain parts
- */
-export const buildUrl = (...parts: string[]): string => `https://${parts.join('/')}`
-
-/**
  * Get app and analytics URLs for different build modes
  */
-export const getEnvironmentUrls = (mode: string, version: string) => {
-  const fullVersion = version
-  const majorVersion = fullVersion.split('.')[0]
-  const useBootstrap = buildConfig.features.useBootstrap
-
-  // Helper function to get the appropriate app path based on bootstrap setting
-  const getAppPath = (...baseParts: string[]) => {
-    if (useBootstrap) {
-      return buildUrl(...baseParts, buildConfig.path.bootstrap, buildConfig.file.index)
-    } else {
-      return buildUrl(...baseParts, buildConfig.file.index)
-    }
-  }
-
+export const getEnvironmentUrls = (mode: string) => {
   switch (mode) {
     case 'debug':
-      return {
-        appUrl: useBootstrap
-          ? `/${buildConfig.path.app}/${buildConfig.path.bootstrap}/${buildConfig.file.index}`
-          : `/${buildConfig.path.app}/${buildConfig.file.index}`,
-        analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
-      }
+      return getDebugUrlsForDomain(buildConfig.domain.dev)
 
     case 'dev':
-      const branch = process.env.AIUTA_APP_BRANCH || buildConfig.branch.default
-      return {
-        appUrl: getAppPath(buildConfig.domain.dev.static, buildConfig.path.sdk, branch),
-        analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForDomain(buildConfig.domain.dev, buildConfig.branch.current)
 
     case 'preprod':
-      return {
-        appUrl: getAppPath(
-          buildConfig.domain.preprod.static,
-          buildConfig.path.sdk,
-          buildConfig.branch.default,
-        ),
-        analyticsUrl: buildUrl(buildConfig.domain.preprod.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForDomain(buildConfig.domain.preprod, buildConfig.branch.default)
 
     case 'strict':
-      return {
-        appUrl: getAppPath(buildConfig.domain.prod.static, buildConfig.path.sdk, `v${fullVersion}`),
-        analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForDomain(buildConfig.domain.prod, `v${pkg.version}`)
 
     default:
-      return {
-        appUrl: getAppPath(
-          buildConfig.domain.prod.static,
-          buildConfig.path.sdk,
-          `v${majorVersion}`,
-        ),
-        analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForDomain(buildConfig.domain.prod, `v${getMajor(pkg.version)}`)
   }
+}
+
+/**
+ * Generate environment URLs for a specific domain
+ */
+const getStageUrlsForDomain = (domain: { api: string; static: string }, branch: string) => {
+  return {
+    appUrl: getAppPath(domain.static, branch),
+    ...getApiUrls(domain.api),
+  }
+}
+
+/**
+ * Generate debug URLs for a specific domain
+ */
+const getDebugUrlsForDomain = (domain: { api: string; static: string }) => {
+  return {
+    appUrl: `/${buildConfig.path.app}/${buildConfig.path.index}`,
+    ...getApiUrls(domain.api),
+  }
+}
+
+/**
+ * Generate API URLs for a specific domain
+ */
+const getApiUrls = (apiDomain: string) => {
+  return {
+    tryOnApiUrl: buildUrl(apiDomain, buildConfig.api.tryOn),
+    analyticsUrl: buildUrl(apiDomain, buildConfig.api.analytics),
+  }
+}
+
+/**
+ * Helper function to get the app path
+ */
+const getAppPath = (domain: string, branch: string) => {
+  return buildUrl(domain, buildConfig.path.sdk, branch, buildConfig.path.index)
+}
+
+/**
+ * Helper function to build URLs from domain parts
+ */
+const buildUrl = (...parts: string[]): string => `https://${parts.join('/')}`
+
+/**
+ * Safely extract major version from version string
+ */
+const getMajor = (version: string): string => {
+  const major = version?.split('.')?.[0]
+  return major && !isNaN(Number(major)) ? major : '0'
 }
