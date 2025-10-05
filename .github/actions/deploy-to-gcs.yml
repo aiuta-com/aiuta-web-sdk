@@ -1,0 +1,45 @@
+name: 'Deploy to Google Cloud Storage'
+description: 'Deploy SDK and APP to GCS bucket with authentication'
+
+inputs:
+  credentials_json:
+    description: 'GCP service account key JSON'
+    required: true
+  bucket_name:
+    description: 'GCS bucket name'
+    required: true
+  destination_path:
+    description: 'Destination path in bucket'
+    required: true
+  sdk_path:
+    description: 'Path to SDK files'
+    required: true
+    default: 'dist/sdk/'
+  app_path:
+    description: 'Path to APP files'
+    required: true
+    default: 'dist/app/'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🔐 Set up GCP credentials
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ inputs.credentials_json }}
+
+    - name: Upload SDK to GCS bucket
+      uses: google-github-actions/upload-cloud-storage@v2
+      with:
+        path: ${{ inputs.sdk_path }}
+        destination: ${{ inputs.bucket_name }}/${{ inputs.destination_path }}
+        parent: false
+        process_gcloudignore: 'false'
+
+    - name: Upload APP to GCS bucket
+      uses: google-github-actions/upload-cloud-storage@v2
+      with:
+        path: ${{ inputs.app_path }}
+        destination: ${{ inputs.bucket_name }}/${{ inputs.destination_path }}
+        parent: false
+        process_gcloudignore: 'false'

@@ -10,54 +10,22 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: 🔧 Setup project environment
+        uses: ./.github/actions/setup-project.yml
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      # ===========================================
-      # 📦 DEV BUILD
-      # ===========================================
-
-      - name: Build dev project
+      - name: 📦 Build dev project
         run: npm run build:dev
         env:
           AIUTA_APP_BRANCH: ${{ github.ref_name }}
 
-      # ===========================================
-      # 🚀 DEV DEPLOYMENT
-      # ===========================================
-      - name: Set up GCP credentials Dev
-        uses: google-github-actions/auth@v2
+      - name: 🚀 Deploy to Dev
+        uses: ./.github/actions/deploy-to-gcs.yml
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+          bucket_name: aiuta_dev_static
+          destination_path: sdk/${{ github.ref_name }}/
 
-      - name: Upload SDK to GCS bucket Dev
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/sdk/
-          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      - name: Upload APP to GCS bucket Dev
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/app/
-          destination: aiuta_dev_static/sdk/${{ github.ref_name }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      # ===========================================
-      # 📋 DEPLOYMENT SUMMARY
-      # ===========================================
-      - name: Deployment Summary
+      - name: 📋 Deployment Summary
         run: |
           echo "✅ Deployment completed successfully!"
           echo "📦 Branch: ${{ github.ref_name }}"

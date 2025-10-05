@@ -11,23 +11,12 @@ jobs:
       contents: write # Needed to upload release assets
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: 🔧 Setup project environment
+        uses: ./.github/actions/setup-project.yml
         with:
-          fetch-depth: 0 # Fetch all history for all branches and tags
+          fetch_depth: 0
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      # ===========================================
-      # 🔧 VERSION NORMALIZATION
-      # ===========================================
-      - name: Normalize version from tag
+      - name: 🔧 Normalize version from tag
         run: |
           # Extract version from tag (remove 'v' prefix if present)
           VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
@@ -49,10 +38,7 @@ jobs:
           # Store normalized major version with 'v' prefix for deployment
           echo "PREFIXED_MAJOR_VERSION=v$MAJOR" >> $GITHUB_ENV
 
-      # ===========================================
-      # 📝 VERSION UPDATE
-      # ===========================================
-      - name: Update version in package.json
+      - name: 🔄 Update version in package.json
         run: |
           # Get current version from package.json
           CURRENT_VERSION=$(node -p "require('./package.json').version")
@@ -65,95 +51,42 @@ jobs:
             echo "Version ${{ env.FULL_VERSION }} is already up to date in package.json"
           fi
 
-      # ===========================================
-      # 📦 BUILD & ARCHIVE
-      # ===========================================
+      - name: 📦 Build & Archive
       - name: Build project
         run: npm run build
 
-      - name: Zip build output
+      - name: 🗜️ Zip build output
         run: |
-          cd dist
-          zip -r ../release.zip .
+          (cd dist && zip -r ../release.zip .)
 
-      # ===========================================
-      # 🔐 GCP AUTHENTICATION
-      # ===========================================
-      - name: Set up GCP credentials Prod
-        uses: google-github-actions/auth@v2
+      - name: 🚀 Deploy to Prod (full version)
+        uses: ./.github/actions/deploy-to-gcs.yml
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: aiuta_prod_static
+          destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
 
-      # ===========================================
-      # 🚀 FULL VERSION DEPLOYMENT
-      # ===========================================
-      - name: Upload SDK to GCS bucket Prod
-        uses: google-github-actions/upload-cloud-storage@v2
+      - name: 🚀 Deploy to Prod (major version)
+        uses: ./.github/actions/deploy-to-gcs.yml
         with:
-          path: dist/sdk/
-          destination: aiuta_prod_static/sdk/${{ env.PREFIXED_FULL_VERSION }}/
-          parent: false
-          process_gcloudignore: 'false'
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: aiuta_prod_static
+          destination_path: sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
 
-      - name: Upload APP to GCS bucket Prod
-        uses: google-github-actions/upload-cloud-storage@v2
+      - name: 🚀 Deploy to Prod (latest)
+        uses: ./.github/actions/deploy-to-gcs.yml
         with:
-          path: dist/app/
-          destination: aiuta_prod_static/sdk/${{ env.PREFIXED_FULL_VERSION }}/
-          parent: false
-          process_gcloudignore: 'false'
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: aiuta_prod_static
+          destination_path: sdk/latest/
 
-      # ===========================================
-      # 🚀 MAJOR VERSION DEPLOYMENT
-      # ===========================================
-      - name: Upload SDK to GCS bucket Prod (major)
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/sdk/
-          destination: aiuta_prod_static/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      - name: Upload APP to GCS bucket Prod (major)
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/app/
-          destination: aiuta_prod_static/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
-          parent: false
-          process_gcloudignore: 'false'
-
-      # ===========================================
-      # 🚀 LATEST DEPLOYMENT
-      # ===========================================
-      - name: Upload SDK to GCS bucket Prod (latest)
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/sdk/
-          destination: aiuta_prod_static/sdk/latest/
-          parent: false
-          process_gcloudignore: 'false'
-
-      - name: Upload APP to GCS bucket Prod (latest)
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: dist/app/
-          destination: aiuta_prod_static/sdk/latest/
-          parent: false
-          process_gcloudignore: 'false'
-
-      # ===========================================
-      # 📤 UPLOAD ARTIFACTS TO RELEASE
-      # ===========================================
-      - name: Upload artifacts to release
+      - name: 📤 Upload artifacts to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload ${{ github.event.release.tag_name }} release.zip dist/sdk/* --clobber
 
-      # ===========================================
-      # 🔄 VERSION INCREMENT
-      # ===========================================
-      - name: Commit next patch version
+      - name: 🔄 Increment version
         run: |
           # Calculate next patch version
           # Split version into major.minor.patch
@@ -184,10 +117,7 @@ jobs:
           # Push to the default branch with force-with-lease for safety
           git push --force-with-lease origin temp-branch:main
 
-      # ===========================================
-      # 📋 RELEASE DESCRIPTION UPDATE
-      # ===========================================
-      - name: Update release description with file links
+      - name: 📋 Update release description
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -210,7 +140,7 @@ jobs:
           done
 
           # Generate links for major version files
-          echo -e "\n### Major Version Files (stable version for your major release)" >> updated_description.md
+          echo -e "\n### Major Version Files (stable version for major release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
             echo "- https://static.aiuta.com/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/${filename}" >> updated_description.md
