@@ -1,10 +1,10 @@
-name: Manual Dev Deploy
+name: Build and Deploy to Dev on manual dispatch
 
 on:
   workflow_dispatch:
 
 jobs:
-  manual-dev-deploy:
+  build-and-deploy-dev:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -21,19 +21,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ===========================================
+      # 📦 DEV BUILD
+      # ===========================================
+
       - name: Build dev project
         run: npm run build:dev
         env:
           AIUTA_APP_BRANCH: ${{ github.ref_name }}
 
-      # Authenticate with GCP
+      # ===========================================
+      # 🚀 DEV DEPLOYMENT
+      # ===========================================
       - name: Set up GCP credentials Dev
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
 
-      # Upload dist/ to GCS
-      - name: Upload to GCS bucket Dev JS
+      - name: Upload SDK to GCS bucket Dev
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/sdk/
@@ -41,8 +46,7 @@ jobs:
           parent: false
           process_gcloudignore: 'false'
 
-      # Upload dist/ to GCS
-      - name: Upload to GCS bucket Dev App
+      - name: Upload APP to GCS bucket Dev
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: dist/app/
@@ -50,9 +54,12 @@ jobs:
           parent: false
           process_gcloudignore: 'false'
 
+      # ===========================================
+      # 📋 DEPLOYMENT SUMMARY
+      # ===========================================
       - name: Deployment Summary
         run: |
-          echo "✅ Dev deployment completed successfully!"
+          echo "✅ Deployment completed successfully!"
           echo "📦 Branch: ${{ github.ref_name }}"
           echo "📁 Uploaded to: aiuta_dev_static/sdk/${{ github.ref_name }}/"
           echo ""
