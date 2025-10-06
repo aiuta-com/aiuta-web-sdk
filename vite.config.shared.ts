@@ -2,144 +2,91 @@
  * Constants, functions, and utilities used across different Vite configs
  */
 
-export const buildConfig = {
-  // Features
-  features: {
-    useBootstrap: false, // Toggle between bootstrap and direct main app loading
-  },
+import pkg from './package.json'
 
-  // Domain configurations
-  domain: {
+export const buildConfig = {
+  // Environments
+  env: {
+    debug: {
+      // relative static, prod api, debug analytics
+      api: 'https://api.aiuta.com/digital-try-on/v1',
+      analytics: 'https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics',
+    },
     dev: {
-      api: 'api.dev.aiuta.com',
-      static: 'static.dev.aiuta.com',
+      static: 'https://static.dev.aiuta.com',
+      api: 'https://api.dev.aiuta.com/digital-try-on/v1',
+      analytics: 'https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     preprod: {
-      api: 'api.preprod.aiuta.com',
-      static: 'static.preprod.aiuta.com',
+      static: 'https://static.preprod.aiuta.com',
+      api: 'https://api.preprod.aiuta.com/digital-try-on/v1',
+      analytics: 'https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     prod: {
-      api: 'api.aiuta.com',
-      static: 'static.aiuta.com',
+      static: 'https://static.aiuta.com',
+      api: 'https://api.aiuta.com/digital-try-on/v1',
+      analytics: 'https://api.aiuta.com/analytics/v1/web-sdk-analytics',
     },
   },
 
-  // API paths
-  apiPath: {
-    analytics: 'analytics/v1/web-sdk-analytics',
-  },
-
-  // Project structure paths
+  // Project structure
   path: {
     app: 'app',
     sdk: 'sdk',
     lib: 'lib',
     src: 'src',
     dist: 'dist',
-    bootstrap: 'bootstrap',
     assets: 'assets',
-  },
-
-  // Branches
-  branch: {
-    default: 'main',
-  },
-
-  // File names
-  file: {
     index: 'index.html',
-    indexJs: 'index.js',
-  },
-
-  // Build patterns
-  pattern: {
-    nameHash: '[name]-[hash]',
-    nameHashJs: '[name]-[hash].js',
-    nameHashExt: '[name]-[hash].[ext]',
-  },
-
-  // Placeholders for build replacement
-  placeholder: {
-    mainHash: '__MAIN_HASH__',
-  },
-
-  // Entry names
-  entry: {
-    main: 'main',
-    bootstrap: 'bootstrap',
-  },
-
-  // File extensions
-  ext: {
-    html: '.html',
-    js: '.js',
-    css: '.css',
-    scss: '.scss',
   },
 } as const
 
 /**
- * Helper function to build URLs from domain parts
- */
-export const buildUrl = (...parts: string[]): string => `https://${parts.join('/')}`
-
-/**
  * Get app and analytics URLs for different build modes
  */
-export const getEnvironmentUrls = (mode: string, version: string) => {
-  const fullVersion = version
-  const majorVersion = fullVersion.split('.')[0]
-  const useBootstrap = buildConfig.features.useBootstrap
-
-  // Helper function to get the appropriate app path based on bootstrap setting
-  const getAppPath = (...baseParts: string[]) => {
-    if (useBootstrap) {
-      return buildUrl(...baseParts, buildConfig.path.bootstrap, buildConfig.file.index)
-    } else {
-      return buildUrl(...baseParts, buildConfig.file.index)
-    }
-  }
-
+export const getEnvironmentUrls = (mode: string) => {
   switch (mode) {
     case 'debug':
-      return {
-        appUrl: useBootstrap
-          ? `/${buildConfig.path.app}/${buildConfig.path.bootstrap}/${buildConfig.file.index}`
-          : `/${buildConfig.path.app}/${buildConfig.file.index}`,
-        analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
-      }
+      return getDebugUrlsForEnv(buildConfig.env.debug)
 
     case 'dev':
-      const branch = process.env.AIUTA_APP_BRANCH || buildConfig.branch.default
-      return {
-        appUrl: getAppPath(buildConfig.domain.dev.static, buildConfig.path.sdk, branch),
-        analyticsUrl: buildUrl(buildConfig.domain.dev.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForEnv(buildConfig.env.dev)
 
     case 'preprod':
-      return {
-        appUrl: getAppPath(
-          buildConfig.domain.preprod.static,
-          buildConfig.path.sdk,
-          buildConfig.branch.default,
-        ),
-        analyticsUrl: buildUrl(buildConfig.domain.preprod.api, buildConfig.apiPath.analytics),
-      }
-
-    case 'strict':
-      return {
-        appUrl: getAppPath(buildConfig.domain.prod.static, buildConfig.path.sdk, `v${fullVersion}`),
-        analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForEnv(buildConfig.env.preprod)
 
     default:
-      return {
-        appUrl: getAppPath(
-          buildConfig.domain.prod.static,
-          buildConfig.path.sdk,
-          `v${majorVersion}`,
-        ),
-        analyticsUrl: buildUrl(buildConfig.domain.prod.api, buildConfig.apiPath.analytics),
-      }
+      return getStageUrlsForEnv(buildConfig.env.prod)
   }
+}
+
+/**
+ * Generate environment URLs for a specific domain
+ */
+const getStageUrlsForEnv = (env: { static: string; api: string; analytics: string }) => {
+  const appPath = process.env.AIUTA_APP_PATH || getMajorPath()
+  return {
+    appUrl: `${env.static}/${appPath}/${buildConfig.path.index}`,
+    tryOnApiUrl: env.api,
+    analyticsUrl: env.analytics,
+  }
+}
+
+/**
+ * Generate debug URLs for a specific domain
+ */
+const getDebugUrlsForEnv = (env: { api: string; analytics: string }) => {
+  return {
+    appUrl: `/${buildConfig.path.app}/${buildConfig.path.index}`,
+    tryOnApiUrl: env.api,
+    analyticsUrl: env.analytics,
+  }
+}
+
+/**
+ * Fallback to major version path if app path is not set
+ */
+const getMajorPath = (): string => {
+  const major = pkg.version.split('.')?.[0]
+  return `${buildConfig.path.sdk}/v${major}`
 }

@@ -1,0 +1,162 @@
+name: Build and Deploy to Prod on create release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  build-and-deploy-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to upload release assets
+    env:
+      PROD_BUCKET: aiuta_prod_static
+      PROD_URL: https://static.aiuta.com
+
+    steps:
+      - name: 🔧 Setup project environment
+        uses: ./.github/actions/setup-project.yml
+        with:
+          fetch_depth: 0
+
+      - name: 🔧 Normalize version from tag
+        run: |
+          # Extract version from tag (remove 'v' prefix if present)
+          VERSION=$(echo ${{ github.event.release.tag_name }} | sed 's/^v//')
+
+          # Normalize version to MAJOR.MINOR.PATCH format
+          # Split version by dots and pad with zeros if needed
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+          NORMALIZED_FULL_VERSION="$MAJOR.$MINOR.$PATCH"
+
+          # Store normalized cleaned version for reuse in other steps
+          echo "FULL_VERSION=$NORMALIZED_FULL_VERSION" >> $GITHUB_ENV
+
+          # Store normalized version with 'v' prefix for deployment
+          echo "PREFIXED_FULL_VERSION=v$NORMALIZED_FULL_VERSION" >> $GITHUB_ENV
+
+          # Store normalized major version with 'v' prefix for deployment
+          echo "PREFIXED_MAJOR_VERSION=v$MAJOR" >> $GITHUB_ENV
+
+      - name: 🔄 Update version in package.json
+        run: |
+          # Get current version from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          # Only update if versions are different
+          if [ "${{ env.FULL_VERSION }}" != "$CURRENT_VERSION" ]; then
+            echo "Updating version from $CURRENT_VERSION to ${{ env.FULL_VERSION }}"
+            npm version ${{ env.FULL_VERSION }} --no-git-tag-version
+          else
+            echo "Version ${{ env.FULL_VERSION }} is already up to date in package.json"
+          fi
+
+      - name: 📦 Build & Archive
+      - name: Build project
+        run: npm run build
+        env:
+          AIUTA_APP_PATH: sdk/${{ env.PREFIXED_MAJOR_VERSION }}
+
+      - name: 🗜️ Zip build output
+        run: |
+          (cd dist && zip -r ../release.zip .)
+
+      - name: 🚀 Deploy to Prod (major version)
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: ${{ env.PROD_BUCKET }}
+          destination_path: sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
+
+      - name: 🚀 Deploy to Prod (full version)
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: ${{ env.PROD_BUCKET }}
+          destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
+
+      - name: 🚀 Deploy to Prod (latest)
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: ${{ env.PROD_BUCKET }}
+          destination_path: sdk/latest/
+
+      - name: 📤 Upload artifacts to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} release.zip dist/sdk/* --clobber
+
+      - name: 🔄 Increment version
+        run: |
+          # Calculate next patch version
+          # Split version into major.minor.patch
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${{ env.FULL_VERSION }}"
+          NEXT_PATCH=$((PATCH + 1))
+          NEXT_VERSION="$MAJOR.$MINOR.$NEXT_PATCH"
+
+          # Update version in package.json to next patch version
+          npm version $NEXT_VERSION --no-git-tag-version
+
+          # Configure git
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+          # Add and commit the changes
+          git add package.json package-lock.json
+          git commit -m "Update version to $NEXT_VERSION"
+
+          # Fetch the latest changes from the default branch
+          git fetch origin main
+
+          # Create a temporary branch from the current HEAD
+          git checkout -b temp-branch
+
+          # Rebase on top of the latest changes from the default branch
+          git rebase origin/main
+
+          # Push to the default branch with force-with-lease for safety
+          git push --force-with-lease origin temp-branch:main
+
+      - name: 📋 Update release description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get the current release description
+          CURRENT_DESCRIPTION=$(gh release view ${{ github.event.release.tag_name }} --json body -q .body)
+
+          # Create a temporary file for the updated description
+          echo "$CURRENT_DESCRIPTION" > updated_description.md
+
+          # Add a section header for the links
+          echo -e "\n## SDK Files" >> updated_description.md
+          echo "The following files are available at:" >> updated_description.md
+          echo "" >> updated_description.md
+
+          # Generate links for versioned files
+          echo "### Versioned Files (specific to this release)" >> updated_description.md
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+          echo "- ${{ env.PROD_URL }}/sdk/${{ env.PREFIXED_FULL_VERSION }}/${filename}" >> updated_description.md
+          done
+
+          # Generate links for major version files
+          echo -e "\n### Major Version Files (stable version for major release)" >> updated_description.md
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+          echo "- ${{ env.PROD_URL }}/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/${filename}" >> updated_description.md
+          done
+
+          # Generate links for latest files
+          echo -e "\n### Latest Files (always points to the most recent release)" >> updated_description.md
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+          echo "- ${{ env.PROD_URL }}/sdk/latest/${filename}" >> updated_description.md
+          done
+
+          # Update the release description
+          gh release edit ${{ github.event.release.tag_name }} --notes "$(cat updated_description.md)"

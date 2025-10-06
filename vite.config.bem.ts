@@ -1,6 +1,11 @@
 import fs from 'fs'
 
 /**
+ * CSS class prefix for BEM naming
+ */
+const CSS_PREFIX = 'aiuta'
+
+/**
  * Convert camelCase to kebab-case
  */
 export const camelToKebab = (str: string): string => {
@@ -42,19 +47,19 @@ export const generateScopedName = (name: string, filename: string): string => {
 
     // If base class matches component name, it's a block modifier
     if (baseClass === componentCamelCase) {
-      return `aiuta-${kebabBlock}--${kebabModifier}`
+      return `${CSS_PREFIX}-${kebabBlock}--${kebabModifier}`
     }
 
     // Otherwise it's an element modifier
     const kebabBaseClass = camelToKebab(baseClass)
-    return `aiuta-${kebabBlock}__${kebabBaseClass}--${kebabModifier}`
+    return `${CSS_PREFIX}-${kebabBlock}__${kebabBaseClass}--${kebabModifier}`
   }
 
   // If class matches component name, it's the main block
   if (name === componentCamelCase) {
-    return `aiuta-${kebabBlock}`
+    return `${CSS_PREFIX}-${kebabBlock}`
   }
 
   // Regular element
-  return `aiuta-${kebabBlock}__${kebabClassName}`
+  return `${CSS_PREFIX}-${kebabBlock}__${kebabClassName}`
 }

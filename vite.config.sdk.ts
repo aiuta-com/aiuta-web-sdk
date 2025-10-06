@@ -4,7 +4,7 @@ import pkg from './package.json'
 import { getEnvironmentUrls, buildConfig } from './vite.config.shared'
 
 export default defineConfig(({ mode }) => {
-  const { appUrl, analyticsUrl } = getEnvironmentUrls(mode, pkg.version)
+  const { appUrl, analyticsUrl } = getEnvironmentUrls(mode)
 
   return {
     resolve: {

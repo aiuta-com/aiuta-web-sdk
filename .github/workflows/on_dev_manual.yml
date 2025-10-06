@@ -1,0 +1,43 @@
+name: Build and Deploy to Dev on manual dispatch
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy-dev:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      DEV_BUCKET: aiuta_dev_static
+      DEV_URL: https://static.dev.aiuta.com
+      DEPLOY_PATH: sdk/${{ github.ref_name }}/
+
+    steps:
+      - name: 🔧 Setup project environment
+        uses: ./.github/actions/setup-project.yml
+
+      - name: 📦 Build dev project
+        run: npm run build:dev
+        env:
+          AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
+
+      - name: 🚀 Deploy to Dev
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+          bucket_name: ${{ env.DEV_BUCKET }}
+          destination_path: ${{ env.DEPLOY_PATH }}
+
+      - name: 📋 Deployment Summary
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "📦 Branch: ${{ github.ref_name }}"
+          echo "📁 Uploaded to: ${{ env.DEV_BUCKET }}/${{ env.DEPLOY_PATH }}"
+          echo ""
+          echo "🔗 Files available at:"
+          echo ""
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+            echo "- ${{ env.DEV_URL }}/${{ env.DEPLOY_PATH }}${filename}"
+          done

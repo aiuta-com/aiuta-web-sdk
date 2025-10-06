@@ -1,0 +1,66 @@
+name: Build and Deploy to Preprod and Prod on push to main
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy-main:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PREPROD_BUCKET: aiuta_preprod_static
+      PREPROD_URL: https://static.preprod.aiuta.com
+      PROD_BUCKET: aiuta_prod_static
+      PROD_URL: https://static.aiuta.com
+      DEPLOY_PATH: sdk/main/
+
+    steps:
+      - name: 🔧 Setup project environment
+        uses: ./.github/actions/setup-project.yml
+
+      - name: 📦 Build preprod project
+        run: npm run build:preprod
+        env:
+          AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
+
+      - name: 🚀 Deploy to Preprod
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
+          bucket_name: ${{ env.PREPROD_BUCKET }}
+          destination_path: ${{ env.DEPLOY_PATH }}
+
+      - name: 📦 Build prod project
+        run: npm run build
+        env:
+          AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
+
+      - name: 🚀 Deploy to Prod
+        uses: ./.github/actions/deploy-to-gcs.yml
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
+          bucket_name: ${{ env.PROD_BUCKET }}
+          destination_path: ${{ env.DEPLOY_PATH }}
+
+      - name: 📋 Deployment Summary
+        run: |
+          echo "✅ Deployment completed successfully!"
+          echo "📦 Branch: main"
+          echo "📁 Preprod uploaded to: ${{ env.PREPROD_BUCKET }}/${{ env.DEPLOY_PATH }}"
+          echo "📁 Prod uploaded to: ${{ env.PROD_BUCKET }}/${{ env.DEPLOY_PATH }}"
+          echo ""
+          echo "🔗 Files available at:"
+          echo ""
+          echo "Preprod:"
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+            echo "- ${{ env.PREPROD_URL }}/${{ env.DEPLOY_PATH }}${filename}"
+          done
+          echo ""
+          echo "Prod:"
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+            echo "- ${{ env.PROD_URL }}/${{ env.DEPLOY_PATH }}${filename}"
+          done
