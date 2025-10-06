@@ -65,8 +65,9 @@ export const getEnvironmentUrls = (mode: string) => {
  */
 const getStageUrlsForEnv = (env: { static: string; api: string; analytics: string }) => {
   const appPath = process.env.AIUTA_APP_PATH || getMajorPath()
+  const normalizedAppPath = appPath.replace(/\/$/, '')
   return {
-    appUrl: `${env.static}/${appPath}/${buildConfig.path.index}`,
+    appUrl: `${env.static}/${normalizedAppPath}/${buildConfig.path.index}`,
     tryOnApiUrl: env.api,
     analyticsUrl: env.analytics,
   }
