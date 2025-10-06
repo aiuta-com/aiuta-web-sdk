@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: 🔧 Setup project environment
-        uses: ./.github/actions/setup-project.yml
+        uses: ./.github/actions/setup-project
 
       - name: 📦 Build dev project
         run: npm run build:dev
@@ -23,7 +23,7 @@ jobs:
           AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
 
       - name: 🚀 Deploy to Dev
-        uses: ./.github/actions/deploy-to-gcs.yml
+        uses: ./.github/actions/deploy-to-gcs
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
           bucket_name: ${{ env.DEV_BUCKET }}

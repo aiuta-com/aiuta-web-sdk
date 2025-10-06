@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: 🔧 Setup project environment
-        uses: ./.github/actions/setup-project.yml
+        uses: ./.github/actions/setup-project
 
       - name: 📦 Build preprod project
         run: npm run build:preprod
@@ -26,7 +26,7 @@ jobs:
           AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
 
       - name: 🚀 Deploy to Preprod
-        uses: ./.github/actions/deploy-to-gcs.yml
+        uses: ./.github/actions/deploy-to-gcs
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
           bucket_name: ${{ env.PREPROD_BUCKET }}
@@ -38,7 +38,7 @@ jobs:
           AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
 
       - name: 🚀 Deploy to Prod
-        uses: ./.github/actions/deploy-to-gcs.yml
+        uses: ./.github/actions/deploy-to-gcs
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
           bucket_name: ${{ env.PROD_BUCKET }}
