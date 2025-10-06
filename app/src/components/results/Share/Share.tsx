@@ -40,7 +40,8 @@ export const Share = () => {
     },
   ]
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
     if (!hasShared) {
       sendCancelAnalytics()
     }
