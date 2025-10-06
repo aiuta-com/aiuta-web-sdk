@@ -16,12 +16,17 @@ export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHis
   const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
     useUploadsGallery()
 
-  const handleClose = () => {
+  const handleClose = (e?: React.MouseEvent) => {
+    e?.stopPropagation()
     dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
   }
 
   const handleImageClick = (item: InputImage) => {
     onImageSelect(item.id, item.url)
+  }
+
+  const handleImageDelete = (imageId: string) => {
+    removePhotoFromGallery(imageId)
   }
 
   return (
@@ -30,8 +35,12 @@ export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHis
         <h2 className="aiuta-title-m">{uploadsHistoryTitle}</h2>
       </div>
 
-      <div className={styles.content}>
-        <div className={styles.imageContent} data-scrollable="true">
+      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={styles.imageContent}
+          data-scrollable="true"
+          onClick={(e) => e.stopPropagation()}
+        >
           {recentPhotos.length > 0
             ? recentPhotos.map((item: InputImage, index) => (
                 <DeletableImage
@@ -39,7 +48,7 @@ export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHis
                   src={item.url}
                   imageId={item.id}
                   classNames={styles.imageBox}
-                  onDelete={removePhotoFromGallery}
+                  onDelete={handleImageDelete}
                   onClick={() => handleImageClick(item)}
                 />
               ))

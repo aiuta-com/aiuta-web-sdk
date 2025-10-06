@@ -142,9 +142,13 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
     [handleDragStart, getClientY, handleGlobalMouseMove, handleGlobalMouseUp],
   )
 
-  const handleOverlayClick = useCallback(() => {
-    onClose()
-  }, [onClose])
+  const handleOverlayClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.stopPropagation()
+      onClose()
+    },
+    [onClose],
+  )
 
   const handleContentClick = useCallback((event: React.MouseEvent) => {
     event.stopPropagation()
@@ -154,6 +158,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
     <div
       className={combineClassNames(styles.bottomSheet, isOpen && styles.bottomSheet_active)}
       onClick={handleOverlayClick}
+      data-testid="aiuta-bottom-sheet"
     >
       <div ref={contentRef} className={styles.content} onClick={handleContentClick}>
         <div
