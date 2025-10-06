@@ -15,7 +15,7 @@ export const useTryOnStrings = () => {
 
   return {
     // Main Try On strings
-    tryOnPageTitle: strings?.tryOnPageTitle ?? 'Virtual Try On',
+    tryOnPageTitle: strings?.tryOnPageTitle ?? 'Virtual Try-On',
     tryOn: strings?.tryOn ?? 'Try On',
 
     // Loading page strings
