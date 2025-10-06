@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # Needed to upload release assets
+    env:
+      PROD_BUCKET: aiuta_prod_static
+      PROD_URL: https://static.aiuta.com
 
     steps:
       - name: 🔧 Setup project environment
@@ -65,21 +68,21 @@ jobs:
         uses: ./.github/actions/deploy-to-gcs.yml
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
-          bucket_name: aiuta_prod_static
+          bucket_name: ${{ env.PROD_BUCKET }}
           destination_path: sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
 
       - name: 🚀 Deploy to Prod (full version)
         uses: ./.github/actions/deploy-to-gcs.yml
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
-          bucket_name: aiuta_prod_static
+          bucket_name: ${{ env.PROD_BUCKET }}
           destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
 
       - name: 🚀 Deploy to Prod (latest)
         uses: ./.github/actions/deploy-to-gcs.yml
         with:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
-          bucket_name: aiuta_prod_static
+          bucket_name: ${{ env.PROD_BUCKET }}
           destination_path: sdk/latest/
 
       - name: 📤 Upload artifacts to release
@@ -138,21 +141,21 @@ jobs:
           echo "### Versioned Files (specific to this release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
-            echo "- https://static.aiuta.com/sdk/${{ env.PREFIXED_FULL_VERSION }}/${filename}" >> updated_description.md
+          echo "- ${{ env.PROD_URL }}/sdk/${{ env.PREFIXED_FULL_VERSION }}/${filename}" >> updated_description.md
           done
 
           # Generate links for major version files
           echo -e "\n### Major Version Files (stable version for major release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
-            echo "- https://static.aiuta.com/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/${filename}" >> updated_description.md
+          echo "- ${{ env.PROD_URL }}/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/${filename}" >> updated_description.md
           done
 
           # Generate links for latest files
           echo -e "\n### Latest Files (always points to the most recent release)" >> updated_description.md
           for file in dist/sdk/*; do
             filename=$(basename "$file")
-            echo "- https://static.aiuta.com/sdk/latest/${filename}" >> updated_description.md
+          echo "- ${{ env.PROD_URL }}/sdk/latest/${filename}" >> updated_description.md
           done
 
           # Update the release description
