@@ -1,4 +1,4 @@
-name: Build and Deploy to Prod on create release
+name: Versioned Prod on create release
 
 on:
   release:
@@ -14,10 +14,13 @@ jobs:
       PROD_URL: https://static.aiuta.com
 
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: 🔧 Setup project environment
         uses: ./.github/actions/setup-project
-        with:
-          fetch_depth: 0
 
       - name: 🔧 Normalize version from tag
         run: |

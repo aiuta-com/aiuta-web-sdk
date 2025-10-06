@@ -1,4 +1,4 @@
-name: Build and Deploy to Preprod and Prod on push to main
+name: Preprod and Prod on push to main
 
 on:
   push:
@@ -17,6 +17,9 @@ jobs:
       DEPLOY_PATH: sdk/main/
 
     steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
       - name: 🔧 Setup project environment
         uses: ./.github/actions/setup-project
 
