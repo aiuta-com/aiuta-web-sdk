@@ -42,7 +42,7 @@ export default class IframeManager {
     const iframe = document.createElement('iframe') as HTMLIFrameElement
     iframe.id = this.iframeId
     iframe.src = src
-    iframe.allow = 'web-share'
+    iframe.allow = 'clipboard-write; web-share'
 
     iframe.style.position = 'fixed'
     iframe.style.top = '0'
