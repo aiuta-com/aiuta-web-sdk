@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
@@ -26,6 +27,7 @@ export const useGenerationsGallery = ({
   onCloseModal,
   onShowDeleteModal,
 }: UseGenerationsGalleryProps = {}) => {
+  const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const rpc = useRpc()
   const isMobile = useAppSelector(isMobileSelector)
@@ -154,6 +156,13 @@ export const useGenerationsGallery = ({
   // Selection actions for SelectionSnackbar
   const handleDelete = onShowDeleteModal || (() => {})
   const handleDownload = handleDownloadSelectedImages
+
+  // Navigate to home when all images are deleted
+  useEffect(() => {
+    if (generatedImages.length === 0) {
+      navigate('/')
+    }
+  }, [generatedImages.length, navigate])
 
   // Handle message events from parent window
   useEffect(() => {

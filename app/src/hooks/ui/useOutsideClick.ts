@@ -12,6 +12,11 @@ export const useOutsideClick = () => {
     const handleClick = (event: MouseEvent) => {
       const target = event.target as Element
 
+      // If target is no longer in the document (was removed during click handling), ignore
+      if (!document.contains(target)) {
+        return
+      }
+
       // Find the AppContainer element
       const appContainer = document.querySelector('[data-testid="aiuta-app-container"]')
 
@@ -19,15 +24,18 @@ export const useOutsideClick = () => {
       const shareModal = document.querySelector('[data-testid="aiuta-share-modal"]')
       const fullscreenGallery = document.querySelector('[data-testid="aiuta-fullscreen-gallery"]')
       const advancedFullscreenGallery = document.querySelector('[data-testid="fullscreen-gallery"]')
+      const bottomSheet = document.querySelector('[data-testid="aiuta-bottom-sheet"]')
 
       // Check if target is the modal itself or inside any modal
       const isInsideModal =
         target.closest('[data-testid="aiuta-share-modal"]') ||
         target.closest('[data-testid="aiuta-fullscreen-gallery"]') ||
         target.closest('[data-testid="fullscreen-gallery"]') ||
+        target.closest('[data-testid="aiuta-bottom-sheet"]') ||
         shareModal?.contains(target) ||
         fullscreenGallery?.contains(target) ||
-        advancedFullscreenGallery?.contains(target)
+        advancedFullscreenGallery?.contains(target) ||
+        bottomSheet?.contains(target)
 
       // If click is inside any modal, don't hide the app
       if (isInsideModal) {
