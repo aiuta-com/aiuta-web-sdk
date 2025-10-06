@@ -15,7 +15,7 @@
   width: calc(100% - 2 * var(--aiuta-inset-h));
   max-width: var(--aiuta-max-width);
   z-index: 1;
-  row-gap: 4px;
+  column-gap: 4px;
 }
 
 .tryOnButton_mobile {
