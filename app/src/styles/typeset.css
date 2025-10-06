@@ -62,6 +62,7 @@
 
 /* Buttons */
 .aiuta-button-m {
+  font-family: var(--aiuta-typeface);
   font-size: 17px;
   font-style: normal;
   font-weight: 500;
@@ -69,6 +70,7 @@
 }
 
 .aiuta-button-s {
+  font-family: var(--aiuta-typeface);
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
