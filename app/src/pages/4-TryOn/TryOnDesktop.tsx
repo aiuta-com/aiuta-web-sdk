@@ -25,7 +25,7 @@ export default function TryOnDesktop() {
   const productId = useAppSelector(productIdSelector)
 
   const { getRecentPhoto } = useUploadsGallery()
-  const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
+  const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
 
   const handleChangePhoto = () => {
@@ -60,8 +60,8 @@ export default function TryOnDesktop() {
 
   return (
     <main className={styles.tryOn}>
-      <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
-      <ErrorSnackbar onRetry={regenerate} />
+      <AbortAlert />
+      <ErrorSnackbar onRetry={retryTryOn} />
 
       <TryOnView
         image={selectedImage}

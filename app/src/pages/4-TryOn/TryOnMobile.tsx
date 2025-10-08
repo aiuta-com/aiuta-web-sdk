@@ -33,33 +33,33 @@ export default function TryOnMobile() {
 
   const { recentlyPhotos: recentPhotos } = useUploadsGallery()
   const { selectImageToTryOn } = useTryOnImage()
-  const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
+  const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
 
   const handleFileSelect = useCallback(
     async (file: File) => {
-      // Close the bottom sheet if open
       if (isBottomSheetOpen) {
         dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
       }
-
-      // Select image (creates NewImage and saves to Redux)
-      await selectImageToTryOn(file)
+      const newImage = await selectImageToTryOn(file)
+      startTryOn(newImage)
     },
-    [isBottomSheetOpen, dispatch, selectImageToTryOn],
+    [isBottomSheetOpen, dispatch, selectImageToTryOn, startTryOn],
   )
 
   const handleOpenBottomSheet = () => {
     dispatch(uploadsSlice.actions.setIsBottomSheetOpen(true))
   }
 
-  const handleChoosePhotoFromHistory = (id: string, url: string) => {
-    // Select image from history
-    dispatch(tryOnSlice.actions.setSelectedImage({ id, url }))
-
-    // Close the bottom sheet
-    dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
-  }
+  const handleChoosePhotoFromHistory = useCallback(
+    (id: string, url: string) => {
+      const imageToTryOn = { id, url }
+      dispatch(tryOnSlice.actions.setSelectedImage(imageToTryOn))
+      dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+      startTryOn(imageToTryOn)
+    },
+    [dispatch, startTryOn],
+  )
 
   const hasImage = selectedImage !== null
   const hasRecentPhotos = recentPhotos && recentPhotos.length > 0
@@ -83,8 +83,8 @@ export default function TryOnMobile() {
 
   return (
     <main className={styles.tryOn}>
-      <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
-      <ErrorSnackbar onRetry={regenerate} />
+      <AbortAlert />
+      <ErrorSnackbar onRetry={retryTryOn} />
 
       <FilePicker onFileSelect={handleFileSelect}>
         {({ openFilePicker }) => (

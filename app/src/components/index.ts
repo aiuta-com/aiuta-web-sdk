@@ -29,6 +29,8 @@ export { FilePicker } from './picker/FilePicker'
 export { BottomSheet } from './popups/BottomSheet'
 export { ErrorSnackbar } from './popups/ErrorSnackbar'
 export { SelectionSnackbar } from './popups/SelectionSnackbar'
+export { Confirmation } from './popups/Confirmation'
+export { AbortAlert } from './popups/AbortAlert'
 
 // ===== FEATURE COMPONENTS =====
 
@@ -59,7 +61,3 @@ export { TryOnView } from './tryOn/TryOnView'
 export { ResultActions } from './results/ResultActions'
 export { Share } from './results/Share'
 export { Disclaimer } from './results/Disclaimer'
-
-// ===== ALERTS =====
-export { AbortAlert } from './alerts/AbortAlert'
-export { Confirmation } from './alerts/Confirmation'
