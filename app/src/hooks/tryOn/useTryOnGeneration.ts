@@ -6,10 +6,11 @@ import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
-import { currentTryOnImageSelector } from '@/store/slices/tryOnSlice'
+import { productIdSelector, selectedImageSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 import { TryOnApiService, InputImage, GenerationResult } from '@/utils/api/tryOnApiService'
+import { isNewImage, isInputImage } from '@/models'
+import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
 import { useUploadsGallery } from '@/hooks/gallery/useUploadsGallery'
 
@@ -21,7 +22,7 @@ export const useTryOnGeneration = () => {
   const apiKey = useAppSelector(apiKeySelector)
   const subscriptionId = useAppSelector(subscriptionIdSelector)
   const productId = useAppSelector(productIdSelector)
-  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
+  const selectedImage = useAppSelector(selectedImageSelector)
 
   // Create combined endpoint data for API calls
   const endpointData = {
@@ -30,8 +31,13 @@ export const useTryOnGeneration = () => {
     skuId: productId,
   }
 
-  const { trackTryOnInitiated, trackTryOnFinished, trackTryOnError, trackTryOnAborted } =
-    useTryOnAnalytics()
+  const {
+    trackTryOnInitiated,
+    trackTryOnFinished,
+    trackTryOnError,
+    trackTryOnAborted,
+    trackUploadError,
+  } = useTryOnAnalytics()
 
   // Get recent photo function from uploads gallery
   const { getRecentPhoto } = useUploadsGallery()
@@ -54,38 +60,42 @@ export const useTryOnGeneration = () => {
         const { id, url } = result.generated_images[0]
 
         dispatch(tryOnSlice.actions.setGeneratedImageUrl(url))
-        dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
 
-        // Add actually used image to uploads history after successful generation
-        const imageToStore = usedImageRef.current || uploadedViewFile
-        if (imageToStore.id) {
-          dispatch(
-            uploadsSlice.actions.addInputImage({
-              id: imageToStore.id,
-              url: imageToStore.url,
-            }),
-          )
+        // Common logic after navigation
+        const finalizeGeneration = () => {
+          navigate('/results')
+          dispatch(tryOnSlice.actions.setIsGenerating(false))
+
+          // After navigation, add images to history and update selectedImage
+          dispatch(generationsSlice.actions.addGeneratedImage({ id, url }))
+
+          const imageToStore = usedImageRef.current
+          if (imageToStore && isInputImage(imageToStore)) {
+            // Add to uploads history
+            dispatch(
+              uploadsSlice.actions.addInputImage({
+                id: imageToStore.id,
+                url: imageToStore.url,
+              }),
+            )
+
+            // Replace selectedImage (NewImage) with InputImage from server
+            // This ensures deletion from history will correctly clear selectedImage
+            dispatch(tryOnSlice.actions.setSelectedImage(imageToStore))
+          }
         }
 
         // Preload the generated image for instant display on ResultsPage
         const img = new Image()
-        img.onload = () => {
-          // Image is preloaded, navigate to results
-          navigate('/results')
-          dispatch(tryOnSlice.actions.setIsGenerating(false))
-        }
-        img.onerror = () => {
-          // If preload fails, still navigate to results (will load there)
-          navigate('/results')
-          dispatch(tryOnSlice.actions.setIsGenerating(false))
-        }
+        img.onload = finalizeGeneration
+        img.onerror = finalizeGeneration // Still navigate if preload fails
         img.src = url
 
         trackTryOnFinished()
         clearGenerationInterval()
       }
     },
-    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval, uploadedViewFile],
+    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval],
   )
 
   const handleGenerationError = useCallback(
@@ -121,10 +131,6 @@ export const useTryOnGeneration = () => {
         switch (result.status) {
           case 'SUCCESS':
             handleGenerationSuccess(result)
-            // Clear file in mobile version
-            if (uploadedViewFile.id) {
-              dispatch(tryOnSlice.actions.clearCurrentImage())
-            }
             break
           case 'FAILED':
           case 'CANCELLED':
@@ -141,14 +147,7 @@ export const useTryOnGeneration = () => {
         console.error('Generation polling error:', error)
       }
     },
-    [
-      endpointData,
-      handleGenerationSuccess,
-      handleGenerationError,
-      handleGenerationAborted,
-      uploadedViewFile.id,
-      dispatch,
-    ],
+    [endpointData, handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
   )
 
   const createOperationWithJwt = useCallback(
@@ -198,63 +197,101 @@ export const useTryOnGeneration = () => {
     [endpointData, trackTryOnError],
   )
 
-  const startTryOn = useCallback(
-    async (customImage?: InputImage): Promise<void> => {
-      if (!endpointData) {
-        console.error('Endpoints info is missing')
-        return
-      }
+  const startTryOn = useCallback(async (): Promise<void> => {
+    if (!endpointData) {
+      console.error('Endpoints info is missing')
+      return
+    }
 
-      // Determine image for try-on
-      const targetImage = customImage || (uploadedViewFile.id ? uploadedViewFile : getRecentPhoto())
+    // Determine image for try-on: use selectedImage from Redux or get recent from history
+    let targetImage = selectedImage || getRecentPhoto()
 
-      if (!targetImage?.id) {
-        console.error('No image selected for try-on')
-        return
-      }
+    if (!targetImage) {
+      console.error('No image selected for try-on')
+      return
+    }
 
-      // Store reference to the image actually used for generation
-      usedImageRef.current = targetImage
+    // Track process start
+    trackTryOnInitiated()
 
-      // Track process start
-      trackTryOnInitiated()
+    // Update state
+    dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
+    dispatch(tryOnSlice.actions.setIsGenerating(true))
 
-      // Update state
-      dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
-      dispatch(tryOnSlice.actions.setIsGenerating(true))
+    let uploadedImage: InputImage
 
-      // Create operation
-      const hasSubscriptionId =
-        endpointData.subscriptionId && endpointData.subscriptionId.length > 0
-      const operationId = hasSubscriptionId
-        ? await createOperationWithJwt(targetImage.id)
-        : await createOperationWithoutJwt(targetImage.id)
+    // Step 1: Upload image if it's a NewImage (local file)
+    if (isNewImage(targetImage)) {
+      try {
+        dispatch(tryOnSlice.actions.setGenerationStage('uploading'))
 
-      if (!operationId) {
+        // Process and upload the file
+        const processedFile = await resizeAndConvertImage(targetImage.file)
+        const uploadResult = await TryOnApiService.uploadImage(processedFile, endpointData)
+
+        if (uploadResult.owner_type !== 'user' || !uploadResult.id) {
+          throw new Error(uploadResult.error || 'Upload failed')
+        }
+
+        uploadedImage = { id: uploadResult.id, url: uploadResult.url }
+
+        // Update selectedImage in Redux to the uploaded InputImage
+        dispatch(tryOnSlice.actions.setSelectedImage(uploadedImage))
+      } catch (error: any) {
+        console.error('Image upload error:', error)
         dispatch(tryOnSlice.actions.setIsGenerating(false))
         dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
+        trackUploadError('uploadFailed', error.message || 'Upload failed')
         return
       }
+    } else if (isInputImage(targetImage)) {
+      uploadedImage = targetImage
+    } else {
+      console.error('Invalid image type')
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
+      return
+    }
 
-      // Save operation ID to Redux
-      dispatch(tryOnSlice.actions.setOperationId(operationId))
+    // Store reference to the image actually used for generation
+    usedImageRef.current = uploadedImage
 
-      // Start status polling
-      intervalRef.current = setInterval(() => {
-        pollGenerationStatus(operationId)
-      }, 3000)
-    },
-    [
-      endpointData,
-      uploadedViewFile,
-      getRecentPhoto,
-      trackTryOnInitiated,
-      dispatch,
-      createOperationWithJwt,
-      createOperationWithoutJwt,
-      pollGenerationStatus,
-    ],
-  )
+    // Step 2: Set scanning stage and create operation
+    dispatch(tryOnSlice.actions.setGenerationStage('scanning'))
+
+    const hasSubscriptionId = endpointData.subscriptionId && endpointData.subscriptionId.length > 0
+    const operationId = hasSubscriptionId
+      ? await createOperationWithJwt(uploadedImage.id)
+      : await createOperationWithoutJwt(uploadedImage.id)
+
+    if (!operationId) {
+      dispatch(tryOnSlice.actions.setIsGenerating(false))
+      dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
+      return
+    }
+
+    // Save operation ID to Redux
+    dispatch(tryOnSlice.actions.setOperationId(operationId))
+
+    // Step 3: After 4 seconds, switch to generating stage
+    setTimeout(() => {
+      dispatch(tryOnSlice.actions.setGenerationStage('generating'))
+    }, 4000)
+
+    // Start status polling
+    intervalRef.current = setInterval(() => {
+      pollGenerationStatus(operationId)
+    }, 3000)
+  }, [
+    endpointData,
+    selectedImage,
+    getRecentPhoto,
+    trackTryOnInitiated,
+    trackUploadError,
+    dispatch,
+    createOperationWithJwt,
+    createOperationWithoutJwt,
+    pollGenerationStatus,
+  ])
 
   const regenerate = useCallback(() => {
     dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())

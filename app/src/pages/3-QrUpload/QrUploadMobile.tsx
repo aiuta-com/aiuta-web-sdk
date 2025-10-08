@@ -1,10 +1,11 @@
-import React, { useRef, ChangeEvent } from 'react'
+import React from 'react'
 import {
   ErrorSnackbar,
   UploadPrompt,
   UploadPreview,
   UploadResult,
   PrimaryButton,
+  FilePicker,
 } from '@/components'
 import { useQrUpload, useImagePickerStrings, useTryOnStrings } from '@/hooks'
 import { combineClassNames } from '@/utils'
@@ -14,17 +15,6 @@ export default function QrUploadMobile() {
   const { uploadState, selectFile, uploadFile } = useQrUpload()
   const { qrUploadNextButton } = useImagePickerStrings()
   const { tryOnPageTitle } = useTryOnStrings()
-  const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleOpenFileDialog = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target?.files?.[0]) {
-      selectFile(event.target.files[0])
-    }
-  }
 
   // Show Next button only when UploadPreview is displayed and not uploading
   const showNextButton =
@@ -41,17 +31,23 @@ export default function QrUploadMobile() {
       <main className={styles.qrUpload}>
         <ErrorSnackbar />
 
-        {!uploadState.selectedFile ? (
-          <UploadPrompt onClick={handleOpenFileDialog} />
-        ) : !uploadState.uploadedUrl ? (
-          <UploadPreview
-            selectedFile={uploadState.selectedFile}
-            isUploading={uploadState.isUploading}
-            onChangePhoto={handleOpenFileDialog}
-          />
-        ) : (
-          <UploadResult uploadedUrl={uploadState.uploadedUrl} />
-        )}
+        <FilePicker onFileSelect={selectFile}>
+          {({ openFilePicker }) => (
+            <>
+              {!uploadState.selectedFile ? (
+                <UploadPrompt onClick={openFilePicker} />
+              ) : !uploadState.uploadedUrl ? (
+                <UploadPreview
+                  selectedFile={uploadState.selectedFile}
+                  isUploading={uploadState.isUploading}
+                  onChangePhoto={openFilePicker}
+                />
+              ) : (
+                <UploadResult uploadedUrl={uploadState.uploadedUrl} />
+              )}
+            </>
+          )}
+        </FilePicker>
 
         <PrimaryButton
           onClick={uploadFile}
@@ -62,14 +58,6 @@ export default function QrUploadMobile() {
         >
           {qrUploadNextButton}
         </PrimaryButton>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          style={{ display: 'none' }}
-        />
       </main>
     </>
   )

@@ -1,4 +1,4 @@
-export { uploadsSlice, type ImageToTryOn, type UploadsState } from './uploadsSlice'
+export { uploadsSlice, type UploadsState } from './uploadsSlice'
 export {
   selectedUploadsSelector,
   fullScreenImageUrlSelector,

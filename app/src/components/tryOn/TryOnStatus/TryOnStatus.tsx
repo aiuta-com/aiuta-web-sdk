@@ -1,26 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { TryOnStatusProps } from './types'
 import { combineClassNames } from '@/utils/helpers/combineClassNames'
 import { Icon } from '@/components/ui/Icon'
 import { useTryOnStrings } from '@/hooks'
+import { useAppSelector } from '@/store/store'
+import { generationStageSelector } from '@/store/slices/tryOnSlice'
 import { icons } from './icons'
 import styles from './TryOnStatus.module.scss'
 
-export const TryOnStatus = ({ stage, className }: TryOnStatusProps) => {
-  const { tryOnLoadingStatusScanningBody, tryOnLoadingStatusGeneratingOutfit } = useTryOnStrings()
-  const [displayText, setDisplayText] = useState(tryOnLoadingStatusScanningBody)
+export const TryOnStatus = ({ className }: TryOnStatusProps) => {
+  const {
+    tryOnLoadingStatusUploadingImage,
+    tryOnLoadingStatusScanningBody,
+    tryOnLoadingStatusGeneratingOutfit,
+  } = useTryOnStrings()
 
-  useEffect(() => {
-    if (stage === 'scanning') {
-      setDisplayText(tryOnLoadingStatusScanningBody)
-      const timer = setTimeout(() => {
-        setDisplayText(tryOnLoadingStatusGeneratingOutfit)
-      }, 4000)
-      return () => clearTimeout(timer)
-    } else if (stage === 'generating') {
-      setDisplayText(tryOnLoadingStatusGeneratingOutfit)
-    }
-  }, [stage, tryOnLoadingStatusScanningBody, tryOnLoadingStatusGeneratingOutfit])
+  const generationStage = useAppSelector(generationStageSelector)
+
+  // Map stage to display text
+  const displayText =
+    generationStage === 'uploading'
+      ? tryOnLoadingStatusUploadingImage
+      : generationStage === 'scanning'
+        ? tryOnLoadingStatusScanningBody
+        : generationStage === 'generating'
+          ? tryOnLoadingStatusGeneratingOutfit
+          : tryOnLoadingStatusScanningBody
 
   return (
     <div className={combineClassNames('aiuta-button-s', styles.tryOnStatus, className)}>

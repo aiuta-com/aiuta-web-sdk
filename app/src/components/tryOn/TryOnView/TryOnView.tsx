@@ -2,24 +2,17 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { TryOnStatus, RemoteImage, Flex } from '@/components'
 import { combineClassNames } from '@/utils'
 import { useImagePickerStrings } from '@/hooks'
+import { isNewImage, isInputImage, type TryOnImage } from '@/models'
 import styles from './TryOnView.module.scss'
 
 interface TryOnViewProps {
-  uploadedImageUrl?: string
-  recentImageUrl?: string
+  image: TryOnImage | null
   isGenerating: boolean
   onChangePhoto?: () => void
 }
 
-export const TryOnView = ({
-  uploadedImageUrl,
-  recentImageUrl,
-  isGenerating,
-  onChangePhoto,
-}: TryOnViewProps) => {
+export const TryOnView = ({ image, isGenerating, onChangePhoto }: TryOnViewProps) => {
   const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
-  const hasInputImage = uploadedImageUrl && uploadedImageUrl.length > 0
-  const hasRecentImage = recentImageUrl && recentImageUrl.length > 0
 
   // Fix backdrop-filter refresh with minimal opacity change
   const [buttonOpacity, setButtonOpacity] = useState(1)
@@ -33,11 +26,22 @@ export const TryOnView = ({
     return timer
   }
 
-  // Refresh when URLs change
+  // Determine image URL to display
+  const imageUrl = image
+    ? isNewImage(image)
+      ? image.localUrl
+      : isInputImage(image)
+        ? image.url
+        : null
+    : null
+
+  // Refresh when image changes
   useEffect(() => {
-    const timer = refreshBackdropFilter()
-    return () => clearTimeout(timer)
-  }, [uploadedImageUrl, recentImageUrl])
+    if (imageUrl) {
+      const timer = refreshBackdropFilter()
+      return () => clearTimeout(timer)
+    }
+  }, [imageUrl])
 
   // Refresh when image actually loads
   const handleImageLoad = useCallback(() => {
@@ -55,24 +59,16 @@ export const TryOnView = ({
     }, 300)
   }, [])
 
-  // Determine which image to show
-  const currentImageUrl = hasInputImage ? uploadedImageUrl : hasRecentImage ? recentImageUrl : null
-
-  // If there is an image to show
-  if (!currentImageUrl) {
+  // If there is no image to show
+  if (!imageUrl) {
     return null
   }
 
   return (
     <Flex contentClassName={combineClassNames('aiuta-image-l', isGenerating && styles.animation)}>
-      <RemoteImage src={currentImageUrl} alt="Try-on image" shape="L" onLoad={handleImageLoad} />
+      <RemoteImage src={imageUrl} alt="Try-on image" shape="L" onLoad={handleImageLoad} />
 
-      {isGenerating && (
-        <TryOnStatus
-          stage={isGenerating ? 'scanning' : 'generating'}
-          className={styles.processingStatus}
-        />
-      )}
+      {isGenerating && <TryOnStatus className={styles.processingStatus} />}
 
       {!isGenerating && (
         <button

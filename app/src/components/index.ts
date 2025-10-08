@@ -22,6 +22,9 @@ export { CrossFadeImage } from './images/CrossFadeImage'
 export { Spinner } from './indicators/Spinner/Spinner'
 export { CountDown } from './indicators/CountDown/CountDown'
 
+// Picker
+export { FilePicker } from './picker/FilePicker'
+
 // Popups
 export { BottomSheet } from './popups/BottomSheet'
 export { ErrorSnackbar } from './popups/ErrorSnackbar'

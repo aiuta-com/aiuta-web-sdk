@@ -2,11 +2,6 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { InputImage } from '@lib/models'
 import { UploadsStorage } from '@/utils'
 
-export interface ImageToTryOn extends InputImage {
-  localUrl?: string
-  file?: File
-}
-
 export interface UploadsState {
   selectedImages: Array<string>
   inputImages: Array<InputImage>

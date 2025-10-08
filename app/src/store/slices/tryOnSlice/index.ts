@@ -1,8 +1,9 @@
-export { tryOnSlice, type TryOnState, type CurrentTryOnImage } from './tryOnSlice'
+export { tryOnSlice, type TryOnState, type GenerationStage } from './tryOnSlice'
 export {
   isGeneratingSelector,
   isAbortedSelector,
-  currentTryOnImageSelector,
+  selectedImageSelector,
+  generationStageSelector,
   operationIdSelector,
   generatedImageUrlSelector,
   productIdSelector,
