@@ -1,5 +1,6 @@
 export { useAppVisibility } from './useAppVisibility'
 export { useParentScrollPrevention } from './useParentScrollPrevention'
-export { useCustomCSS } from './useCustomCSS'
+export { useCustomCssUrl } from './useCustomCssUrl'
+export { useCustomCss } from './useCustomCss'
 export { useWindowResize } from './useWindowResize'
 export { useOutsideClick } from './useOutsideClick'

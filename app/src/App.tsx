@@ -4,7 +4,8 @@ import { RpcProvider, LoggerProvider, ShareProvider } from './contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
 import {
   useUrlParams,
-  useCustomCSS,
+  useCustomCssUrl,
+  useCustomCss,
   useRpcInitialization,
   useStandaloneApp,
   useOutsideClick,
@@ -38,10 +39,10 @@ export default function App() {
 function MainAppContext() {
   const { rpc } = useRpcInitialization()
   const { cssUrl } = useUrlParams()
-  const { isReady } = useCustomCSS(cssUrl)
+  const { isReady: isCssUrlReady } = useCustomCssUrl(cssUrl)
 
-  // Don't render until both RPC and CSS are ready
-  if (!rpc || !isReady) {
+  // Don't render until both RPC and CSS URL are ready
+  if (!rpc || !isCssUrlReady) {
     return null
   }
 
@@ -55,6 +56,7 @@ function MainAppContext() {
 }
 
 function MainAppContent() {
+  useCustomCss()
   useOutsideClick()
 
   return (
@@ -81,10 +83,11 @@ function MainAppContent() {
 
 function QrUploadContext() {
   const { cssUrl } = useUrlParams()
-  const { isReady: isCssReady } = useCustomCSS(cssUrl)
+  const { isReady: isCssReady } = useCustomCssUrl(cssUrl)
   const { isReady: isAppReady } = useStandaloneApp()
 
-  // Don't render until both app visibility and CSS are ready
+  // Don't render until both app visibility and CSS URL are ready
+  // Note: customCss is not available here as RPC is not initialized
   if (!isAppReady || !isCssReady) {
     return null
   }
