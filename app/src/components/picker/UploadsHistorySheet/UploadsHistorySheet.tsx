@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
@@ -15,6 +15,13 @@ export const UploadsHistorySheet = ({ onClickButton, onImageSelect }: UploadsHis
 
   const { recentlyPhotos: recentPhotos, handleImageDelete: removePhotoFromGallery } =
     useUploadsGallery()
+
+  // Auto-close when all photos are deleted
+  useEffect(() => {
+    if (isOpen && recentPhotos.length === 0) {
+      dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+    }
+  }, [isOpen, recentPhotos.length, dispatch])
 
   const handleClose = (e?: React.MouseEvent) => {
     e?.stopPropagation()

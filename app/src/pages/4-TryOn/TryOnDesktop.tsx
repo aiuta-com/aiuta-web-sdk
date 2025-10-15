@@ -1,46 +1,41 @@
-import React, { useEffect, useState } from 'react'
-import { flushSync } from 'react-dom'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppSelector } from '@/store/store'
+import { useAppSelector, useAppDispatch } from '@/store/store'
 import {
-  currentTryOnImageSelector,
+  selectedImageSelector,
   isGeneratingSelector,
   isAbortedSelector,
   productIdSelector,
 } from '@/store/slices/tryOnSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { ErrorSnackbar, TryOnButton } from '@/components'
 import { AbortAlert, TryOnView } from '@/components'
 import { useTryOnGeneration, useUploadsGallery, useTryOnStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
-import { InputImage } from '@/utils/api/tryOnApiService'
 import styles from './TryOn.module.scss'
 
 export default function TryOnDesktop() {
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
   const rpc = useRpc()
-  const uploadedViewFile = useAppSelector(currentTryOnImageSelector)
+
+  const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const isAborted = useAppSelector(isAbortedSelector)
   const productId = useAppSelector(productIdSelector)
 
   const { getRecentPhoto } = useUploadsGallery()
-  const { startTryOn, regenerate, closeAbortedModal } = useTryOnGeneration()
+  const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
-
-  const [recentImage, setRecentImage] = useState<InputImage | null>(null)
-  const [isButtonClicked, setIsButtonClicked] = useState(false)
 
   const handleChangePhoto = () => {
     navigate('/uploads')
   }
 
-  const hasInputImage = uploadedViewFile.localUrl.length > 0
-  const showTryOnButton = !isGenerating && !isAborted && !isButtonClicked
+  const hasImage = selectedImage !== null
+  const showTryOnButton = !isGenerating && !isAborted && hasImage
 
   const handleTryOnClick = () => {
-    flushSync(() => {
-      setIsButtonClicked(true)
-    })
     startTryOn()
   }
 
@@ -53,36 +48,28 @@ export default function TryOnDesktop() {
     })
   }, [rpc, productId])
 
+  // Auto-select recent photo if no image is selected
   useEffect(() => {
-    if (!hasInputImage) {
+    if (!selectedImage) {
       const recent = getRecentPhoto()
-      setRecentImage(recent)
+      if (recent) {
+        dispatch(tryOnSlice.actions.setSelectedImage(recent))
+      }
     }
-  }, [hasInputImage, getRecentPhoto])
-
-  // Reset button clicked state when generation finishes
-  useEffect(() => {
-    if (!isGenerating) {
-      setIsButtonClicked(false)
-    }
-  }, [isGenerating])
+  }, [selectedImage, getRecentPhoto, dispatch])
 
   return (
     <main className={styles.tryOn}>
-      <AbortAlert isOpen={isAborted} onClose={closeAbortedModal} />
-      <ErrorSnackbar onRetry={regenerate} />
+      <AbortAlert />
+      <ErrorSnackbar onRetry={retryTryOn} />
 
       <TryOnView
-        uploadedImageUrl={uploadedViewFile.localUrl}
-        recentImageUrl={recentImage?.url}
+        image={selectedImage}
         isGenerating={isGenerating}
         onChangePhoto={handleChangePhoto}
       />
 
-      <TryOnButton
-        onClick={handleTryOnClick}
-        hidden={!showTryOnButton || (!hasInputImage && !recentImage)}
-      >
+      <TryOnButton onClick={handleTryOnClick} hidden={!showTryOnButton}>
         {tryOn}
       </TryOnButton>
     </main>

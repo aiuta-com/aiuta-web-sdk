@@ -99,6 +99,7 @@ export interface TryOn {
 
 export interface TryOnLoadingPage {
   strings?: {
+    tryOnLoadingStatusUploadingImage?: string
     tryOnLoadingStatusScanningBody?: string
     tryOnLoadingStatusGeneratingOutfit?: string
   }

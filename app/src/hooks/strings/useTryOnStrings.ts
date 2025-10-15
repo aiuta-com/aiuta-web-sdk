@@ -19,6 +19,8 @@ export const useTryOnStrings = () => {
     tryOn: strings?.tryOn ?? 'Try On',
 
     // Loading page strings
+    tryOnLoadingStatusUploadingImage:
+      loadingPageStrings?.tryOnLoadingStatusUploadingImage ?? 'Uploading image',
     tryOnLoadingStatusScanningBody:
       loadingPageStrings?.tryOnLoadingStatusScanningBody ?? 'Scanning your body',
     tryOnLoadingStatusGeneratingOutfit:

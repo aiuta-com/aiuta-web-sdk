@@ -1,15 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { TryOnImage } from '@/models'
+import { isNewImage } from '@/models'
 
-export interface CurrentTryOnImage {
-  id: string
-  url: string
-  localUrl: string
-}
+export type GenerationStage = 'idle' | 'uploading' | 'scanning' | 'generating'
 
 export interface TryOnState {
   isGenerating: boolean
   isAborted: boolean
-  currentImage: CurrentTryOnImage
+  selectedImage: TryOnImage | null
+  generationStage: GenerationStage
   operationId: string | null
   generatedImageUrl: string
   productId: string
@@ -18,7 +17,8 @@ export interface TryOnState {
 const initialState: TryOnState = {
   isGenerating: false,
   isAborted: false,
-  currentImage: { id: '', url: '', localUrl: '' },
+  selectedImage: null,
+  generationStage: 'idle',
   operationId: null,
   generatedImageUrl: '',
   productId: '',
@@ -30,26 +30,33 @@ export const tryOnSlice = createSlice({
   reducers: {
     setIsGenerating: (state, action: PayloadAction<boolean>) => {
       state.isGenerating = action.payload
+      if (!action.payload) {
+        state.generationStage = 'idle'
+      }
     },
 
     setIsAborted: (state, action: PayloadAction<boolean>) => {
       state.isAborted = action.payload
     },
 
-    setCurrentImage: (state, action: PayloadAction<CurrentTryOnImage>) => {
+    setSelectedImage: (state, action: PayloadAction<TryOnImage | null>) => {
       // Clean up previous object URL if exists
-      if (state.currentImage.localUrl && state.currentImage.localUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(state.currentImage.localUrl)
+      if (state.selectedImage && isNewImage(state.selectedImage)) {
+        URL.revokeObjectURL(state.selectedImage.localUrl)
       }
-      state.currentImage = action.payload
+      state.selectedImage = action.payload
     },
 
-    clearCurrentImage: (state) => {
+    clearSelectedImage: (state) => {
       // Clean up object URL to prevent memory leaks
-      if (state.currentImage.localUrl && state.currentImage.localUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(state.currentImage.localUrl)
+      if (state.selectedImage && isNewImage(state.selectedImage)) {
+        URL.revokeObjectURL(state.selectedImage.localUrl)
       }
-      state.currentImage = { id: '', url: '', localUrl: '' }
+      state.selectedImage = null
+    },
+
+    setGenerationStage: (state, action: PayloadAction<GenerationStage>) => {
+      state.generationStage = action.payload
     },
 
     setOperationId: (state, action: PayloadAction<string | null>) => {
@@ -70,8 +77,8 @@ export const tryOnSlice = createSlice({
 
     resetTryOnState: (state) => {
       // Clean up object URL
-      if (state.currentImage.localUrl && state.currentImage.localUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(state.currentImage.localUrl)
+      if (state.selectedImage && isNewImage(state.selectedImage)) {
+        URL.revokeObjectURL(state.selectedImage.localUrl)
       }
       // Reset to initial state
       Object.assign(state, initialState)

@@ -41,10 +41,9 @@ export const useQrPrompt = () => {
       } else if (result.owner_type === 'user') {
         dispatch(qrSlice.actions.setIsLoading(false))
         dispatch(
-          tryOnSlice.actions.setCurrentImage({
+          tryOnSlice.actions.setSelectedImage({
             id: result.id,
             url: result.url,
-            localUrl: result.url,
           }),
         )
 

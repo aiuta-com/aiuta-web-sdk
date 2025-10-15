@@ -1,7 +1,7 @@
-import React, { useEffect, ChangeEvent } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ErrorSnackbar, QrCode, Spinner } from '@/components'
-import { useQrPrompt, useImageUpload, useImagePickerStrings } from '@/hooks'
+import { ErrorSnackbar, QrCode, Spinner, FilePicker } from '@/components'
+import { useQrPrompt, useTryOnImage, useImagePickerStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdSelector } from '@/store/slices/tryOnSlice'
@@ -12,7 +12,7 @@ export default function QrPromptDesktop() {
   const rpc = useRpc()
   const productId = useAppSelector(productIdSelector)
   const { qrUrl, startPolling, isDownloading } = useQrPrompt()
-  const { uploadImage, isUploading } = useImageUpload()
+  const { selectImageToTryOn } = useTryOnImage()
   const { qrPromptHint, qrPromptOr, qrPromptUploadButton } = useImagePickerStrings()
 
   // Track page view on mount
@@ -31,20 +31,19 @@ export default function QrPromptDesktop() {
     }
   }, [qrUrl, startPolling])
 
-  const handleChoosePhoto = async (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target?.files?.[0]) {
-      await uploadImage(event.target.files[0], () => {
-        // Navigate to try-on page with footer disabled (like QR flow)
-        navigate('/tryon')
-      })
-    }
-  }
+  const handleFileSelect = useCallback(
+    async (file: File) => {
+      await selectImageToTryOn(file)
+      navigate('/tryon')
+    },
+    [selectImageToTryOn, navigate],
+  )
 
   return (
     <main className={styles.qrPrompt}>
       <ErrorSnackbar />
       {qrUrl ? (
-        isDownloading || isUploading ? (
+        isDownloading ? (
           <Spinner isVisible={true} />
         ) : (
           <>
@@ -52,16 +51,16 @@ export default function QrPromptDesktop() {
             <div className={styles.options}>
               <p className={`aiuta-button-m ${styles.qrHint}`}>{qrPromptHint}</p>
               <p className={`aiuta-label-regular ${styles.or}`}>{qrPromptOr}</p>
-              <label htmlFor="upload-file" className={`aiuta-button-m ${styles.uploadButton}`}>
-                {qrPromptUploadButton}
-                <input
-                  onChange={handleChoosePhoto}
-                  type="file"
-                  id="upload-file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                />
-              </label>
+              <FilePicker onFileSelect={handleFileSelect}>
+                {({ openFilePicker }) => (
+                  <button
+                    onClick={openFilePicker}
+                    className={`aiuta-button-m ${styles.uploadButton}`}
+                  >
+                    {qrPromptUploadButton}
+                  </button>
+                )}
+              </FilePicker>
             </div>
           </>
         )

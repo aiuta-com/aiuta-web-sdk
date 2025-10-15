@@ -87,13 +87,8 @@ export const useQrUpload = () => {
       }
 
       // Process image (resize, convert, fix EXIF orientation)
-      const processed = await resizeAndConvertImage(uploadState.selectedFile.file)
-      const fileToUpload = new File([processed.blob], uploadState.selectedFile.file.name, {
-        type: processed.mime,
-        lastModified: uploadState.selectedFile.file.lastModified,
-      })
-
-      const uploadResult = await TryOnApiService.uploadImage(fileToUpload, endpointData)
+      const processedFile = await resizeAndConvertImage(uploadState.selectedFile.file)
+      const uploadResult = await TryOnApiService.uploadImage(processedFile, endpointData)
 
       // Convert to QrUploadResult format
       const qrResult = {

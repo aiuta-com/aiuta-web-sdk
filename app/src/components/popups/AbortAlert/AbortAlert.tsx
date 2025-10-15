@@ -1,13 +1,20 @@
 import React from 'react'
+import { useAppSelector, useAppDispatch } from '@/store/store'
+import { isAbortedSelector, tryOnSlice } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { useTryOnStrings } from '@/hooks'
-import type { AbortAlertProps } from './types'
 import styles from './AbortAlert.module.scss'
 
-export const AbortAlert = ({ isOpen, onClose }: AbortAlertProps) => {
+export const AbortAlert = () => {
+  const dispatch = useAppDispatch()
+  const isAborted = useAppSelector(isAbortedSelector)
   const { invalidInputImageDescription, invalidInputImageChangePhotoButton } = useTryOnStrings()
 
-  if (!isOpen) return null
+  const handleClose = () => {
+    dispatch(tryOnSlice.actions.setIsAborted(false))
+  }
+
+  if (!isAborted) return null
 
   return (
     <div className={styles.modalOverlay}>
@@ -16,7 +23,7 @@ export const AbortAlert = ({ isOpen, onClose }: AbortAlertProps) => {
           <p className={styles.message}>{invalidInputImageDescription}</p>
           <SecondaryButton
             text={invalidInputImageChangePhotoButton}
-            onClick={onClose}
+            onClick={handleClose}
             classNames={styles.button}
           />
         </div>

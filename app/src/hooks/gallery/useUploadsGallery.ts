@@ -2,14 +2,15 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { tryOnSlice, selectedImageSelector } from '@/store/slices/tryOnSlice'
 import {
   selectedUploadsSelector,
   uploadsIsSelectingSelector,
   inputImagesSelector,
 } from '@/store/slices/uploadsSlice'
 import { useImageGallery } from './useImageGallery'
-import { useImageUpload } from '@/hooks/upload/useImageUpload'
+import { useTryOnImage } from '@/hooks/tryOn/useTryOnImage'
+import { isInputImage } from '@/models'
 import { ImageItem } from './useFullScreenViewer'
 
 interface UseUploadsGalleryProps {
@@ -29,7 +30,8 @@ export const useUploadsGallery = ({
   const selectedImages = useAppSelector(selectedUploadsSelector)
   const recentlyPhotos = useAppSelector(inputImagesSelector)
   const isSelecting = useAppSelector(uploadsIsSelectingSelector)
-  const { uploadImage } = useImageUpload({ withinGenerationFlow: true })
+  const selectedImage = useAppSelector(selectedImageSelector)
+  const { selectImageToTryOn } = useTryOnImage()
 
   // Convert Redux photos to ImageItem format
   const images: ImageItem[] = recentlyPhotos.map(({ id, url }) => ({ id, url }))
@@ -56,10 +58,9 @@ export const useUploadsGallery = ({
     if (!isSelecting) {
       // Not in selection mode - select image for try-on and navigate
       dispatch(
-        tryOnSlice.actions.setCurrentImage({
+        tryOnSlice.actions.setSelectedImage({
           id: image.id,
           url: image.url,
-          localUrl: image.url,
         }),
       )
       navigate('/tryon')
@@ -71,6 +72,11 @@ export const useUploadsGallery = ({
   function handleImageDelete(imageId: string) {
     const updatedPhotos = recentlyPhotos.filter(({ id }) => id !== imageId)
     dispatch(uploadsSlice.actions.setInputImages(updatedPhotos))
+
+    // If deleted image is currently selected for try-on, clear it
+    if (selectedImage && isInputImage(selectedImage) && selectedImage.id === imageId) {
+      dispatch(tryOnSlice.actions.clearSelectedImage())
+    }
   }
 
   // Close uploads images removal modal
@@ -121,12 +127,11 @@ export const useUploadsGallery = ({
   // Handle new photo upload
   const handlePhotoUpload = useCallback(
     async (file: File) => {
-      await uploadImage(file, () => {
-        // Navigate to try-on page after successful upload
-        navigate('/tryon')
-      })
+      await selectImageToTryOn(file)
+      // Navigate to try-on page after successful selection
+      navigate('/tryon')
     },
-    [uploadImage, navigate],
+    [selectImageToTryOn, navigate],
   )
 
   // Navigate to upload page

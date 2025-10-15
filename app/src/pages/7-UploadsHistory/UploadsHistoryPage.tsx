@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
 import { useUploadsGallery, useImagePickerStrings } from '@/hooks'
@@ -18,6 +19,7 @@ import styles from './UploadsHistory.module.scss'
  * - Full-screen photo viewing
  */
 export default function UploadsHistoryPage() {
+  const navigate = useNavigate()
   const rpc = useRpc()
   const productId = useAppSelector(productIdSelector)
   const gallery = useUploadsGallery()
@@ -31,6 +33,13 @@ export default function UploadsHistoryPage() {
       productIds: [productId],
     })
   }, [rpc, productId])
+
+  // Navigate to home if all images are deleted
+  useEffect(() => {
+    if (gallery.recentlyPhotos.length === 0) {
+      navigate('/')
+    }
+  }, [gallery.recentlyPhotos.length, navigate])
 
   return (
     <main className={styles.uploadsHistory}>

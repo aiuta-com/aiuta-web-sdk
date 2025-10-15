@@ -1,6 +1,7 @@
 export interface AiutaUserInterface {
   presentationStyle?: 'mobile' | 'desktop'
   theme?: {
+    customCss?: string
     customCssUrl?: string
     selectionSnackbar?: SelectionSnackbar
     errorSnackbar?: ErrorSnackbar

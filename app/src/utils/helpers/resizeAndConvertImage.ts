@@ -5,12 +5,6 @@
  * Сorrects EXIF orientation by drawing through canvas.
  */
 
-export type ProcessedImage = {
-  blob: Blob
-  mime: string
-  objectUrl: string
-}
-
 export type ProcessOptions = {
   /** Output format ('image/jpeg' | 'image/png' | 'image/webp'), default 'image/jpeg' */
   outputMime?: string
@@ -28,13 +22,10 @@ type CanvasDrawParams = {
 }
 
 /**
- * Main function: takes File/Blob with image, returns processed Blob
+ * Main function: takes File with image, returns processed File
  * Always returns a valid result - falls back to original file if processing fails
  */
-export async function resizeAndConvertImage(
-  file: Blob,
-  opts: ProcessOptions = {},
-): Promise<ProcessedImage> {
+export async function resizeAndConvertImage(file: File, opts: ProcessOptions = {}): Promise<File> {
   const outputMime = opts.outputMime ?? 'image/jpeg'
   const quality = opts.quality ?? 0.92
   const maxSide = opts.maxSide ?? 1500
@@ -50,15 +41,16 @@ export async function resizeAndConvertImage(
       dstH: targetDimensions.height,
     }
 
-    return await processOnCanvas(img, drawParams, outputMime, quality)
+    const blob = await processOnCanvas(img, drawParams, outputMime, quality)
+
+    // Create File from processed Blob
+    return new File([blob], file.name, {
+      type: blob.type || outputMime,
+      lastModified: file.lastModified,
+    })
   } catch (error) {
     console.warn('Resize and convert image failed, falling back to original file', error)
-
-    return {
-      blob: file,
-      mime: file.type,
-      objectUrl: URL.createObjectURL(file),
-    }
+    return file
   }
 }
 
@@ -95,7 +87,7 @@ function calculateTargetDimensions(
 /* ===================== CANVAS PROCESSING ===================== */
 
 /**
- * Core canvas processing: draw image + create blob + generate URL
+ * Core canvas processing: draw image and create blob
  * This is where EXIF orientation correction actually happens
  */
 async function processOnCanvas(
@@ -103,7 +95,7 @@ async function processOnCanvas(
   params: CanvasDrawParams,
   outputMime: string,
   quality: number,
-): Promise<ProcessedImage> {
+): Promise<Blob> {
   const { srcW, srcH, dstW, dstH } = params
 
   // Create canvas with target dimensions
@@ -126,9 +118,7 @@ async function processOnCanvas(
     canvas.toBlob((b) => resolve(b!), outputMime, quality),
   )
 
-  // Create object URL for preview and return complete result
-  const objectUrl = URL.createObjectURL(blob)
-  return { blob, mime: blob.type || outputMime, objectUrl }
+  return blob
 }
 
 /* ===================== IMAGE ELEMENT ===================== */
