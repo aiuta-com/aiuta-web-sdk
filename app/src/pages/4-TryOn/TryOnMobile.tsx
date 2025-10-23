@@ -15,8 +15,8 @@ import {
   TryOnButton,
   UploadPrompt,
   FilePicker,
+  TryOnView,
 } from '@/components'
-import { AbortAlert, TryOnView } from '@/components'
 import { useTryOnGeneration, useTryOnImage, useUploadsGallery, useTryOnStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
@@ -83,7 +83,6 @@ export default function TryOnMobile() {
 
   return (
     <main className={styles.tryOn}>
-      <AbortAlert />
       <ErrorSnackbar onRetry={retryTryOn} />
 
       <FilePicker onFileSelect={handleFileSelect}>

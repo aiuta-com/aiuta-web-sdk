@@ -1,7 +1,14 @@
 import React from 'react'
 import { Route, Routes, MemoryRouter } from 'react-router-dom'
 import { RpcProvider, LoggerProvider, ShareProvider } from './contexts'
-import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
+import {
+  PageBar,
+  PoweredBy,
+  FullScreenGallery,
+  Share,
+  AppContainer,
+  AbortAlert,
+} from '@/components'
 import {
   useUrlParams,
   useCustomCssUrl,
@@ -62,6 +69,7 @@ function MainAppContent() {
   return (
     <>
       <AppContainer>
+        <AbortAlert />
         <PageBar />
         <Routes>
           <Route path="/" element={<HomePageRouter />} />
