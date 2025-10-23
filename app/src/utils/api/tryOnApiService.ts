@@ -21,30 +21,33 @@ export interface OperationResponse {
 }
 
 export class TryOnApiService {
-  private static readonly BASE_URL = 'https://web-sdk.aiuta.com/api'
+  private static readonly BASE_URL = 'https://api.aiuta.com/digital-try-on/v1'
 
   static async uploadImage(
     file: File,
     endpointData: EndpointData,
   ): Promise<InputImage & { owner_type?: string; error?: string }> {
-    const hasSubscriptionId =
-      typeof endpointData.subscriptionId === 'string' && endpointData.subscriptionId.length > 0
-    const headers: Record<string, string> = {
-      'Content-Type': file.type,
-      'X-Filename': file.name,
+    const formData = new FormData()
+    formData.append('image_data', file)
+
+    const headers: Record<string, string> = {}
+
+    if (endpointData.apiKey) {
+      headers['x-api-key'] = endpointData.apiKey
+    } else if (endpointData.subscriptionId) {
+      headers['x-user-id'] = endpointData.subscriptionId
     }
 
-    if (hasSubscriptionId) {
-      headers['userid'] = endpointData.subscriptionId!
-    } else {
-      headers['keys'] = endpointData.apiKey
-    }
-
-    const response = await fetch(`${this.BASE_URL}/upload-image`, {
+    const response = await fetch(`${this.BASE_URL}/uploaded_images`, {
       method: 'POST',
       headers,
-      body: file,
+      body: formData,
     })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Upload failed' }))
+      return { id: '', url: '', error: errorData.error || 'Upload failed' }
+    }
 
     return response.json()
   }
@@ -56,23 +59,31 @@ export class TryOnApiService {
   ): Promise<OperationResponse> {
     const body: any = {
       uploaded_image_id: uploadedImageId,
-      ...endpointData,
+      sku_id: endpointData.skuId,
+      sku_catalog_name: 'main',
     }
 
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    // Use JWT token if provided, otherwise use API key or user ID
     if (jwtToken) {
-      body.jwtToken = jwtToken
+      headers['Authorization'] = `Bearer ${jwtToken}`
+    } else if (endpointData.apiKey) {
+      headers['x-api-key'] = endpointData.apiKey
+    } else if (endpointData.subscriptionId) {
+      headers['x-user-id'] = endpointData.subscriptionId
     }
 
-    const response = await fetch(`${this.BASE_URL}/create-operation-id`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    const response = await fetch(`${this.BASE_URL}/sku_images_operations`, {
       method: 'POST',
+      headers,
       body: JSON.stringify(body),
     })
 
     if (!response.ok) {
-      const errorData = await response.json()
+      const errorData = await response.json().catch(() => ({ error: 'Operation creation failed' }))
       throw new Error(JSON.stringify(errorData))
     }
 
@@ -83,21 +94,18 @@ export class TryOnApiService {
     operationId: string,
     endpointData: EndpointData,
   ): Promise<GenerationResult> {
-    // Create request body like original code, but transform subscriptionId to userId
-    const body: any = {
-      ...endpointData,
-      operation_id: operationId,
+    const headers: Record<string, string> = {}
+
+    // Choose auth method based on available credentials
+    if (endpointData.apiKey) {
+      headers['x-api-key'] = endpointData.apiKey
+    } else if (endpointData.subscriptionId) {
+      headers['x-user-id'] = endpointData.subscriptionId
     }
 
-    // Transform subscriptionId to userId for API compatibility
-    if (endpointData.subscriptionId) {
-      body.userId = endpointData.subscriptionId
-      delete body.subscriptionId
-    }
-
-    const response = await fetch(`${this.BASE_URL}/sku-image-operation`, {
-      method: 'POST',
-      body: JSON.stringify(body),
+    const response = await fetch(`${this.BASE_URL}/sku_images_operations/${operationId}`, {
+      method: 'GET',
+      headers,
     })
 
     if (!response.ok) {
