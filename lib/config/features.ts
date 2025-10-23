@@ -109,6 +109,10 @@ export interface TryOnInputImageValidation {
   strings?: {
     invalidInputImageDescription?: string
     invalidInputImageChangePhotoButton?: string
+    // Specific abort reason messages
+    noPeopleDetectedDescription?: string
+    tooManyPeopleDetectedDescription?: string
+    childDetectedDescription?: string
   }
 }
 

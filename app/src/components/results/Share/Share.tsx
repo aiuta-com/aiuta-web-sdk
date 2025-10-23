@@ -98,7 +98,10 @@ export const Share = () => {
       data-testid="aiuta-share-modal"
     >
       {modalData && (
-        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div
+          className={combineClassNames('aiuta-modal', styles.modal)}
+          onClick={(e) => e.stopPropagation()}
+        >
           <h2 className="aiuta-page-title">{sharePageTitle}</h2>
 
           <IconButton

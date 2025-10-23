@@ -1,33 +1,49 @@
 import React from 'react'
-import { useAppSelector, useAppDispatch } from '@/store/store'
-import { isAbortedSelector, tryOnSlice } from '@/store/slices/tryOnSlice'
-import { SecondaryButton } from '@/components'
-import { useTryOnStrings } from '@/hooks'
+import { PrimaryButton } from '@/components'
+import { useTryOnStrings, useAbortAlert } from '@/hooks'
+import { combineClassNames } from '@/utils'
+import type { AbortReason } from '@/utils/api/tryOnApiService'
 import styles from './AbortAlert.module.scss'
 
 export const AbortAlert = () => {
-  const dispatch = useAppDispatch()
-  const isAborted = useAppSelector(isAbortedSelector)
-  const { invalidInputImageDescription, invalidInputImageChangePhotoButton } = useTryOnStrings()
+  const { abortReason, animationState, showContent, isVisible, closeAlert } = useAbortAlert()
 
-  const handleClose = () => {
-    dispatch(tryOnSlice.actions.setIsAborted(false))
+  const {
+    invalidInputImageDescription,
+    invalidInputImageChangePhotoButton,
+    noPeopleDetectedDescription,
+    tooManyPeopleDetectedDescription,
+    childDetectedDescription,
+  } = useTryOnStrings()
+
+  if (!isVisible) return null
+
+  // Select message based on abort_reason
+  const getAbortMessage = (reason: AbortReason | null): string => {
+    switch (reason) {
+      case 'NO_PEOPLE_DETECTED':
+        return noPeopleDetectedDescription
+      case 'TOO_MANY_PEOPLE_DETECTED':
+        return tooManyPeopleDetectedDescription
+      case 'CHILD_DETECTED':
+        return childDetectedDescription
+      default:
+        return invalidInputImageDescription
+    }
   }
 
-  if (!isAborted) return null
-
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <div className={styles.abortAlert}>
-          <p className={styles.message}>{invalidInputImageDescription}</p>
-          <SecondaryButton
-            text={invalidInputImageChangePhotoButton}
-            onClick={handleClose}
-            classNames={styles.button}
-          />
+    <div className={combineClassNames(styles.abortAlert, styles[`abortAlert_${animationState}`])}>
+      {showContent && (
+        <div className={combineClassNames('aiuta-modal', styles.modal)}>
+          <p className={combineClassNames('aiuta-label-regular', styles.message)}>
+            {getAbortMessage(abortReason)}
+          </p>
+          <PrimaryButton onClick={closeAlert} shape="S">
+            {invalidInputImageChangePhotoButton}
+          </PrimaryButton>
         </div>
-      </div>
+      )}
     </div>
   )
 }

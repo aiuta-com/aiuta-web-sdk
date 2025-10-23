@@ -1,40 +1,40 @@
-// Modal overlay styles (moved from AiutaModal)
-.modalOverlay {
-  position: fixed;
+/* @block abortAlert */
+.abortAlert {
+  position: absolute;
   top: 0;
   left: 0;
-  min-width: 100vw;
-  min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  height: 100%;
+  z-index: 99;
   display: flex;
   align-items: center;
   justify-content: center;
-  user-select: none;
-  z-index: 99;
-  transition: all 0.2s ease-in-out;
+  background: transparent;
+  transition: background-color 0.2s ease-out;
 }
 
-.modalContent {
-  max-width: 298px;
+/* Animation states */
+.abortAlert_opening {
+  background: transparent;
+}
+
+.abortAlert_open {
+  background: var(--aiuta-color-container-dim);
+}
+
+.abortAlert_closing {
+  background: transparent;
+}
+
+.modal {
+  margin: 0 32px;
   text-align: center;
-  border-radius: 24px;
-  padding: 32px 16px 16px 16px;
-  background-color: #fff;
-}
-
-.abortAlert {
+  background-color: var(--aiuta-color-background);
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
 }
 
 .message {
-  margin-bottom: 16px;
-  font-size: 16px;
-  color: var(--aiuta-color-primary);
-}
-
-.button {
-  min-width: 140px;
+  margin: 32px 16px 16px;
 }

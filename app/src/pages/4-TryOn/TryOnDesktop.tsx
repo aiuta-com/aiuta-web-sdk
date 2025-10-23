@@ -8,8 +8,7 @@ import {
   productIdSelector,
 } from '@/store/slices/tryOnSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
-import { ErrorSnackbar, TryOnButton } from '@/components'
-import { AbortAlert, TryOnView } from '@/components'
+import { ErrorSnackbar, TryOnButton, TryOnView } from '@/components'
 import { useTryOnGeneration, useUploadsGallery, useTryOnStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
@@ -60,7 +59,6 @@ export default function TryOnDesktop() {
 
   return (
     <main className={styles.tryOn}>
-      <AbortAlert />
       <ErrorSnackbar onRetry={retryTryOn} />
 
       <TryOnView
