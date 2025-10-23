@@ -29,9 +29,23 @@ export const useTryOnStrings = () => {
     // Input validation strings
     invalidInputImageDescription:
       inputValidationStrings?.invalidInputImageDescription ??
-      "We couldn't detect anyone in this photo",
+      "We couldn't detect anyone in this photo. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.",
     invalidInputImageChangePhotoButton:
       inputValidationStrings?.invalidInputImageChangePhotoButton ?? 'Change photo',
+
+    // Specific abort reason messages
+    noPeopleDetectedDescription:
+      inputValidationStrings?.noPeopleDetectedDescription ??
+      inputValidationStrings?.invalidInputImageDescription ??
+      "We couldn't detect anyone in this photo. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.",
+    tooManyPeopleDetectedDescription:
+      inputValidationStrings?.tooManyPeopleDetectedDescription ??
+      inputValidationStrings?.invalidInputImageDescription ??
+      'We detected multiple people in this photo. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.',
+    childDetectedDescription:
+      inputValidationStrings?.childDetectedDescription ??
+      inputValidationStrings?.invalidInputImageDescription ??
+      'It looks like this photo might be of a child. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.',
 
     // Fit disclaimer strings
     fitDisclaimerTitle:

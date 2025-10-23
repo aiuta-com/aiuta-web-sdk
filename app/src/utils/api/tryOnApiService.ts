@@ -8,11 +8,18 @@ import type { Image, InputImage, GeneratedImage } from '@lib/models'
 
 export type { Image, InputImage, GeneratedImage }
 
+export type AbortReason =
+  | 'NO_PEOPLE_DETECTED'
+  | 'TOO_MANY_PEOPLE_DETECTED'
+  | 'CHILD_DETECTED'
+  | string // Allow for future extensions
+
 export interface GenerationResult {
   status: 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'ABORTED' | 'PENDING'
   generated_images?: GeneratedImage[]
   operation_id?: string
   error?: string
+  abort_reason?: AbortReason
 }
 
 export interface OperationResponse {
@@ -60,14 +67,12 @@ export class TryOnApiService {
     const body: any = {
       uploaded_image_id: uploadedImageId,
       sku_id: endpointData.skuId,
-      sku_catalog_name: 'main',
     }
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     }
 
-    // Use JWT token if provided, otherwise use API key or user ID
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`
     } else if (endpointData.apiKey) {

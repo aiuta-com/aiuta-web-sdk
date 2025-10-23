@@ -174,9 +174,13 @@ export const useTryOnGeneration = () => {
     (result: GenerationResult) => {
       clearGenerationInterval()
       dispatch(tryOnSlice.actions.setIsGenerating(false))
+      if (result.abort_reason) {
+        dispatch(tryOnSlice.actions.setAbortReason(result.abort_reason))
+      }
       dispatch(tryOnSlice.actions.setIsAborted(true))
 
-      trackTryOnAborted(result.error || 'No people detected in photo')
+      // Track with abort_reason if available, fallback to error message
+      trackTryOnAborted(result.abort_reason || result.error || 'No people detected in photo')
     },
     [dispatch, trackTryOnAborted, clearGenerationInterval],
   )
