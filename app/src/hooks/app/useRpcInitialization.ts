@@ -36,6 +36,9 @@ export const useRpcInitialization = () => {
           // Always navigate to home when showing the app, clearing history
           navigate('/', { replace: true })
 
+          // Reset abort state when reopening app
+          dispatch(tryOnSlice.actions.setIsAborted(false))
+
           // Delay to ensure iframe and AppContainer are fully rendered
           // This prevents size flickering during CSS transition
           setTimeout(() => {

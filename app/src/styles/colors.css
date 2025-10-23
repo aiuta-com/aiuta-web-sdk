@@ -24,6 +24,7 @@
   /* Error */
   --aiuta-color-error-background: #ef5754;
 
-  /* Screen dim for modals */
+  /* Dimming for modals */
   --aiuta-color-screen-dim: rgba(0, 0, 0, 0.7);
+  --aiuta-color-container-dim: rgba(0, 0, 0, 0.3);
 }

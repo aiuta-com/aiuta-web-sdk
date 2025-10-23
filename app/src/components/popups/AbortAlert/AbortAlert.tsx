@@ -1,15 +1,12 @@
 import React from 'react'
-import { useAppSelector, useAppDispatch } from '@/store/store'
-import { isAbortedSelector, abortReasonSelector, tryOnSlice } from '@/store/slices/tryOnSlice'
-import { SecondaryButton } from '@/components'
-import { useTryOnStrings } from '@/hooks'
+import { PrimaryButton } from '@/components'
+import { useTryOnStrings, useAbortAlert } from '@/hooks'
+import { combineClassNames } from '@/utils'
 import type { AbortReason } from '@/utils/api/tryOnApiService'
 import styles from './AbortAlert.module.scss'
 
 export const AbortAlert = () => {
-  const dispatch = useAppDispatch()
-  const isAborted = useAppSelector(isAbortedSelector)
-  const abortReason = useAppSelector(abortReasonSelector)
+  const { abortReason, animationState, showContent, isVisible, closeAlert } = useAbortAlert()
 
   const {
     invalidInputImageDescription,
@@ -19,11 +16,7 @@ export const AbortAlert = () => {
     childDetectedDescription,
   } = useTryOnStrings()
 
-  const handleClose = () => {
-    dispatch(tryOnSlice.actions.setIsAborted(false))
-  }
-
-  if (!isAborted) return null
+  if (!isVisible) return null
 
   // Select message based on abort_reason
   const getAbortMessage = (reason: AbortReason | null): string => {
@@ -40,17 +33,17 @@ export const AbortAlert = () => {
   }
 
   return (
-    <div className={styles.modalOverlay}>
-      <div className={styles.modalContent}>
-        <div className={styles.abortAlert}>
-          <p className={styles.message}>{getAbortMessage(abortReason)}</p>
-          <SecondaryButton
-            text={invalidInputImageChangePhotoButton}
-            onClick={handleClose}
-            classNames={styles.button}
-          />
+    <div className={combineClassNames(styles.abortAlert, styles[`abortAlert_${animationState}`])}>
+      {showContent && (
+        <div className={combineClassNames('aiuta-modal', styles.modal)}>
+          <p className={combineClassNames('aiuta-label-regular', styles.message)}>
+            {getAbortMessage(abortReason)}
+          </p>
+          <PrimaryButton onClick={closeAlert} shape="S">
+            {invalidInputImageChangePhotoButton}
+          </PrimaryButton>
         </div>
-      </div>
+      )}
     </div>
   )
 }

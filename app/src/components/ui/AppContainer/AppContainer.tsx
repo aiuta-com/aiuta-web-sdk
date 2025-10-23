@@ -19,6 +19,7 @@ export const AppContainer = ({ children }: AppContainerProps) => {
   useParentScrollPrevention(isVisible)
 
   const containerClasses = combineClassNames(
+    !isMobile && 'aiuta-modal',
     styles.appContainer,
     isMobile ? styles.appContainer_mobile : styles.appContainer_desktop,
     !isVisible && styles.appContainer_hidden,
