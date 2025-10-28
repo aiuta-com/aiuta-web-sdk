@@ -34,10 +34,6 @@ export default function TryOnDesktop() {
   const hasImage = selectedImage !== null
   const showTryOnButton = !isGenerating && !isAborted && hasImage
 
-  const handleTryOnClick = () => {
-    startTryOn()
-  }
-
   // Track page view on mount
   useEffect(() => {
     rpc.sdk.trackEvent({
@@ -67,7 +63,7 @@ export default function TryOnDesktop() {
         onChangePhoto={handleChangePhoto}
       />
 
-      <TryOnButton onClick={handleTryOnClick} hidden={!showTryOnButton}>
+      <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
         {tryOn}
       </TryOnButton>
     </main>
