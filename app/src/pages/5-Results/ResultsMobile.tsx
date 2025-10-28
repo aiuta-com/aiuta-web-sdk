@@ -1,5 +1,5 @@
 import React from 'react'
-import { Flex, RemoteImage, IconButton, Disclaimer } from '@/components'
+import { Flex, RemoteImage, IconButton, Disclaimer, Feedback } from '@/components'
 import { useResultsGallery, useNavigatorShare, useSwipeGesture } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
@@ -41,6 +41,7 @@ export default function ResultsMobile() {
           onClick={() => shareImage(currentImageUrl)}
           className={styles.shareButton}
         />
+        <Feedback generatedImageUrl={currentImageUrl} className={styles.feedback} />
       </Flex>
       <Disclaimer className={styles.disclaimer} />
     </main>

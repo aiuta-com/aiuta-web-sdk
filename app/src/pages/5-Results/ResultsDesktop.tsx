@@ -1,5 +1,5 @@
 import React from 'react'
-import { ResultActions, Flex, RemoteImage } from '@/components'
+import { ResultActions, Flex, RemoteImage, Feedback } from '@/components'
 import { useResultsGallery, useSwipeGesture } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './Results.module.scss'
@@ -27,6 +27,9 @@ export default function ResultsDesktop() {
           shape="L"
           {...swipeHandlers}
         />
+        {currentImage && (
+          <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
+        )}
       </Flex>
 
       {currentImage && <ResultActions activeGeneratedImageUrl={currentImage.url} />}

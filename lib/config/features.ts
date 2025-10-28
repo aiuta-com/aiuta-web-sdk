@@ -89,6 +89,7 @@ export interface TryOn {
   loadingPage?: TryOnLoadingPage
   inputImageValidation?: TryOnInputImageValidation
   fitDisclaimer?: TryOnFitDisclaimer
+  feedback?: TryOnFeedback
   generationsHistory?: TryOnGenerationsHistory
 
   strings?: {
@@ -119,6 +120,12 @@ export interface TryOnInputImageValidation {
 export interface TryOnFitDisclaimer {
   strings?: {
     fitDisclaimerTitle?: string
+  }
+}
+
+export interface TryOnFeedback {
+  strings?: {
+    feedbackGratitudeText?: string
   }
 }
 
