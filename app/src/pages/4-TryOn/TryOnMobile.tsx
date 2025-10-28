@@ -106,7 +106,7 @@ export default function TryOnMobile() {
         )}
       </FilePicker>
 
-      <TryOnButton onClick={startTryOn} hidden={!showTryOnButton}>
+      <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
         {tryOn}
       </TryOnButton>
     </main>

@@ -1,0 +1,108 @@
+/* @block feedback */
+.feedback {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  transition: opacity 0.2s ease-out;
+}
+
+/* Animation states for component container */
+.feedback_opening,
+.feedback_open {
+  opacity: 1;
+}
+
+.feedback_closing,
+.feedback_closed {
+  opacity: 0;
+}
+
+/* FAB buttons styling */
+.fabButton {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--aiuta-color-on-light) 12%, transparent);
+  backdrop-filter: blur(5px);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--aiuta-color-on-dark);
+  flex-shrink: 0;
+  padding: 0;
+  animation: backdrop_refresh 0.1s linear infinite;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    bottom: -12px;
+    left: -12px;
+  }
+}
+
+/* Gratitude message card */
+.gratitudeMessage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 168px;
+  max-width: 280px;
+  min-height: 168px;
+  background: var(--aiuta-color-screen-dim);
+  backdrop-filter: blur(5px);
+  box-shadow: none !important;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 99;
+  transition: opacity 0.2s ease-out;
+}
+
+/* Animation states */
+.gratitudeMessage_opening {
+  opacity: 0;
+}
+
+.gratitudeMessage_open {
+  opacity: 1;
+}
+
+.gratitudeMessage_closing {
+  opacity: 0;
+}
+
+.gratitudeEmoji {
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 510;
+  line-height: normal;
+}
+
+.gratitudeText {
+  text-align: center;
+  color: var(--aiuta-color-on-dark);
+  margin: 0;
+  white-space: pre-line;
+}
+
+@keyframes backdrop_refresh {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.99;
+  }
+  100% {
+    opacity: 1;
+  }
+}
