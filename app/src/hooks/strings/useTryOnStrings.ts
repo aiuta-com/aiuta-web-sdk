@@ -10,7 +10,6 @@ export const useTryOnStrings = () => {
   const strings = tryOnConfig?.strings
   const loadingPageStrings = tryOnConfig?.loadingPage?.strings
   const inputValidationStrings = tryOnConfig?.inputImageValidation?.strings
-  const fitDisclaimerStrings = tryOnConfig?.fitDisclaimer?.strings
   const generationsHistoryStrings = tryOnConfig?.generationsHistory?.strings
 
   return {
@@ -46,10 +45,6 @@ export const useTryOnStrings = () => {
       inputValidationStrings?.childDetectedDescription ??
       inputValidationStrings?.invalidInputImageDescription ??
       'It looks like this photo might be of a child. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.',
-
-    // Fit disclaimer strings
-    fitDisclaimerTitle:
-      fitDisclaimerStrings?.fitDisclaimerTitle ?? 'Results may vary from real-life fit',
 
     // Generations history strings
     generationsHistoryPageTitle:

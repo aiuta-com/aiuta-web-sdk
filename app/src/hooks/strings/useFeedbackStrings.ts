@@ -10,6 +10,6 @@ export const useFeedbackStrings = () => {
   const strings = feedbackConfig?.strings
 
   return {
-    feedbackGratitudeText: strings?.feedbackGratitudeText ?? 'Thank you for\nyour feedback!',
+    feedbackGratitudeText: strings?.feedbackGratitudeText ?? 'Thank you for\nyour feedback',
   }
 }
