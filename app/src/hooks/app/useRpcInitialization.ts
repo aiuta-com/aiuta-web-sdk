@@ -5,7 +5,7 @@ import { appSlice } from '@/store/slices/appSlice'
 import { apiSlice } from '@/store/slices/apiSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
-import { useAlertContext } from '@/contexts'
+import { useAlert } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
 
 declare const __APP_VERSION__: string
@@ -22,7 +22,7 @@ const SHOW_DELAY = 200
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const { closeAlert } = useAlertContext()
+  const { closeAlert } = useAlert()
   const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 

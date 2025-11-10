@@ -7,7 +7,7 @@ import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdSelector, selectedImageSelector } from '@/store/slices/tryOnSlice'
-import { useRpc, useAlertContext } from '@/contexts'
+import { useRpc, useAlert } from '@/contexts'
 import {
   TryOnApiService,
   InputImage,
@@ -24,7 +24,7 @@ export const useTryOnGeneration = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const rpc = useRpc()
-  const { showAlert } = useAlertContext()
+  const { showAlert } = useAlert()
   const getState = useAppSelector((state) => state)
 
   const selectedImage = useAppSelector(selectedImageSelector)

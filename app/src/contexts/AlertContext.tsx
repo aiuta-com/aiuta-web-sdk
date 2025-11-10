@@ -1,6 +1,15 @@
-import React, { createContext, useContext, ReactNode } from 'react'
-import { useAlert } from '@/hooks'
+import React, {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react'
 import { Alert } from '@/components'
+
+type AnimationState = 'closed' | 'opening' | 'open' | 'closing'
 
 interface AlertContextValue {
   showAlert: (message: string, buttonText: string, onClose?: () => void) => void
@@ -8,7 +17,7 @@ interface AlertContextValue {
 }
 
 interface AlertStateContextValue {
-  animationState: 'closed' | 'opening' | 'open' | 'closing'
+  animationState: AnimationState
   showContent: boolean
   message: string
   buttonText: string
@@ -18,14 +27,22 @@ interface AlertStateContextValue {
 const AlertContext = createContext<AlertContextValue | null>(null)
 const AlertStateContext = createContext<AlertStateContextValue | null>(null)
 
-export const useAlertContext = () => {
+/**
+ * Public API for using alerts throughout the application
+ * Use this hook to show/close alerts from anywhere
+ */
+export const useAlert = () => {
   const context = useContext(AlertContext)
   if (!context) {
-    throw new Error('useAlertContext must be used within AlertProvider')
+    throw new Error('useAlert must be used within AlertProvider')
   }
   return context
 }
 
+/**
+ * Private hook for internal alert state management
+ * Used only by AlertRenderer
+ */
 const useAlertStateContext = () => {
   const context = useContext(AlertStateContext)
   if (!context) {
@@ -34,12 +51,81 @@ const useAlertStateContext = () => {
   return context
 }
 
+/**
+ * Private hook for managing Alert state with imperative API
+ * This is internal implementation, use useAlert() for public API
+ */
+function useAlertState() {
+  const [animationState, setAnimationState] = useState<AnimationState>('closed')
+  const [showContent, setShowContent] = useState(false)
+  const [message, setMessage] = useState('')
+  const [buttonText, setButtonText] = useState('')
+  const [onCloseCallback, setOnCloseCallback] = useState<(() => void) | undefined>()
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // Show alert with message and button text
+  const showAlert = useCallback((msg: string, btnText: string, onClose?: () => void) => {
+    // Clear any existing timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current)
+    }
+
+    setMessage(msg)
+    setButtonText(btnText)
+    setOnCloseCallback(() => onClose)
+    setShowContent(true)
+    setAnimationState('opening')
+
+    // Transition to open state after small delay
+    animationTimeoutRef.current = setTimeout(() => {
+      setAnimationState('open')
+    }, 50)
+  }, [])
+
+  // Close alert with animation
+  const closeAlert = useCallback(() => {
+    // Clear any existing timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current)
+    }
+
+    // Hide modal content immediately but keep background
+    setShowContent(false)
+    setAnimationState('closing')
+
+    // Complete close after animation
+    animationTimeoutRef.current = setTimeout(() => {
+      setAnimationState('closed')
+      onCloseCallback?.()
+    }, 200) // Match CSS transition duration
+  }, [onCloseCallback])
+
+  return {
+    animationState,
+    showContent,
+    message,
+    buttonText,
+    isVisible: animationState !== 'closed',
+    showAlert,
+    closeAlert,
+  }
+}
+
 interface AlertProviderProps {
   children: ReactNode
 }
 
 export const AlertProvider = ({ children }: AlertProviderProps) => {
-  const alertState = useAlert()
+  const alertState = useAlertState()
 
   return (
     <AlertContext.Provider
@@ -68,7 +154,7 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
  * Should be placed inside AppContainer to ensure proper positioning
  */
 export const AlertRenderer = () => {
-  const { closeAlert } = useAlertContext()
+  const { closeAlert } = useAlert()
   const alertState = useAlertStateContext()
 
   return (
