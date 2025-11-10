@@ -51,13 +51,16 @@ export const useRpcInitialization = () => {
         const rpc = new AiutaAppRpc({
           context: { appVersion: __APP_VERSION__ },
           handlers: {
-            tryOn: async (productId: string) => {
+            tryOn: async (productIds: string | string[]) => {
               try {
+                // Support both single and multi-item try-on (backward compatibility)
+                const productIdsArray = Array.isArray(productIds) ? productIds : [productIds]
+
                 // Show app when tryOn is called
                 showApp()
 
-                // Update productId in tryOnSlice
-                dispatch(tryOnSlice.actions.setProductId(productId))
+                // Update productIds in tryOnSlice
+                dispatch(tryOnSlice.actions.setProductIds(productIdsArray))
 
                 return // Explicitly return to complete the Promise
               } catch (error) {

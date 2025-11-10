@@ -5,7 +5,7 @@ import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { useRpc } from '@/contexts'
 import { useAppVisibility } from '@/hooks'
-import { productIdSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
@@ -20,7 +20,7 @@ export const usePageBarNavigation = () => {
   const { hideApp } = useAppVisibility()
 
   const pathName = location.pathname
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
   const recentlyPhotos = useAppSelector(inputImagesSelector)
@@ -32,7 +32,7 @@ export const usePageBarNavigation = () => {
     const analytic = {
       type,
       pageId,
-      productIds: [productId],
+      productIds,
     }
     rpc.sdk.trackEvent(analytic)
   }

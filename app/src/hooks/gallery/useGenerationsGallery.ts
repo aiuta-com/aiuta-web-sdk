@@ -8,7 +8,7 @@ import {
   generatedImagesSelector,
 } from '@/store/slices/generationsSlice/selectors'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { useRpc } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
@@ -33,7 +33,7 @@ export const useGenerationsGallery = ({
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const isSelecting = useAppSelector(generationsIsSelectingSelector)
 
   // Convert Redux images to ImageItem format
@@ -147,11 +147,11 @@ export const useGenerationsGallery = ({
       type: 'share',
       event: 'downloaded',
       pageId: 'history',
-      productIds: [productId],
+      productIds,
     }
 
     rpc.sdk.trackEvent(analytic)
-  }, [generatedImages, selectedImages, productId, rpc.sdk])
+  }, [generatedImages, selectedImages, productIds, rpc.sdk])
 
   // Selection actions for SelectionSnackbar
   const handleDelete = onShowDeleteModal || (() => {})

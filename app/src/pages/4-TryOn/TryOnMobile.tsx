@@ -6,7 +6,7 @@ import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import {
   selectedImageSelector,
   isGeneratingSelector,
-  productIdSelector,
+  productIdsSelector,
 } from '@/store/slices/tryOnSlice'
 import {
   UploadsHistorySheet,
@@ -27,7 +27,7 @@ export default function TryOnMobile() {
   const isBottomSheetOpen = useAppSelector(uploadsIsBottomSheetOpenSelector)
   const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   const { recentlyPhotos: recentPhotos } = useUploadsGallery()
   const { selectImageToTryOn } = useTryOnImage()
@@ -68,9 +68,9 @@ export default function TryOnMobile() {
     rpc.sdk.trackEvent({
       type: 'page',
       pageId: 'imagePicker',
-      productIds: [productId],
+      productIds,
     })
-  }, [rpc, productId])
+  }, [rpc, productIds])
 
   // Auto-select recent photo if no image is selected
   useEffect(() => {

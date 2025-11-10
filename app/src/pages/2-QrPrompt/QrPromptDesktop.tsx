@@ -4,13 +4,13 @@ import { ErrorSnackbar, QrCode, Spinner, FilePicker } from '@/components'
 import { useQrPrompt, useTryOnImage, useImagePickerStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptDesktop() {
   const navigate = useNavigate()
   const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const { qrUrl, startPolling, isDownloading } = useQrPrompt()
   const { selectImageToTryOn } = useTryOnImage()
   const { qrPromptHint, qrPromptOr, qrPromptUploadButton } = useImagePickerStrings()
@@ -20,9 +20,9 @@ export default function QrPromptDesktop() {
     rpc.sdk.trackEvent({
       type: 'page',
       pageId: 'qrPrompt',
-      productIds: [productId],
+      productIds,
     })
-  }, [rpc, productId])
+  }, [rpc, productIds])
 
   // Start QR polling on mount
   useEffect(() => {

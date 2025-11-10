@@ -10,7 +10,7 @@ export interface TryOnState {
   generationStage: GenerationStage
   operationId: string | null
   generatedImageUrl: string
-  productId: string
+  productIds: string[]
 }
 
 const initialState: TryOnState = {
@@ -19,7 +19,7 @@ const initialState: TryOnState = {
   generationStage: 'idle',
   operationId: null,
   generatedImageUrl: '',
-  productId: '',
+  productIds: [],
 }
 
 export const tryOnSlice = createSlice({
@@ -65,8 +65,8 @@ export const tryOnSlice = createSlice({
       state.generatedImageUrl = ''
     },
 
-    setProductId: (state, action: PayloadAction<string>) => {
-      state.productId = action.payload
+    setProductIds: (state, action: PayloadAction<string[]>) => {
+      state.productIds = action.payload
     },
 
     resetTryOnState: (state) => {

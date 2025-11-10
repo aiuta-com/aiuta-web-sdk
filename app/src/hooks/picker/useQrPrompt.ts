@@ -5,7 +5,7 @@ import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { qrSlice } from '@/store/slices/qrSlice'
 import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { QrApiService } from '@/utils/api/qrApiService'
 import { generateRandomString } from '@/utils/helpers/generateRandomString'
 
@@ -16,7 +16,7 @@ export const useQrPrompt = () => {
   const qrToken = useAppSelector(qrTokenSelector)
   const apiKey = useAppSelector(apiKeySelector)
   const subscriptionId = useAppSelector(subscriptionIdSelector)
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const isDownloading = useAppSelector(qrIsLoadingSelector)
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -31,7 +31,7 @@ export const useQrPrompt = () => {
 
   // Check for QR uploaded photo
   const checkQrUpload = useCallback(async () => {
-    if (!qrToken || !productId || (!apiKey && !subscriptionId)) return
+    if (!qrToken || !productIds.length || (!apiKey && !subscriptionId)) return
 
     try {
       const result = await QrApiService.getQrPhoto(qrToken)
@@ -59,7 +59,7 @@ export const useQrPrompt = () => {
     } catch (error) {
       console.error('QR polling error:', error)
     }
-  }, [qrToken, apiKey, subscriptionId, productId, dispatch, navigate])
+  }, [qrToken, apiKey, subscriptionId, productIds, dispatch, navigate])
 
   // Start polling for QR uploads
   const startPolling = useCallback(() => {
@@ -105,7 +105,7 @@ export const useQrPrompt = () => {
     qrToken,
     apiKey,
     subscriptionId,
-    productId,
+    productIds,
     qrUrl: getQrUrl(),
     isPolling,
     isDownloading,

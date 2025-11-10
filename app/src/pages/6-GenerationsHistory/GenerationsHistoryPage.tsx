@@ -3,7 +3,7 @@ import { ImageGallery, SelectionSnackbar } from '@/components'
 import { useGenerationsGallery } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import styles from './GenerationsHistory.module.scss'
 
 /**
@@ -17,7 +17,7 @@ import styles from './GenerationsHistory.module.scss'
  */
 export default function GenerationsHistoryPage() {
   const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const gallery = useGenerationsGallery()
 
   // Track page view on mount
@@ -25,9 +25,9 @@ export default function GenerationsHistoryPage() {
     rpc.sdk.trackEvent({
       type: 'page',
       pageId: 'history',
-      productIds: [productId],
+      productIds,
     })
-  }, [rpc, productId])
+  }, [rpc, productIds])
 
   return (
     <main className={styles.generationsHistory}>

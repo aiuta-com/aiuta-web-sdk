@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 import type { FeedbackType } from '@/components/results/Feedback'
 
@@ -14,7 +14,7 @@ const feedbackGivenUrls = new Set<string>()
  */
 export const useFeedback = (generatedImageUrl: string) => {
   const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const [isDisabled, setIsDisabled] = useState(false)
   const [animationState, setAnimationState] = useState<AnimationState>('closed')
   const [showContent, setShowContent] = useState(false)
@@ -47,18 +47,18 @@ export const useFeedback = (generatedImageUrl: string) => {
 
   const trackFeedback = useCallback(
     (feedbackType: FeedbackType) => {
-      if (!productId) return
+      if (!productIds.length) return
 
       const analytic = {
         type: 'feedback',
         event: feedbackType,
         pageId: 'results',
-        productIds: [productId],
+        productIds,
       }
 
       rpc.sdk.trackEvent(analytic)
     },
-    [rpc, productId],
+    [rpc, productIds],
   )
 
   const hideComponent = useCallback(() => {

@@ -1,12 +1,14 @@
-export interface EndpointData {
-  skuId: string
-  apiKey: string
-  subscriptionId?: string
-}
-
 import type { Image, InputImage, GeneratedImage } from '@lib/models'
 
 export type { Image, InputImage, GeneratedImage }
+
+/**
+ * Authentication parameters for API requests
+ */
+export interface ApiAuthParams {
+  apiKey?: string
+  subscriptionId?: string
+}
 
 export type AbortReason =
   | 'NO_PEOPLE_DETECTED'
@@ -30,20 +32,26 @@ export interface OperationResponse {
 export class TryOnApiService {
   private static readonly BASE_URL = 'https://api.aiuta.com/digital-try-on/v1'
 
+  /**
+   * Add authentication headers to request
+   */
+  private static addAuthHeaders(headers: Record<string, string>, auth: ApiAuthParams): void {
+    if (auth.apiKey) {
+      headers['x-api-key'] = auth.apiKey
+    } else if (auth.subscriptionId) {
+      headers['x-user-id'] = auth.subscriptionId
+    }
+  }
+
   static async uploadImage(
     file: File,
-    endpointData: EndpointData,
+    auth: ApiAuthParams,
   ): Promise<InputImage & { owner_type?: string; error?: string }> {
     const formData = new FormData()
     formData.append('image_data', file)
 
     const headers: Record<string, string> = {}
-
-    if (endpointData.apiKey) {
-      headers['x-api-key'] = endpointData.apiKey
-    } else if (endpointData.subscriptionId) {
-      headers['x-user-id'] = endpointData.subscriptionId
-    }
+    this.addAuthHeaders(headers, auth)
 
     const response = await fetch(`${this.BASE_URL}/uploaded_images`, {
       method: 'POST',
@@ -61,12 +69,13 @@ export class TryOnApiService {
 
   static async createOperation(
     uploadedImageId: string,
-    endpointData: EndpointData,
+    productIds: string[],
+    auth: ApiAuthParams,
     jwtToken?: string,
   ): Promise<OperationResponse> {
-    const body: any = {
+    const body = {
       uploaded_image_id: uploadedImageId,
-      sku_id: endpointData.skuId,
+      sku_ids: productIds,
     }
 
     const headers: Record<string, string> = {
@@ -75,10 +84,8 @@ export class TryOnApiService {
 
     if (jwtToken) {
       headers['Authorization'] = `Bearer ${jwtToken}`
-    } else if (endpointData.apiKey) {
-      headers['x-api-key'] = endpointData.apiKey
-    } else if (endpointData.subscriptionId) {
-      headers['x-user-id'] = endpointData.subscriptionId
+    } else {
+      this.addAuthHeaders(headers, auth)
     }
 
     const response = await fetch(`${this.BASE_URL}/sku_images_operations`, {
@@ -97,16 +104,10 @@ export class TryOnApiService {
 
   static async getGenerationResult(
     operationId: string,
-    endpointData: EndpointData,
+    auth: ApiAuthParams,
   ): Promise<GenerationResult> {
     const headers: Record<string, string> = {}
-
-    // Choose auth method based on available credentials
-    if (endpointData.apiKey) {
-      headers['x-api-key'] = endpointData.apiKey
-    } else if (endpointData.subscriptionId) {
-      headers['x-user-id'] = endpointData.subscriptionId
-    }
+    this.addAuthHeaders(headers, auth)
 
     const response = await fetch(`${this.BASE_URL}/sku_images_operations/${operationId}`, {
       method: 'GET',

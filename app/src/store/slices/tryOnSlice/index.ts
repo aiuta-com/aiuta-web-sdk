@@ -5,5 +5,5 @@ export {
   generationStageSelector,
   operationIdSelector,
   generatedImageUrlSelector,
-  productIdSelector,
+  productIdsSelector,
 } from './selectors'

@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 
 /**
@@ -12,7 +12,7 @@ export const useNavigatorShare = () => {
   const dispatch = useAppDispatch()
   const rpc = useRpc()
   const generatedImages = useAppSelector(generatedImagesSelector)
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   // Share image via Web Share API
   const shareImage = useCallback(
@@ -47,7 +47,7 @@ export const useNavigatorShare = () => {
             type: 'share',
             event: 'succeeded',
             pageId: 'results',
-            productIds: [productId],
+            productIds,
             imageUrl: urlToShare,
             method: 'web-share-api',
           })
@@ -63,7 +63,7 @@ export const useNavigatorShare = () => {
             type: 'share',
             event: 'succeeded',
             pageId: 'results',
-            productIds: [productId],
+            productIds,
             imageUrl: urlToShare,
             method: 'web-share-api-url',
           })
@@ -88,13 +88,13 @@ export const useNavigatorShare = () => {
           type: 'share',
           event: 'failed',
           pageId: 'results',
-          productIds: [productId],
+          productIds,
           imageUrl: urlToShare,
           error: 'Web Share API not available',
         })
       }
     },
-    [generatedImages, rpc, productId],
+    [generatedImages, rpc, productIds],
   )
 
   // Handle full screen image on mobile

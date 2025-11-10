@@ -22,12 +22,12 @@ export interface RpcProxy {
 export abstract class BaseAnalyticsService {
   constructor(
     protected rpc: RpcProxy,
-    protected productId?: string,
+    protected productIds: string[] = [],
   ) {}
 
   protected createEvent(eventData: Partial<AnalyticsEvent>): AnalyticsEvent {
     return {
-      productIds: [this.productId || ''],
+      productIds: this.productIds,
       ...eventData,
     } as AnalyticsEvent
   }

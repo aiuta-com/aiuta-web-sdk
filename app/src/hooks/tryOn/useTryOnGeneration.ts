@@ -6,13 +6,14 @@ import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
-import { productIdSelector, selectedImageSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector, selectedImageSelector } from '@/store/slices/tryOnSlice'
 import { useRpc, useAlert } from '@/contexts'
 import {
   TryOnApiService,
   InputImage,
   GenerationResult,
   type AbortReason,
+  type ApiAuthParams,
 } from '@/utils/api/tryOnApiService'
 import { isNewImage, isInputImage, type TryOnImage } from '@/models'
 import { resizeAndConvertImage } from '@/utils'
@@ -50,10 +51,9 @@ export const useTryOnGeneration = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const usedImageRef = useRef<InputImage | null>(null)
 
-  const getEndpointData = useCallback(() => {
+  const getAuthParams = useCallback((): ApiAuthParams | null => {
     const apiKey = apiKeySelector(getState)
     const subscriptionId = subscriptionIdSelector(getState)
-    const productId = productIdSelector(getState)
 
     // We need either apiKey OR subscriptionId (not both)
     if (!apiKey && !subscriptionId) {
@@ -63,8 +63,11 @@ export const useTryOnGeneration = () => {
     return {
       apiKey,
       subscriptionId,
-      skuId: productId,
     }
+  }, [getState])
+
+  const getProductIds = useCallback((): string[] => {
+    return productIdsSelector(getState)
   }, [getState])
 
   const clearGenerationInterval = useCallback(() => {
@@ -82,8 +85,10 @@ export const useTryOnGeneration = () => {
     async (uploadedImageId: string): Promise<string | null> => {
       if (!rpc || !('getJwt' in rpc.config.auth)) return null
 
-      const endpointData = getEndpointData()
-      if (!endpointData) return null
+      const auth = getAuthParams()
+      const productIds = getProductIds()
+
+      if (!auth || !productIds.length) return null
 
       try {
         const jwtToken = await rpc.config.auth.getJwt({ uploaded_image_id: uploadedImageId })
@@ -95,7 +100,8 @@ export const useTryOnGeneration = () => {
 
         const result = await TryOnApiService.createOperation(
           uploadedImageId,
-          endpointData,
+          productIds,
+          auth,
           jwtToken,
         )
 
@@ -110,23 +116,25 @@ export const useTryOnGeneration = () => {
         return null
       }
     },
-    [getEndpointData, rpc, trackTryOnError],
+    [getAuthParams, getProductIds, rpc, trackTryOnError],
   )
 
   const createOperationWithoutJwt = useCallback(
     async (uploadedImageId: string): Promise<string | null> => {
-      const endpointData = getEndpointData()
-      if (!endpointData) return null
+      const auth = getAuthParams()
+      const productIds = getProductIds()
+
+      if (!auth || !productIds.length) return null
 
       try {
-        const result = await TryOnApiService.createOperation(uploadedImageId, endpointData)
+        const result = await TryOnApiService.createOperation(uploadedImageId, productIds, auth)
         return result.operation_id || null
       } catch (error: any) {
         trackTryOnError('requestOperationFailed', error.message)
         return null
       }
     },
-    [getEndpointData, trackTryOnError],
+    [getAuthParams, getProductIds, trackTryOnError],
   )
 
   // ========================================
@@ -231,11 +239,11 @@ export const useTryOnGeneration = () => {
   // ========================================
   const pollGenerationStatus = useCallback(
     async (operationId: string) => {
-      const endpointData = getEndpointData()
-      if (!endpointData) return
+      const auth = getAuthParams()
+      if (!auth) return
 
       try {
-        const result = await TryOnApiService.getGenerationResult(operationId, endpointData)
+        const result = await TryOnApiService.getGenerationResult(operationId, auth)
 
         switch (result.status) {
           case 'SUCCESS':
@@ -256,7 +264,7 @@ export const useTryOnGeneration = () => {
         console.error('Generation polling error:', error)
       }
     },
-    [getEndpointData, handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
+    [getAuthParams, handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
   )
 
   // ========================================
@@ -264,9 +272,16 @@ export const useTryOnGeneration = () => {
   // ========================================
   const startTryOn = useCallback(
     async (imageToUse?: TryOnImage): Promise<void> => {
-      const endpointData = getEndpointData()
-      if (!endpointData) {
-        console.error('Endpoints info is missing')
+      const auth = getAuthParams()
+      const productIds = getProductIds()
+
+      if (!auth) {
+        console.error('Authentication info is missing')
+        return
+      }
+
+      if (!productIds.length) {
+        console.error('Product IDs are missing')
         return
       }
 
@@ -294,7 +309,7 @@ export const useTryOnGeneration = () => {
 
           // Process and upload the file
           const processedFile = await resizeAndConvertImage(targetImage.file)
-          const uploadResult = await TryOnApiService.uploadImage(processedFile, endpointData)
+          const uploadResult = await TryOnApiService.uploadImage(processedFile, auth)
 
           if (uploadResult.owner_type !== 'user' || !uploadResult.id) {
             throw new Error(uploadResult.error || 'Upload failed')
@@ -325,8 +340,7 @@ export const useTryOnGeneration = () => {
       // Step 2: Set scanning stage and create operation
       dispatch(tryOnSlice.actions.setGenerationStage('scanning'))
 
-      const hasSubscriptionId =
-        endpointData.subscriptionId && endpointData.subscriptionId.length > 0
+      const hasSubscriptionId = auth.subscriptionId && auth.subscriptionId.length > 0
       const operationId = hasSubscriptionId
         ? await createOperationWithJwt(uploadedImage.id)
         : await createOperationWithoutJwt(uploadedImage.id)
@@ -351,7 +365,8 @@ export const useTryOnGeneration = () => {
       }, 3000)
     },
     [
-      getEndpointData,
+      getAuthParams,
+      getProductIds,
       selectedImage,
       getRecentPhoto,
       trackTryOnInitiated,

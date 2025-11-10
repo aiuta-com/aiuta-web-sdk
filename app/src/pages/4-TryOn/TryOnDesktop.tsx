@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import {
   selectedImageSelector,
   isGeneratingSelector,
-  productIdSelector,
+  productIdsSelector,
 } from '@/store/slices/tryOnSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { ErrorSnackbar, TryOnButton, TryOnView } from '@/components'
@@ -19,7 +19,7 @@ export default function TryOnDesktop() {
 
   const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   const { getRecentPhoto } = useUploadsGallery()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
@@ -37,9 +37,9 @@ export default function TryOnDesktop() {
     rpc.sdk.trackEvent({
       type: 'page',
       pageId: 'imagePicker',
-      productIds: [productId],
+      productIds,
     })
-  }, [rpc, productId])
+  }, [rpc, productIds])
 
   // Auto-select recent photo if no image is selected
   useEffect(() => {
