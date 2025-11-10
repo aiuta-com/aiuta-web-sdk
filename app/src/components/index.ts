@@ -30,7 +30,7 @@ export { BottomSheet } from './popups/BottomSheet'
 export { ErrorSnackbar } from './popups/ErrorSnackbar'
 export { SelectionSnackbar } from './popups/SelectionSnackbar'
 export { Confirmation } from './popups/Confirmation'
-export { AbortAlert } from './popups/AbortAlert'
+export { Alert } from './popups/Alert'
 
 // ===== FEATURE COMPONENTS =====
 

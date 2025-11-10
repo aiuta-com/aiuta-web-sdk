@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 
 type GalleryType = 'uploads' | 'generations'
@@ -17,23 +17,23 @@ interface AnalyticsEvent {
  */
 export const useGalleryAnalytics = (galleryType: GalleryType) => {
   const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   const trackEvent = useCallback(
     (event: string, additionalData?: Record<string, any>) => {
-      if (!productId) return
+      if (!productIds.length) return
 
       const analytic: AnalyticsEvent = {
         type: galleryType === 'generations' ? 'history' : 'picker',
         pageId: galleryType === 'generations' ? 'history' : 'imagePicker',
         event,
-        productIds: [productId],
+        productIds,
         ...additionalData,
       }
 
       rpc.sdk.trackEvent(analytic as unknown as Record<string, unknown>)
     },
-    [rpc, productId, galleryType],
+    [rpc, productIds, galleryType],
   )
 
   const trackImageSelected = useCallback(

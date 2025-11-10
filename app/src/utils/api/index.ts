@@ -1,6 +1,6 @@
 export {
   TryOnApiService,
-  type EndpointData,
+  type ApiAuthParams,
   type InputImage,
   type GenerationResult,
 } from './tryOnApiService'

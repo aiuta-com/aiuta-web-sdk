@@ -26,19 +26,22 @@ export default class Aiuta {
     this.analytics.track({ type: 'configure' })
   }
 
-  async tryOn(productId: string) {
-    if (!productId || !productId.length) {
-      this.logger.error('Product id is not provided for Aiuta')
+  async tryOn(productId: string | string[]) {
+    // Support both single product and multi-item try-on
+    const productIds = Array.isArray(productId) ? productId : [productId]
+
+    if (!productIds.length || productIds.some((id) => !id || !id.length)) {
+      this.logger.error('Product id(s) are not provided for Aiuta')
       return
     }
 
     this.iframeManager.ensureIframe()
-    this.messageHandler.startTryOn(productId)
+    this.messageHandler.startTryOn(productIds)
 
     this.analytics.track({
       type: 'session',
       flow: 'tryOn',
-      productIds: [productId],
+      productIds,
     })
   }
 }

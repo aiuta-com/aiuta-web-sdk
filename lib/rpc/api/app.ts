@@ -9,10 +9,14 @@
  */
 export interface AppApi {
   /**
-   * Trigger try-on flow for a specific product
-   * @param productId - ID of the product to try on
+   * Trigger try-on flow for one or multiple products
+   * @param productIds - Single product ID or array of product IDs (for multi-item try-on)
+   *
+   * Supports backward compatibility:
+   * - Old SDK: tryOn('product-id')
+   * - New SDK: tryOn(['product-id-1', 'product-id-2'])
    */
-  tryOn(productId: string): Promise<void>
+  tryOn(productIds: string | string[]): Promise<void>
 }
 
 /**

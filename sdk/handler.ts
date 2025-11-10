@@ -36,7 +36,7 @@ export default class MessageHandler {
     })
   }
 
-  async startTryOn(productId: string) {
+  async startTryOn(productIds: string[]) {
     try {
       const iframe = this.iframeManager.getIframe()
       if (iframe) {
@@ -50,7 +50,7 @@ export default class MessageHandler {
           this.analytics.track({ type: 'session', event: 'iframeLoaded' })
         }
 
-        await this.rpc.app.tryOn(productId)
+        await this.rpc.app.tryOn(productIds)
       }
     } catch (error) {
       this.logger.error('Aiuta RPC tryOn failed:', error)

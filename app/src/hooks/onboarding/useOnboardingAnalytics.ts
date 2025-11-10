@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 
 export type OnboardingPageId = 'howItWorks' | 'bestResults' | 'consent'
@@ -16,23 +16,23 @@ interface AnalyticsEvent {
 
 export const useOnboardingAnalytics = () => {
   const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   const trackEvent = useCallback(
     (event: AnalyticsEvent) => {
-      // Only track if productId exists
-      if (!productId || productId.length === 0) {
+      // Only track if productIds exists
+      if (!productIds || productIds.length === 0) {
         return
       }
 
       const analytic = {
         ...event,
-        productIds: [productId],
+        productIds,
       }
 
       rpc.sdk.trackEvent(analytic)
     },
-    [rpc, productId],
+    [rpc, productIds],
   )
 
   const trackPageView = useCallback(
@@ -40,10 +40,10 @@ export const useOnboardingAnalytics = () => {
       trackEvent({
         type: 'page',
         pageId,
-        productIds: [productId],
+        productIds,
       })
     },
-    [trackEvent, productId],
+    [trackEvent, productIds],
   )
 
   const trackConsentsGiven = useCallback(() => {
@@ -51,18 +51,18 @@ export const useOnboardingAnalytics = () => {
       type: 'onboarding',
       pageId: 'consent',
       event: 'consentsGiven',
-      productIds: [productId],
+      productIds,
     })
-  }, [trackEvent, productId])
+  }, [trackEvent, productIds])
 
   const trackOnboardingFinished = useCallback(() => {
     trackEvent({
       type: 'onboarding',
       pageId: 'consent',
       event: 'onboardingFinished',
-      productIds: [productId],
+      productIds,
     })
-  }, [trackEvent, productId])
+  }, [trackEvent, productIds])
 
   return {
     trackPageView,

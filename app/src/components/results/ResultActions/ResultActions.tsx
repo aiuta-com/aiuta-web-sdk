@@ -1,6 +1,6 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { SecondaryButton } from '@/components'
 import { ResultActionsProps } from './types'
 import { useRpc, useShare } from '@/contexts'
@@ -14,7 +14,7 @@ export const ResultActions = (props: ResultActionsProps) => {
   const { openShareModal } = useShare()
   const { shareButton, downloadButton } = useShareStrings()
 
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   const handleShare = async () => {
     if (!activeGeneratedImageUrl) return
@@ -27,7 +27,7 @@ export const ResultActions = (props: ResultActionsProps) => {
       type: 'share',
       event: 'initiated',
       pageId: 'results',
-      productIds: [productId],
+      productIds,
     }
 
     rpc.sdk.trackEvent(analytic)
@@ -54,7 +54,7 @@ export const ResultActions = (props: ResultActionsProps) => {
       type: 'share',
       event: 'downloaded',
       pageId: 'results',
-      productIds: [productId],
+      productIds,
     }
 
     rpc.sdk.trackEvent(analytic)

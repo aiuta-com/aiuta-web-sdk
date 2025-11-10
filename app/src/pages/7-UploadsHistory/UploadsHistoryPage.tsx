@@ -5,7 +5,7 @@ import { ImageGallery, SelectionSnackbar } from '@/components'
 import { useUploadsGallery, useImagePickerStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import styles from './UploadsHistory.module.scss'
 
 /**
@@ -21,7 +21,7 @@ import styles from './UploadsHistory.module.scss'
 export default function UploadsHistoryPage() {
   const navigate = useNavigate()
   const rpc = useRpc()
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const gallery = useUploadsGallery()
   const { uploadsHistoryButtonNewPhoto } = useImagePickerStrings()
 
@@ -30,9 +30,9 @@ export default function UploadsHistoryPage() {
     rpc.sdk.trackEvent({
       type: 'page',
       pageId: 'imagePicker',
-      productIds: [productId],
+      productIds,
     })
-  }, [rpc, productId])
+  }, [rpc, productIds])
 
   // Navigate to home if all images are deleted
   useEffect(() => {

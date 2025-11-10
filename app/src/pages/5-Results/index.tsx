@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { productIdSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 import ResultsDesktop from './ResultsDesktop'
 import ResultsMobile from './ResultsMobile'
@@ -19,16 +19,16 @@ import ResultsMobile from './ResultsMobile'
 export default function ResultsPage() {
   const rpc = useRpc()
   const isMobile = useAppSelector(isMobileSelector)
-  const productId = useAppSelector(productIdSelector)
+  const productIds = useAppSelector(productIdsSelector)
 
   // Track page view on mount
   useEffect(() => {
     rpc.sdk.trackEvent({
       type: 'page',
       pageId: 'results',
-      productIds: [productId],
+      productIds,
     })
-  }, [rpc, productId])
+  }, [rpc, productIds])
 
   return isMobile ? <ResultsMobile /> : <ResultsDesktop />
 }
