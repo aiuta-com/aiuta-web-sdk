@@ -4,7 +4,6 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import {
   selectedImageSelector,
   isGeneratingSelector,
-  isAbortedSelector,
   productIdSelector,
 } from '@/store/slices/tryOnSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
@@ -20,7 +19,6 @@ export default function TryOnDesktop() {
 
   const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
-  const isAborted = useAppSelector(isAbortedSelector)
   const productId = useAppSelector(productIdSelector)
 
   const { getRecentPhoto } = useUploadsGallery()
@@ -32,7 +30,7 @@ export default function TryOnDesktop() {
   }
 
   const hasImage = selectedImage !== null
-  const showTryOnButton = !isGenerating && !isAborted && hasImage
+  const showTryOnButton = !isGenerating && hasImage
 
   // Track page view on mount
   useEffect(() => {

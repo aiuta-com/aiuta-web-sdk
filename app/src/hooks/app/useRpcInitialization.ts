@@ -5,6 +5,7 @@ import { appSlice } from '@/store/slices/appSlice'
 import { apiSlice } from '@/store/slices/apiSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
+import { useAlertContext } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
 
 declare const __APP_VERSION__: string
@@ -21,6 +22,7 @@ const SHOW_DELAY = 200
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const { closeAlert } = useAlertContext()
   const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
@@ -33,11 +35,11 @@ export const useRpcInitialization = () => {
     const initializeRpc = async () => {
       try {
         const showApp = () => {
+          // Close any active alerts when showing app
+          closeAlert()
+
           // Always navigate to home when showing the app, clearing history
           navigate('/', { replace: true })
-
-          // Reset abort state when reopening app
-          dispatch(tryOnSlice.actions.setIsAborted(false))
 
           // Delay to ensure iframe and AppContainer are fully rendered
           // This prevents size flickering during CSS transition
@@ -77,7 +79,7 @@ export const useRpcInitialization = () => {
     }
 
     initializeRpc()
-  }, [dispatch, navigate, rpc]) // Add rpc to dependencies
+  }, [dispatch, navigate, closeAlert, rpc]) // Add rpc to dependencies
 
   // Sync iframe interactivity with app visibility
   useEffect(() => {

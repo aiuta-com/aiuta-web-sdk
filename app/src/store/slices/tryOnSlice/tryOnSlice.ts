@@ -1,14 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { TryOnImage } from '@/models'
 import { isNewImage } from '@/models'
-import type { AbortReason } from '@/utils/api/tryOnApiService'
 
 export type GenerationStage = 'idle' | 'uploading' | 'scanning' | 'generating'
 
 export interface TryOnState {
   isGenerating: boolean
-  isAborted: boolean
-  abortReason: AbortReason | null
   selectedImage: TryOnImage | null
   generationStage: GenerationStage
   operationId: string | null
@@ -18,8 +15,6 @@ export interface TryOnState {
 
 const initialState: TryOnState = {
   isGenerating: false,
-  isAborted: false,
-  abortReason: null,
   selectedImage: null,
   generationStage: 'idle',
   operationId: null,
@@ -36,18 +31,6 @@ export const tryOnSlice = createSlice({
       if (!action.payload) {
         state.generationStage = 'idle'
       }
-    },
-
-    setIsAborted: (state, action: PayloadAction<boolean>) => {
-      state.isAborted = action.payload
-      // Clear abort reason when setting isAborted to false
-      if (!action.payload) {
-        state.abortReason = null
-      }
-    },
-
-    setAbortReason: (state, action: PayloadAction<AbortReason | null>) => {
-      state.abortReason = action.payload
     },
 
     setSelectedImage: (state, action: PayloadAction<TryOnImage | null>) => {

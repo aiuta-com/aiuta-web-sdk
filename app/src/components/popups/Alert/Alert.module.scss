@@ -1,5 +1,5 @@
-/* @block abortAlert */
-.abortAlert {
+/* @block alert */
+.alert {
   position: absolute;
   top: 0;
   left: 0;
@@ -11,19 +11,23 @@
   justify-content: center;
   background: transparent;
   transition: background-color 0.2s ease-out;
+  pointer-events: none; /* Don't block clicks when not visible */
 }
 
 /* Animation states */
-.abortAlert_opening {
+.alert_opening {
   background: transparent;
+  pointer-events: auto;
 }
 
-.abortAlert_open {
+.alert_open {
   background: var(--aiuta-color-container-dim);
+  pointer-events: auto;
 }
 
-.abortAlert_closing {
+.alert_closing {
   background: transparent;
+  pointer-events: auto;
 }
 
 .modal {
