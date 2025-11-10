@@ -15,9 +15,17 @@ export const Alert = ({
 }: AlertProps) => {
   if (!isVisible) return null
 
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Close only if clicking on backdrop, not on modal content
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
   return (
     <div
       className={combineClassNames(styles.alert, styles[`alert_${animationState}`], className)}
+      onClick={handleBackdropClick}
       data-testid="aiuta-alert"
     >
       {showContent && (
