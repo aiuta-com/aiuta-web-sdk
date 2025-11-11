@@ -1,0 +1,40 @@
+.models {
+  display: flex;
+  flex-direction: column;
+  padding: var(--aiuta-inset-container);
+  height: 100%;
+  overflow: hidden;
+
+  h2 {
+    margin-bottom: 16px;
+  }
+}
+
+.tabs {
+  margin-bottom: 24px;
+}
+
+.gallery {
+  flex: 1;
+  overflow-y: auto;
+
+  /* Less columns for models */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.modelsList {
+  margin-top: 24px;
+}
+
+.errorState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex: 1;
+  text-align: center;
+  padding: var(--aiuta-inset-v);
+}

@@ -5,3 +5,5 @@ export const modelsLoadingSelector = (state: RootState) => state.predefinedModel
 export const modelsLoadedSelector = (state: RootState) => state.predefinedModels.isLoaded
 export const modelsErrorSelector = (state: RootState) => state.predefinedModels.error
 export const modelsEtagSelector = (state: RootState) => state.predefinedModels.etag
+export const modelsRetryRequestedSelector = (state: RootState) =>
+  state.predefinedModels.retryRequested

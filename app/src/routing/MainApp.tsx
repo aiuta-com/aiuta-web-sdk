@@ -18,6 +18,7 @@ import TryOnPage from '@/pages/4-TryOn'
 import ResultsPage from '@/pages/5-Results'
 import GenerationsHistoryPage from '@/pages/6-GenerationsHistory'
 import UploadsHistoryPage from '@/pages/7-UploadsHistory'
+import PredefinedModelsPage from '@/pages/8-PredefinedModels'
 
 /**
  * Main application component with full RPC and context setup
@@ -69,6 +70,7 @@ function MainAppContent() {
           <Route path="/" element={<HomePageRouter />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/qr" element={<QrPromptPage />} />
+          <Route path="/models" element={<PredefinedModelsPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/generations" element={<GenerationsHistoryPage />} />

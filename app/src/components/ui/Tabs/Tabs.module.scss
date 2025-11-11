@@ -1,0 +1,40 @@
+.tabs {
+  display: flex;
+  gap: 24px;
+  border-bottom: 1px solid var(--aiuta-color-divider);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+}
+
+.tab {
+  position: relative;
+  padding: 12px 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  color: var(--aiuta-color-text-secondary);
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--aiuta-color-text-primary);
+  }
+
+  &_active {
+    color: var(--aiuta-color-text-primary);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--aiuta-color-text-primary);
+    }
+  }
+}

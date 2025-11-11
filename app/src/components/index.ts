@@ -6,6 +6,7 @@ export { PageBar } from './ui/PageBar'
 export { PoweredBy } from './ui/PoweredBy'
 export { Icon } from './ui/Icon'
 export { Flex } from './ui/Flex'
+export { Tabs } from './ui/Tabs'
 
 // Buttons
 export { IconButton } from './buttons/IconButton'
@@ -45,6 +46,7 @@ export { UploadPrompt } from './picker/UploadPrompt'
 export { UploadPreview } from './picker/UploadPreview'
 export { UploadResult } from './picker/UploadResult'
 export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
+export { ModelsList } from './picker/ModelsList'
 
 // Gallery
 export { ImageGallery } from './gallery/ImageGallery'

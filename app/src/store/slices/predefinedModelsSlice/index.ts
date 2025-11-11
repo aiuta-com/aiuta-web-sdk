@@ -5,4 +5,5 @@ export {
   modelsLoadedSelector,
   modelsErrorSelector,
   modelsEtagSelector,
+  modelsRetryRequestedSelector,
 } from './selectors'
