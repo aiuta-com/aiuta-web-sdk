@@ -21,6 +21,8 @@ export const usePageBarVisibility = () => {
   const isSelectingUploads = useAppSelector(uploadsIsSelectingSelector)
 
   // Path checks
+  const isOnBackButtonPage =
+    pathName === '/generations' || pathName === '/uploads' || pathName === '/models'
   const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
   const isOnOnboardingPage = pathName === '/onboarding'
@@ -33,19 +35,15 @@ export const usePageBarVisibility = () => {
   // Selection states
   const isAnySelectionActive = isSelectingGenerations || isSelectingUploads
 
-  // Desktop visibility logic
-  const showHistoryButtonDesktop =
-    !isMobile && !isOnQrTokenPage && !isOnOnboardingPage && hasGeneratedImages
-  const showBackButtonDesktop =
-    !isMobile && !isOnQrTokenPage && isOnHistoryPage && !hasGeneratedImages
+  // Navigation buttons logic (simplified)
+  // 1. Back button: always show on /generations, /uploads, /models
+  const showBackButton = isOnBackButtonPage && !isOnQrTokenPage
 
-  // Mobile visibility logic
-  const showHistoryButtonMobile = isMobile && !isOnOnboardingPage && hasGeneratedImages
-  const showBackButtonMobile = isMobile && isOnHistoryPage
-  const shouldShowMobileTitle = isMobile && isOnboardingCompleted
+  // 2. History button: show only if NOT showing back button, NOT on onboarding, and have images
+  const showHistoryButton = !showBackButton && !isOnOnboardingPage && hasGeneratedImages
 
-  // Title visibility
-  const showTitle = !isMobile || shouldShowMobileTitle
+  // Title visibility: always on desktop, on mobile only after onboarding
+  const showTitle = !isMobile || isOnboardingCompleted
 
   // Right side content visibility
   const showSelectButton = isOnHistoryPage && hasAnyHistory
@@ -53,8 +51,8 @@ export const usePageBarVisibility = () => {
 
   return {
     // Navigation buttons
-    showHistoryButton: showHistoryButtonDesktop || showHistoryButtonMobile,
-    showBackButton: showBackButtonDesktop || showBackButtonMobile,
+    showHistoryButton,
+    showBackButton,
 
     // Title
     showTitle,
@@ -64,11 +62,7 @@ export const usePageBarVisibility = () => {
     showCloseButton,
 
     // States
-    isOnHistoryPage,
-    isOnQrTokenPage,
-    isOnOnboardingPage,
-    isMobile,
     isSelectionActive: isAnySelectionActive,
-    hasAnyHistory,
+    isMobile,
   }
 }

@@ -19,8 +19,7 @@ export default function ModelsDesktop() {
     handleRetry,
   } = usePredefinedModelsSelection()
 
-  const { predefinedModelsTitle, predefinedModelsEmptyListError, getCategoryName } =
-    usePredefinedModelsStrings()
+  const { predefinedModelsEmptyListError, getCategoryName } = usePredefinedModelsStrings()
 
   const { trackModelsPageView } = usePredefinedModelsAnalytics()
 
@@ -71,8 +70,6 @@ export default function ModelsDesktop() {
 
   return (
     <main className={styles.models}>
-      <h2 className="aiuta-h2">{predefinedModelsTitle}</h2>
-
       <Tabs
         tabs={tabs}
         activeTabId={selectedCategoryId || categories[0].category}

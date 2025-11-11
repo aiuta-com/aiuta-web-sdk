@@ -30,7 +30,7 @@ export const usePredefinedModelsStrings = () => {
   }
 
   return {
-    predefinedModelsTitle: strings?.predefinedModelsTitle ?? 'Select your model',
+    predefinedModelsTitle: strings?.predefinedModelsTitle ?? 'Select a model',
     predefinedModelsOr: strings?.predefinedModelsOr ?? 'Or',
     predefinedModelsEmptyListError:
       strings?.predefinedModelsEmptyListError ?? 'The models list is empty',
