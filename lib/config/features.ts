@@ -56,6 +56,7 @@ export interface ImagePicker {
   qrPrompt?: ImagePickerQrPrompt
   qrUpload?: ImagePickerQrUpload
   uploadsHistory?: ImagePickerUploadsHistory
+  predefinedModels?: ImagePickerPredefinedModels
   strings?: {
     imagePickerButtonUploadImage?: string
   }
@@ -82,6 +83,18 @@ export interface ImagePickerUploadsHistory {
     uploadsHistoryButtonNewPhoto?: string
     uploadsHistoryTitle?: string
     uploadsHistoryButtonChangePhoto?: string
+  }
+}
+
+export interface ImagePickerPredefinedModels {
+  data?: {
+    preferredCategoryId?: string
+  }
+  strings?: {
+    predefinedModelsTitle?: string
+    predefinedModelsOr?: string
+    predefinedModelsEmptyListError?: string
+    predefinedModelCategories?: Record<string, string>
   }
 }
 

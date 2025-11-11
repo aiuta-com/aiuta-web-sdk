@@ -4,6 +4,7 @@ import { appSlice } from './slices/appSlice'
 import { errorSnackbarSlice } from './slices/errorSnackbarSlice'
 import { generationsSlice } from './slices/generationsSlice'
 import { onboardingSlice } from './slices/onboardingSlice'
+import { predefinedModelsSlice } from './slices/predefinedModelsSlice'
 import { qrSlice } from './slices/qrSlice'
 import { tryOnSlice } from './slices/tryOnSlice'
 import { uploadsSlice } from './slices/uploadsSlice'
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   [errorSnackbarSlice.name]: errorSnackbarSlice.reducer,
   [generationsSlice.name]: generationsSlice.reducer,
   [onboardingSlice.name]: onboardingSlice.reducer,
+  [predefinedModelsSlice.name]: predefinedModelsSlice.reducer,
   [qrSlice.name]: qrSlice.reducer,
   [tryOnSlice.name]: tryOnSlice.reducer,
   [uploadsSlice.name]: uploadsSlice.reducer,

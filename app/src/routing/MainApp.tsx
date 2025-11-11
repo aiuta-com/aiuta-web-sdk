@@ -8,6 +8,7 @@ import {
   useCustomCss,
   useRpcInitialization,
   useOutsideClick,
+  usePredefinedModels,
 } from '@/hooks'
 
 import HomePageRouter from '@/pages/Home'
@@ -57,6 +58,7 @@ function RpcInitializer() {
 function MainAppContent() {
   useCustomCss()
   useOutsideClick()
+  usePredefinedModels()
 
   return (
     <>
