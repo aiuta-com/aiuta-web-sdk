@@ -1,7 +1,7 @@
 .tabs {
   display: flex;
+  justify-content: center;
   gap: 24px;
-  border-bottom: 1px solid var(--aiuta-color-divider);
   overflow-x: auto;
   scrollbar-width: none; /* Firefox */
 
@@ -17,24 +17,25 @@
   border: none;
   cursor: pointer;
   white-space: nowrap;
-  color: var(--aiuta-color-text-secondary);
+  color: var(--aiuta-color-secondary);
   transition: color 0.2s;
 
   &:hover {
-    color: var(--aiuta-color-text-primary);
+    color: var(--aiuta-color-primary);
   }
 
   &_active {
-    color: var(--aiuta-color-text-primary);
+    color: var(--aiuta-color-primary);
 
     &::after {
       content: '';
       position: absolute;
-      bottom: -1px;
+      bottom: 0;
       left: 0;
       right: 0;
-      height: 2px;
-      background: var(--aiuta-color-text-primary);
+      height: 4px;
+      border-radius: 2px;
+      background: var(--aiuta-color-try-on);
     }
   }
 }

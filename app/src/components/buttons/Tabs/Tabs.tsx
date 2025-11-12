@@ -10,7 +10,7 @@ export const Tabs = ({ tabs, activeTabId, onTabChange, className }: TabsProps) =
         <button
           key={tab.id}
           className={combineClassNames(
-            'aiuta-button-m',
+            'aiuta-button-s',
             styles.tab,
             activeTabId === tab.id ? styles.tab_active : '',
           )}

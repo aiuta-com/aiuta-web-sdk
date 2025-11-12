@@ -6,7 +6,6 @@ export { PageBar } from './ui/PageBar'
 export { PoweredBy } from './ui/PoweredBy'
 export { Icon } from './ui/Icon'
 export { Flex } from './ui/Flex'
-export { Tabs } from './ui/Tabs'
 
 // Buttons
 export { IconButton } from './buttons/IconButton'
@@ -14,6 +13,7 @@ export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
 export { SocialButton } from './buttons/SocialButton'
 export { TryOnButton } from './buttons/TryOnButton'
+export { Tabs } from './buttons/Tabs'
 
 // Images
 export { RemoteImage } from './images/RemoteImage'
