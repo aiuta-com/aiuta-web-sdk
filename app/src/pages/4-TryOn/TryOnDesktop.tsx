@@ -8,7 +8,13 @@ import {
 } from '@/store/slices/tryOnSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { ErrorSnackbar, TryOnButton, TryOnView } from '@/components'
-import { useTryOnGeneration, useUploadsGallery, useTryOnStrings } from '@/hooks'
+import {
+  useTryOnGeneration,
+  useUploadsGallery,
+  useTryOnStrings,
+  useTryOnImage,
+  useDragAndDrop,
+} from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
 
@@ -24,6 +30,7 @@ export default function TryOnDesktop() {
   const { getRecentPhoto } = useUploadsGallery()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
+  const { selectImageToTryOn } = useTryOnImage()
 
   const handleChangePhoto = () => {
     navigate('/uploads')
@@ -31,6 +38,14 @@ export default function TryOnDesktop() {
 
   const hasImage = selectedImage !== null
   const showTryOnButton = !isGenerating && hasImage
+
+  // Drag and drop (no visual feedback, only when not generating)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isDragging, ...dragHandlers } = useDragAndDrop(async ({ file }) => {
+    if (!isGenerating) {
+      await selectImageToTryOn(file)
+    }
+  })
 
   // Track page view on mount
   useEffect(() => {
@@ -52,7 +67,7 @@ export default function TryOnDesktop() {
   }, [selectedImage, getRecentPhoto, dispatch])
 
   return (
-    <main className={styles.tryOn}>
+    <main className={styles.tryOn} {...dragHandlers}>
       <ErrorSnackbar onRetry={retryTryOn} />
 
       <TryOnView

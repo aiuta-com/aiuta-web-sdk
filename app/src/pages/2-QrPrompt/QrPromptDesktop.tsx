@@ -14,10 +14,12 @@ import {
   useImagePickerStrings,
   usePredefinedModels,
   usePredefinedModelsAnalytics,
+  useDragAndDrop,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
+import { combineClassNames } from '@/utils'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptDesktop() {
@@ -59,14 +61,21 @@ export default function QrPromptDesktop() {
     navigate('/models')
   }, [navigate, trackSelectModelButtonClick])
 
+  // Drag and drop
+  const { isDragging, ...dragHandlers } = useDragAndDrop(async ({ file }) => {
+    await handleFileSelect(file)
+  })
+
   return (
-    <main className={styles.qrPrompt}>
+    <main className={styles.qrPrompt} {...dragHandlers}>
       <ErrorSnackbar />
       {qrUrl ? (
         isDownloading ? (
           <Spinner isVisible={true} />
         ) : (
-          <div className={styles.dropZone}>
+          <div
+            className={combineClassNames(styles.dropZone, isDragging && styles.dropZone_dragging)}
+          >
             <QrCode url={qrUrl} />
             <div className={styles.options}>
               <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>

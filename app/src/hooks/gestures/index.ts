@@ -5,3 +5,6 @@ export type {
   SwipeGestureConfig,
   SwipeHandlers,
 } from './useSwipeGesture'
+
+export { useDragAndDrop } from './useDragAndDrop'
+export type { DragAndDropEvent, DragAndDropConfig, DragAndDropHandlers } from './useDragAndDrop'
