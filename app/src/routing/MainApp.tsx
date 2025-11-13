@@ -1,6 +1,12 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { RpcProvider, ShareProvider, AlertProvider, AlertRenderer } from '@/contexts'
+import {
+  RpcProvider,
+  ShareProvider,
+  AlertProvider,
+  AlertRenderer,
+  DragAndDropProvider,
+} from '@/contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
 import {
   useUrlParams,
@@ -62,7 +68,7 @@ function MainAppContent() {
   usePredefinedModels()
 
   return (
-    <>
+    <DragAndDropProvider>
       <AppContainer>
         <AlertRenderer />
         <PageBar />
@@ -81,6 +87,6 @@ function MainAppContent() {
 
       <FullScreenGallery />
       <Share />
-    </>
+    </DragAndDropProvider>
   )
 }

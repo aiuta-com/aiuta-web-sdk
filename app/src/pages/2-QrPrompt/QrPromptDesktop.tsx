@@ -14,9 +14,8 @@ import {
   useImagePickerStrings,
   usePredefinedModels,
   usePredefinedModelsAnalytics,
-  useDragAndDrop,
 } from '@/hooks'
-import { useRpc } from '@/contexts'
+import { useRpc, useDragAndDropContext } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { combineClassNames } from '@/utils'
@@ -31,6 +30,7 @@ export default function QrPromptDesktop() {
   const { qrPromptDescription, qrPromptUploadButton } = useImagePickerStrings()
   const { isEnabled: isPredefinedModelsEnabled } = usePredefinedModels()
   const { trackSelectModelButtonClick } = usePredefinedModelsAnalytics()
+  const { isDragging } = useDragAndDropContext()
 
   // Track page view on mount
   useEffect(() => {
@@ -61,13 +61,8 @@ export default function QrPromptDesktop() {
     navigate('/models')
   }, [navigate, trackSelectModelButtonClick])
 
-  // Drag and drop
-  const { isDragging, ...dragHandlers } = useDragAndDrop(async ({ file }) => {
-    await handleFileSelect(file)
-  })
-
   return (
-    <main className={styles.qrPrompt} {...dragHandlers}>
+    <main className={styles.qrPrompt}>
       <ErrorSnackbar />
       {qrUrl ? (
         isDownloading ? (
