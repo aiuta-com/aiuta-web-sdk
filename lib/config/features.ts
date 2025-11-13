@@ -65,7 +65,7 @@ export interface ImagePicker {
 export interface ImagePickerQrPrompt {
   strings?: {
     qrPromptHint?: string
-    qrPromptOr?: string
+    qrPromptDescription?: string
     qrPromptUploadButton?: string
   }
 }

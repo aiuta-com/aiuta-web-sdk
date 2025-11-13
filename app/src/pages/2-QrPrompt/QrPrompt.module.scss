@@ -17,31 +17,29 @@
   flex-direction: column;
 }
 
+// Drop zone container with dashed border (includes QR + options)
+.dropZone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 24px;
+  margin: 0 20px 20px;
+  border: 1px dashed var(--aiuta-color-border);
+  border-radius: 16px;
+}
+
 // Upload options section
 .options {
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: 20px;
 }
 
-// Scan QR code hint text
-.qrHint {
+// Description text
+.description {
   text-align: center;
   margin: 0;
-}
-
-// "Or" separator text
-.or {
-  color: var(--aiuta-color-secondary);
-  margin: 0;
-}
-
-// Upload button label
-.uploadButton {
-  cursor: pointer;
-  color: var(--aiuta-color-try-on);
-  background: none;
-  text-align: center;
-  margin: 0;
+  color: var(--aiuta-color-primary);
+  margin-bottom: 8px;
 }

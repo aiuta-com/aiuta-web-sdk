@@ -1,12 +1,18 @@
 import React, { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ErrorSnackbar, QrCode, Spinner, FilePicker } from '@/components'
+import {
+  ErrorSnackbar,
+  QrCode,
+  Spinner,
+  FilePicker,
+  PrimaryButton,
+  ModelsButton,
+} from '@/components'
 import {
   useQrPrompt,
   useTryOnImage,
   useImagePickerStrings,
   usePredefinedModels,
-  usePredefinedModelsStrings,
   usePredefinedModelsAnalytics,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
@@ -20,9 +26,8 @@ export default function QrPromptDesktop() {
   const productIds = useAppSelector(productIdsSelector)
   const { qrUrl, startPolling, isDownloading } = useQrPrompt()
   const { selectImageToTryOn } = useTryOnImage()
-  const { qrPromptHint, qrPromptOr, qrPromptUploadButton } = useImagePickerStrings()
+  const { qrPromptDescription, qrPromptUploadButton } = useImagePickerStrings()
   const { isEnabled: isPredefinedModelsEnabled } = usePredefinedModels()
-  const { predefinedModelsTitle } = usePredefinedModelsStrings()
   const { trackSelectModelButtonClick } = usePredefinedModelsAnalytics()
 
   // Track page view on mount
@@ -61,36 +66,20 @@ export default function QrPromptDesktop() {
         isDownloading ? (
           <Spinner isVisible={true} />
         ) : (
-          <>
+          <div className={styles.dropZone}>
             <QrCode url={qrUrl} />
             <div className={styles.options}>
-              <p className={`aiuta-button-m ${styles.qrHint}`}>{qrPromptHint}</p>
+              <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>
 
-              {isPredefinedModelsEnabled && (
-                <>
-                  <p className={`aiuta-label-regular ${styles.or}`}>{qrPromptOr}</p>
-                  <button
-                    onClick={handleSelectModel}
-                    className={`aiuta-button-m ${styles.uploadButton}`}
-                  >
-                    {predefinedModelsTitle}
-                  </button>
-                </>
-              )}
-
-              <p className={`aiuta-label-regular ${styles.or}`}>{qrPromptOr}</p>
               <FilePicker onFileSelect={handleFileSelect}>
                 {({ openFilePicker }) => (
-                  <button
-                    onClick={openFilePicker}
-                    className={`aiuta-button-m ${styles.uploadButton}`}
-                  >
-                    {qrPromptUploadButton}
-                  </button>
+                  <PrimaryButton onClick={openFilePicker}>{qrPromptUploadButton}</PrimaryButton>
                 )}
               </FilePicker>
+
+              {isPredefinedModelsEnabled && <ModelsButton onClick={handleSelectModel} />}
             </div>
-          </>
+          </div>
         )
       ) : null}
     </main>

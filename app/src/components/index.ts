@@ -14,6 +14,7 @@ export { SecondaryButton } from './buttons/SecondaryButton'
 export { SocialButton } from './buttons/SocialButton'
 export { TryOnButton } from './buttons/TryOnButton'
 export { Tabs } from './buttons/Tabs'
+export { ModelsButton } from './buttons/ModelsButton'
 
 // Images
 export { RemoteImage } from './images/RemoteImage'
