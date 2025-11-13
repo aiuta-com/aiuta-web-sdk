@@ -2,11 +2,10 @@
 .qrPrompt {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   flex-direction: column;
-  row-gap: 48px;
-  margin-bottom: 77px;
+  padding: 0 20px 20px;
 }
 
 // QR code content container
@@ -19,20 +18,23 @@
 
 // Drop zone container with dashed border (includes QR + options)
 .dropZone {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-between;
   gap: 28px;
   padding: 24px;
-  margin: 0 20px 20px;
   border: 1px dashed var(--aiuta-color-border);
   border-radius: 16px;
 }
 
 // Upload options section
 .options {
+  flex: 1;
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
   flex-direction: column;
 }
 
@@ -41,5 +43,4 @@
   text-align: center;
   margin: 0;
   color: var(--aiuta-color-primary);
-  margin-bottom: 8px;
 }
