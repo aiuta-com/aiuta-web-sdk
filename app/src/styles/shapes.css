@@ -38,3 +38,8 @@
 .aiuta-image-s {
   border-radius: 8px;
 }
+
+/* Image Extra Small Shape */
+.aiuta-image-xs {
+  border-radius: 4px;
+}

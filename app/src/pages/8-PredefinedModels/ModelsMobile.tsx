@@ -102,7 +102,7 @@ export default function ModelsMobile() {
   return (
     <main className={styles.models}>
       {/* Large preview of selected model */}
-      <Flex>
+      <Flex containerClassName={styles.preview}>
         {selectedModel && <RemoteImage src={selectedModel.url} alt="Selected Model" shape="L" />}
       </Flex>
 
@@ -119,7 +119,7 @@ export default function ModelsMobile() {
         models={currentCategory.models}
         selectedModelId={selectedModel?.id || null}
         onModelSelect={handleModelClick}
-        className={styles.modelsList}
+        className={styles.list}
       />
 
       <TryOnButton onClick={handleTryOn}>{tryOn}</TryOnButton>

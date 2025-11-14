@@ -49,7 +49,7 @@ export const ModelsList = ({
             )}
             onClick={() => onModelSelect(model)}
           >
-            <RemoteImage src={model.url} alt="Model" shape="M" />
+            <RemoteImage src={model.url} alt="Model" shape="XS" />
           </div>
         )
       })}

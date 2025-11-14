@@ -5,6 +5,10 @@
   flex-direction: column;
 }
 
+.preview {
+  padding: 0 40px 0;
+}
+
 .tabs {
   flex-shrink: 0;
   padding: 8px var(--aiuta-inset-h);
@@ -16,9 +20,9 @@
   gap: 16px;
 }
 
-.modelsList {
+.list {
   flex-shrink: 0;
-  padding: 8px 0;
+  margin: 9px 0 14px;
 }
 
 .buttonContainer {
