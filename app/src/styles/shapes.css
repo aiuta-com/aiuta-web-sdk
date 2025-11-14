@@ -16,6 +16,7 @@
 .aiuta-button-m {
   border: none;
   border-radius: 12px;
+  min-height: 50px;
 }
 
 /* Button Small Shape */
