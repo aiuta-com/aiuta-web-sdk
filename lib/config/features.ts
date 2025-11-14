@@ -58,7 +58,9 @@ export interface ImagePicker {
   uploadsHistory?: ImagePickerUploadsHistory
   predefinedModels?: ImagePickerPredefinedModels
   strings?: {
-    imagePickerButtonUploadImage?: string
+    imagePickerTitle?: string
+    imagePickerDescription?: string
+    imagePickerButtonUploadPhoto?: string
   }
 }
 

@@ -14,8 +14,11 @@ export const useImagePickerStrings = () => {
 
   return {
     // Main Image Picker strings
-    imagePickerButtonUploadImage:
-      mainStrings?.imagePickerButtonUploadImage ?? 'Upload a photo of you',
+    imagePickerTitle: mainStrings?.imagePickerTitle ?? 'Upload a photo of you',
+    imagePickerDescription:
+      mainStrings?.imagePickerDescription ??
+      'Select a photo where you are standing straight and clearly visible',
+    imagePickerButtonUploadPhoto: mainStrings?.imagePickerButtonUploadPhoto ?? 'Upload a photo',
 
     // Uploads History strings
     uploadsHistoryButtonNewPhoto:

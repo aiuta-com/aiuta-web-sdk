@@ -5,11 +5,17 @@ import { SecondaryButtonProps } from './types'
 import styles from './SecondaryButton.module.scss'
 
 export const SecondaryButton = (props: SecondaryButtonProps) => {
-  const { text, icon, shape = 'S', classNames, onClick } = props
+  const { text, icon, shape = 'S', variant = 'default', classNames, onClick } = props
 
   // Get shape class based on size
   const shapeClass = shape === 'M' ? 'aiuta-button-m' : 'aiuta-button-s'
-  const buttonClasses = combineClassNames(shapeClass, styles.secondaryButton, classNames)
+  const variantClass = variant === 'on-dark' ? styles.secondaryButton_onDark : ''
+  const buttonClasses = combineClassNames(
+    shapeClass,
+    styles.secondaryButton,
+    variantClass,
+    classNames,
+  )
 
   return (
     <button className={buttonClasses} onClick={onClick}>

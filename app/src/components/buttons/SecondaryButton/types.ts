@@ -7,6 +7,8 @@ export type SecondaryButtonProps = {
   icon?: string
   /** Button shape size - determines global class */
   shape?: 'S' | 'M'
+  /** Button variant - default or on-dark background */
+  variant?: 'default' | 'on-dark'
   /** Additional CSS classes */
   classNames?: string
   /** Click handler */
