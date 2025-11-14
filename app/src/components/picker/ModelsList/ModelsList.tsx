@@ -35,7 +35,11 @@ export const ModelsList = ({
   }, [selectedModelId])
 
   return (
-    <div ref={containerRef} className={combineClassNames(styles.modelsList, className)}>
+    <div
+      ref={containerRef}
+      className={combineClassNames(styles.modelsList, className)}
+      data-scrollable
+    >
       {models.map((model) => {
         const isSelected = model.id === selectedModelId
 
