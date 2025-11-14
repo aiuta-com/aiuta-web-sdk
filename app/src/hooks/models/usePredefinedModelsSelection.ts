@@ -8,6 +8,8 @@ import { useTryOnGeneration } from '@/hooks/tryOn/useTryOnGeneration'
 import { useRpc } from '@/contexts'
 import type { InputImage } from '@/utils/api'
 
+const SELECTED_CATEGORY_KEY = 'aiuta_selected_category_id'
+
 /**
  * Hook for managing predefined models selection
  * Handles category selection, model selection, and navigation to try-on
@@ -24,27 +26,51 @@ export const usePredefinedModelsSelection = () => {
   const preferredCategoryId =
     rpc.config.features?.imagePicker?.predefinedModels?.data?.preferredCategoryId
 
-  // Selected category state
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
+  // Get saved category from sessionStorage
+  const getSavedCategoryId = useCallback(() => {
+    try {
+      return sessionStorage.getItem(SELECTED_CATEGORY_KEY)
+    } catch {
+      return null
+    }
+  }, [])
 
-  // Determine initial category based on config or first available
+  // Selected category state
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(getSavedCategoryId)
+
+  // Determine initial category based on saved value, config, or first available
   const initialCategory = useMemo(() => {
     if (categories.length === 0) return null
 
-    // If preferred category exists and is in the list, use it
+    const savedCategoryId = getSavedCategoryId()
+
+    // Priority 1: Saved category (if exists in current list)
+    if (savedCategoryId) {
+      const saved = categories.find((cat) => cat.category === savedCategoryId)
+      if (saved) return saved.category
+    }
+
+    // Priority 2: Preferred category from config (if exists in the list)
     if (preferredCategoryId) {
       const preferred = categories.find((cat) => cat.category === preferredCategoryId)
       if (preferred) return preferred.category
     }
 
-    // Otherwise, use first category
+    // Priority 3: First category
     return categories[0].category
-  }, [categories, preferredCategoryId])
+  }, [categories, preferredCategoryId, getSavedCategoryId])
 
   // Set initial category when categories load
   useEffect(() => {
     if (initialCategory && !selectedCategoryId) {
       setSelectedCategoryId(initialCategory)
+
+      // Save to sessionStorage
+      try {
+        sessionStorage.setItem(SELECTED_CATEGORY_KEY, initialCategory)
+      } catch {
+        // Ignore errors
+      }
     }
   }, [initialCategory, selectedCategoryId])
 
@@ -59,6 +85,13 @@ export const usePredefinedModelsSelection = () => {
     (categoryId: string) => {
       setSelectedCategoryId(categoryId)
       trackCategoryChange(categoryId)
+
+      // Save to sessionStorage
+      try {
+        sessionStorage.setItem(SELECTED_CATEGORY_KEY, categoryId)
+      } catch {
+        // Ignore errors (e.g., in incognito mode with disabled storage)
+      }
     },
     [trackCategoryChange],
   )
