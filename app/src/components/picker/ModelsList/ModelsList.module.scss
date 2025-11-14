@@ -14,7 +14,7 @@
 .modelCard {
   flex-shrink: 0;
   width: 55px;
-  height: calc(55px / var(--aiuta-aspect-ratio));
+  aspect-ratio: var(--aiuta-aspect-ratio);
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
@@ -25,7 +25,6 @@
 
   &_selected {
     width: 64px;
-    height: calc(64px / var(--aiuta-aspect-ratio));
     opacity: 1;
   }
 

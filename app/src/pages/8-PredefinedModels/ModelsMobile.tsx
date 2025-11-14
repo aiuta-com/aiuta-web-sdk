@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from 'react'
-import { Spinner, ModelsList, PrimaryButton, Tabs } from '@/components'
+import {
+  Spinner,
+  ModelsList,
+  PrimaryButton,
+  TryOnButton,
+  Tabs,
+  RemoteImage,
+  Flex,
+} from '@/components'
 import {
   usePredefinedModelsSelection,
   usePredefinedModelsStrings,
   usePredefinedModelsAnalytics,
+  useTryOnStrings,
 } from '@/hooks'
 import styles from './Models.module.scss'
 
@@ -21,6 +30,8 @@ export default function ModelsMobile() {
 
   const { predefinedModelsEmptyListError, getCategoryName } = usePredefinedModelsStrings()
 
+  const { tryOn } = useTryOnStrings()
+
   const { trackModelsPageView } = usePredefinedModelsAnalytics()
 
   // Track page view on mount
@@ -28,12 +39,24 @@ export default function ModelsMobile() {
     trackModelsPageView()
   }, [trackModelsPageView])
 
-  // Track selected model in list for visual feedback
-  const [selectedModelId, setSelectedModelId] = useState<string | null>(null)
+  // Track selected model - initialize with first model
+  const [selectedModel, setSelectedModel] = useState<any>(null)
+
+  // Set initial selected model when category changes
+  useEffect(() => {
+    if (currentCategory && currentCategory.models.length > 0) {
+      setSelectedModel(currentCategory.models[0])
+    }
+  }, [currentCategory])
 
   const handleModelClick = (model: any) => {
-    setSelectedModelId(model.id)
-    handleModelSelect(model)
+    setSelectedModel(model)
+  }
+
+  const handleTryOn = () => {
+    if (selectedModel) {
+      handleModelSelect(selectedModel)
+    }
   }
 
   // Loading state
@@ -78,6 +101,12 @@ export default function ModelsMobile() {
 
   return (
     <main className={styles.models}>
+      {/* Large preview of selected model */}
+      <Flex>
+        {selectedModel && <RemoteImage src={selectedModel.url} alt="Selected Model" shape="L" />}
+      </Flex>
+
+      {/* Tabs */}
       <Tabs
         tabs={tabs}
         activeTabId={selectedCategoryId || categories[0].category}
@@ -85,12 +114,15 @@ export default function ModelsMobile() {
         className={styles.tabs}
       />
 
+      {/* Horizontal models list */}
       <ModelsList
         models={currentCategory.models}
-        selectedModelId={selectedModelId}
+        selectedModelId={selectedModel?.id || null}
         onModelSelect={handleModelClick}
         className={styles.modelsList}
       />
+
+      <TryOnButton onClick={handleTryOn}>{tryOn}</TryOnButton>
     </main>
   )
 }
