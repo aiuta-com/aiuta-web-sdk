@@ -11,8 +11,9 @@ export const PoweredBy = () => {
   const { poweredByAiuta } = usePoweredByStrings()
 
   // Routes where powered by should be hidden
-  const desktopHiddenRoutes = ['/generations', '/uploads', '/results', '/models', '/qr']
-  const mobileHiddenRoutes = ['/onboarding', '/generations', '/uploads', '/results', '/models']
+  const commonHiddenRoutes = ['/generations', '/uploads', '/results', '/models', '/qr']
+  const desktopHiddenRoutes = [...commonHiddenRoutes]
+  const mobileHiddenRoutes = [...commonHiddenRoutes, '/onboarding']
 
   const hiddenRoutes = isMobile ? mobileHiddenRoutes : desktopHiddenRoutes
   const isHiddenByRoute = hiddenRoutes.includes(location.pathname)
