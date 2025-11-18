@@ -63,19 +63,21 @@ export const ResultActions = (props: ResultActionsProps) => {
   return (
     <div className={styles.resultActions}>
       <SecondaryButton
-        text={shareButton}
         icon={icons.share}
         shape="M"
         onClick={handleShare}
         classNames={styles.button}
-      />
+      >
+        {shareButton}
+      </SecondaryButton>
       <SecondaryButton
-        text={downloadButton}
         icon={icons.download}
         shape="M"
         onClick={handleDownload}
         classNames={styles.button}
-      />
+      >
+        {downloadButton}
+      </SecondaryButton>
     </div>
   )
 }

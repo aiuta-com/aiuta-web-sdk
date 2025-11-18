@@ -1,4 +1,5 @@
 export interface UploadsHistorySheetProps {
-  onClickButton: () => void
+  onUploadNew: () => void
   onImageSelect: (id: string, url: string) => void
+  onSelectModel?: () => void
 }

@@ -83,6 +83,7 @@ export interface ImagePickerQrUpload {
 export interface ImagePickerUploadsHistory {
   strings?: {
     uploadsHistoryButtonNewPhoto?: string
+    uploadsHistoryButtonAddNew?: string
     uploadsHistoryTitle?: string
     uploadsHistoryButtonChangePhoto?: string
   }

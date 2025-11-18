@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/store'
 import { predefinedModelsSlice } from '@/store/slices/predefinedModelsSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { usePredefinedModels } from './usePredefinedModels'
 import { usePredefinedModelsAnalytics } from './usePredefinedModelsAnalytics'
 import { useTryOnGeneration } from '@/hooks/tryOn/useTryOnGeneration'
@@ -102,13 +103,16 @@ export const usePredefinedModelsSelection = () => {
       // Track selection
       trackModelSelected(model.id, selectedCategoryId || '')
 
+      // Close bottom sheet if open
+      dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
+
       // Navigate to try-on page
       navigate('/tryon')
 
       // Start try-on with selected model
       await startTryOn(model)
     },
-    [navigate, startTryOn, trackModelSelected, selectedCategoryId],
+    [navigate, startTryOn, trackModelSelected, selectedCategoryId, dispatch],
   )
 
   // Retry loading (resets state to allow new loading attempt)

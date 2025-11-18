@@ -47,12 +47,13 @@ export const UploadPrompt = (props: UploadPromptProps) => {
           <>
             <p className={combineClassNames('aiuta-label-regular', styles.or)}>Or</p>
             <SecondaryButton
-              text={predefinedModelsTitle}
               onClick={onModelsClick}
               shape="M"
               variant="on-dark"
               classNames={styles.button}
-            />
+            >
+              {predefinedModelsTitle}
+            </SecondaryButton>
           </>
         )}
       </div>

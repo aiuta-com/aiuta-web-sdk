@@ -103,11 +103,9 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
           </p>
         </div>
         {hasRetry && (
-          <SecondaryButton
-            text={tryAgainButton}
-            classNames={styles.retryButton}
-            onClick={handleButtonClick}
-          />
+          <SecondaryButton classNames={styles.retryButton} onClick={handleButtonClick}>
+            {tryAgainButton}
+          </SecondaryButton>
         )}
       </div>
     </div>

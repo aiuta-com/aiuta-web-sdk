@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import {
   selectedImageSelector,
   isGeneratingSelector,
@@ -32,7 +31,6 @@ export default function TryOnMobile() {
   const navigate = useNavigate()
   const rpc = useRpc()
 
-  const isBottomSheetOpen = useAppSelector(uploadsIsBottomSheetOpenSelector)
   const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const productIds = useAppSelector(productIdsSelector)
@@ -45,13 +43,11 @@ export default function TryOnMobile() {
 
   const handleFileSelect = useCallback(
     async (file: File) => {
-      if (isBottomSheetOpen) {
-        dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
-      }
+      dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
       const newImage = await selectImageToTryOn(file)
       startTryOn(newImage)
     },
-    [isBottomSheetOpen, dispatch, selectImageToTryOn, startTryOn],
+    [dispatch, selectImageToTryOn, startTryOn],
   )
 
   const handleOpenBottomSheet = () => {
@@ -113,8 +109,9 @@ export default function TryOnMobile() {
             )}
 
             <UploadsHistorySheet
-              onClickButton={openFilePicker}
+              onUploadNew={openFilePicker}
               onImageSelect={handleChoosePhotoFromHistory}
+              onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
             />
           </>
         )}

@@ -23,6 +23,7 @@ export const useImagePickerStrings = () => {
     // Uploads History strings
     uploadsHistoryButtonNewPhoto:
       uploadsHistoryStrings?.uploadsHistoryButtonNewPhoto ?? '+ Upload new photo',
+    uploadsHistoryButtonAddNew: uploadsHistoryStrings?.uploadsHistoryButtonAddNew ?? '+ Add new',
     uploadsHistoryTitle: uploadsHistoryStrings?.uploadsHistoryTitle ?? 'Previously used photos',
     uploadsHistoryButtonChangePhoto:
       uploadsHistoryStrings?.uploadsHistoryButtonChangePhoto ?? 'Change photo',
