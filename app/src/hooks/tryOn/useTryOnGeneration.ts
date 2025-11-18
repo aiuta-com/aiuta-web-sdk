@@ -217,6 +217,7 @@ export const useTryOnGeneration = () => {
 
       // Show alert with abort message
       showAlert(getAbortMessage(result.abort_reason), invalidInputImageChangePhotoButton, () => {
+        dispatch(tryOnSlice.actions.clearSelectedImage())
         navigate('/')
       })
     },

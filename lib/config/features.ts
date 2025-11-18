@@ -107,6 +107,7 @@ export interface TryOn {
   fitDisclaimer?: TryOnFitDisclaimer
   feedback?: TryOnFeedback
   generationsHistory?: TryOnGenerationsHistory
+  otherPhoto?: TryOnWithOtherPhoto
 
   strings?: {
     tryOnPageTitle?: string
@@ -148,6 +149,12 @@ export interface TryOnFeedback {
 export interface TryOnGenerationsHistory {
   strings?: {
     generationsHistoryPageTitle?: string
+  }
+}
+
+export interface TryOnWithOtherPhoto {
+  icons?: {
+    changePhoto24?: string
   }
 }
 

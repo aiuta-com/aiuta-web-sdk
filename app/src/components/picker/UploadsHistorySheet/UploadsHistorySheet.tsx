@@ -34,7 +34,9 @@ export const UploadsHistorySheet = ({
   }
 
   const handleImageClick = (item: InputImage) => {
-    onImageSelect(item.id, item.url)
+    if (onImageSelect) {
+      onImageSelect(item.id, item.url)
+    }
   }
 
   const handleImageDelete = (imageId: string) => {
@@ -43,30 +45,34 @@ export const UploadsHistorySheet = ({
 
   return (
     <BottomSheet isOpen={isOpen} onClose={handleClose}>
-      <div className={styles.title}>
-        <h2 className="aiuta-title-m">{uploadsHistoryTitle}</h2>
-      </div>
+      {onImageSelect && (
+        <>
+          <div className={styles.title}>
+            <h2 className="aiuta-title-m">{uploadsHistoryTitle}</h2>
+          </div>
 
-      <div className={styles.content} onClick={(e) => e.stopPropagation()}>
-        <div
-          className={styles.imageContent}
-          data-scrollable="true"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {recentPhotos.length > 0
-            ? recentPhotos.map((item: InputImage, index) => (
-                <DeletableImage
-                  key={`${item.id}-${index}-${recentPhotos.length}`}
-                  src={item.url}
-                  imageId={item.id}
-                  classNames={styles.imageBox}
-                  onDelete={handleImageDelete}
-                  onClick={() => handleImageClick(item)}
-                />
-              ))
-            : null}
-        </div>
-      </div>
+          <div className={styles.content} onClick={(e) => e.stopPropagation()}>
+            <div
+              className={styles.imageContent}
+              data-scrollable="true"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {recentPhotos.length > 0
+                ? recentPhotos.map((item: InputImage, index) => (
+                    <DeletableImage
+                      key={`${item.id}-${index}-${recentPhotos.length}`}
+                      src={item.url}
+                      imageId={item.id}
+                      classNames={styles.imageBox}
+                      onDelete={handleImageDelete}
+                      onClick={() => handleImageClick(item)}
+                    />
+                  ))
+                : null}
+            </div>
+          </div>
+        </>
+      )}
 
       <PrimaryButton onClick={onUploadNew}>{uploadsHistoryButtonNewPhoto}</PrimaryButton>
 
