@@ -1,6 +1,12 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { RpcProvider, ShareProvider, AlertProvider, AlertRenderer } from '@/contexts'
+import {
+  RpcProvider,
+  ShareProvider,
+  AlertProvider,
+  AlertRenderer,
+  DragAndDropProvider,
+} from '@/contexts'
 import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
 import {
   useUrlParams,
@@ -8,6 +14,7 @@ import {
   useCustomCss,
   useRpcInitialization,
   useOutsideClick,
+  usePredefinedModels,
 } from '@/hooks'
 
 import HomePageRouter from '@/pages/Home'
@@ -17,6 +24,7 @@ import TryOnPage from '@/pages/4-TryOn'
 import ResultsPage from '@/pages/5-Results'
 import GenerationsHistoryPage from '@/pages/6-GenerationsHistory'
 import UploadsHistoryPage from '@/pages/7-UploadsHistory'
+import PredefinedModelsPage from '@/pages/8-PredefinedModels'
 
 /**
  * Main application component with full RPC and context setup
@@ -57,9 +65,10 @@ function RpcInitializer() {
 function MainAppContent() {
   useCustomCss()
   useOutsideClick()
+  usePredefinedModels()
 
   return (
-    <>
+    <DragAndDropProvider>
       <AppContainer>
         <AlertRenderer />
         <PageBar />
@@ -67,6 +76,7 @@ function MainAppContent() {
           <Route path="/" element={<HomePageRouter />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/qr" element={<QrPromptPage />} />
+          <Route path="/models" element={<PredefinedModelsPage />} />
           <Route path="/tryon" element={<TryOnPage />} />
           <Route path="/results" element={<ResultsPage />} />
           <Route path="/generations" element={<GenerationsHistoryPage />} />
@@ -77,6 +87,6 @@ function MainAppContent() {
 
       <FullScreenGallery />
       <Share />
-    </>
+    </DragAndDropProvider>
   )
 }

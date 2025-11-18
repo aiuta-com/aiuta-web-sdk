@@ -1,0 +1,33 @@
+.modelsList {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  padding: 0 calc(50vw - 32px);
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
+  scroll-snap-type: x mandatory; /* Snap to center on scroll end */
+  height: 104px;
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+}
+
+.modelCard {
+  position: relative;
+  flex-shrink: 0;
+  width: 55px;
+  height: 88px;
+  cursor: pointer;
+  scroll-snap-align: center; /* Snap each card to center */
+  transition:
+    width 0.3s,
+    height 0.3s;
+
+  &_selected {
+    width: 64px;
+    height: 104px;
+  }
+}

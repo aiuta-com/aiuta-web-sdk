@@ -56,15 +56,18 @@ export interface ImagePicker {
   qrPrompt?: ImagePickerQrPrompt
   qrUpload?: ImagePickerQrUpload
   uploadsHistory?: ImagePickerUploadsHistory
+  predefinedModels?: ImagePickerPredefinedModels
   strings?: {
-    imagePickerButtonUploadImage?: string
+    imagePickerTitle?: string
+    imagePickerDescription?: string
+    imagePickerButtonUploadPhoto?: string
   }
 }
 
 export interface ImagePickerQrPrompt {
   strings?: {
     qrPromptHint?: string
-    qrPromptOr?: string
+    qrPromptDescription?: string
     qrPromptUploadButton?: string
   }
 }
@@ -80,8 +83,21 @@ export interface ImagePickerQrUpload {
 export interface ImagePickerUploadsHistory {
   strings?: {
     uploadsHistoryButtonNewPhoto?: string
+    uploadsHistoryButtonAddNew?: string
     uploadsHistoryTitle?: string
     uploadsHistoryButtonChangePhoto?: string
+  }
+}
+
+export interface ImagePickerPredefinedModels {
+  data?: {
+    preferredCategoryId?: string
+  }
+  strings?: {
+    predefinedModelsTitle?: string
+    predefinedModelsOr?: string
+    predefinedModelsEmptyListError?: string
+    predefinedModelCategories?: Record<string, string>
   }
 }
 
@@ -91,6 +107,7 @@ export interface TryOn {
   fitDisclaimer?: TryOnFitDisclaimer
   feedback?: TryOnFeedback
   generationsHistory?: TryOnGenerationsHistory
+  otherPhoto?: TryOnWithOtherPhoto
 
   strings?: {
     tryOnPageTitle?: string
@@ -132,6 +149,12 @@ export interface TryOnFeedback {
 export interface TryOnGenerationsHistory {
   strings?: {
     generationsHistoryPageTitle?: string
+  }
+}
+
+export interface TryOnWithOtherPhoto {
+  icons?: {
+    changePhoto24?: string
   }
 }
 

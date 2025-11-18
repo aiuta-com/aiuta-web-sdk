@@ -16,6 +16,7 @@
 .aiuta-button-m {
   border: none;
   border-radius: 12px;
+  min-height: 50px;
 }
 
 /* Button Small Shape */
@@ -37,4 +38,9 @@
 /* Image Small Shape */
 .aiuta-image-s {
   border-radius: 8px;
+}
+
+/* Image Extra Small Shape */
+.aiuta-image-xs {
+  border-radius: 4px;
 }

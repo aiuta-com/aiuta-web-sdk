@@ -2,11 +2,10 @@
 .qrPrompt {
   flex: 1;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
   flex-direction: column;
-  row-gap: 48px;
-  margin-bottom: 77px;
+  padding: 0 20px 20px;
 }
 
 // QR code content container
@@ -17,31 +16,40 @@
   flex-direction: column;
 }
 
+// Drop zone container with dashed border (includes QR + options)
+.dropZone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 24px;
+  border: 1px dashed var(--aiuta-color-border);
+  border-radius: 16px;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+// Drop zone when dragging a file over it
+.dropZone_dragging {
+  border-color: color-mix(in srgb, var(--aiuta-color-try-on) 60%, transparent);
+  background-color: color-mix(in srgb, var(--aiuta-color-try-on) 3%, transparent);
+}
+
 // Upload options section
 .options {
+  flex: 1;
   display: flex;
   align-items: center;
+  justify-content: space-evenly;
   flex-direction: column;
-  gap: 20px;
 }
 
-// Scan QR code hint text
-.qrHint {
+// Description text
+.description {
   text-align: center;
   margin: 0;
-}
-
-// "Or" separator text
-.or {
-  color: var(--aiuta-color-secondary);
-  margin: 0;
-}
-
-// Upload button label
-.uploadButton {
-  cursor: pointer;
-  color: var(--aiuta-color-try-on);
-  background: none;
-  text-align: center;
-  margin: 0;
+  color: var(--aiuta-color-primary);
 }

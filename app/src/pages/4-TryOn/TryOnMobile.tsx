@@ -1,8 +1,8 @@
 import React, { useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { uploadsIsBottomSheetOpenSelector } from '@/store/slices/uploadsSlice'
 import {
   selectedImageSelector,
   isGeneratingSelector,
@@ -16,15 +16,21 @@ import {
   FilePicker,
   TryOnView,
 } from '@/components'
-import { useTryOnGeneration, useTryOnImage, useUploadsGallery, useTryOnStrings } from '@/hooks'
+import {
+  useTryOnGeneration,
+  useTryOnImage,
+  useUploadsGallery,
+  useTryOnStrings,
+  usePredefinedModels,
+} from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
 
 export default function TryOnMobile() {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const rpc = useRpc()
 
-  const isBottomSheetOpen = useAppSelector(uploadsIsBottomSheetOpenSelector)
   const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const productIds = useAppSelector(productIdsSelector)
@@ -33,16 +39,15 @@ export default function TryOnMobile() {
   const { selectImageToTryOn } = useTryOnImage()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
+  const { isEnabled: isModelsEnabled } = usePredefinedModels()
 
   const handleFileSelect = useCallback(
     async (file: File) => {
-      if (isBottomSheetOpen) {
-        dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
-      }
+      dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
       const newImage = await selectImageToTryOn(file)
       startTryOn(newImage)
     },
-    [isBottomSheetOpen, dispatch, selectImageToTryOn, startTryOn],
+    [dispatch, selectImageToTryOn, startTryOn],
   )
 
   const handleOpenBottomSheet = () => {
@@ -58,6 +63,10 @@ export default function TryOnMobile() {
     },
     [dispatch, startTryOn],
   )
+
+  const handleModelsClick = useCallback(() => {
+    navigate('/models')
+  }, [navigate])
 
   const hasImage = selectedImage !== null
   const hasRecentPhotos = recentPhotos && recentPhotos.length > 0
@@ -93,12 +102,16 @@ export default function TryOnMobile() {
                 onChangePhoto={hasRecentPhotos ? handleOpenBottomSheet : openFilePicker}
               />
             ) : (
-              <UploadPrompt onClick={openFilePicker} />
+              <UploadPrompt
+                onClick={openFilePicker}
+                onModelsClick={isModelsEnabled ? handleModelsClick : undefined}
+              />
             )}
 
             <UploadsHistorySheet
-              onClickButton={openFilePicker}
+              onUploadNew={openFilePicker}
               onImageSelect={handleChoosePhotoFromHistory}
+              onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
             />
           </>
         )}

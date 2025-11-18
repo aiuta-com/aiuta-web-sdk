@@ -14,12 +14,16 @@ export const useImagePickerStrings = () => {
 
   return {
     // Main Image Picker strings
-    imagePickerButtonUploadImage:
-      mainStrings?.imagePickerButtonUploadImage ?? 'Upload a photo of you',
+    imagePickerTitle: mainStrings?.imagePickerTitle ?? 'Upload a photo of you',
+    imagePickerDescription:
+      mainStrings?.imagePickerDescription ??
+      'Select a photo where you are standing straight and clearly visible',
+    imagePickerButtonUploadPhoto: mainStrings?.imagePickerButtonUploadPhoto ?? 'Upload a photo',
 
     // Uploads History strings
     uploadsHistoryButtonNewPhoto:
       uploadsHistoryStrings?.uploadsHistoryButtonNewPhoto ?? '+ Upload new photo',
+    uploadsHistoryButtonAddNew: uploadsHistoryStrings?.uploadsHistoryButtonAddNew ?? '+ Add new',
     uploadsHistoryTitle: uploadsHistoryStrings?.uploadsHistoryTitle ?? 'Previously used photos',
     uploadsHistoryButtonChangePhoto:
       uploadsHistoryStrings?.uploadsHistoryButtonChangePhoto ?? 'Change photo',
@@ -31,7 +35,9 @@ export const useImagePickerStrings = () => {
 
     // QR Prompt strings
     qrPromptHint: qrPromptStrings?.qrPromptHint ?? 'Scan the QR code',
-    qrPromptOr: qrPromptStrings?.qrPromptOr ?? 'Or',
-    qrPromptUploadButton: qrPromptStrings?.qrPromptUploadButton ?? 'Click here to upload',
+    qrPromptDescription:
+      qrPromptStrings?.qrPromptDescription ??
+      'Scan the QR code to upload from your phone, drag and drop here, or',
+    qrPromptUploadButton: qrPromptStrings?.qrPromptUploadButton ?? 'Upload a photo',
   }
 }

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PrimaryButton } from '@/components'
 import { ImageGallery, SelectionSnackbar } from '@/components'
-import { useUploadsGallery, useImagePickerStrings } from '@/hooks'
+import { useUploadsGallery, useImagePickerStrings, usePredefinedModels } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
@@ -23,7 +23,13 @@ export default function UploadsHistoryPage() {
   const rpc = useRpc()
   const productIds = useAppSelector(productIdsSelector)
   const gallery = useUploadsGallery()
-  const { uploadsHistoryButtonNewPhoto } = useImagePickerStrings()
+  const { uploadsHistoryButtonNewPhoto, uploadsHistoryButtonAddNew } = useImagePickerStrings()
+  const { isEnabled: isPredefinedModelsEnabled } = usePredefinedModels()
+
+  // Use different button text if PredefinedModels feature is enabled
+  const buttonText = isPredefinedModelsEnabled
+    ? uploadsHistoryButtonAddNew
+    : uploadsHistoryButtonNewPhoto
 
   // Track page view on mount
   useEffect(() => {
@@ -60,7 +66,7 @@ export default function UploadsHistoryPage() {
       />
 
       <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
-        {uploadsHistoryButtonNewPhoto}
+        {buttonText}
       </PrimaryButton>
     </main>
   )

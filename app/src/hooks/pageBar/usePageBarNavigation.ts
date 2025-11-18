@@ -73,13 +73,14 @@ export const usePageBarNavigation = () => {
 
   const handleHistoryNavigation = (targetPath: string) => {
     const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
+    const isOnModelsPage = pathName === '/models'
 
     // Track exit from history page
     if (pathName === '/generations' && isOnHistoryPage) {
       trackAnalyticsEvent('history')
     }
 
-    if (isOnHistoryPage) {
+    if (isOnHistoryPage || isOnModelsPage) {
       // Clear selections and navigate back
       if (recentlyPhotos.length === 0) {
         navigate(-1)
@@ -108,7 +109,5 @@ export const usePageBarNavigation = () => {
     handleCloseModal,
     handleHistoryNavigation,
     handleToggleSelection,
-    isOnHistoryPage: pathName === '/generations' || pathName === '/uploads',
-    currentPath: pathName,
   }
 }

@@ -23,7 +23,6 @@ export const PageBar = () => {
     showTitle,
     showSelectButton,
     showCloseButton,
-    isOnHistoryPage,
     isSelectionActive,
     isMobile,
   } = usePageBarVisibility()
@@ -33,9 +32,9 @@ export const PageBar = () => {
 
   const { select, cancel } = useSelectionStrings()
 
-  // Swipe navigation - right swipe goes back (only on history pages)
+  // Swipe navigation - right swipe goes back when back button is shown
   const swipeHandlers = useSwipeGesture(({ direction }) => {
-    if (direction === 'right' && isOnHistoryPage) {
+    if (direction === 'right' && showBackButton) {
       navigate(-1)
     }
   })
@@ -48,13 +47,13 @@ export const PageBar = () => {
     return null
   }
 
-  // Select appropriate icon based on current page
-  const navigationIcon = isOnHistoryPage ? icons.back : icons.history
-  const navigationLabel = isOnHistoryPage ? 'Back' : 'History'
+  // Select appropriate icon based on which button should be shown
+  const navigationIcon = showBackButton ? icons.back : icons.history
+  const navigationLabel = showBackButton ? 'Back' : 'History'
 
   return (
     <header
-      className={`${styles.pageBar} ${isMobile ? styles.pageBar_mobile : ''}`}
+      className={combineClassNames(styles.pageBar, isMobile && styles.pageBar_mobile)}
       {...swipeHandlers}
     >
       {/* Left side - History/Back button */}

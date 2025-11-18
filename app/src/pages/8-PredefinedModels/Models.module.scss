@@ -1,0 +1,43 @@
+/* @block predefinedModels */
+.models {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview {
+  padding: 0 40px 0;
+}
+
+.tabs {
+  flex-shrink: 0;
+  padding: 8px var(--aiuta-inset-h);
+}
+
+.gallery {
+  /* Less columns for models */
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 16px;
+}
+
+.list {
+  flex-shrink: 0;
+  margin: 9px 0 14px;
+}
+
+.buttonContainer {
+  flex-shrink: 0;
+  padding: 8px var(--aiuta-inset-h) var(--aiuta-inset-v);
+}
+
+.errorState,
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex: 1;
+  text-align: center;
+  padding: var(--aiuta-inset-v);
+}

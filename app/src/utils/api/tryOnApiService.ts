@@ -29,6 +29,23 @@ export interface OperationResponse {
   error?: string
 }
 
+/**
+ * Predefined model category with associated models
+ */
+export interface PredefinedModelCategory {
+  category: string
+  models: InputImage[]
+}
+
+/**
+ * Response from getPredefinedModels API call
+ */
+export interface PredefinedModelsResponse {
+  categories: PredefinedModelCategory[] | null
+  etag: string | null
+  notModified: boolean
+}
+
 export class TryOnApiService {
   private static readonly BASE_URL = 'https://api.aiuta.com/digital-try-on/v1'
 
@@ -119,5 +136,55 @@ export class TryOnApiService {
     }
 
     return response.json()
+  }
+
+  /**
+   * Get predefined models with ETag caching support
+   * @param auth Authentication parameters
+   * @param ifNoneMatch ETag from previous request for cache validation
+   * @returns Object with categories, etag, and notModified flag
+   * @throws Error if request fails
+   */
+  static async getPredefinedModels(
+    auth: ApiAuthParams,
+    ifNoneMatch?: string | null,
+  ): Promise<PredefinedModelsResponse> {
+    const headers: Record<string, string> = {}
+    this.addAuthHeaders(headers, auth)
+
+    // Add If-None-Match header for cache validation
+    if (ifNoneMatch) {
+      headers['If-None-Match'] = ifNoneMatch
+    }
+
+    const response = await fetch(`${this.BASE_URL}/predefined_try_on_models`, {
+      method: 'GET',
+      headers,
+    })
+
+    // Handle 304 Not Modified - use cached data
+    if (response.status === 304) {
+      return {
+        categories: null,
+        etag: ifNoneMatch || null,
+        notModified: true,
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(`Failed to get predefined models: ${response.status} ${response.statusText}`)
+    }
+
+    // Extract ETag from response headers
+    const etag = response.headers.get('ETag') || response.headers.get('etag') || null
+
+    // Parse response body
+    const categories: PredefinedModelCategory[] = await response.json()
+
+    return {
+      categories,
+      etag,
+      notModified: false,
+    }
   }
 }

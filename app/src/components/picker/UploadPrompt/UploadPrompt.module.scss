@@ -1,21 +1,80 @@
 .uploadPrompt {
   background: var(--aiuta-color-neutral);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  padding: 20px 20px 0px;
+  border-radius: 24px;
 }
 
-.silhouette {
+.examples {
+  position: relative;
+  height: 180px;
+  aspect-ratio: 7 / 18;
+}
+
+.sample {
   position: absolute;
-  margin: 51px 67px 111px 88px;
-  width: calc(100% - 67px - 88px);
-  height: calc(100% - 51px - 111px);
-  object-fit: contain;
-  top: 0;
+  height: min(100%, 140px);
+  aspect-ratio: var(--aiuta-aspect-ratio);
+  border: 4px solid white;
+  border-radius: 18px;
+  object-fit: cover;
+  object-position: top;
+  box-shadow:
+    0 78.519px 22.146px 0 rgba(0, 0, 0, 0),
+    0 50.333px 20.133px 0 rgba(0, 0, 0, 0.01),
+    0 28.186px 17.113px 0 rgba(0, 0, 0, 0.03),
+    0 12.08px 12.08px 0 rgba(0, 0, 0, 0.05),
+    0 3.02px 7.047px 0 rgba(0, 0, 0, 0.06);
+  top: 50%;
+  transform-origin: center;
+}
+
+.sample1 {
   left: 0;
+  transform: translateX(-50%) translateY(-50%) rotate(-10deg);
+  z-index: 2;
+}
+
+.sample2 {
+  right: 0;
+  transform: translateX(50%) translateY(-50%) rotate(12deg);
+  z-index: 1;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  max-width: 232px;
+}
+
+.title {
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--aiuta-color-primary-text);
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
 }
 
 .button {
-  position: absolute !important;
-  left: 50%;
-  bottom: 8px;
-  transform: translateX(-50%);
-  padding: 13px 24px !important;
+  width: 100%;
+  padding: 12px 24px !important;
+}
+
+.or {
+  margin: -4px;
+  color: var(--aiuta-color-primary-text);
 }

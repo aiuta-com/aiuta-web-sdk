@@ -1,10 +1,24 @@
 import React, { useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ErrorSnackbar, QrCode, Spinner, FilePicker } from '@/components'
-import { useQrPrompt, useTryOnImage, useImagePickerStrings } from '@/hooks'
-import { useRpc } from '@/contexts'
+import {
+  ErrorSnackbar,
+  QrCode,
+  Spinner,
+  FilePicker,
+  PrimaryButton,
+  ModelsButton,
+} from '@/components'
+import {
+  useQrPrompt,
+  useTryOnImage,
+  useImagePickerStrings,
+  usePredefinedModels,
+  usePredefinedModelsAnalytics,
+} from '@/hooks'
+import { useRpc, useDragAndDropContext } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
+import { combineClassNames } from '@/utils'
 import styles from './QrPrompt.module.scss'
 
 export default function QrPromptDesktop() {
@@ -13,7 +27,10 @@ export default function QrPromptDesktop() {
   const productIds = useAppSelector(productIdsSelector)
   const { qrUrl, startPolling, isDownloading } = useQrPrompt()
   const { selectImageToTryOn } = useTryOnImage()
-  const { qrPromptHint, qrPromptOr, qrPromptUploadButton } = useImagePickerStrings()
+  const { qrPromptDescription, qrPromptUploadButton } = useImagePickerStrings()
+  const { isEnabled: isPredefinedModelsEnabled } = usePredefinedModels()
+  const { trackSelectModelButtonClick } = usePredefinedModelsAnalytics()
+  const { isDragging } = useDragAndDropContext()
 
   // Track page view on mount
   useEffect(() => {
@@ -39,6 +56,11 @@ export default function QrPromptDesktop() {
     [selectImageToTryOn, navigate],
   )
 
+  const handleSelectModel = useCallback(() => {
+    trackSelectModelButtonClick()
+    navigate('/models')
+  }, [navigate, trackSelectModelButtonClick])
+
   return (
     <main className={styles.qrPrompt}>
       <ErrorSnackbar />
@@ -46,23 +68,22 @@ export default function QrPromptDesktop() {
         isDownloading ? (
           <Spinner isVisible={true} />
         ) : (
-          <>
+          <div
+            className={combineClassNames(styles.dropZone, isDragging && styles.dropZone_dragging)}
+          >
             <QrCode url={qrUrl} />
             <div className={styles.options}>
-              <p className={`aiuta-button-m ${styles.qrHint}`}>{qrPromptHint}</p>
-              <p className={`aiuta-label-regular ${styles.or}`}>{qrPromptOr}</p>
+              <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>
+
               <FilePicker onFileSelect={handleFileSelect}>
                 {({ openFilePicker }) => (
-                  <button
-                    onClick={openFilePicker}
-                    className={`aiuta-button-m ${styles.uploadButton}`}
-                  >
-                    {qrPromptUploadButton}
-                  </button>
+                  <PrimaryButton onClick={openFilePicker}>{qrPromptUploadButton}</PrimaryButton>
                 )}
               </FilePicker>
+
+              {isPredefinedModelsEnabled && <ModelsButton onClick={handleSelectModel} />}
             </div>
-          </>
+          </div>
         )
       ) : null}
     </main>

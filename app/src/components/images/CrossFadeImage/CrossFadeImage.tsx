@@ -121,6 +121,7 @@ export const CrossFadeImage = ({
         className={currentImageClasses}
         loading={loading}
         decoding="async"
+        draggable={false}
         onLoad={handleCurrentLoad}
         onError={handleCurrentError}
       />
@@ -132,6 +133,7 @@ export const CrossFadeImage = ({
           className={nextImageClasses}
           loading="eager"
           decoding="async"
+          draggable={false}
           onLoad={handleNextLoad}
           onError={handleNextError}
         />

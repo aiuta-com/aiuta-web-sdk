@@ -13,6 +13,8 @@ export { PrimaryButton } from './buttons/PrimaryButton'
 export { SecondaryButton } from './buttons/SecondaryButton'
 export { SocialButton } from './buttons/SocialButton'
 export { TryOnButton } from './buttons/TryOnButton'
+export { Tabs } from './buttons/Tabs'
+export { ModelsButton } from './buttons/ModelsButton'
 
 // Images
 export { RemoteImage } from './images/RemoteImage'
@@ -45,6 +47,7 @@ export { UploadPrompt } from './picker/UploadPrompt'
 export { UploadPreview } from './picker/UploadPreview'
 export { UploadResult } from './picker/UploadResult'
 export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
+export { ModelsList } from './picker/ModelsList'
 
 // Gallery
 export { ImageGallery } from './gallery/ImageGallery'
@@ -62,3 +65,4 @@ export { ResultActions } from './results/ResultActions'
 export { Share } from './results/Share'
 export { Disclaimer } from './results/Disclaimer'
 export { Feedback } from './results/Feedback'
+export { OtherPhoto } from './results/OtherPhoto'

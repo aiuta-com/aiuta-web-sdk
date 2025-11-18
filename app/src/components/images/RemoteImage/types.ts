@@ -6,7 +6,7 @@ export interface RemoteImageProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   /** Alt text for accessibility */
   alt: string
   /** Image shape size - determines border radius, null for no additional classes */
-  shape: 'L' | 'M' | null
+  shape: 'L' | 'M' | 'S' | 'XS' | null
   /** Additional CSS class name */
   className?: string
   /** Loading behavior */

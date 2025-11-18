@@ -48,7 +48,7 @@ export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
         }}
         options={{
           errorCorrectionLevel: 'M',
-          width: 220,
+          width: 200,
           margin: 6,
           color: {
             dark: darkColor,

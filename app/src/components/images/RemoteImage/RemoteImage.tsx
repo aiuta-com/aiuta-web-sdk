@@ -28,7 +28,13 @@ export const RemoteImage = ({
   }, [onError])
 
   // Get shape class based on size, null means no shape class
-  const shapeClass = shape === 'L' ? 'aiuta-image-l' : shape === 'M' ? 'aiuta-image-m' : null
+  const shapeClasses = {
+    L: 'aiuta-image-l',
+    M: 'aiuta-image-m',
+    S: 'aiuta-image-s',
+    XS: 'aiuta-image-xs',
+  } as const
+  const shapeClass = shape ? shapeClasses[shape] : null
   const containerClasses = combineClassNames(shapeClass, styles.remoteImage, className)
 
   return (

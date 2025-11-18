@@ -217,6 +217,7 @@ export const useTryOnGeneration = () => {
 
       // Show alert with abort message
       showAlert(getAbortMessage(result.abort_reason), invalidInputImageChangePhotoButton, () => {
+        dispatch(tryOnSlice.actions.clearSelectedImage())
         navigate('/')
       })
     },
@@ -316,9 +317,6 @@ export const useTryOnGeneration = () => {
           }
 
           uploadedImage = { id: uploadResult.id, url: uploadResult.url }
-
-          // Update selectedImage in Redux to the uploaded InputImage
-          dispatch(tryOnSlice.actions.setSelectedImage(uploadedImage))
         } catch (error: any) {
           console.error('Image upload error:', error)
           dispatch(tryOnSlice.actions.setIsGenerating(false))
@@ -333,6 +331,9 @@ export const useTryOnGeneration = () => {
         dispatch(tryOnSlice.actions.setIsGenerating(false))
         return
       }
+
+      // Update selectedImage in Redux (for both uploaded and predefined images)
+      dispatch(tryOnSlice.actions.setSelectedImage(uploadedImage))
 
       // Store reference to the image actually used for generation
       usedImageRef.current = uploadedImage

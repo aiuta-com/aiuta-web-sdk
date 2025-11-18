@@ -18,8 +18,8 @@ export const Confirmation = ({
       <div className={styles.modalContent}>
         <h3 className={styles.text}>{message}</h3>
         <div className={styles.buttonsLine}>
-          <SecondaryButton text={leftButtonText} onClick={onLeftClick} />
-          <SecondaryButton text={rightButtonText} onClick={onRightClick} />
+          <SecondaryButton onClick={onLeftClick}>{leftButtonText}</SecondaryButton>
+          <SecondaryButton onClick={onRightClick}>{rightButtonText}</SecondaryButton>
         </div>
       </div>
     </div>

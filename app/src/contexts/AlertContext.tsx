@@ -14,6 +14,7 @@ type AnimationState = 'closed' | 'opening' | 'open' | 'closing'
 interface AlertContextValue {
   showAlert: (message: string, buttonText: string, onClose?: () => void) => void
   closeAlert: () => void
+  discardAlert: () => void
 }
 
 interface AlertStateContextValue {
@@ -91,23 +92,34 @@ function useAlertState() {
     }, 50)
   }, [])
 
-  // Close alert with animation
-  const closeAlert = useCallback(() => {
-    // Clear any existing timeout
-    if (animationTimeoutRef.current) {
-      clearTimeout(animationTimeoutRef.current)
-    }
+  // Internal helper to hide alert with optional callback execution
+  const hideAlert = useCallback(
+    (executeCallback: boolean) => {
+      // Clear any existing timeout
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current)
+      }
 
-    // Hide modal content immediately but keep background
-    setShowContent(false)
-    setAnimationState('closing')
+      // Hide modal content immediately but keep background
+      setShowContent(false)
+      setAnimationState('closing')
 
-    // Complete close after animation
-    animationTimeoutRef.current = setTimeout(() => {
-      setAnimationState('closed')
-      onCloseCallback?.()
-    }, 200) // Match CSS transition duration
-  }, [onCloseCallback])
+      // Complete close after animation
+      animationTimeoutRef.current = setTimeout(() => {
+        setAnimationState('closed')
+        if (executeCallback) {
+          onCloseCallback?.()
+        }
+      }, 200) // Match CSS transition duration
+    },
+    [onCloseCallback],
+  )
+
+  // Close alert with callback execution
+  const closeAlert = useCallback(() => hideAlert(true), [hideAlert])
+
+  // Discard alert without calling the callback
+  const discardAlert = useCallback(() => hideAlert(false), [hideAlert])
 
   return {
     animationState,
@@ -117,6 +129,7 @@ function useAlertState() {
     isVisible: animationState !== 'closed',
     showAlert,
     closeAlert,
+    discardAlert,
   }
 }
 
@@ -132,6 +145,7 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
       value={{
         showAlert: alertState.showAlert,
         closeAlert: alertState.closeAlert,
+        discardAlert: alertState.discardAlert,
       }}
     >
       <AlertStateContext.Provider
