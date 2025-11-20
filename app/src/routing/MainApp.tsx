@@ -6,8 +6,17 @@ import {
   AlertProvider,
   AlertRenderer,
   DragAndDropProvider,
+  StorageProvider,
+  QueryProvider,
 } from '@/contexts'
-import { PageBar, PoweredBy, FullScreenGallery, Share, AppContainer } from '@/components'
+import {
+  PageBar,
+  PoweredBy,
+  FullScreenGallery,
+  Share,
+  AppContainer,
+  ConfigError,
+} from '@/components'
 import {
   useUrlParams,
   useCustomCssUrl,
@@ -15,6 +24,7 @@ import {
   useRpcInitialization,
   useOutsideClick,
   usePredefinedModels,
+  useConfigValidation,
 } from '@/hooks'
 
 import HomePageRouter from '@/pages/Home'
@@ -55,16 +65,46 @@ function RpcInitializer() {
 
   return (
     <RpcProvider rpc={rpc}>
-      <ShareProvider>
-        <MainAppContent />
-      </ShareProvider>
+      <ConfigValidator />
     </RpcProvider>
   )
 }
 
-function MainAppContent() {
+function ConfigValidator() {
+  const { isValidating, isConfigValid, configError } = useConfigValidation()
+
+  // These hooks are needed for both error screen and normal app
   useCustomCss()
   useOutsideClick()
+
+  // Wait for validation to complete
+  if (isValidating) {
+    return null
+  }
+
+  // If config is invalid, show error screen
+  if (!isConfigValid) {
+    return (
+      <AppContainer>
+        <PageBar minimal={true} />
+        <ConfigError error={configError} />
+      </AppContainer>
+    )
+  }
+
+  // If config is valid, render StorageProvider and the rest of the app
+  return (
+    <StorageProvider>
+      <QueryProvider>
+        <ShareProvider>
+          <AppContent />
+        </ShareProvider>
+      </QueryProvider>
+    </StorageProvider>
+  )
+}
+
+function AppContent() {
   usePredefinedModels()
 
   return (

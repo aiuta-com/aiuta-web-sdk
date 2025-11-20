@@ -6,6 +6,7 @@ export { PageBar } from './ui/PageBar'
 export { PoweredBy } from './ui/PoweredBy'
 export { Icon } from './ui/Icon'
 export { Flex } from './ui/Flex'
+export { ConfigError } from './ui/ConfigError'
 
 // Buttons
 export { IconButton } from './buttons/IconButton'

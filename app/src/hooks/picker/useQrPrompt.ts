@@ -1,23 +1,27 @@
-import { useRef, useEffect, useCallback, useState } from 'react'
+import { useRef, useEffect, useCallback, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { qrSlice } from '@/store/slices/qrSlice'
 import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
-import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { QrApiService } from '@/utils/api/qrApiService'
 import { generateRandomString } from '@/utils/helpers/generateRandomString'
+import { useLogger, useRpc } from '@/contexts'
 
 export const useQrPrompt = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
+  const logger = useLogger()
+  const rpc = useRpc()
 
   const qrToken = useAppSelector(qrTokenSelector)
-  const apiKey = useAppSelector(apiKeySelector)
-  const subscriptionId = useAppSelector(subscriptionIdSelector)
   const productIds = useAppSelector(productIdsSelector)
   const isDownloading = useAppSelector(qrIsLoadingSelector)
+
+  const auth = rpc.config.auth
+  const apiKey = 'apiKey' in auth ? auth.apiKey : undefined
+  const subscriptionId = 'subscriptionId' in auth ? auth.subscriptionId : undefined
 
   const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
   const [isPolling, setIsPolling] = useState(false)
@@ -31,7 +35,9 @@ export const useQrPrompt = () => {
 
   // Check for QR uploaded photo
   const checkQrUpload = useCallback(async () => {
-    if (!qrToken || !productIds.length || (!apiKey && !subscriptionId)) return
+    const hasValidAuth =
+      (apiKey && apiKey.length > 0) || (subscriptionId && subscriptionId.length > 0)
+    if (!qrToken || !productIds.length || !hasValidAuth) return
 
     try {
       const result = await QrApiService.getQrPhoto(qrToken)
@@ -57,7 +63,7 @@ export const useQrPrompt = () => {
         stopPolling()
       }
     } catch (error) {
-      console.error('QR polling error:', error)
+      logger.error('QR polling error:', error)
     }
   }, [qrToken, apiKey, subscriptionId, productIds, dispatch, navigate])
 
@@ -79,12 +85,16 @@ export const useQrPrompt = () => {
   }, [])
 
   // Generate QR URL
-  const getQrUrl = useCallback(() => {
+  const qrUrl = useMemo(() => {
     if (!qrToken) return ''
-    // For JWT auth we need subscriptionId, for API key auth we need apiKey
-    if (!apiKey && !subscriptionId) return ''
 
+    // For JWT auth we need subscriptionId, for API key auth we need apiKey
+    // Check for non-empty strings, not just truthy values
+    const hasApiKey = apiKey && apiKey.length > 0
     const hasSubscriptionId = subscriptionId && subscriptionId.length > 0
+
+    if (!hasApiKey && !hasSubscriptionId) return ''
+
     const params = hasSubscriptionId ? `sid=${subscriptionId}` : `key=${apiKey}`
 
     // Get current app URL instead of hardcoded static URL
@@ -106,7 +116,7 @@ export const useQrPrompt = () => {
     apiKey,
     subscriptionId,
     productIds,
-    qrUrl: getQrUrl(),
+    qrUrl,
     isPolling,
     isDownloading,
     startPolling,

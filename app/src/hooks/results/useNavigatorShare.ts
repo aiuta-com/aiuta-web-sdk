@@ -1,9 +1,9 @@
 import { useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
-import { useRpc } from '@/contexts'
+import { useRpc, useLogger } from '@/contexts'
+import { useGenerationsData } from '@/hooks/data'
 
 /**
  * Hook for handling native Web Share API functionality
@@ -11,7 +11,8 @@ import { useRpc } from '@/contexts'
 export const useNavigatorShare = () => {
   const dispatch = useAppDispatch()
   const rpc = useRpc()
-  const generatedImages = useAppSelector(generatedImagesSelector)
+  const logger = useLogger()
+  const { data: generatedImages = [] } = useGenerationsData()
   const productIds = useAppSelector(productIdsSelector)
 
   // Share image via Web Share API
@@ -72,18 +73,18 @@ export const useNavigatorShare = () => {
       } catch (error) {
         // Check if user cancelled the share dialog
         if (error instanceof Error && error.name === 'AbortError') {
-          console.log('User cancelled sharing')
+          logger.info('User cancelled sharing')
           // Don't track as failure - user intentionally cancelled
           return
         } else {
-          console.log('Web Share API failed (permission policy or other error):', error)
+          logger.warn('Web Share API failed (permission policy or other error):', error)
           // This is a real error, continue to track it
         }
       }
 
       // If Web Share API failed or not available, track failure
       if (!shareSuccessful) {
-        console.log('Sharing not available - Web Share API failed or not supported')
+        logger.info('Sharing not available - Web Share API failed or not supported')
         rpc.sdk.trackEvent({
           type: 'share',
           event: 'failed',
@@ -94,7 +95,7 @@ export const useNavigatorShare = () => {
         })
       }
     },
-    [generatedImages, rpc, productIds],
+    [generatedImages, rpc, productIds, logger],
   )
 
   // Handle full screen image on mobile

@@ -18,22 +18,15 @@ interface UseFullScreenViewerOptions {
  */
 export const useFullScreenViewer = ({ modalType, images }: UseFullScreenViewerOptions) => {
   const showFullScreen = useCallback(
-    (activeImage: ImageItem) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    (_activeImage: ImageItem) => {
       // TODO: Replace with RPC call to SDK
       // await rpc.sdk.openFullScreenModal({
       //   images,
       //   modalType,
       //   activeImage
       // })
-
-      console.warn(
-        'FullScreen modal opening: Legacy messaging removed, implement RPC method openFullScreenModal',
-        {
-          activeImage,
-          modalType,
-          imagesCount: images.length,
-        },
-      )
+      // Note: Legacy messaging removed, implement RPC method openFullScreenModal
     },
     [modalType, images],
   )

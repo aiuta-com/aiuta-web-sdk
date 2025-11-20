@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch, useAppSelector, store } from '@/store/store'
+import { useAppDispatch, useAppSelector } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
-import { apiSlice } from '@/store/slices/apiSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
-import { useAlert } from '@/contexts'
+import { useAlert, useLogger } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
 
 declare const __APP_VERSION__: string
@@ -22,6 +21,7 @@ const SHOW_DELAY = 200
 export const useRpcInitialization = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const logger = useLogger()
   const { closeAlert } = useAlert()
   const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
@@ -64,7 +64,7 @@ export const useRpcInitialization = () => {
 
                 return // Explicitly return to complete the Promise
               } catch (error) {
-                console.error('[RPC APP] Error in tryOn handler:', error)
+                logger.error('[RPC APP] Error in tryOn handler:', error)
                 throw error // Re-throw so RPC can handle the error
               }
             },
@@ -73,11 +73,8 @@ export const useRpcInitialization = () => {
 
         await rpc.connect()
         setRpc(rpc)
-
-        // Initialize auth data once RPC is connected
-        initializeAuthData(rpc)
       } catch (error) {
-        console.error('[RPC APP] Failed to initialize RPC', error)
+        logger.error('[RPC APP] Failed to initialize RPC', error)
       }
     }
 
@@ -92,24 +89,4 @@ export const useRpcInitialization = () => {
   }, [rpc, isAppVisible])
 
   return { rpc }
-}
-
-/**
- * Initialize authentication data from RPC config
- */
-const initializeAuthData = (rpc: AiutaAppRpc) => {
-  try {
-    const auth = rpc.config.auth
-
-    if ('apiKey' in auth) {
-      // API Key auth
-      store.dispatch(apiSlice.actions.setApiKey(auth.apiKey))
-    } else if ('subscriptionId' in auth) {
-      // JWT auth
-      store.dispatch(apiSlice.actions.setSubscriptionId(auth.subscriptionId))
-      // Note: JWT token is obtained dynamically via getJwt callback when needed
-    }
-  } catch (error) {
-    console.error('Failed to initialize auth data:', error)
-  }
 }

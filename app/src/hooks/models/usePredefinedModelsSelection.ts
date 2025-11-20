@@ -9,7 +9,7 @@ import { useTryOnGeneration } from '@/hooks/tryOn/useTryOnGeneration'
 import { useRpc } from '@/contexts'
 import type { InputImage } from '@/utils/api'
 
-const SELECTED_CATEGORY_KEY = 'aiuta_selected_category_id'
+const SELECTED_CATEGORY_KEY = 'aiuta-selected-category-id'
 
 /**
  * Hook for managing predefined models selection

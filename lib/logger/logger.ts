@@ -29,11 +29,9 @@ export function createLogger(component: string, initialEnabled = false): Logger 
       console.info(getPrefix('info'), message, ...optionalParams)
     },
     warn: (message?: any, ...optionalParams: any[]) => {
-      if (!enabled) return
       console.warn(getPrefix('warn'), message, ...optionalParams)
     },
     error: (message?: any, ...optionalParams: any[]) => {
-      if (!enabled) return
       console.error(getPrefix('error'), message, ...optionalParams)
     },
     setEnabled: (newEnabled: boolean) => {

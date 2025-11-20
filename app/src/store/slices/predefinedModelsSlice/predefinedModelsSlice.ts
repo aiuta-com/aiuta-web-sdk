@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { PredefinedModelCategory } from '@/utils/api'
-import { PredefinedModelsStorage } from '@/utils'
 
 export interface PredefinedModelsState {
   categories: PredefinedModelCategory[]
@@ -11,14 +10,13 @@ export interface PredefinedModelsState {
   retryRequested: boolean // Flag to prevent duplicate retry requests
 }
 
-const cachedData = PredefinedModelsStorage.load()
-
+// Initial state - will be loaded via usePredefinedModelsCache
 const initialState: PredefinedModelsState = {
-  categories: cachedData?.categories || [],
+  categories: [],
   isLoading: false,
   isLoaded: false,
   error: null,
-  etag: cachedData?.etag || null,
+  etag: null,
   retryRequested: false,
 }
 
@@ -36,8 +34,19 @@ export const predefinedModelsSlice = createSlice({
       state.isLoading = false // Also reset loading state
       state.error = null
 
-      // Save to localStorage
-      PredefinedModelsStorage.save(action.payload.categories, action.payload.etag)
+      // Storage is handled by React Query mutations
+    },
+
+    initializeFromCache: (
+      state,
+      action: PayloadAction<{ categories: PredefinedModelCategory[]; etag: string | null }>,
+    ) => {
+      // Load cached data WITHOUT marking as loaded
+      // This allows the fetch to still happen with the cached etag
+      state.categories = action.payload.categories
+      state.etag = action.payload.etag
+      state.isLoaded = false // Don't mark as loaded - we still need to check with server
+      state.error = null
     },
 
     setLoading: (state, action: PayloadAction<boolean>) => {
@@ -79,7 +88,7 @@ export const predefinedModelsSlice = createSlice({
       state.error = null
       state.etag = null
       state.retryRequested = false
-      PredefinedModelsStorage.clear()
+      // Storage is handled by React Query mutations
     },
   },
 })

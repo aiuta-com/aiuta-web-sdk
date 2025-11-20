@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-import { useRpc, useShare } from '@/contexts'
+import { useRpc, useShare, useLogger } from '@/contexts'
 import { IconButton, SocialButton, PrimaryButton } from '@/components'
 import { combineClassNames } from '@/utils'
 import { useShareStrings } from '@/hooks'
@@ -20,6 +20,7 @@ type ShareMethod = 'whatsApp' | 'messenger' | 'copy'
 export const Share = () => {
   const [hasShared, setHasShared] = useState(false)
   const rpc = useRpc()
+  const logger = useLogger()
   const { modalData, animationState, isVisible, closeShareModal } = useShare()
   const { sharePageTitle, copyButton } = useShareStrings()
 
@@ -61,7 +62,7 @@ export const Share = () => {
         setHasShared(true)
         sendAnalytics('copy')
       } catch (error) {
-        console.error('Failed to copy to clipboard:', error)
+        logger.error('Failed to copy to clipboard:', error)
       }
     }
   }

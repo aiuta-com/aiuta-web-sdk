@@ -5,6 +5,7 @@ import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { TryOnApiService } from '@/utils/api/tryOnApiService'
 import { resizeAndConvertImage } from '@/utils'
+import { useLogger } from '@/contexts'
 
 interface UploadState {
   isUploading: boolean
@@ -18,6 +19,7 @@ function useQuery() {
 
 export const useQrUpload = () => {
   const dispatch = useAppDispatch()
+  const logger = useLogger()
   const { token } = useParams<{ token: string }>()
   const query = useQuery()
   const apiKey = query.get('key') || ''
@@ -68,7 +70,7 @@ export const useQrUpload = () => {
   const handleUploadError = useCallback(
     (errorMessage: string) => {
       dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
-      console.warn('QR Upload error:', errorMessage)
+      logger.warn('QR Upload error:', errorMessage)
     },
     [dispatch],
   )
@@ -106,7 +108,7 @@ export const useQrUpload = () => {
         uploadedUrl: qrResult.url,
       }))
     } catch (error: any) {
-      console.error('Upload error:', error)
+      logger.error('Upload error:', error)
       setUploadState((prev) => ({ ...prev, isUploading: false }))
       handleUploadError(error.message || 'Upload failed')
     }

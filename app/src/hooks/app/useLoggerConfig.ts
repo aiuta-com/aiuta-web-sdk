@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useLoggerControl, useRpc } from '@/contexts'
+import { useLoggerControl, useRpc, useLogger } from '@/contexts'
 
 /**
  * Hook that manages logger state based on RPC debug configuration
@@ -7,6 +7,7 @@ import { useLoggerControl, useRpc } from '@/contexts'
 export const useLoggerConfig = () => {
   const { setEnabled } = useLoggerControl()
   const rpc = useRpc()
+  const logger = useLogger()
 
   useEffect(() => {
     if (!rpc) return
@@ -17,7 +18,7 @@ export const useLoggerConfig = () => {
         setEnabled(debugSettings.isLoggingEnabled)
       }
     } catch (error) {
-      console.warn('Failed to get debug config from RPC:', error)
+      logger.warn('Failed to get debug config from RPC:', error)
     }
-  }, [rpc, setEnabled])
+  }, [rpc, setEnabled, logger])
 }

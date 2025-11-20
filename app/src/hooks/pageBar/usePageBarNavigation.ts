@@ -8,9 +8,9 @@ import { useAppVisibility } from '@/hooks'
 import { productIdsSelector, isGeneratingSelector } from '@/store/slices/tryOnSlice'
 import { onboardingCurrentStepSelector } from '@/store/slices/onboardingSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice/selectors'
-import { inputImagesSelector } from '@/store/slices/uploadsSlice/selectors'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
+import { useUploadsData } from '@/hooks/data'
 
 export const usePageBarNavigation = () => {
   const navigate = useNavigate()
@@ -23,7 +23,7 @@ export const usePageBarNavigation = () => {
   const productIds = useAppSelector(productIdsSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const onboardingSteps = useAppSelector(onboardingCurrentStepSelector)
-  const recentlyPhotos = useAppSelector(inputImagesSelector)
+  const { data: recentlyPhotos = [] } = useUploadsData()
   const selectedImages = useAppSelector(selectedImagesSelector)
   const isSelectingGenerations = useAppSelector(generationsIsSelectingSelector)
   const isSelectingUploads = useAppSelector(uploadsIsSelectingSelector)

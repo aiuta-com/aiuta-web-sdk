@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { OnboardingStorage } from '@/utils'
 
 export interface OnboardingState {
   currentStep: number
@@ -8,7 +7,7 @@ export interface OnboardingState {
 
 const initialState: OnboardingState = {
   currentStep: 0,
-  isCompleted: OnboardingStorage.getOnboardingCompleted(),
+  isCompleted: false, // Will be loaded via useOnboardingData
 }
 
 export const onboardingSlice = createSlice({
@@ -25,13 +24,13 @@ export const onboardingSlice = createSlice({
 
     setIsCompleted: (state, action: PayloadAction<boolean>) => {
       state.isCompleted = action.payload
-      OnboardingStorage.setOnboardingCompleted(action.payload)
+      // Storage is handled by React Query mutations
     },
 
     resetOnboarding: (state) => {
       state.currentStep = 0
       state.isCompleted = false
-      OnboardingStorage.setOnboardingCompleted(false)
+      // Storage is handled by React Query mutations
     },
   },
 })

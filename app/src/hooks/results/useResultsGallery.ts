@@ -1,8 +1,7 @@
 import { useCallback, useRef, useState, UIEvent } from 'react'
-import { useAppSelector } from '@/store/store'
-import { generatedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { useFullScreenViewer } from '@/hooks/gallery/useFullScreenViewer'
 import { ImageItem } from '@/hooks/gallery/useFullScreenViewer'
+import { useGenerationsData } from '@/hooks/data'
 
 const GENERATED_IMAGE_HEIGHT = 460
 const SLIDE_ITEM_IMAGE_HEIGHT = 96
@@ -12,7 +11,7 @@ const SLIDE_ITEM_IMAGE_HEIGHT = 96
  */
 export const useResultsGallery = () => {
   const [slideItemIndex, setSlideItemIndex] = useState<number>(0)
-  const generatedImages = useAppSelector(generatedImagesSelector)
+  const { data: generatedImages = [] } = useGenerationsData()
   const miniSliderContentRef = useRef<HTMLDivElement | null>(null)
   const generatedImagesContentRef = useRef<HTMLDivElement | null>(null)
 

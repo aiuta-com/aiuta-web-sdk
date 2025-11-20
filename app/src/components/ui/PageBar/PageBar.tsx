@@ -6,14 +6,57 @@ import {
   usePageBarTitle,
   useSwipeGesture,
   useSelectionStrings,
+  useAppVisibility,
 } from '@/hooks'
 import { IconButton } from '@/components'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
 import styles from './PageBar.module.scss'
 
-export const PageBar = () => {
+interface PageBarProps {
+  minimal?: boolean
+}
+
+export const PageBar = ({ minimal = false }: PageBarProps) => {
   const [hasMounted, setHasMounted] = useState(false)
+  const { hideApp } = useAppVisibility()
+
+  // Early initialization
+  useEffect(() => {
+    setHasMounted(true)
+  }, [])
+
+  if (!hasMounted) {
+    return null
+  }
+
+  // Minimal mode - only render close button without complex hooks
+  // Used for error screens before StorageProvider/QueryProvider are initialized
+  if (minimal) {
+    return (
+      <header className={styles.pageBar}>
+        {/* Empty left side */}
+        <div />
+
+        {/* Center - empty */}
+        <div className={styles.titleContainer} />
+
+        {/* Right side - Close button only */}
+        <IconButton
+          icon={icons.close}
+          label="Close"
+          onClick={hideApp}
+          className={styles.closeButton}
+        />
+      </header>
+    )
+  }
+
+  // Normal mode - full PageBar with all features
+  return <FullPageBar />
+}
+
+function FullPageBar() {
   const navigate = useNavigate()
 
   const { title } = usePageBarTitle()
@@ -38,14 +81,6 @@ export const PageBar = () => {
       navigate(-1)
     }
   })
-
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
-
-  if (!hasMounted) {
-    return null
-  }
 
   // Select appropriate icon based on which button should be shown
   const navigationIcon = showBackButton ? icons.back : icons.history

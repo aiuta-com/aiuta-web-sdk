@@ -1,4 +1,6 @@
-export { generateRandomString } from './generateRandomString'
 export { combineClassNames } from './combineClassNames'
+export { generateRandomString } from './generateRandomString'
 export { resizeAndConvertImage } from './resizeAndConvertImage'
 export type { ProcessOptions } from './resizeAndConvertImage'
+export { addToArrayAndLimit } from './addToArrayAndLimit'
+export { simpleHash } from './simpleHash'

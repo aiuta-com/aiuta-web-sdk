@@ -48,8 +48,8 @@ export async function resizeAndConvertImage(file: File, opts: ProcessOptions = {
       type: blob.type || outputMime,
       lastModified: file.lastModified,
     })
-  } catch (error) {
-    console.warn('Resize and convert image failed, falling back to original file', error)
+  } catch {
+    // Fallback to original file silently (no logger needed for this helper)
     return file
   }
 }

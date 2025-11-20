@@ -3,7 +3,7 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 import { Share, ThumbnailList, RemoteImage, IconButton } from '@/components'
-import { useShare } from '@/contexts'
+import { useShare, useLogger } from '@/contexts'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
 import { ImageType, FullScreenModalData } from './types'
@@ -12,6 +12,7 @@ import styles from './FullScreenGallery.module.scss'
 
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
+  const logger = useLogger()
   const [modalData, setModalData] = useState<FullScreenModalData | null>(null)
   const { openShareModal, isVisible: isShareVisible } = useShare()
 
@@ -51,7 +52,7 @@ export const FullScreenGallery = () => {
       document.body.removeChild(link)
       URL.revokeObjectURL(blobUrl)
     } catch (error) {
-      console.error('Failed to download image:', error)
+      logger.error('Failed to download image:', error)
     }
   }, [modalData])
 
@@ -85,8 +86,8 @@ export const FullScreenGallery = () => {
     //   imageIds: deleteActiveImage.map(img => img.id)
     // })
 
-    console.warn('Image removal: Legacy messaging removed, implement RPC method removeImages')
-  }, [modalData, handleCloseModal])
+    logger.warn('Image removal: Legacy messaging removed, implement RPC method removeImages')
+  }, [modalData, handleCloseModal, logger])
 
   const changeActiveImage = useCallback(
     (image: ImageType) => {

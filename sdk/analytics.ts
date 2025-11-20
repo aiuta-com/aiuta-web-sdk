@@ -21,7 +21,8 @@ interface AnalyticsEnv {
 export default class AnalyticsTracker {
   private readonly PLATFORM = 'web'
   private readonly UNKNOWN = 'Unknown'
-  private readonly INSTALLATION_KEY = 'aiutaInstallationId'
+  private readonly INSTALLATION_KEY = 'aiuta'
+  private readonly OLD_INSTALLATION_KEY = 'aiutaInstallationId'
 
   private handler?: AiutaAnalyticsCallback
   private analyticsUrl: string
@@ -79,9 +80,19 @@ export default class AnalyticsTracker {
   }
 
   private getInstallationId() {
+    // Check if new key exists
     const existing = localStorage.getItem(this.INSTALLATION_KEY)
     if (existing) return existing
 
+    // Migrate from old key if exists
+    const oldId = localStorage.getItem(this.OLD_INSTALLATION_KEY)
+    if (oldId) {
+      localStorage.setItem(this.INSTALLATION_KEY, oldId)
+      localStorage.removeItem(this.OLD_INSTALLATION_KEY)
+      return oldId
+    }
+
+    // Generate new ID
     const id = uuidv4()
     localStorage.setItem(this.INSTALLATION_KEY, id)
     return id
