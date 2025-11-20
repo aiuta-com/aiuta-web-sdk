@@ -37,6 +37,16 @@ export default class IframeManager {
     iframe.style.pointerEvents = interactive ? 'auto' : 'none'
   }
 
+  removeIframe() {
+    // Always search in DOM by id (handles both this.iframe and orphaned iframes)
+    const iframeInDom = document.getElementById(this.iframeId)
+    if (iframeInDom) {
+      iframeInDom.remove()
+      this.logger.debug('Aiuta iframe removed')
+    }
+    this.iframe = null
+  }
+
   private createIframe() {
     const src = this.buildIframeSrc()
     const iframe = document.createElement('iframe') as HTMLIFrameElement
