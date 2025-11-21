@@ -6,12 +6,14 @@ import {
   modelsLoadingSelector,
   modelsLoadedSelector,
   modelsErrorSelector,
-  modelsEtagSelector,
   modelsRetryRequestedSelector,
 } from '@/store/slices/predefinedModelsSlice'
-import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
 import { TryOnApiService } from '@/utils/api'
-import { useRpc } from '@/contexts'
+import { useRpc, useLogger } from '@/contexts'
+import {
+  useSavePredefinedModels,
+  usePredefinedModelsCache,
+} from '@/hooks/data/usePredefinedModelsData'
 
 const RETRY_DELAY = 5000 // 5 seconds
 
@@ -25,20 +27,34 @@ const globalRetryTimeoutRef = { current: null as NodeJS.Timeout | null }
 export const usePredefinedModels = () => {
   const dispatch = useAppDispatch()
   const rpc = useRpc()
+  const logger = useLogger()
+  const { mutate: saveModels } = useSavePredefinedModels()
+  const { data: cachedModels } = usePredefinedModelsCache() // Read etag directly from React Query
   const categories = useAppSelector(modelsSelector)
   const isLoading = useAppSelector(modelsLoadingSelector)
   const isLoaded = useAppSelector(modelsLoadedSelector)
   const error = useAppSelector(modelsErrorSelector)
-  const etag = useAppSelector(modelsEtagSelector)
   const retryRequested = useAppSelector(modelsRetryRequestedSelector)
-  const apiKey = useAppSelector(apiKeySelector)
-  const subscriptionId = useAppSelector(subscriptionIdSelector)
+
+  const auth = rpc.config.auth
+  const apiKey = 'apiKey' in auth ? auth.apiKey : undefined
+  const subscriptionId = 'subscriptionId' in auth ? auth.subscriptionId : undefined
+
+  // Use etag from React Query cache (authoritative source) instead of Redux
+  const etag = cachedModels?.etag ?? null
 
   const loadingInProgressRef = useRef(false) // Track if loading is currently in progress (sync guard)
   const mountedRef = useRef(false) // Track if component has mounted
   const loadModelsIfNeededRef = useRef<(() => Promise<void>) | null>(null)
 
   const loadModelsIfNeeded = useCallback(async () => {
+    // Wait for etag to load from IndexedDB before making request
+    // This ensures we use cached etag if available
+    if (cachedModels === undefined) {
+      // Still loading from IndexedDB, wait
+      return
+    }
+
     // ATOMIC: Handle retry request with priority - immediately claim it
     if (retryRequested) {
       // Use GLOBAL synchronous flag to prevent race condition
@@ -93,6 +109,7 @@ export const usePredefinedModels = () => {
             etag: result.etag,
           }),
         )
+        saveModels({ categories: result.categories, etag: result.etag }) // Save to IndexedDB
         loadingInProgressRef.current = false
         globalRetryInProgressRef.current = false
       } else {
@@ -103,11 +120,12 @@ export const usePredefinedModels = () => {
             etag: result.etag,
           }),
         )
+        saveModels({ categories: [], etag: result.etag }) // Save to IndexedDB
         loadingInProgressRef.current = false
         globalRetryInProgressRef.current = false
       }
     } catch (error) {
-      console.error('[usePredefinedModels] Failed to load models:', error)
+      logger.error('[usePredefinedModels] Failed to load models:', error)
       dispatch(predefinedModelsSlice.actions.setError((error as Error).message))
       loadingInProgressRef.current = false
       globalRetryInProgressRef.current = false
@@ -121,7 +139,18 @@ export const usePredefinedModels = () => {
         }, RETRY_DELAY)
       }
     }
-  }, [isLoaded, isLoading, retryRequested, dispatch, rpc, apiKey, subscriptionId, etag])
+  }, [
+    isLoaded,
+    isLoading,
+    retryRequested,
+    dispatch,
+    rpc,
+    apiKey,
+    subscriptionId,
+    etag,
+    saveModels,
+    cachedModels,
+  ])
 
   // Store function in ref for stable reference
   loadModelsIfNeededRef.current = loadModelsIfNeeded
@@ -133,6 +162,14 @@ export const usePredefinedModels = () => {
       loadModelsIfNeededRef.current?.()
     }
   }, [])
+
+  // Watch for cachedModels to load from IndexedDB
+  // When data becomes available, trigger loading if needed
+  useEffect(() => {
+    if (cachedModels !== undefined && mountedRef.current) {
+      loadModelsIfNeededRef.current?.()
+    }
+  }, [cachedModels])
 
   // Watch for manual retry requests (triggered by retryLoading action)
   // retryRequested flag ensures only one hook instance handles the retry

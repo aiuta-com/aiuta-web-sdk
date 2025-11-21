@@ -1,3 +1,5 @@
+declare const __QR_API_URL__: string
+
 export interface QrUploadResult {
   id: string
   url: string
@@ -12,7 +14,7 @@ export interface QrEndpointData {
 }
 
 export class QrApiService {
-  private static readonly BASE_URL = 'https://web-sdk.aiuta.com/api'
+  private static readonly BASE_URL = __QR_API_URL__
 
   /**
    * Upload photo via QR token

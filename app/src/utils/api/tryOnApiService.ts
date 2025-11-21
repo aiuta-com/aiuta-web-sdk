@@ -2,6 +2,8 @@ import type { Image, InputImage, GeneratedImage } from '@lib/models'
 
 export type { Image, InputImage, GeneratedImage }
 
+declare const __TRY_ON_API_URL__: string
+
 /**
  * Authentication parameters for API requests
  */
@@ -47,7 +49,7 @@ export interface PredefinedModelsResponse {
 }
 
 export class TryOnApiService {
-  private static readonly BASE_URL = 'https://api.aiuta.com/digital-try-on/v1'
+  private static readonly BASE_URL = __TRY_ON_API_URL__
 
   /**
    * Add authentication headers to request

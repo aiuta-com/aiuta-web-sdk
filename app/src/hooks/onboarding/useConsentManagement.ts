@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRpc } from '@/contexts'
-import { ConsentStorage } from '@/utils/storage'
+import { useConsentData, useAddConsents } from '@/hooks/data'
 import { ConsentType, type Consent } from '@lib/config/features'
 
 // Default consent constant (outside component to avoid recreation)
@@ -16,6 +16,8 @@ const DEFAULT_CONSENT: Consent = {
 export const useConsentManagement = () => {
   const rpc = useRpc()
   const [checkedConsents, setCheckedConsents] = useState<Record<string, boolean>>({})
+  const { data: obtainedIds = [] } = useConsentData()
+  const { mutate: addConsents } = useAddConsents()
 
   const configConsents = useMemo(() => {
     return rpc.config.features?.consent?.data?.consents || []
@@ -25,9 +27,8 @@ export const useConsentManagement = () => {
     return configConsents.length > 0 ? configConsents : [DEFAULT_CONSENT]
   }, [configConsents])
 
-  // Initialize consent state from localStorage
+  // Initialize consent state from storage
   useEffect(() => {
-    const obtainedIds = ConsentStorage.getObtainedConsentIds()
     const initialState: Record<string, boolean> = {}
 
     consents.forEach((consent) => {
@@ -35,7 +36,7 @@ export const useConsentManagement = () => {
     })
 
     setCheckedConsents(initialState)
-  }, [consents, configConsents.length])
+  }, [consents, obtainedIds, configConsents.length])
 
   // Handle consent change
   const handleConsentChange = useCallback((consentId: string, checked: boolean) => {
@@ -52,14 +53,14 @@ export const useConsentManagement = () => {
       .every((consent) => checkedConsents[consent.id])
   }, [consents, checkedConsents])
 
-  // Save consents to localStorage
+  // Save consents to storage
   const saveConsents = useCallback(() => {
     const acceptedIds = Object.entries(checkedConsents)
       .filter(([, checked]) => checked)
       .map(([id]) => id)
 
-    ConsentStorage.setObtainedConsentIds(acceptedIds)
-  }, [checkedConsents])
+    addConsents(acceptedIds)
+  }, [checkedConsents, addConsents])
 
   return {
     checkedConsents,

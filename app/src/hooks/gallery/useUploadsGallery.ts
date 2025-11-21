@@ -3,13 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { tryOnSlice, selectedImageSelector } from '@/store/slices/tryOnSlice'
-import {
-  selectedUploadsSelector,
-  uploadsIsSelectingSelector,
-  inputImagesSelector,
-} from '@/store/slices/uploadsSlice'
+import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { useImageGallery } from './useImageGallery'
 import { useTryOnImage } from '@/hooks/tryOn/useTryOnImage'
+import { useUploadsData, useRemoveUpload } from '@/hooks/data'
 import { isInputImage } from '@/models'
 import { ImageItem } from './useFullScreenViewer'
 
@@ -28,12 +25,13 @@ export const useUploadsGallery = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const selectedImages = useAppSelector(selectedUploadsSelector)
-  const recentlyPhotos = useAppSelector(inputImagesSelector)
+  const { data: recentlyPhotos = [] } = useUploadsData()
+  const { mutate: removeUpload } = useRemoveUpload()
   const isSelecting = useAppSelector(uploadsIsSelectingSelector)
   const selectedImage = useAppSelector(selectedImageSelector)
   const { selectImageToTryOn } = useTryOnImage()
 
-  // Convert Redux photos to ImageItem format
+  // Convert React Query data to ImageItem format
   const images: ImageItem[] = recentlyPhotos.map(({ id, url }) => ({ id, url }))
 
   // Selection state computed from Redux
@@ -70,8 +68,7 @@ export const useUploadsGallery = ({
 
   // Handle image deletion
   function handleImageDelete(imageId: string) {
-    const updatedPhotos = recentlyPhotos.filter(({ id }) => id !== imageId)
-    dispatch(uploadsSlice.actions.setInputImages(updatedPhotos))
+    removeUpload(imageId)
 
     // If deleted image is currently selected for try-on, clear it
     if (selectedImage && isInputImage(selectedImage) && selectedImage.id === imageId) {
@@ -86,19 +83,16 @@ export const useUploadsGallery = ({
 
   // Delete selected images
   const deleteSelectedImages = useCallback(() => {
-    const remainingImages = recentlyPhotos.filter(({ id }) => !selectedImages.includes(id))
+    // Delete each selected image
+    selectedImages.forEach((imageId) => {
+      removeUpload(imageId)
+    })
 
-    // Update Redux state
+    // Update Redux UI state
     clearSelection() // Clear selection first
     dispatch(uploadsSlice.actions.setIsSelecting(false)) // Exit selection mode
-    dispatch(uploadsSlice.actions.setInputImages(remainingImages))
     closeUploadsImagesModal()
-
-    // Track deletion if needed (similar to generations)
-    // selectedImages.forEach((imageId) => {
-    //   trackImageDeleted(imageId)
-    // })
-  }, [recentlyPhotos, selectedImages, clearSelection, dispatch, closeUploadsImagesModal])
+  }, [selectedImages, removeUpload, clearSelection, dispatch, closeUploadsImagesModal])
 
   // Toggle select all action
   const toggleSelectAll = useCallback(() => {

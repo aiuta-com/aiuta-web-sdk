@@ -1,6 +1,8 @@
-export { BaseStorage } from './baseStorage'
-export { UploadsStorage } from './uploadsStorage'
-export { GenerationsStorage } from './generationsStorage'
-export { OnboardingStorage } from './onboardingStorage'
-export { ConsentStorage } from './consentStorage'
-export { PredefinedModelsStorage } from './predefinedModelsStorage'
+// Backends
+export type { IStorageBackend, PredefinedModelsCache } from './backends/IStorageBackend'
+export { LocalStorageBackend } from './backends/LocalStorageBackend'
+export { RpcStorageBackend } from './backends/RpcStorageBackend'
+
+// Adapters (internal use)
+export type { IStorageAdapter } from './adapters/IStorageAdapter'
+export { createStorageAdapter } from './adapters/createStorageAdapter'

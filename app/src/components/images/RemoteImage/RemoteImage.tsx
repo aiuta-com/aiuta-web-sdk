@@ -27,6 +27,10 @@ export const RemoteImage = ({
     onError?.()
   }, [onError])
 
+  // Extract URL from Image object or use string directly
+  const imageUrl =
+    typeof src === 'string' ? src : src && typeof src === 'object' && 'url' in src ? src.url : ''
+
   // Get shape class based on size, null means no shape class
   const shapeClasses = {
     L: 'aiuta-image-l',
@@ -39,9 +43,9 @@ export const RemoteImage = ({
 
   return (
     <div className={containerClasses} {...rest}>
-      {!hasError && (
+      {imageUrl && !hasError && (
         <CrossFadeImage
-          src={src}
+          src={imageUrl}
           alt={alt}
           loading={loading}
           onLoad={handleLoad}

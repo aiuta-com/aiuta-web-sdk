@@ -1,10 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { InputImage } from '@lib/models'
-import { UploadsStorage } from '@/utils'
 
+/**
+ * Uploads UI State (data is managed by React Query)
+ */
 export interface UploadsState {
   selectedImages: Array<string>
-  inputImages: Array<InputImage>
   fullScreenImageUrl: string | null
   isSelecting: boolean
   isBottomSheetOpen: boolean
@@ -12,7 +12,6 @@ export interface UploadsState {
 
 const initialState: UploadsState = {
   selectedImages: [],
-  inputImages: UploadsStorage.getInputImages(),
   fullScreenImageUrl: null,
   isSelecting: false,
   isBottomSheetOpen: false,
@@ -41,18 +40,6 @@ export const uploadsSlice = createSlice({
 
     showImageFullScreen: (state, action: PayloadAction<string | null>) => {
       state.fullScreenImageUrl = action.payload
-    },
-
-    setInputImages: (state, action: PayloadAction<InputImage[]>) => {
-      const images = action.payload
-      state.inputImages = images
-      UploadsStorage.saveInputImages(images)
-    },
-
-    addInputImage: (state, action: PayloadAction<InputImage>) => {
-      const newImage = action.payload
-      const updatedImages = UploadsStorage.addInputImage(newImage)
-      state.inputImages = updatedImages
     },
 
     setIsSelecting: (state, action: PayloadAction<boolean>) => {

@@ -1,16 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { GeneratedImage } from '@lib/models'
-import { GenerationsStorage } from '@/utils'
 
+/**
+ * Generations UI State
+ * - currentResults: Fresh generated images (not yet persisted to storage)
+ * - selectedImages: Images selected for deletion in gallery
+ * - isSelecting: Selection mode in gallery
+ */
 export interface GenerationsState {
+  currentResults: GeneratedImage[]
   selectedImages: Array<string>
-  generatedImages: Array<GeneratedImage>
   isSelecting: boolean
 }
 
 const initialState: GenerationsState = {
+  currentResults: [],
   selectedImages: [],
-  generatedImages: GenerationsStorage.getGeneratedImages(),
   isSelecting: false,
 }
 
@@ -18,6 +23,20 @@ export const generationsSlice = createSlice({
   name: 'generations',
   initialState,
   reducers: {
+    // Fresh generation results (immediate, no storage delay)
+    setCurrentResults: (state, action: PayloadAction<GeneratedImage[]>) => {
+      state.currentResults = action.payload
+    },
+
+    addCurrentResult: (state, action: PayloadAction<GeneratedImage>) => {
+      state.currentResults.push(action.payload)
+    },
+
+    clearCurrentResults: (state) => {
+      state.currentResults = []
+    },
+
+    // Selection state for gallery
     setSelectedImages: (state, action: PayloadAction<string[]>) => {
       state.selectedImages = action.payload
     },
@@ -33,18 +52,6 @@ export const generationsSlice = createSlice({
 
     clearSelectedImages: (state) => {
       state.selectedImages = []
-    },
-
-    setGeneratedImages: (state, action: PayloadAction<GeneratedImage[]>) => {
-      const images = action.payload
-      state.generatedImages = images
-      GenerationsStorage.saveGeneratedImages(images)
-    },
-
-    addGeneratedImage: (state, action: PayloadAction<GeneratedImage>) => {
-      const newImage = action.payload
-      const updatedImages = GenerationsStorage.addGeneratedImage(newImage)
-      state.generatedImages = updatedImages
     },
 
     setIsSelecting: (state, action: PayloadAction<boolean>) => {

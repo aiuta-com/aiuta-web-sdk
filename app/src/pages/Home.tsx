@@ -1,10 +1,13 @@
-import { useEffect } from 'react'
-import { useInitialRoute } from '@/hooks'
+import React, { useEffect } from 'react'
+import { Spinner } from '@/components'
+import { useInitialRoute, useStorageInitialization } from '@/hooks'
 
 /**
  * HomePageRouter - App entry point and router
  *
  * Handles:
+ * - Loading storage data from IndexedDB/localStorage
+ * - Syncing storage data with Redux state
  * - Initial route determination based on app state
  * - Automatic navigation based on user state (handled in useInitialRoute)
  *
@@ -14,12 +17,15 @@ import { useInitialRoute } from '@/hooks'
  */
 export default function HomePageRouter() {
   const { navigateInitially } = useInitialRoute()
+  const { isInitializing } = useStorageInitialization()
 
-  // Determine and navigate to initial route on mount
+  // Wait for storage data to load before navigating
   useEffect(() => {
-    navigateInitially()
-  }, [navigateInitially])
+    if (!isInitializing) {
+      navigateInitially()
+    }
+  }, [isInitializing, navigateInitially])
 
-  // Nothing to render - navigation happens immediately
-  return null
+  // Show spinner while loading storage data
+  return <Spinner isVisible={isInitializing} />
 }

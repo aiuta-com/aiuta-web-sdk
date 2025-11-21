@@ -9,22 +9,26 @@ export const buildConfig = {
   env: {
     debug: {
       // relative static, prod api, debug analytics
-      api: 'https://api.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.aiuta.com/digital-try-on/v1',
+      qrApi: 'https://web-sdk.aiuta.com/api',
       analytics: 'https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     dev: {
       static: 'https://static.dev.aiuta.com',
-      api: 'https://api.dev.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.dev.aiuta.com/digital-try-on/v1',
+      qrApi: 'https://web-sdk.dev.aiuta.com/api',
       analytics: 'https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     preprod: {
       static: 'https://static.preprod.aiuta.com',
-      api: 'https://api.preprod.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.preprod.aiuta.com/digital-try-on/v1',
+      qrApi: 'https://web-sdk.preprod.aiuta.com/api',
       analytics: 'https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     prod: {
       static: 'https://static.aiuta.com',
-      api: 'https://api.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.aiuta.com/digital-try-on/v1',
+      qrApi: 'https://web-sdk.aiuta.com/api',
       analytics: 'https://api.aiuta.com/analytics/v1/web-sdk-analytics',
     },
   },
@@ -63,12 +67,18 @@ export const getEnvironmentUrls = (mode: string) => {
 /**
  * Generate environment URLs for a specific domain
  */
-const getStageUrlsForEnv = (env: { static: string; api: string; analytics: string }) => {
+const getStageUrlsForEnv = (env: {
+  static: string
+  tryOnApi: string
+  qrApi: string
+  analytics: string
+}) => {
   const appPath = process.env.AIUTA_APP_PATH || getMajorPath()
   const normalizedAppPath = appPath.replace(/\/$/, '')
   return {
     appUrl: `${env.static}/${normalizedAppPath}/${buildConfig.path.index}`,
-    tryOnApiUrl: env.api,
+    tryOnApiUrl: env.tryOnApi,
+    qrApiUrl: env.qrApi,
     analyticsUrl: env.analytics,
   }
 }
@@ -76,10 +86,11 @@ const getStageUrlsForEnv = (env: { static: string; api: string; analytics: strin
 /**
  * Generate debug URLs for a specific domain
  */
-const getDebugUrlsForEnv = (env: { api: string; analytics: string }) => {
+const getDebugUrlsForEnv = (env: { tryOnApi: string; qrApi: string; analytics: string }) => {
   return {
     appUrl: `/${buildConfig.path.app}/${buildConfig.path.index}`,
-    tryOnApiUrl: env.api,
+    tryOnApiUrl: env.tryOnApi,
+    qrApiUrl: env.qrApi,
     analyticsUrl: env.analytics,
   }
 }

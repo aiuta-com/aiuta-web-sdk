@@ -7,6 +7,7 @@ import {
 } from '@/store/slices/onboardingSlice'
 import { useOnboardingAnalytics } from './useOnboardingAnalytics'
 import { OnboardingPageId } from './useOnboardingAnalytics'
+import { useSetOnboardingCompleted } from '@/hooks/data/useOnboardingData'
 
 export interface SlidesConfig {
   /** Whether to track analytics automatically */
@@ -20,6 +21,7 @@ export const useOnboardingSlides = (config: SlidesConfig = {}) => {
 
   const dispatch = useAppDispatch()
   const { trackPageView } = useOnboardingAnalytics()
+  const { mutate: saveOnboarding } = useSetOnboardingCompleted()
 
   // Redux state
   const globalCurrentStep = useAppSelector(onboardingCurrentStepSelector)
@@ -69,7 +71,8 @@ export const useOnboardingSlides = (config: SlidesConfig = {}) => {
   // Redux actions
   const completeOnboarding = useCallback(() => {
     dispatch(onboardingSlice.actions.setIsCompleted(true))
-  }, [dispatch])
+    saveOnboarding(true) // Save to IndexedDB
+  }, [dispatch, saveOnboarding])
 
   const updateGlobalStep = useCallback(() => {
     dispatch(onboardingSlice.actions.nextStep())

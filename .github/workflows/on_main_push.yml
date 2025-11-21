@@ -1,4 +1,4 @@
-name: Preprod and Prod on push to main
+name: Dev, Preprod and Prod on push to main
 
 on:
   push:
@@ -10,6 +10,8 @@ jobs:
     permissions:
       contents: read
     env:
+      DEV_BUCKET: aiuta_dev_static
+      DEV_URL: https://static.dev.aiuta.com
       PREPROD_BUCKET: aiuta_preprod_static
       PREPROD_URL: https://static.preprod.aiuta.com
       PROD_BUCKET: aiuta_prod_static
@@ -22,6 +24,18 @@ jobs:
 
       - name: 🔧 Setup project environment
         uses: ./.github/actions/setup-project
+
+      - name: 📦 Build dev project
+        run: npm run build:dev
+        env:
+          AIUTA_APP_PATH: ${{ env.DEPLOY_PATH }}
+
+      - name: 🚀 Deploy to Dev
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+          bucket_name: ${{ env.DEV_BUCKET }}
+          destination_path: ${{ env.DEPLOY_PATH }}
 
       - name: 📦 Build preprod project
         run: npm run build:preprod
@@ -51,10 +65,17 @@ jobs:
         run: |
           echo "✅ Deployment completed successfully!"
           echo "📦 Branch: main"
+          echo "📁 Dev uploaded to: ${{ env.DEV_BUCKET }}/${{ env.DEPLOY_PATH }}"
           echo "📁 Preprod uploaded to: ${{ env.PREPROD_BUCKET }}/${{ env.DEPLOY_PATH }}"
           echo "📁 Prod uploaded to: ${{ env.PROD_BUCKET }}/${{ env.DEPLOY_PATH }}"
           echo ""
           echo "🔗 Files available at:"
+          echo ""
+          echo "Dev:"
+          for file in dist/sdk/*; do
+            filename=$(basename "$file")
+            echo "- ${{ env.DEV_URL }}/${{ env.DEPLOY_PATH }}${filename}"
+          done
           echo ""
           echo "Preprod:"
           for file in dist/sdk/*; do

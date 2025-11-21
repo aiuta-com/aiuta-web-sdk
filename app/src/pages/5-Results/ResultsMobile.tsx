@@ -33,7 +33,7 @@ export default function ResultsMobile() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const { slideItemIndex, images } = useResultsGallery()
+  const { currentImage } = useResultsGallery()
   const { shareImage, handleMobileImageClick } = useNavigatorShare()
   const { isEnabled: isOtherPhotoEnabled } = useTryOnWithOtherPhoto()
   const { startTryOn } = useTryOnGeneration()
@@ -41,7 +41,6 @@ export default function ResultsMobile() {
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { recentlyPhotos } = useUploadsGallery()
 
-  const currentImageUrl = images[slideItemIndex]?.url || ''
   const hasMultiplePhotos = recentlyPhotos.length > 1
 
   const handleFileSelect = useCallback(
@@ -76,19 +75,21 @@ export default function ResultsMobile() {
           <>
             <Flex contentClassName={combineClassNames('aiuta-image-l')}>
               <RemoteImage
-                src={currentImageUrl}
+                src={currentImage}
                 alt="Generated result"
                 shape="L"
-                onClick={() => handleMobileImageClick(currentImageUrl)}
+                onClick={() => currentImage && handleMobileImageClick(currentImage.url)}
               />
               <IconButton
                 icon={icons.share}
                 label="Share"
-                onClick={() => shareImage(currentImageUrl)}
+                onClick={() => currentImage && shareImage(currentImage.url)}
                 className={styles.shareButton}
               />
               {isOtherPhotoEnabled && <OtherPhoto className={styles.otherPhoto} />}
-              <Feedback generatedImageUrl={currentImageUrl} className={styles.feedback} />
+              {currentImage && (
+                <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
+              )}
             </Flex>
             <Disclaimer className={styles.disclaimer} />
 

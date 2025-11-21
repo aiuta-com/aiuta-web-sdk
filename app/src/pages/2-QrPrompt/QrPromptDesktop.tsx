@@ -64,28 +64,26 @@ export default function QrPromptDesktop() {
   return (
     <main className={styles.qrPrompt}>
       <ErrorSnackbar />
-      {qrUrl ? (
-        isDownloading ? (
-          <Spinner isVisible={true} />
-        ) : (
-          <div
-            className={combineClassNames(styles.dropZone, isDragging && styles.dropZone_dragging)}
-          >
-            <QrCode url={qrUrl} />
-            <div className={styles.options}>
-              <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>
+      {!qrUrl ? (
+        <Spinner isVisible={true} />
+      ) : isDownloading ? (
+        <Spinner isVisible={true} />
+      ) : (
+        <div className={combineClassNames(styles.dropZone, isDragging && styles.dropZone_dragging)}>
+          <QrCode url={qrUrl} />
+          <div className={styles.options}>
+            <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>
 
-              <FilePicker onFileSelect={handleFileSelect}>
-                {({ openFilePicker }) => (
-                  <PrimaryButton onClick={openFilePicker}>{qrPromptUploadButton}</PrimaryButton>
-                )}
-              </FilePicker>
+            <FilePicker onFileSelect={handleFileSelect}>
+              {({ openFilePicker }) => (
+                <PrimaryButton onClick={openFilePicker}>{qrPromptUploadButton}</PrimaryButton>
+              )}
+            </FilePicker>
 
-              {isPredefinedModelsEnabled && <ModelsButton onClick={handleSelectModel} />}
-            </div>
+            {isPredefinedModelsEnabled && <ModelsButton onClick={handleSelectModel} />}
           </div>
-        )
-      ) : null}
+        </div>
+      )}
     </main>
   )
 }

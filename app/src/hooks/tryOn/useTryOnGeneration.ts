@@ -2,12 +2,10 @@ import { useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
-import { generationsSlice } from '@/store/slices/generationsSlice'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
-import { apiKeySelector, subscriptionIdSelector } from '@/store/slices/apiSlice'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 import { productIdsSelector, selectedImageSelector } from '@/store/slices/tryOnSlice'
-import { useRpc, useAlert } from '@/contexts'
+import { useRpc, useAlert, useLogger } from '@/contexts'
 import {
   TryOnApiService,
   InputImage,
@@ -20,15 +18,19 @@ import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
 import { useUploadsGallery } from '@/hooks/gallery/useUploadsGallery'
 import { useTryOnStrings } from '@/hooks'
+import { useAddGeneration, useAddUpload } from '@/hooks/data'
 
 export const useTryOnGeneration = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const rpc = useRpc()
+  const logger = useLogger()
   const { showAlert } = useAlert()
   const getState = useAppSelector((state) => state)
 
   const selectedImage = useAppSelector(selectedImageSelector)
+  const { mutate: addGeneration } = useAddGeneration()
+  const { mutate: addUpload } = useAddUpload()
 
   const {
     trackTryOnInitiated,
@@ -52,19 +54,13 @@ export const useTryOnGeneration = () => {
   const usedImageRef = useRef<InputImage | null>(null)
 
   const getAuthParams = useCallback((): ApiAuthParams | null => {
-    const apiKey = apiKeySelector(getState)
-    const subscriptionId = subscriptionIdSelector(getState)
-
-    // We need either apiKey OR subscriptionId (not both)
-    if (!apiKey && !subscriptionId) {
-      return null
-    }
+    const auth = rpc.config.auth
 
     return {
-      apiKey,
-      subscriptionId,
+      apiKey: 'apiKey' in auth ? auth.apiKey : undefined,
+      subscriptionId: 'subscriptionId' in auth ? auth.subscriptionId : undefined,
     }
-  }, [getState])
+  }, [rpc])
 
   const getProductIds = useCallback((): string[] => {
     return productIdsSelector(getState)
@@ -147,18 +143,21 @@ export const useTryOnGeneration = () => {
 
         dispatch(tryOnSlice.actions.setGeneratedImageUrl(generatedImage.url))
 
+        // Immediately store result in Redux for instant display on /results
+        dispatch(generationsSlice.actions.addCurrentResult(generatedImage))
+
         // Common logic after navigation
         const finalizeGeneration = () => {
           navigate('/results')
           dispatch(tryOnSlice.actions.setIsGenerating(false))
 
-          // After navigation, add images to history and update selectedImage
-          dispatch(generationsSlice.actions.addGeneratedImage(generatedImage))
+          // After navigation, add images to history (background, slow storage)
+          addGeneration(generatedImage)
 
           const imageToStore = usedImageRef.current
           if (imageToStore) {
             // Add to uploads history (imageToStore is always InputImage here)
-            dispatch(uploadsSlice.actions.addInputImage(imageToStore))
+            addUpload(imageToStore)
 
             // Replace selectedImage (NewImage) with InputImage from server
             // This ensures deletion from history will correctly clear selectedImage
@@ -262,7 +261,7 @@ export const useTryOnGeneration = () => {
             break
         }
       } catch (error) {
-        console.error('Generation polling error:', error)
+        logger.error('Generation polling error:', error)
       }
     },
     [getAuthParams, handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
@@ -277,12 +276,12 @@ export const useTryOnGeneration = () => {
       const productIds = getProductIds()
 
       if (!auth) {
-        console.error('Authentication info is missing')
+        logger.error('Authentication info is missing')
         return
       }
 
       if (!productIds.length) {
-        console.error('Product IDs are missing')
+        logger.error('Product IDs are missing')
         return
       }
 
@@ -290,7 +289,7 @@ export const useTryOnGeneration = () => {
       let targetImage = imageToUse || selectedImage || getRecentPhoto()
 
       if (!targetImage) {
-        console.error('No image selected for try-on')
+        logger.error('No image selected for try-on')
         return
       }
 
@@ -318,7 +317,7 @@ export const useTryOnGeneration = () => {
 
           uploadedImage = { id: uploadResult.id, url: uploadResult.url }
         } catch (error: any) {
-          console.error('Image upload error:', error)
+          logger.error('Image upload error:', error)
           dispatch(tryOnSlice.actions.setIsGenerating(false))
           dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
           trackUploadError('uploadFailed', error.message || 'Upload failed')
@@ -327,7 +326,7 @@ export const useTryOnGeneration = () => {
       } else if (isInputImage(targetImage)) {
         uploadedImage = targetImage
       } else {
-        console.error('Invalid image type')
+        logger.error('Invalid image type')
         dispatch(tryOnSlice.actions.setIsGenerating(false))
         return
       }

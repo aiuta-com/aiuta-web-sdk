@@ -3,16 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import {
-  selectedImagesSelector,
-  generatedImagesSelector,
-} from '@/store/slices/generationsSlice/selectors'
+import { selectedImagesSelector } from '@/store/slices/generationsSlice/selectors'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { useRpc } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
+import { useGenerationsData, useRemoveGeneration, useAddGeneration } from '@/hooks/data'
 import { ImageItem } from './useFullScreenViewer'
 
 interface UseGenerationsGalleryProps {
@@ -32,11 +30,13 @@ export const useGenerationsGallery = ({
   const rpc = useRpc()
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
-  const generatedImages = useAppSelector(generatedImagesSelector)
+  const { data: generatedImages = [] } = useGenerationsData()
+  const { mutate: removeGeneration } = useRemoveGeneration()
+  const { mutate: addGeneration } = useAddGeneration()
   const productIds = useAppSelector(productIdsSelector)
   const isSelecting = useAppSelector(generationsIsSelectingSelector)
 
-  // Convert Redux images to ImageItem format
+  // Convert React Query data to ImageItem format
   const images: ImageItem[] = generatedImages.map(({ id, url }) => ({ id, url }))
 
   const { selectedIds, clearSelection, hasSelection } = useImageSelection()
@@ -81,21 +81,19 @@ export const useGenerationsGallery = ({
 
   // Delete selected images
   const deleteSelectedImages = useCallback(() => {
-    const remainingImages = generatedImages.filter(({ id }) => !selectedImages.includes(id))
-
-    // Update Redux state
-    clearSelection() // Clear selection first
-    dispatch(generationsSlice.actions.setIsSelecting(false)) // Exit selection mode
-    dispatch(generationsSlice.actions.setGeneratedImages(remainingImages))
-    closeHistoryImagesModal()
-
-    // Track deletion
+    // Delete each selected image
     selectedImages.forEach((imageId) => {
+      removeGeneration(imageId)
       trackImageDeleted(imageId)
     })
+
+    // Update Redux UI state
+    clearSelection() // Clear selection first
+    dispatch(generationsSlice.actions.setIsSelecting(false)) // Exit selection mode
+    closeHistoryImagesModal()
   }, [
-    generatedImages,
     selectedImages,
+    removeGeneration,
     clearSelection,
     dispatch,
     closeHistoryImagesModal,
@@ -168,7 +166,7 @@ export const useGenerationsGallery = ({
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.action === 'REMOVE_HISTORY_IMAGES') {
-        dispatch(generationsSlice.actions.addGeneratedImage(event.data.data.images))
+        addGeneration(event.data.data.images)
 
         // Track deletion analytics
         trackEvent('generatedImageDeleted')
@@ -177,7 +175,7 @@ export const useGenerationsGallery = ({
 
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
-  }, [dispatch, trackEvent])
+  }, [addGeneration, trackEvent])
 
   return {
     ...gallery,

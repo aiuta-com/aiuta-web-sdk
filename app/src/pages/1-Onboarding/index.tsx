@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { UploadsStorage } from '@/utils'
+import { useUploadsData } from '@/hooks/data'
 import { OnboardingDesktop } from './OnboardingDesktop'
 import { OnboardingMobile } from './OnboardingMobile'
 
@@ -18,10 +18,10 @@ import { OnboardingMobile } from './OnboardingMobile'
 export default function OnboardingPage() {
   const navigate = useNavigate()
   const isMobile = useAppSelector(isMobileSelector)
+  const { data: recentlyPhotos = [] } = useUploadsData()
 
   const handleCompleteOnboarding = useCallback(() => {
     // Check if user has stored photos
-    const recentlyPhotos = UploadsStorage.getInputImages()
     const hasPhotos = recentlyPhotos.length > 0
 
     if (hasPhotos) {
@@ -31,7 +31,7 @@ export default function OnboardingPage() {
       // No photos - mobile goes to tryon, desktop to QR upload
       navigate(isMobile ? '/tryon' : '/qr')
     }
-  }, [navigate, isMobile])
+  }, [navigate, isMobile, recentlyPhotos.length])
 
   return isMobile ? (
     <OnboardingMobile onComplete={handleCompleteOnboarding} />

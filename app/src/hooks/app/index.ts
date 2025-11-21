@@ -1,5 +1,7 @@
+export { useConfigValidation } from './useConfigValidation'
 export { useInitialRoute } from './useInitialRoute'
 export { useRpcInitialization } from './useRpcInitialization'
 export { useUrlParams } from './useUrlParams'
 export { useLoggerConfig } from './useLoggerConfig'
 export { useStandaloneApp } from './useStandaloneApp'
+export { useStorageInitialization } from './useStorageInitialization'
