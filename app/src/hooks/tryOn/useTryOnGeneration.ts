@@ -26,9 +26,9 @@ export const useTryOnGeneration = () => {
   const rpc = useRpc()
   const logger = useLogger()
   const { showAlert } = useAlert()
-  const getState = useAppSelector((state) => state)
 
   const selectedImage = useAppSelector(selectedImageSelector)
+  const productIds = useAppSelector(productIdsSelector)
   const { mutate: addGeneration } = useAddGeneration()
   const { mutate: addUpload } = useAddUpload()
 
@@ -63,8 +63,8 @@ export const useTryOnGeneration = () => {
   }, [rpc])
 
   const getProductIds = useCallback((): string[] => {
-    return productIdsSelector(getState)
-  }, [getState])
+    return productIds
+  }, [productIds])
 
   const clearGenerationInterval = useCallback(() => {
     if (intervalRef.current) {

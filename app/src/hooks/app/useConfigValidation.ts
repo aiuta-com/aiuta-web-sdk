@@ -59,7 +59,6 @@ export function useConfigValidation(): ConfigValidationResult {
     }
 
     // All validations passed
-    logger.info('[useConfigValidation] Configuration is valid')
     setResult({
       isValidating: false,
       isConfigValid: true,

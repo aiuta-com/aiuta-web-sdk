@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
@@ -26,11 +26,16 @@ export const useRpcInitialization = () => {
   const [rpc, setRpc] = useState<AiutaAppRpc | null>(null)
   const isAppVisible = useAppSelector(isAppVisibleSelector)
 
+  // Use ref to track initialization in progress (React 18 Strict Mode protection)
+  const isInitializingRef = useRef(false)
+
   useEffect(() => {
-    // Prevent multiple initialization attempts
-    if (rpc) {
+    // Prevent multiple initialization attempts (handles React 18 Strict Mode double-invoke)
+    if (rpc || isInitializingRef.current) {
       return
     }
+
+    isInitializingRef.current = true
 
     const initializeRpc = async () => {
       try {
@@ -75,11 +80,12 @@ export const useRpcInitialization = () => {
         setRpc(rpc)
       } catch (error) {
         logger.error('[RPC APP] Failed to initialize RPC', error)
+        isInitializingRef.current = false // Reset on error to allow retry
       }
     }
 
     initializeRpc()
-  }, [dispatch, navigate, closeAlert, rpc]) // Add rpc to dependencies
+  }, [dispatch, navigate, closeAlert, rpc, logger]) // Add rpc to dependencies
 
   // Sync iframe interactivity with app visibility
   useEffect(() => {
