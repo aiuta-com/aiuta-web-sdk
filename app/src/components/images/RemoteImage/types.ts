@@ -1,8 +1,9 @@
 import { HTMLAttributes } from 'react'
+import type { Image } from '@lib/models'
 
 export interface RemoteImageProps extends Omit<HTMLAttributes<HTMLDivElement>, 'className'> {
-  /** Image source URL */
-  src: string
+  /** Image source - can be URL string or Image object */
+  src: string | Image | null | undefined
   /** Alt text for accessibility */
   alt: string
   /** Image shape size - determines border radius, null for no additional classes */

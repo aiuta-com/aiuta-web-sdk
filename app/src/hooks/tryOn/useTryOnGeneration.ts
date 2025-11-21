@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { generationsSlice } from '@/store/slices/generationsSlice'
 import { productIdsSelector, selectedImageSelector } from '@/store/slices/tryOnSlice'
 import { useRpc, useAlert, useLogger } from '@/contexts'
 import {
@@ -142,12 +143,15 @@ export const useTryOnGeneration = () => {
 
         dispatch(tryOnSlice.actions.setGeneratedImageUrl(generatedImage.url))
 
+        // Immediately store result in Redux for instant display on /results
+        dispatch(generationsSlice.actions.addCurrentResult(generatedImage))
+
         // Common logic after navigation
         const finalizeGeneration = () => {
           navigate('/results')
           dispatch(tryOnSlice.actions.setIsGenerating(false))
 
-          // After navigation, add images to history and update selectedImage
+          // After navigation, add images to history (background, slow storage)
           addGeneration(generatedImage)
 
           const imageToStore = usedImageRef.current

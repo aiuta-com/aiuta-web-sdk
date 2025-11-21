@@ -1,4 +1,5 @@
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { Spinner } from '@/components'
 import { useInitialRoute, useStorageInitialization } from '@/hooks'
 
 /**
@@ -25,6 +26,6 @@ export default function HomePageRouter() {
     }
   }, [isInitializing, navigateInitially])
 
-  // Nothing to render - navigation happens after data loads
-  return null
+  // Show spinner while loading storage data
+  return <Spinner isVisible={isInitializing} />
 }
