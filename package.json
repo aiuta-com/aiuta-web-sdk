@@ -9,8 +9,6 @@
     "fmt:fix": "prettier . --write",
     "lint": "eslint --report-unused-disable-directives && tsc --noEmit",
     "lint:fix": "eslint --fix",
-    "// 🚀 ": "Development",
-    "dev": "vite --config vite.config.app.ts",
     "// 📱 ": "Build App",
     "build:app:debug": "vite build --config vite.config.app.ts --mode debug",
     "build:app:dev": "vite build --config vite.config.app.ts --mode dev",
@@ -26,10 +24,11 @@
     "build:dev": "npm run build:app:dev && npm run build:sdk:dev",
     "build:preprod": "npm run build:app:preprod && npm run build:sdk:preprod",
     "build": "npm run build:app && npm run build:sdk",
-    "// 🌐 ": "Local Deploy",
-    "deploy:docs": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/app && cp -rf ./dist/app ../docs/docs",
-    "local": "npm run lint && npm run build:debug && npm run deploy:docs",
-    "local:unsafe": "npm run build:debug && npm run deploy:docs"
+    "// 🚀 ": "Development",
+    "local:debug": "vite --config vite.config.app.ts --mode debug",
+    "local:deploy": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/app && cp -rf ./dist/app ../docs/docs",
+    "local:build": "npm run build:debug && npm run local:deploy && npm run local:debug",
+    "local": "npm run lint && npm run local:build"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",

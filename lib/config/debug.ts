@@ -10,4 +10,10 @@ export interface AiutaDebugSettings {
    * Useful during development when you need to inspect/modify stored data
    */
   forceLocalStorage?: boolean
+
+  /**
+   * Override iframe app URL for development (e.g., Vite dev server with HMR)
+   * Example: 'http://localhost:9875/'
+   */
+  iframeAppUrl?: string
 }

@@ -108,9 +108,6 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
       this.handshakeListener = (e: MessageEvent) => {
         // Validate origin
         if (e.origin !== this.expectedParentOrigin) {
-          console.warn(
-            `[RPC APP] Rejected handshake from unexpected origin: ${e.origin}, expected: ${this.expectedParentOrigin}`,
-          )
           return
         }
 
@@ -122,8 +119,14 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
               methods?: string[]
             }
           | any
-        if (!d || d.type !== HANDSHAKE_MESSAGE_ACK) return
-        if (d.nonce !== nonce) return
+
+        if (!d || d.type !== HANDSHAKE_MESSAGE_ACK) {
+          return
+        }
+
+        if (d.nonce !== nonce) {
+          return
+        }
 
         const p = e.ports?.[0]
 

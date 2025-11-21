@@ -1,21 +1,24 @@
-import type { AiutaUserInterface } from '@lib/config'
+import type { AiutaConfiguration } from '@lib/config'
 import type { Logger } from '@lib/logger'
 
 declare const __APP_URL__: string
 
 export default class IframeManager {
   private readonly iframeId = 'aiuta-iframe'
-  private readonly iframeUrl = __APP_URL__
+  private readonly iframeUrl: string
 
   private iframe: HTMLIFrameElement | null = null
   private customCssUrl?: string
 
   constructor(
-    userInterface: AiutaUserInterface | undefined,
+    configuration: AiutaConfiguration,
     private readonly logger: Logger,
   ) {
-    if (userInterface?.theme?.customCssUrl) {
-      this.customCssUrl = userInterface.theme.customCssUrl
+    // Use debug URL if provided, otherwise use built-in URL
+    this.iframeUrl = configuration.debugSettings?.iframeAppUrl || __APP_URL__
+
+    if (configuration.userInterface?.theme?.customCssUrl) {
+      this.customCssUrl = configuration.userInterface.theme.customCssUrl
     }
   }
 

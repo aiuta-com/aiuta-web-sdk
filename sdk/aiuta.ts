@@ -57,11 +57,8 @@ export default class Aiuta {
     this.logger = createLogger('aiuta:sdk', isLoggingEnabled)
 
     this.analytics = new AnalyticsTracker(configuration.analytics, this.logger)
-    this.iframeManager = new IframeManager(configuration.userInterface, this.logger)
-
-    // Clean up any existing iframe before starting
+    this.iframeManager = new IframeManager(configuration, this.logger)
     this.iframeManager.removeIframe()
-
     this.messageHandler = new MessageHandler(
       this.analytics,
       this.iframeManager,

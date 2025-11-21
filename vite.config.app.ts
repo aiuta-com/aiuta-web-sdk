@@ -6,13 +6,22 @@ import pkg from './package.json'
 import { buildConfig, getEnvironmentUrls } from './vite.config.shared'
 import { generateScopedName } from './vite.config.bem'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ mode, command }) => {
   const { tryOnApiUrl, qrApiUrl } = getEnvironmentUrls(mode)
+
+  // Use absolute paths for dev server (HMR), relative paths for builds
+  const isDevServer = command === 'serve'
 
   return {
     plugins: [react(), tsconfigPaths()],
-    base: './',
+    base: isDevServer ? '/' : './',
     root: path.resolve(__dirname, buildConfig.path.app),
+    server: {
+      host: '0.0.0.0',
+      port: 9875,
+      strictPort: true,
+      allowedHosts: ['localhost', '.local'],
+    },
     build: {
       outDir: path.resolve(__dirname, buildConfig.path.dist, buildConfig.path.app),
       emptyOutDir: true,
