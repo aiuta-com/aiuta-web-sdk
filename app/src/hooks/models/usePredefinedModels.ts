@@ -163,6 +163,14 @@ export const usePredefinedModels = () => {
     }
   }, [])
 
+  // Watch for cachedModels to load from IndexedDB
+  // When data becomes available, trigger loading if needed
+  useEffect(() => {
+    if (cachedModels !== undefined && mountedRef.current) {
+      loadModelsIfNeededRef.current?.()
+    }
+  }, [cachedModels])
+
   // Watch for manual retry requests (triggered by retryLoading action)
   // retryRequested flag ensures only one hook instance handles the retry
   useEffect(() => {
