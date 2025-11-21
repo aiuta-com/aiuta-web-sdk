@@ -137,6 +137,8 @@ export interface TryOnInputImageValidation {
 export interface TryOnFitDisclaimer {
   strings?: {
     fitDisclaimerTitle?: string
+    fitDisclaimerDescription?: string
+    fitDisclaimerCloseButton?: string
   }
 }
 

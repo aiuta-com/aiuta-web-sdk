@@ -1,5 +1,5 @@
 import React from 'react'
-import { ResultActions, Flex, RemoteImage, Feedback, OtherPhoto } from '@/components'
+import { ResultActions, Disclaimer, Flex, RemoteImage, Feedback, OtherPhoto } from '@/components'
 import { useResultsGallery, useTryOnWithOtherPhoto } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './Results.module.scss'
@@ -22,6 +22,7 @@ export default function ResultsDesktop() {
       </Flex>
 
       {currentImage && <ResultActions activeGeneratedImageUrl={currentImage.url} />}
+      <Disclaimer className={styles.disclaimer_compact} />
     </main>
   )
 }

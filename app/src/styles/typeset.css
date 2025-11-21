@@ -41,6 +41,7 @@
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
+  text-wrap: pretty;
 }
 
 .aiuta-label-subtle {
@@ -48,6 +49,7 @@
   font-style: normal;
   font-weight: 400;
   line-height: 18px;
+  text-wrap: pretty;
 }
 
 .aiuta-label-disclaimer {
@@ -56,6 +58,7 @@
   font-weight: 400;
   line-height: 18px;
   letter-spacing: 0.22px;
+  text-wrap: pretty;
 }
 
 /* Buttons */
