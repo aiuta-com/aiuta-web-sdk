@@ -1,25 +1,19 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { Icon } from '@/components'
 import { combineClassNames } from '@/utils'
-import { useDisclaimerStrings } from '@/hooks'
-import { useAlert } from '@/contexts'
+import { useDisclaimerStrings, useDisclaimer } from '@/hooks'
 import { DisclaimerProps } from './types'
 import { icons } from './icons'
 import styles from './Disclaimer.module.scss'
 
 export const Disclaimer = ({ className }: DisclaimerProps) => {
-  const { fitDisclaimerTitle, fitDisclaimerDescription, fitDisclaimerCloseButton } =
-    useDisclaimerStrings()
-  const { showAlert } = useAlert()
-
-  const handleClick = useCallback(() => {
-    showAlert(fitDisclaimerDescription, fitDisclaimerCloseButton)
-  }, [showAlert, fitDisclaimerDescription, fitDisclaimerCloseButton])
+  const { fitDisclaimerTitle } = useDisclaimerStrings()
+  const { showDisclaimer } = useDisclaimer()
 
   return (
     <div
       className={combineClassNames(styles.disclaimer, className)}
-      onClick={handleClick}
+      onClick={showDisclaimer}
       role="button"
       tabIndex={0}
     >
