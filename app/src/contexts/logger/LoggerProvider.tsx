@@ -1,16 +1,7 @@
-import React, { createContext, useContext, useState, useRef, useEffect, useMemo } from 'react'
-import { createLogger, type Logger } from '@lib/logger'
-
-export interface ReactLogger extends Logger {
-  infoOnce(message?: any, ...optionalParams: any[]): void
-  debugOnce(message?: any, ...optionalParams: any[]): void
-}
-
-interface LoggerContextType {
-  logger: ReactLogger
-  setEnabled: (enabled: boolean) => void
-  enabled: boolean
-}
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { createLogger } from '@lib/logger'
+import type { ReactLogger } from './LoggerTypes'
+import { LoggerContext } from './LoggerContext'
 
 interface BufferedMessage {
   level: 'debug' | 'info' | 'warn' | 'error'
@@ -18,8 +9,6 @@ interface BufferedMessage {
   optionalParams: any[]
   timestamp: number
 }
-
-const LoggerContext = createContext<LoggerContextType | null>(null)
 
 interface LoggerProviderProps {
   children: React.ReactNode
@@ -142,20 +131,4 @@ export const LoggerProvider = ({
       {children}
     </LoggerContext.Provider>
   )
-}
-
-export const useLogger = () => {
-  const context = useContext(LoggerContext)
-  if (!context) {
-    throw new Error('useLogger must be used within a LoggerProvider')
-  }
-  return context.logger
-}
-
-export const useLoggerControl = () => {
-  const context = useContext(LoggerContext)
-  if (!context) {
-    throw new Error('useLoggerControl must be used within a LoggerProvider')
-  }
-  return { setEnabled: context.setEnabled, enabled: context.enabled }
 }

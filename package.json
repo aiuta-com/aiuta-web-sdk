@@ -25,10 +25,10 @@
     "build:preprod": "npm run build:app:preprod && npm run build:sdk:preprod",
     "build": "npm run build:app && npm run build:sdk",
     "// 🚀 ": "Development",
-    "local:debug": "vite --config vite.config.app.ts --mode debug",
     "local:deploy": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/app && cp -rf ./dist/app ../docs/docs",
-    "local:build": "npm run build:debug && npm run local:deploy && npm run local:debug",
-    "local": "npm run lint && npm run local:build"
+    "local:run": "open 'https://nmac.local/docs/sdk/web/demo/'",
+    "local:debug": "vite --debug react-refresh --config vite.config.app.ts --mode debug",
+    "local": "npm run lint && npm run build:debug && npm run local:deploy && npm run local:run && npm run local:debug"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",

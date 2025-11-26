@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
-import { useLoggerControl, useRpc, useLogger } from '@/contexts'
+import type { AiutaAppRpc } from '@lib/rpc'
+import { useLoggerControl, useLogger } from '@/contexts'
 
 /**
  * Hook that manages logger state based on RPC debug configuration
  */
-export const useLoggerConfig = () => {
+export const useLoggerConfig = (rpc?: AiutaAppRpc) => {
   const { setEnabled } = useLoggerControl()
-  const rpc = useRpc()
   const logger = useLogger()
 
   useEffect(() => {

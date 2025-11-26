@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useAppDispatch } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
-import { useRpc } from '@/contexts/RpcContext'
+import { useRpc } from '@/contexts'
 
 /**
  * Hook for managing app visibility

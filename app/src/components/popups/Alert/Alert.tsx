@@ -1,5 +1,5 @@
 import React from 'react'
-import { PrimaryButton } from '@/components'
+import { PrimaryButton } from '@/components/buttons/PrimaryButton'
 import { combineClassNames } from '@/utils'
 import type { AlertProps } from './types'
 import styles from './Alert.module.scss'

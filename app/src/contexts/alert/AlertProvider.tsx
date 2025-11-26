@@ -1,56 +1,6 @@
-import React, {
-  createContext,
-  useContext,
-  ReactNode,
-  useState,
-  useCallback,
-  useRef,
-  useEffect,
-} from 'react'
-import { Alert } from '@/components'
-
-type AnimationState = 'closed' | 'opening' | 'open' | 'closing'
-
-interface AlertContextValue {
-  showAlert: (message: string, buttonText: string, onClose?: () => void) => void
-  closeAlert: () => void
-  discardAlert: () => void
-}
-
-interface AlertStateContextValue {
-  animationState: AnimationState
-  showContent: boolean
-  message: string
-  buttonText: string
-  isVisible: boolean
-}
-
-const AlertContext = createContext<AlertContextValue | null>(null)
-const AlertStateContext = createContext<AlertStateContextValue | null>(null)
-
-/**
- * Public API for using alerts throughout the application
- * Use this hook to show/close alerts from anywhere
- */
-export const useAlert = () => {
-  const context = useContext(AlertContext)
-  if (!context) {
-    throw new Error('useAlert must be used within AlertProvider')
-  }
-  return context
-}
-
-/**
- * Private hook for internal alert state management
- * Used only by AlertRenderer
- */
-const useAlertStateContext = () => {
-  const context = useContext(AlertStateContext)
-  if (!context) {
-    throw new Error('useAlertStateContext must be used within AlertProvider')
-  }
-  return context
-}
+import React, { ReactNode, useState, useCallback, useRef, useEffect } from 'react'
+import type { AnimationState } from './AlertTypes'
+import { AlertContext, AlertStateContext } from './AlertContext'
 
 /**
  * Private hook for managing Alert state with imperative API
@@ -137,7 +87,7 @@ interface AlertProviderProps {
   children: ReactNode
 }
 
-export const AlertProvider = ({ children }: AlertProviderProps) => {
+export function AlertProvider({ children }: AlertProviderProps) {
   const alertState = useAlertState()
 
   return (
@@ -160,25 +110,5 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
         {children}
       </AlertStateContext.Provider>
     </AlertContext.Provider>
-  )
-}
-
-/**
- * Component that renders the Alert UI
- * Should be placed inside AppContainer to ensure proper positioning
- */
-export const AlertRenderer = () => {
-  const { closeAlert } = useAlert()
-  const alertState = useAlertStateContext()
-
-  return (
-    <Alert
-      animationState={alertState.animationState}
-      showContent={alertState.showContent}
-      message={alertState.message}
-      buttonText={alertState.buttonText}
-      isVisible={alertState.isVisible}
-      onClose={closeAlert}
-    />
   )
 }

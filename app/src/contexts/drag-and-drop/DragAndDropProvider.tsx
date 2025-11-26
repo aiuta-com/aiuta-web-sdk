@@ -1,11 +1,7 @@
-import React, { createContext, useContext, ReactNode, useEffect } from 'react'
-import { useDragAndDrop, useGlobalFileDrop, type DragAndDropEvent } from '@/hooks'
-
-interface DragAndDropContextValue {
-  isDragging: boolean
-}
-
-const DragAndDropContext = createContext<DragAndDropContextValue | undefined>(undefined)
+import React, { ReactNode, useEffect } from 'react'
+import { useDragAndDrop, type DragAndDropEvent } from '@/hooks/gestures/useDragAndDrop'
+import { useGlobalFileDrop } from '@/hooks/picker/useGlobalFileDrop'
+import { DragAndDropContext } from './DragAndDropContext'
 
 interface DragAndDropProviderProps {
   onFileDrop?: (event: DragAndDropEvent) => void | Promise<void>
@@ -48,12 +44,4 @@ export function DragAndDropProvider({ onFileDrop, children }: DragAndDropProvide
   return (
     <DragAndDropContext.Provider value={{ isDragging }}>{children}</DragAndDropContext.Provider>
   )
-}
-
-export function useDragAndDropContext(): DragAndDropContextValue {
-  const context = useContext(DragAndDropContext)
-  if (context === undefined) {
-    throw new Error('useDragAndDropContext must be used within a DragAndDropProvider')
-  }
-  return context
 }
