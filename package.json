@@ -28,6 +28,7 @@
     "local:deploy": "cp -rf ./dist/sdk/index.umd.js ../docs/docs/js/ && rm -rf ../docs/docs/app && cp -rf ./dist/app ../docs/docs",
     "local:run": "open 'https://nmac.local/docs/sdk/web/demo/'",
     "local:debug": "vite --debug react-refresh --config vite.config.app.ts --mode debug",
+    "local:unsafe": "npm run build:debug && npm run local:deploy && npm run local:run && npm run local:debug",
     "local": "npm run lint && npm run build:debug && npm run local:deploy && npm run local:run && npm run local:debug"
   },
   "dependencies": {
