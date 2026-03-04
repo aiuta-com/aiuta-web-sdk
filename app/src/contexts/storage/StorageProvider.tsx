@@ -1,15 +1,10 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import type { IStorageBackend } from '@/utils/storage/backends/IStorageBackend'
+import React, { useEffect, useState, ReactNode } from 'react'
+import type { StorageContextValue } from './StorageTypes'
 import { LocalStorageBackend } from '@/utils/storage/backends/LocalStorageBackend'
 import { LocalStorageAdapter } from '@/utils/storage/adapters/LocalStorageAdapter'
 import { createStorageAdapter } from '@/utils/storage/adapters/createStorageAdapter'
-import { useRpc } from '@/contexts/RpcContext'
-
-interface StorageContextValue {
-  backend: IStorageBackend
-}
-
-const StorageContext = createContext<StorageContextValue | null>(null)
+import { useRpc } from '../rpc/useRpc'
+import { StorageContext } from './StorageContext'
 
 interface StorageProviderProps {
   children: ReactNode
@@ -64,16 +59,4 @@ export function StorageProvider({ children }: StorageProviderProps) {
   }
 
   return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>
-}
-
-/**
- * Hook to access storage backend
- * @throws Error if used outside StorageProvider
- */
-export function useStorageBackend(): IStorageBackend {
-  const context = useContext(StorageContext)
-  if (!context) {
-    throw new Error('useStorageBackend must be used within StorageProvider')
-  }
-  return context.backend
 }

@@ -7,7 +7,7 @@ import { ConsentType, type Consent } from '@lib/config/features'
 const DEFAULT_CONSENT: Consent = {
   id: 'main',
   type: ConsentType.explicitRequired,
-  html: 'I agree to allow Aiuta to process my photo',
+  html: 'I consent to photo processing and agree to the Terms',
 }
 
 /**

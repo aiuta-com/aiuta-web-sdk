@@ -5,17 +5,26 @@ declare const __APP_URL__: string
 
 export default class IframeManager {
   private readonly iframeId = 'aiuta-iframe'
-  private readonly iframeUrl: string
 
+  private iframeUrl: string
   private iframe: HTMLIFrameElement | null = null
   private customCssUrl?: string
+  private hasDebugIframe = false
 
   constructor(
     configuration: AiutaConfiguration,
     private readonly logger: Logger,
   ) {
     // Use debug URL if provided, otherwise use built-in URL
-    this.iframeUrl = configuration.debugSettings?.iframeAppUrl || __APP_URL__
+    if (
+      configuration.debugSettings?.iframeAppUrl &&
+      configuration.debugSettings.iframeAppUrl !== __APP_URL__
+    ) {
+      this.iframeUrl = configuration.debugSettings.iframeAppUrl
+      this.hasDebugIframe = true
+    } else {
+      this.iframeUrl = __APP_URL__
+    }
 
     if (configuration.userInterface?.theme?.customCssUrl) {
       this.customCssUrl = configuration.userInterface.theme.customCssUrl
@@ -24,12 +33,12 @@ export default class IframeManager {
 
   getIframe = () => this.iframe
 
-  ensureIframe() {
+  async ensureIframe() {
     const existing = document.getElementById(this.iframeId) as HTMLIFrameElement | null
     if (existing) {
       this.iframe = existing
     } else {
-      this.createIframe()
+      await this.createIframe()
     }
   }
 
@@ -50,7 +59,19 @@ export default class IframeManager {
     this.iframe = null
   }
 
-  private createIframe() {
+  private async createIframe() {
+    // Check debug URL availability before creating iframe
+    if (this.hasDebugIframe) {
+      const isAvailable = await this.checkUrlAvailability(this.iframeUrl)
+      if (!isAvailable) {
+        this.logger.warn(
+          `Debug iframe URL ${this.iframeUrl} is not available, falling back to default URL`,
+        )
+        this.hasDebugIframe = false
+        this.iframeUrl = __APP_URL__
+      }
+    }
+
     const src = this.buildIframeSrc()
     const iframe = document.createElement('iframe') as HTMLIFrameElement
     iframe.id = this.iframeId
@@ -98,5 +119,29 @@ export default class IframeManager {
     }
 
     return url.toString()
+  }
+
+  private async checkUrlAvailability(url: string): Promise<boolean> {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 1000)
+
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        return true
+      }
+
+      this.logger.debug(`URL returned status ${response.status} for ${url}`)
+      return false
+    } catch (error) {
+      clearTimeout(timeoutId)
+      this.logger.debug(`URL availability check failed for ${url}:`, error)
+      return false
+    }
   }
 }

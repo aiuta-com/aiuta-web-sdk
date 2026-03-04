@@ -131,12 +131,15 @@ export interface TryOnInputImageValidation {
     noPeopleDetectedDescription?: string
     tooManyPeopleDetectedDescription?: string
     childDetectedDescription?: string
+    internalRestrictionDescription?: string
   }
 }
 
 export interface TryOnFitDisclaimer {
   strings?: {
     fitDisclaimerTitle?: string
+    fitDisclaimerDescription?: string
+    fitDisclaimerCloseButton?: string
   }
 }
 

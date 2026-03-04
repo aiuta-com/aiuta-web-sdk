@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { isGeneratingSelector } from '@/store/slices/tryOnSlice'
-import { useTryOnImage } from '@/hooks'
+import { useTryOnImage } from '@/hooks/tryOn/useTryOnImage'
 import { useAlert } from '@/contexts'
 
 /**

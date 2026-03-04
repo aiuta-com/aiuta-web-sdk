@@ -105,14 +105,14 @@ export default class Aiuta {
       return
     }
 
-    this.iframeManager.ensureIframe()
-    this.messageHandler.startTryOn(productIds)
-
     this.analytics.track({
       type: 'session',
       flow: 'tryOn',
       productIds,
     })
+
+    await this.iframeManager.ensureIframe()
+    await this.messageHandler.startTryOn(productIds)
   }
 
   /**

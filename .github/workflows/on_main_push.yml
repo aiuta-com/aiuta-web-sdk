@@ -1,4 +1,4 @@
-name: Dev, Preprod and Prod on push to main
+name: Dev, Preprod and Prod on main
 
 on:
   push:

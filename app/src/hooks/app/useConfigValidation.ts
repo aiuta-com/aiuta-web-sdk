@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRpc } from '@/contexts'
-import { useLogger } from '@/contexts/LoggerContext'
+import { useLogger } from '@/contexts'
 
 interface ConfigValidationResult {
   isValidating: boolean

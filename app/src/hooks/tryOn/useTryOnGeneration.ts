@@ -48,6 +48,7 @@ export const useTryOnGeneration = () => {
     noPeopleDetectedDescription,
     tooManyPeopleDetectedDescription,
     childDetectedDescription,
+    internalRestrictionDescription,
   } = useTryOnStrings()
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -209,6 +210,8 @@ export const useTryOnGeneration = () => {
             return tooManyPeopleDetectedDescription
           case 'CHILD_DETECTED':
             return childDetectedDescription
+          case 'INTERNAL_RESTRICTION':
+            return internalRestrictionDescription
           default:
             return invalidInputImageDescription
         }
@@ -229,6 +232,7 @@ export const useTryOnGeneration = () => {
       noPeopleDetectedDescription,
       tooManyPeopleDetectedDescription,
       childDetectedDescription,
+      internalRestrictionDescription,
       invalidInputImageDescription,
       invalidInputImageChangePhotoButton,
     ],
