@@ -131,6 +131,7 @@ export interface TryOnInputImageValidation {
     noPeopleDetectedDescription?: string
     tooManyPeopleDetectedDescription?: string
     childDetectedDescription?: string
+    internalRestrictionDescription?: string
   }
 }
 

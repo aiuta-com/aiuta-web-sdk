@@ -35,16 +35,16 @@ export const useTryOnStrings = () => {
     // Specific abort reason messages
     noPeopleDetectedDescription:
       inputValidationStrings?.noPeopleDetectedDescription ??
-      inputValidationStrings?.invalidInputImageDescription ??
       "We couldn't detect anyone in this photo. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.",
     tooManyPeopleDetectedDescription:
       inputValidationStrings?.tooManyPeopleDetectedDescription ??
-      inputValidationStrings?.invalidInputImageDescription ??
       'We detected multiple people in this photo. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.',
     childDetectedDescription:
       inputValidationStrings?.childDetectedDescription ??
-      inputValidationStrings?.invalidInputImageDescription ??
       'It looks like this photo might be of a child. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.',
+    internalRestrictionDescription:
+      inputValidationStrings?.internalRestrictionDescription ??
+      "We couldn't process this request because the resulting image didn't meet our safety and content guidelines. Please try again using a different photo.",
 
     // Generations history strings
     generationsHistoryPageTitle:

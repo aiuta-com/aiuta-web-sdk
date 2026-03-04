@@ -12,7 +12,7 @@ export const useConsentStrings = () => {
     consentTitle: strings?.consentTitle ?? 'Consent',
     consentDescriptionHtml:
       strings?.consentDescriptionHtml ??
-      'In order to try on items digitally, you agree to allow Aiuta to process your photo. Your data will be processed according to the Aiuta <a href="https://aiuta.com/legal/terms-of-service.html" target="_blank" rel="noopener noreferrer">Terms of Use</a>',
-    consentButtonAccept: strings?.consentButtonAccept ?? 'Accept',
+      'By continuing, you agree to let AIUTA process your photo to perform virtual try-on. Your image will be handled in accordance with our <a href="https://aiuta.com/legal/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>, and all uploads must comply with our <a href="https://aiuta.com/legal/terms-of-service.html" target="_blank" rel="noopener noreferrer">Terms of Service</a>',
+    consentButtonAccept: strings?.consentButtonAccept ?? 'Start',
   }
 }

@@ -16,6 +16,7 @@ export type AbortReason =
   | 'NO_PEOPLE_DETECTED'
   | 'TOO_MANY_PEOPLE_DETECTED'
   | 'CHILD_DETECTED'
+  | 'INTERNAL_RESTRICTION'
   | string // Allow for future extensions
 
 export interface GenerationResult {
