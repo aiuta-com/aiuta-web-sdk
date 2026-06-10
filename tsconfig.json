@@ -8,7 +8,8 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["app/src/*"],
-      "@lib/*": ["lib/*"]
+      "@lib/*": ["lib/*"],
+      "@sdk/*": ["sdk/*"]
     },
     "allowJs": true,
     "skipLibCheck": true,
@@ -26,9 +27,12 @@
     "sdk/**/*",
     "app/**/*",
     "lib/**/*",
+    "demo/**/*",
     "vite.config.app.ts",
     "vite.config.sdk.ts",
-    "vite.config.shared.ts"
+    "vite.config.demo.ts",
+    "vite.config.shared.ts",
+    "vite.config.bem.ts"
   ],
   "exclude": ["node_modules", "dist"]
 }

@@ -21,6 +21,9 @@ export default defineConfig(({ mode, command }) => {
       port: 9875,
       strictPort: true,
       allowedHosts: ['localhost', '.local'],
+      // Allow the SDK's cross-origin availability check (HEAD) from the demo
+      // origin, incl. .local / LAN hosts when testing from another device.
+      cors: true,
     },
     build: {
       outDir: path.resolve(__dirname, buildConfig.path.dist, buildConfig.path.app),
@@ -40,6 +43,25 @@ export default defineConfig(({ mode, command }) => {
         '@lib': path.resolve(__dirname, buildConfig.path.lib),
       },
       extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
+      // Force a single React instance (dev-server safety, no effect on a single install).
+      dedupe: ['react', 'react-dom'],
+    },
+    // Pre-bundle all runtime deps up front so the dep optimizer doesn't re-run
+    // and bump hashes after the app loads (e.g. inside the SDK iframe), which
+    // produces "Outdated Optimize Dep" 504s and duplicate-React hook errors.
+    optimizeDeps: {
+      include: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        'react-redux',
+        '@reduxjs/toolkit',
+        'react-router-dom',
+        '@tanstack/react-query',
+        'next-qrcode',
+      ],
     },
     css: {
       modules: {
