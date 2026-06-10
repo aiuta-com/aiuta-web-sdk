@@ -11,9 +11,17 @@ import { generateScopedName } from './vite.config.bem'
 const DEMO_DIR = 'demo'
 const APP_DEV_SERVER = 'http://localhost:9875/'
 
-export default defineConfig(({ command }) => {
+// Backend environment the build targets, by mode. `debug` (local) and the
+// default production build both hit prod APIs; only dev/preprod builds differ.
+const ENV_BY_MODE: Record<string, 'dev' | 'preprod' | 'prod'> = {
+  dev: 'dev',
+  preprod: 'preprod',
+}
+
+export default defineConfig(({ command, mode }) => {
   const isDevServer = command === 'serve'
-  const { analyticsUrl } = getEnvironmentUrls('prod')
+  const { analyticsUrl, tryOnApiUrl } = getEnvironmentUrls(mode)
+  const demoEnv = ENV_BY_MODE[mode] ?? 'prod'
 
   const outDir = path.resolve(__dirname, buildConfig.path.dist, buildConfig.path.sdk)
 
@@ -80,6 +88,9 @@ export default defineConfig(({ command }) => {
       'process.env.NODE_ENV': JSON.stringify(isDevServer ? 'development' : 'production'),
       __SDK_VERSION__: JSON.stringify(pkg.version),
       __APP_VERSION__: JSON.stringify(pkg.version),
+      // Catalog API base + env follow the build mode (debug/local → prod).
+      __TRY_ON_API_URL__: JSON.stringify(tryOnApiUrl),
+      __DEMO_ENV__: JSON.stringify(demoEnv),
       // Only consumed in dev, where the SDK source is bundled and reads these.
       __APP_URL__: JSON.stringify(isDevServer ? APP_DEV_SERVER : getEnvironmentUrls('prod').appUrl),
       __ANALYTICS_URL__: JSON.stringify(analyticsUrl),
