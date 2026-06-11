@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Header from './components/Header'
 import OutfitList from './components/OutfitList'
 import SkuList from './components/SkuList'
+import VersionBadges from './components/VersionBadges'
 import { getAiuta } from './sdk'
 import { demoConfig } from './utils/config'
 import { fetchOutfits, fetchSkuList } from './utils/api'
@@ -40,6 +41,10 @@ export default function App() {
 
         <SkuList items={skus} loading={loadingList} apiKey={demoConfig.apiKey} onTryOn={tryOn} />
       </div>
+
+      {/* Desktop-only copy pinned to the top-right corner (the header copy is
+          mobile-only) so version/env stay visible while scrolling. */}
+      <VersionBadges className="app-pinned-badges" />
     </>
   )
 }

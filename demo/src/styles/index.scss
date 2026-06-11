@@ -198,6 +198,12 @@ img {
     gap: 6px;
     // Wrap as a whole block under the brand (don't shrink/split the badges).
     flex-shrink: 0;
+
+    // On desktop the badges are pinned to the top-right corner instead
+    // (see .app-pinned-badges).
+    @media (min-width: 600px) {
+      display: none;
+    }
   }
 
   // Logo + label aligned on the text baseline, same as the QA Tool header.
@@ -226,6 +232,23 @@ img {
   &__label {
     position: relative;
     top: -1px;
+  }
+}
+
+/* Desktop: version/env badges pinned to the top-right of the viewport (same
+   spot they occupy in the header) so they stay visible while scrolling. On
+   mobile they live in the header. */
+.app-pinned-badges {
+  position: fixed;
+  top: 14px;
+  right: 25px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  @media (max-width: 599px) {
+    display: none;
   }
 }
 
