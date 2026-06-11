@@ -3,6 +3,13 @@ import type { Logger } from '@lib/logger'
 
 declare const __APP_URL__: string
 
+/**
+ * How long to keep the overlay rendered after it becomes non-interactive, so the
+ * app's closing animation can play out before the iframe is hidden. Must be >=
+ * the AppContainer slide-out (`transition: all ease-in-out 0.2s`).
+ */
+const OVERLAY_HIDE_DELAY_MS = 250
+
 export default class IframeManager {
   private readonly iframeId = 'aiuta-iframe'
 
@@ -10,6 +17,7 @@ export default class IframeManager {
   private iframe: HTMLIFrameElement | null = null
   private customCssUrl?: string
   private hasDebugIframe = false
+  private hideTimer: ReturnType<typeof setTimeout> | null = null
 
   constructor(
     configuration: AiutaConfiguration,
@@ -46,10 +54,33 @@ export default class IframeManager {
     const iframe = this.iframe
     if (!iframe) return
 
+    if (this.hideTimer !== null) {
+      clearTimeout(this.hideTimer)
+      this.hideTimer = null
+    }
+
     iframe.style.pointerEvents = interactive ? 'auto' : 'none'
+
+    if (interactive) {
+      iframe.style.visibility = 'visible'
+    } else {
+      // Keep the overlay rendered through the app's closing animation, then drop
+      // it out of hit-testing. A lingering full-screen pointer-events:none iframe
+      // still captures wheel/scroll in Safari, breaking the host page's scrollers.
+      this.hideTimer = setTimeout(() => {
+        this.hideTimer = null
+        if (this.iframe && this.iframe.style.pointerEvents === 'none') {
+          this.iframe.style.visibility = 'hidden'
+        }
+      }, OVERLAY_HIDE_DELAY_MS)
+    }
   }
 
   removeIframe() {
+    if (this.hideTimer !== null) {
+      clearTimeout(this.hideTimer)
+      this.hideTimer = null
+    }
     // Always search in DOM by id (handles both this.iframe and orphaned iframes)
     const iframeInDom = document.getElementById(this.iframeId)
     if (iframeInDom) {
@@ -89,6 +120,8 @@ export default class IframeManager {
     iframe.style.border = 'none'
     iframe.style.background = 'transparent'
     iframe.style.pointerEvents = 'none'
+    // Start hidden until the app shows itself (setInteractive(true)); see setInteractive.
+    iframe.style.visibility = 'hidden'
 
     document.body.append(iframe)
     this.iframe = iframe

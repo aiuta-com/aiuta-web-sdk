@@ -1,0 +1,811 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family:
+    'Poppins',
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  color: #111;
+  -webkit-font-smoothing: antialiased;
+  // No grey flash on tap (inherited by all elements).
+  -webkit-tap-highlight-color: transparent;
+}
+
+h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Custom scrollbars — exact qa-tool recipe. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.18);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.32);
+}
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+.page-container {
+  width: 100%;
+  max-width: 1350px;
+  box-sizing: border-box;
+  padding: 40px 25px 120px;
+  margin: 0 auto;
+}
+
+.btn {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 21px;
+  border: 0;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &--white {
+    background: #fff;
+    color: #000;
+    box-shadow: 0 6px 18px rgba(17, 17, 17, 0.08);
+  }
+
+  &__icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  box-sizing: border-box;
+  border-radius: 9999px;
+  border-bottom: 2px solid #111827;
+  animation: spin 1s linear infinite;
+}
+
+/* Placeholder shown by RetryImage when an image fails all reload attempts.
+   Rendered with the failed <img>'s className, so it keeps the slot's layout. */
+.retry-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #c4c4cc;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+}
+
+/* Click ripple (see ripple.ts) */
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.18;
+  transform: scale(0);
+  pointer-events: none;
+  animation: ripple 0.55s ease-out;
+}
+
+/* Pill badge — same recipe as the QA Tool badges. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: #f3f4f6; // gray-100
+  color: #1f2937; // gray-800
+
+  &__icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  &--dev {
+    background: #e0f2fe; // sky-100
+    color: #075985; // sky-800
+  }
+
+  &--preprod {
+    background: #ffedd5; // orange-100
+    color: #9a3412; // orange-800
+  }
+
+  &--channel {
+    background: #fff;
+    color: #374151; // gray-700
+    box-shadow: inset 0 0 0 1px #e5e7eb; // gray-200 outline
+  }
+}
+
+/* -------------------------------------------------------------- Header --- */
+
+.app-header {
+  // Plain in-flow header that scrolls with the page and blends into the page
+  // background (no bar / blur / divider). Inner padding keeps the logo below the
+  // iOS safe-area inset when it sits at the top under viewport-fit=cover.
+  &__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    // row-gap spaces the badges from the brand when they wrap to a new line.
+    gap: 8px 12px;
+    max-width: 1350px;
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: 14px 25px;
+    // Keep the logo + label below the iOS safe-area inset (status bar / island).
+    padding-top: calc(14px + env(safe-area-inset-top));
+  }
+
+  &__badges {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    // Wrap as a whole block under the brand (don't shrink/split the badges).
+    flex-shrink: 0;
+
+    // On desktop the badges are pinned to the top-right corner instead
+    // (see .app-pinned-badges).
+    @media (min-width: 600px) {
+      display: none;
+    }
+  }
+
+  // Logo + label aligned on the text baseline, same as the QA Tool header.
+  &__brand {
+    flex-shrink: 0;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    color: #111;
+    white-space: nowrap;
+  }
+
+  &__logo {
+    display: inline-block;
+    height: 20px;
+    width: auto;
+    vertical-align: baseline;
+    // Optically align the wordmark's left edge with the section headings below.
+    margin-left: 2px;
+    margin-right: 8px;
+    color: #111;
+  }
+
+  // Poppins metrics + the wordmark's ~0.6px bottom padding make the label read
+  // ~1px low against the logo; lift it back up to optically align.
+  &__label {
+    position: relative;
+    top: -1px;
+  }
+}
+
+/* Desktop: version/env badges pinned to the top-right of the viewport (same
+   spot they occupy in the header) so they stay visible while scrolling. On
+   mobile they live in the header. */
+.app-pinned-badges {
+  position: fixed;
+  top: 14px;
+  right: 25px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  @media (max-width: 599px) {
+    display: none;
+  }
+}
+
+/* ----------------------------------------------------------- Single SKU --- */
+
+.skus {
+  margin-top: 40px;
+}
+
+.catalog-empty {
+  margin-top: 40px;
+  text-align: center;
+  font-weight: 400;
+}
+
+.sku-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  align-items: stretch;
+  margin-top: 20px;
+}
+
+.sku-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  &--clickable {
+    cursor: pointer;
+  }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    border-radius: 18px;
+  }
+
+  &__item {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    display: flex;
+    overflow: hidden;
+    border-radius: 18px;
+    background: rgba(241, 241, 241, 0.38);
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__overlay {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 58px;
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  &__content {
+    padding: 12px 16px 16px;
+  }
+
+  &__brand {
+    font-size: 0.81rem;
+    font-weight: 500;
+  }
+
+  &__title {
+    font-size: 0.81rem;
+    font-weight: 400;
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  // Inline bar inside a real __title line box: reserves exactly one text line
+  // of height without hardcoding the computed line height.
+  &__title-skeleton {
+    display: inline-block;
+    width: 56%;
+    height: 0.75em;
+    vertical-align: middle;
+    border-radius: 999px;
+    background: #ececef;
+  }
+
+  &__try-on {
+    width: 100%;
+  }
+
+  &__loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    background: #f4f4f5;
+    // Same radius as __item: the title row below pushes this box off the
+    // rounded bottom edge of __inner, so it needs its own rounding.
+    border-radius: 18px;
+  }
+
+  &:hover &__overlay,
+  &__inner:focus-within &__overlay {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+}
+
+@media (max-width: 1100px) {
+  .sku-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .sku-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 599px) {
+  .sku-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sku-card__overlay {
+    left: 12px;
+    right: 12px;
+    bottom: 68px;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+/* -------------------------------------------------------------- Outfits --- */
+
+.outfit {
+  --page-max-width: 1350px;
+  --page-gutter: 25px;
+  --outfit-side-offset: max(
+    var(--page-gutter),
+    calc((100vw - var(--page-max-width)) / 2 + var(--page-gutter))
+  );
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  &__title {
+    margin: 0;
+  }
+
+  // Filters on the left, prev/next controls on the right — one shared row.
+  // The filter pills (36px) reserve the row height so it doesn't jump when the
+  // controls appear/disappear between filters.
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 28px 0 8px;
+    min-height: 36px;
+  }
+
+  &__controls {
+    display: flex;
+    gap: 8px;
+    flex: 0 0 auto;
+    // Keep the controls pinned right when there are no filters in the row.
+    margin-left: auto;
+  }
+
+  &__control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(248, 248, 250, 1);
+    color: #111;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      display: block;
+    }
+
+    &:hover {
+      background: rgba(240, 240, 240, 1);
+    }
+
+    &:disabled {
+      color: #c4c4cc;
+      cursor: default;
+    }
+  }
+
+  &__filters {
+    display: flex;
+    flex: 1 1 auto;
+    gap: 12px;
+    // Single scrollable row (no wrap) so the filters stay level with the
+    // prev/next controls; the pager dots/scrollbar already hint at overflow.
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  &__filter {
+    min-height: 36px;
+    padding: 8px 18px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #111;
+    font-family: inherit;
+    font-size: 13px;
+    white-space: nowrap;
+    line-height: 1.2;
+    cursor: pointer;
+    // No transition: fading hover-grey → active-dark (while text fades to white)
+    // flashed grey-on-grey. Tabs switch instantly instead.
+
+    &--active {
+      background: #111;
+      color: #fff;
+    }
+
+    // Hover states only on real pointers — on touch a tap emulates :hover and
+    // flashes the grey background before the active fill lands.
+    @media (hover: hover) {
+      &:hover {
+        background: rgba(17, 17, 17, 0.06);
+      }
+
+      // Hovering the active filter keeps a dark bg (light hover made #fff unreadable).
+      &--active:hover {
+        background: #333;
+      }
+    }
+  }
+
+  &__viewport {
+    width: 100vw;
+    overflow-x: auto;
+    overflow-y: visible;
+    margin-left: calc(50% - 50vw);
+    // Leading offset via container padding (not spacer items) so the track gap
+    // can't add a stray gap before the first card. Trailing offset is a margin on
+    // the last card — Safari ignores a scroll container's inline-end padding, but
+    // honours a flex item's margin in the scroll area.
+    padding: 24px 0 24px var(--outfit-side-offset);
+    // `mandatory` always lands on a card start (proximity let it stop mid-card).
+    scroll-snap-type: x mandatory;
+    scroll-padding-left: var(--outfit-side-offset);
+  }
+
+  &__track {
+    display: flex;
+    gap: 16px;
+    width: max-content;
+  }
+
+  &__card {
+    flex: 0 0 min(320px, calc(100vw - 64px));
+    width: min(320px, calc(100vw - 64px));
+    scroll-snap-align: start;
+
+    &:last-child {
+      margin-inline-end: var(--outfit-side-offset);
+    }
+  }
+
+  &__skeleton-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 460px;
+    overflow: hidden;
+    background: #f4f4f5;
+    border-radius: 18px;
+  }
+
+  &__dots {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0;
+    // Reserve the dot height even when empty so the gap below doesn't jump.
+    min-height: 6px;
+  }
+
+  &__dot {
+    // width + background are driven inline by scroll progress (see OutfitList)
+    // for a continuous pager; no transition so it tracks the drag in real time.
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    background: #d9d9d9;
+  }
+
+  @media (max-width: 599px) {
+    &__filter {
+      min-height: 36px;
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+
+    &__dots {
+      display: flex;
+    }
+
+    &__skeleton-card {
+      height: 400px;
+    }
+
+    // The dots pager is the scroll indicator on mobile — hide the scrollbar.
+    &__viewport {
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+  }
+}
+
+.outfit-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: 460px;
+  overflow: hidden;
+  cursor: pointer;
+  background: rgba(241, 241, 241, 0.38);
+  border-radius: 18px;
+
+  &__media {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    transition: opacity 0.2s ease;
+
+    &--hidden {
+      opacity: 0;
+    }
+  }
+
+  &__collage-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__model-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+
+    &--visible {
+      opacity: 1;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 16px 16px 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  &__grid--1 {
+    grid-template-columns: 1fr;
+  }
+
+  &__grid--2 {
+    grid-template-rows: 1fr;
+  }
+
+  &__grid--3 {
+    grid-template-rows: 1fr 1.1fr;
+
+    .outfit-card__grid-item:nth-child(3) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__grid--4 {
+    grid-template-rows: 1fr 1.1fr;
+
+    .outfit-card__grid-item:nth-child(3),
+    .outfit-card__grid-item:nth-child(4) {
+      grid-row: 2;
+    }
+  }
+
+  &__grid--5 {
+    grid-template-rows: 1fr 1fr 1.15fr;
+
+    .outfit-card__grid-item:nth-child(5) {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__grid--6 {
+    grid-template-rows: repeat(3, 1fr);
+  }
+
+  &__grid-item {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 6px;
+    background-color: #f3f3f3;
+  }
+
+  &__image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  &__footer {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+  }
+
+  &__meta {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  &__subtitle {
+    margin-top: 4px;
+    color: #b7b8c0;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  &__try-on {
+    flex-shrink: 0;
+    min-height: 48px;
+    padding: 0 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow:
+        0 4px 22px rgba(0, 0, 0, 0.08),
+        inset 0 4px 0 rgba(255, 255, 255, 0.65),
+        inset 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.14),
+        inset 0 2px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.2);
+      transform: translateY(1px);
+    }
+  }
+
+  @media (max-width: 599px) {
+    height: 400px;
+
+    &__footer {
+      align-items: center;
+    }
+
+    &__title {
+      white-space: normal;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+  }
+}
+
+/* ----------------------------------------------------------- Keyframes --- */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ripple {
+  to {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector, isAppVisibleSelector } from '@/store/slices/appSlice'
-import { useWindowResize, useParentScrollPrevention } from '@/hooks'
+import { useWindowResize, usePreventParentScroll } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './AppContainer.module.scss'
 
@@ -16,7 +16,7 @@ export const AppContainer = ({ children }: AppContainerProps) => {
   useWindowResize()
   const isMobile = useAppSelector(isMobileSelector)
   const isVisible = useAppSelector(isAppVisibleSelector)
-  useParentScrollPrevention(isVisible)
+  usePreventParentScroll(isVisible)
 
   const containerClasses = combineClassNames(
     !isMobile && 'aiuta-modal',

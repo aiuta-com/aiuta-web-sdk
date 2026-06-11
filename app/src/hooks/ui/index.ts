@@ -1,5 +1,5 @@
 export { useAppVisibility } from './useAppVisibility'
-export { useParentScrollPrevention } from './useParentScrollPrevention'
+export { usePreventParentScroll } from './usePreventParentScroll'
 export { useCustomCssUrl } from './useCustomCssUrl'
 export { useCustomCss } from './useCustomCss'
 export { useWindowResize } from './useWindowResize'
