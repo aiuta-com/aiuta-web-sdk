@@ -35,7 +35,7 @@ jobs:
           echo "✅ Ref '$REF_NAME' is safe to deploy to sdk/$REF_NAME/"
 
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 🔧 Setup project environment
         uses: ./.github/actions/setup-project
