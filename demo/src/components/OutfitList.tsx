@@ -120,6 +120,7 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
   if (!outfits.length && !loading) return null
 
   const hasControls = !loading && hasOverflow
+  const showFilters = filters.length > 1 && !loading
 
   return (
     <div className="outfit">
@@ -127,63 +128,70 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
         <div className="outfit__title-wrap">
           <h2 className="outfit__title">Outfit Visualization</h2>
         </div>
-        {hasControls ? (
-          <div className="outfit__controls">
-            <button
-              type="button"
-              className="outfit__control-btn"
-              aria-label="Previous"
-              disabled={!canScrollPrev}
-              onClick={goPrev}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M14.5 7l-5 5 5 5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <button
-              type="button"
-              className="outfit__control-btn"
-              aria-label="Next"
-              disabled={!canScrollNext}
-              onClick={goNext}
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M9.5 7l5 5-5 5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-        ) : null}
       </div>
 
-      {filters.length > 1 && !loading ? (
-        <div className="outfit__filters" role="tablist" aria-label="Outfit filters">
-          {filters.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              className={
-                'outfit__filter' + (activeFilter === filter.value ? ' outfit__filter--active' : '')
-              }
-              aria-selected={activeFilter === filter.value}
-              onClick={() => setActiveFilter(filter.value)}
-            >
-              {filter.label}
-            </button>
-          ))}
+      {/* While loading, assume the catalog has filters and keep the row
+          reserved — it collapses only when the loaded data has none. */}
+      {loading || showFilters || hasControls ? (
+        <div className="outfit__toolbar">
+          {showFilters ? (
+            <div className="outfit__filters" role="tablist" aria-label="Outfit filters">
+              {filters.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={
+                    'outfit__filter' +
+                    (activeFilter === filter.value ? ' outfit__filter--active' : '')
+                  }
+                  aria-selected={activeFilter === filter.value}
+                  onClick={() => setActiveFilter(filter.value)}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          {hasControls ? (
+            <div className="outfit__controls">
+              <button
+                type="button"
+                className="outfit__control-btn"
+                aria-label="Previous"
+                disabled={!canScrollPrev}
+                onClick={goPrev}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M14.5 7l-5 5 5 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="outfit__control-btn"
+                aria-label="Next"
+                disabled={!canScrollNext}
+                onClick={goNext}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M9.5 7l5 5-5 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

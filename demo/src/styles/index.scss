@@ -107,6 +107,21 @@ img {
   animation: spin 1s linear infinite;
 }
 
+/* Placeholder shown by RetryImage when an image fails all reload attempts.
+   Rendered with the failed <img>'s className, so it keeps the slot's layout. */
+.retry-image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #c4c4cc;
+
+  &__icon {
+    flex-shrink: 0;
+  }
+}
+
 /* Click ripple (see ripple.ts) */
 .ripple {
   position: absolute;
@@ -299,6 +314,17 @@ img {
     text-transform: capitalize;
   }
 
+  // Inline bar inside a real __title line box: reserves exactly one text line
+  // of height without hardcoding the computed line height.
+  &__title-skeleton {
+    display: inline-block;
+    width: 56%;
+    height: 0.75em;
+    vertical-align: middle;
+    border-radius: 999px;
+    background: #ececef;
+  }
+
   &__try-on {
     width: 100%;
   }
@@ -310,6 +336,9 @@ img {
     width: 100%;
     aspect-ratio: 3 / 4;
     background: #f4f4f5;
+    // Same radius as __item: the title row below pushes this box off the
+    // rounded bottom edge of __inner, so it needs its own rounding.
+    border-radius: 18px;
   }
 
   &:hover &__overlay,
@@ -362,18 +391,30 @@ img {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    // Reserve the control-button height so the row doesn't jump when the
-    // prev/next buttons appear/disappear between filters.
-    min-height: 34px;
   }
 
   &__title {
     margin: 0;
   }
 
+  // Filters on the left, prev/next controls on the right — one shared row.
+  // The filter pills (36px) reserve the row height so it doesn't jump when the
+  // controls appear/disappear between filters.
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 28px 0 8px;
+    min-height: 36px;
+  }
+
   &__controls {
     display: flex;
     gap: 8px;
+    flex: 0 0 auto;
+    // Keep the controls pinned right when there are no filters in the row.
+    margin-left: auto;
   }
 
   &__control-btn {
@@ -410,20 +451,29 @@ img {
 
   &__filters {
     display: flex;
+    flex: 1 1 auto;
     gap: 12px;
-    flex-wrap: wrap;
-    margin: 28px 0 8px;
+    // Single scrollable row (no wrap) so the filters stay level with the
+    // prev/next controls; the pager dots/scrollbar already hint at overflow.
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__filter {
-    min-height: 40px;
+    min-height: 36px;
     padding: 8px 18px;
     border: 0;
     border-radius: 999px;
     background: transparent;
     color: #111;
     font-family: inherit;
-    font-size: 16px;
+    font-size: 13px;
+    white-space: nowrap;
     line-height: 1.2;
     cursor: pointer;
     // No transition: fading hover-grey → active-dark (while text fades to white)
@@ -683,6 +733,27 @@ img {
     flex-shrink: 0;
     min-height: 48px;
     padding: 0 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow:
+        0 4px 22px rgba(0, 0, 0, 0.08),
+        inset 0 4px 0 rgba(255, 255, 255, 0.65),
+        inset 0 0 3px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active {
+      box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.14),
+        inset 0 2px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -2px 0 rgba(255, 255, 255, 0.2);
+      transform: translateY(1px);
+    }
   }
 
   @media (max-width: 599px) {

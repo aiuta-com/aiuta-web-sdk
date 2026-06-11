@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useImageGradient } from '../hooks/useImageGradient'
 import { createRipple } from '../utils/ripple'
+import RetryImage from './RetryImage'
 import TryOnIcon from './icons/TryOnIcon'
 import type { OutfitsApiResponse } from '../models/product'
 
@@ -76,10 +77,12 @@ export default function OutfitCard({ outfit, onTryOn }: Props) {
       onMouseLeave={handleLeave}
     >
       {hasModelImage ? (
-        <img
+        <RetryImage
           src={outfit.model_image_url}
           alt={outfit.title}
           loading="lazy"
+          // No icon: a failed model image just disables the hover reveal.
+          fallback="none"
           className={
             'outfit-card__model-image' + (hovered ? ' outfit-card__model-image--visible' : '')
           }
@@ -90,10 +93,12 @@ export default function OutfitCard({ outfit, onTryOn }: Props) {
 
       <div className={'outfit-card__media' + (hideMedia ? ' outfit-card__media--hidden' : '')}>
         {showCollage ? (
-          <img
+          <RetryImage
             src={outfit.collage_image_url}
             alt={outfit.title}
             loading="lazy"
+            // No icon: a failed collage falls back to the item grid below.
+            fallback="none"
             className="outfit-card__collage-image"
             onError={() => setCollageFailed(true)}
           />
@@ -105,7 +110,7 @@ export default function OutfitCard({ outfit, onTryOn }: Props) {
                 className="outfit-card__grid-item"
                 style={getBgStyle(item.sku_id)}
               >
-                <img
+                <RetryImage
                   src={imageUrl}
                   alt={item.title}
                   loading="lazy"
