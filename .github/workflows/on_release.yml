@@ -1,4 +1,4 @@
-name: Versioned Prod on create release
+name: On create release
 
 on:
   release:
@@ -10,6 +10,8 @@ jobs:
     permissions:
       contents: write # Needed to upload release assets
     env:
+      DEV_BUCKET: aiuta_dev_static
+      PREPROD_BUCKET: aiuta_preprod_static
       PROD_BUCKET: aiuta_prod_static
       PROD_URL: https://static.aiuta.com
 
@@ -57,6 +59,60 @@ jobs:
             echo "Version ${{ env.FULL_VERSION }} is already up to date in package.json"
           fi
 
+      - name: 📦 Build dev project
+        run: npm run build:dev
+        env:
+          AIUTA_APP_PATH: sdk/${{ env.PREFIXED_MAJOR_VERSION }}
+
+      - name: 🚀 Deploy to Dev (major version)
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+          bucket_name: ${{ env.DEV_BUCKET }}
+          destination_path: sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
+
+      - name: 🚀 Deploy to Dev (full version)
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+          bucket_name: ${{ env.DEV_BUCKET }}
+          destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
+
+      - name: 🚀 Deploy to Dev (latest)
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
+          bucket_name: ${{ env.DEV_BUCKET }}
+          destination_path: sdk/latest/
+
+      - name: 📦 Build preprod project
+        run: npm run build:preprod
+        env:
+          AIUTA_APP_PATH: sdk/${{ env.PREFIXED_MAJOR_VERSION }}
+
+      - name: 🚀 Deploy to Preprod (major version)
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
+          bucket_name: ${{ env.PREPROD_BUCKET }}
+          destination_path: sdk/${{ env.PREFIXED_MAJOR_VERSION }}/
+
+      - name: 🚀 Deploy to Preprod (full version)
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
+          bucket_name: ${{ env.PREPROD_BUCKET }}
+          destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
+
+      - name: 🚀 Deploy to Preprod (latest)
+        uses: ./.github/actions/deploy-to-gcs
+        with:
+          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
+          bucket_name: ${{ env.PREPROD_BUCKET }}
+          destination_path: sdk/latest/
+
+      # The prod build comes last: release.zip and the release assets below
+      # must be produced from this build, and each build overwrites dist/.
       - name: 📦 Build & Archive
         run: npm run build
         env:
