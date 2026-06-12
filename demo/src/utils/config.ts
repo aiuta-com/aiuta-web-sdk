@@ -10,7 +10,8 @@
 
 declare const __TRY_ON_API_URL__: string
 
-const DEMO_API_KEY = 'AIUTADEMO'
+// The unified API uses the DEMO key (AIUTADEMO belonged to the legacy API)
+const DEMO_API_KEY = 'DEMO'
 
 const params = new URLSearchParams(window.location.search)
 

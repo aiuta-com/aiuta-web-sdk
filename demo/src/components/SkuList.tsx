@@ -4,11 +4,11 @@ import { createRipple } from '../utils/ripple'
 import RetryImage from './RetryImage'
 import Spinner from './Spinner'
 import TryOnIcon from './icons/TryOnIcon'
-import type { SkuItem } from '../models/product'
+import type { CatalogItem } from '../models/product'
 import type { AiutaMode } from '@sdk/index'
 
 interface Props {
-  items: SkuItem[]
+  items: CatalogItem[]
   loading: boolean
   apiKey: string
   onTryOn: (skuId: string, mode?: AiutaMode) => void
@@ -47,12 +47,12 @@ export default function SkuList({ items, loading, apiKey, onTryOn }: Props) {
               </div>
             ))
           : items.map((item) => {
-              const image = item.descriptive_image_urls[0] ?? item.image_urls[0] ?? ''
+              const image = item.image_url
               return (
                 <div
                   className="sku-card sku-card--clickable"
                   key={item.sku_id}
-                  onClick={() => onTryOn(item.sku_id)}
+                  onClick={() => onTryOn(item.sku_id, item.mode)}
                 >
                   <div className="sku-card__inner" onPointerDown={createRipple}>
                     <div className="sku-card__item" style={getBgStyle(item.sku_id)}>
@@ -65,21 +65,6 @@ export default function SkuList({ items, loading, apiKey, onTryOn }: Props) {
                       />
                     </div>
                     <div className="sku-card__overlay">
-                      {/* Temporary dev shortcut: same item in the shoes try-on mode */}
-                      <button
-                        type="button"
-                        className="btn btn--white sku-card__shoes-try-on"
-                        onPointerDown={(event) => {
-                          event.stopPropagation()
-                          createRipple(event)
-                        }}
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          onTryOn(item.sku_id, 'shoes')
-                        }}
-                      >
-                        <span>Shoes</span>
-                      </button>
                       <button
                         type="button"
                         className="btn btn--white sku-card__try-on"
@@ -89,7 +74,7 @@ export default function SkuList({ items, loading, apiKey, onTryOn }: Props) {
                         }}
                         onClick={(event) => {
                           event.stopPropagation()
-                          onTryOn(item.sku_id)
+                          onTryOn(item.sku_id, item.mode)
                         }}
                       >
                         <TryOnIcon className="btn__icon" />

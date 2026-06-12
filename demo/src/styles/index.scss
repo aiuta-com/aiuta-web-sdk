@@ -398,9 +398,7 @@ img {
     bottom: 58px;
     z-index: 2;
     display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    justify-content: center;
     opacity: 0;
     transform: translateY(8px);
     pointer-events: none;
@@ -440,13 +438,6 @@ img {
     width: 100%;
   }
 
-  // Temporary dev shortcut button (shoes try-on mode) — compact variant
-  &__shoes-try-on {
-    width: 100%;
-    min-height: 36px;
-    font-size: 13px;
-  }
-
   &__loading {
     display: flex;
     align-items: center;
@@ -459,11 +450,16 @@ img {
     border-radius: 18px;
   }
 
-  &:hover &__overlay,
-  &__inner:focus-within &__overlay {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
+  // Hover-capable pointers only: on touch an emulated hover would both
+  // reveal the overlay and swallow the first tap's click (iOS), so the
+  // card tap must start the try-on directly without any overlay
+  @media (hover: hover) {
+    &:hover &__overlay,
+    &__inner:focus-within &__overlay {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
   }
 }
 
@@ -484,14 +480,8 @@ img {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .sku-card__overlay {
-    left: 12px;
-    right: 12px;
-    bottom: 68px;
-    opacity: 1;
-    transform: none;
-    pointer-events: auto;
-  }
+  // No hover on touch: the overlay button stays hidden, tapping the card
+  // itself starts the try-on
 }
 
 /* -------------------------------------------------------------- Outfits --- */

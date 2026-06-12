@@ -6,11 +6,11 @@ import VersionBadges from './components/VersionBadges'
 import { getAiuta } from './sdk'
 import { demoConfig } from './utils/config'
 import { fetchOutfits, fetchSkuList } from './utils/api'
-import type { OutfitsApiResponse, SkuItem } from './models/product'
+import type { CatalogItem, OutfitsApiResponse } from './models/product'
 import type { AiutaMode } from '@sdk/index'
 
 export default function App() {
-  const [skus, setSkus] = useState<SkuItem[]>([])
+  const [skus, setSkus] = useState<CatalogItem[]>([])
   const [outfits, setOutfits] = useState<OutfitsApiResponse[]>([])
   const [loadingList, setLoadingList] = useState(true)
   const [loadingOutfits, setLoadingOutfits] = useState(true)
