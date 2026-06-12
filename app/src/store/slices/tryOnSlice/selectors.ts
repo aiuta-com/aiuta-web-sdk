@@ -6,3 +6,4 @@ export const generationStageSelector = (state: RootState) => state.tryOn.generat
 export const operationIdSelector = (state: RootState) => state.tryOn.operationId
 export const generatedImageUrlSelector = (state: RootState) => state.tryOn.generatedImageUrl
 export const productIdsSelector = (state: RootState) => state.tryOn.productIds
+export const tryOnModeSelector = (state: RootState) => state.tryOn.mode

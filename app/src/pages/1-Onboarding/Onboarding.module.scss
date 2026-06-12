@@ -1,8 +1,23 @@
-// Main onboarding component styles with BEM naming
+// Main onboarding component styles with BEM naming.
+// Geometry from Figma: full-bleed 400px image, 48/40px gap to the title,
+// title py4 + description py8, ~30/34px to the button, powered-by below.
 .onboarding {
   flex: 1 1 0;
   display: flex;
   flex-direction: column;
+  // Figma: the button bottom sits 84px above the widget bottom (60px to the
+  // powered-by zone + its 24px); minus the button's own 16px bottom margin
+  // that is 68px. When the viewport clamps the widget below its default
+  // 752px height, this padding absorbs the deficit first (down to 20px)
+  // so the 420x400 image keeps its full size as long as possible.
+  // 708px = default content above this padding (752) minus 68px + the
+  // 2*12px screen insets around the widget.
+  padding-bottom: clamp(20px, calc(100dvh - 708px), 68px);
+
+  &_mobile {
+    // Figma: ~52px from the viewport bottom (no footer on mobile onboarding)
+    padding-bottom: 36px;
+  }
 }
 
 .slides {
@@ -13,51 +28,48 @@
   justify-content: center;
   min-height: 0;
   overflow: visible;
-  margin-bottom: 18px;
-}
-
-.title {
-  text-align: center;
-  max-width: 260px;
-  margin-bottom: 18px;
-  margin-top: var(--aiuta-inset-t);
-}
-
-.description {
-  color: var(--aiuta-color-secondary);
-  text-align: center;
-  max-width: 260px;
-  margin: 0;
+  // + the button's own 16px top margin = ~30px text-to-button (Figma)
+  margin-bottom: 14px;
 
   &_mobile {
-    max-width: 332px;
+    // ~34px with the button margin
+    margin-bottom: 18px;
   }
 }
 
+// One reserved full-bleed image slot per slide — all decorations (checkmarks,
+// shadows, roundings) live inside the image itself
 .image {
-  flex: 1 1 0;
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
+  height: 400px;
+  flex: 0 1 400px;
   min-height: 0;
-  max-height: var(--aiuta-max-height);
+  max-width: 100%;
+  // The Figma slot is 420×400; keeping its ratio while the widget shrinks
+  // scales the image down proportionally instead of letterboxing it
+  aspect-ratio: 21 / 20;
+  object-fit: contain;
+  // Pin the slide content to the bottom of the slides area: any leftover
+  // height goes above the image, keeping the exact Figma text-to-button gap
+  // (slides margin-bottom + the button's own top margin)
+  margin-top: auto;
+  margin-bottom: 48px;
+
+  &_mobile {
+    margin-bottom: 40px;
+  }
 }
 
-.image_howItWorks {
-  margin-top: 18px;
-  margin-bottom: 42px;
+.title {
+  margin: 0;
+  padding: 4px 24px;
+  text-align: center;
+  max-width: 100%;
 }
 
-.image_bestResults {
-  margin-top: 38px;
-  margin-bottom: 42px;
-}
-
-.carouselContainer {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-top: 20px;
+.description {
+  color: var(--aiuta-color-primary);
+  text-align: center;
+  margin: 0;
+  padding: 8px 24px;
+  max-width: 393px;
 }

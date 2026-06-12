@@ -1,23 +1,33 @@
 import { useRpc } from '@/contexts'
+import { useAppSelector } from '@/store/store'
+import { tryOnModeSelector } from '@/store/slices/tryOnSlice'
 
 /**
  * Hook for getting localized Image Picker feature strings with fallbacks
  */
 export const useImagePickerStrings = () => {
   const rpc = useRpc()
+  const mode = useAppSelector(tryOnModeSelector)
 
   const imagePickerConfig = rpc.config.features?.imagePicker
   const mainStrings = imagePickerConfig?.strings
   const uploadsHistoryStrings = imagePickerConfig?.uploadsHistory?.strings
   const qrUploadStrings = imagePickerConfig?.qrUpload?.strings
   const qrPromptStrings = imagePickerConfig?.qrPrompt?.strings
+  const shoesStrings = rpc.config.modes?.shoes?.imagePicker?.strings
+
+  const generalDescription =
+    mainStrings?.imagePickerDescription ??
+    'Select a photo where you are standing straight and clearly visible'
 
   return {
     // Main Image Picker strings
     imagePickerTitle: mainStrings?.imagePickerTitle ?? 'Upload a photo of you',
     imagePickerDescription:
-      mainStrings?.imagePickerDescription ??
-      'Select a photo where you are standing straight and clearly visible',
+      mode === 'shoes'
+        ? (shoesStrings?.imagePickerShoesDescriptionEmpty ??
+          'Select a photo where your feet are clearly visible')
+        : generalDescription,
     imagePickerButtonUploadPhoto: mainStrings?.imagePickerButtonUploadPhoto ?? 'Upload a photo',
 
     // Uploads History strings

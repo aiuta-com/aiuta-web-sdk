@@ -18,7 +18,7 @@ export const Disclaimer = ({ className }: DisclaimerProps) => {
       tabIndex={0}
     >
       <Icon icon={icons.info} size={13} className={styles.icon} />
-      <span className={combineClassNames('aiuta-label-disclaimer', styles.text)}>
+      <span className={combineClassNames('aiuta-label-footnote', styles.text)}>
         {fitDisclaimerTitle}
       </span>
     </div>

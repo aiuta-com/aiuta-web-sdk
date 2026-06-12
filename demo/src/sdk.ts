@@ -20,12 +20,23 @@ const aiutaConfiguration: AiutaConfiguration = {
   auth: { apiKey: demoConfig.apiKey },
   userInterface: {
     theme: {
-      // Drop the desktop panel below the demo header so the env/version
-      // badges in the top-right corner stay visible.
+      // - Poppins as the preferred SDK typeface, matching the demo page.
+      //   The iframe is a separate document, so the font is also loaded
+      //   there via @import (must be the first rule of the stylesheet).
+      // - Drop the desktop panel below the demo header so the env/version
+      //   badges in the top-right corner stay visible. Position is set via
+      //   the geometry variables (not direct top/right) so the SDK's own
+      //   clamping still shifts/shrinks the panel on short screens.
       customCss: `
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        :root {
+          --aiuta-typeface: 'Poppins', -apple-system, BlinkMacSystemFont, 'Roboto', 'Segoe UI', sans-serif;
+        }
+
         .aiuta-app--desktop {
-          top: 54px;
-          right: 24px;
+          --aiuta-desktop-top: 54px;
+          --aiuta-desktop-right: 24px;
         }
       `,
     },

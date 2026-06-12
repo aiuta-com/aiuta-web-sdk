@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { AiutaMode } from '@lib/config'
 import type { TryOnImage } from '@/models'
 import { isNewImage } from '@/models'
 
@@ -11,6 +12,8 @@ export interface TryOnState {
   operationId: string | null
   generatedImageUrl: string
   productIds: string[]
+  // Arrives with productIds on every tryOn RPC and shares their lifecycle
+  mode: AiutaMode
 }
 
 const initialState: TryOnState = {
@@ -20,6 +23,7 @@ const initialState: TryOnState = {
   operationId: null,
   generatedImageUrl: '',
   productIds: [],
+  mode: 'general',
 }
 
 export const tryOnSlice = createSlice({
@@ -67,6 +71,10 @@ export const tryOnSlice = createSlice({
 
     setProductIds: (state, action: PayloadAction<string[]>) => {
       state.productIds = action.payload
+    },
+
+    setMode: (state, action: PayloadAction<AiutaMode>) => {
+      state.mode = action.payload
     },
 
     resetTryOnState: (state) => {

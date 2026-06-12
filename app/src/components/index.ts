@@ -40,7 +40,6 @@ export { Alert } from './popups/Alert'
 // Onboarding
 export { Consent } from './onboarding/Consent'
 export { Slide } from './onboarding/Slide'
-export { Carousel } from './onboarding/Carousel'
 
 // Picker (Upload)
 export { QrCode } from './picker/QrCode'

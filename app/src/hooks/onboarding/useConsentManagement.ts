@@ -3,8 +3,9 @@ import { useRpc } from '@/contexts'
 import { useConsentData, useAddConsents } from '@/hooks/data'
 import { ConsentType, type Consent } from '@lib/config/features'
 
-// Default consent constant (outside component to avoid recreation)
-const DEFAULT_CONSENT: Consent = {
+// Default consent constant (outside component to avoid recreation).
+// Exported so the onboarding flow can resolve the same effective consent list.
+export const DEFAULT_CONSENT: Consent = {
   id: 'main',
   type: ConsentType.explicitRequired,
   html: 'I consent to photo processing and agree to the Terms',

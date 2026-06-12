@@ -20,7 +20,8 @@
   }
 
   &_maxWidth {
-    width: calc(100% - 2 * var(--aiuta-inset-h));
+    // Figma button width: 341/420 on desktop, 320/393 on mobile — both ≈ 81.3%
+    width: 81.3%;
     max-width: var(--aiuta-max-width);
     margin-left: auto;
     margin-right: auto;

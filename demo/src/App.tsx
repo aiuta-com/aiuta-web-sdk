@@ -7,6 +7,7 @@ import { getAiuta } from './sdk'
 import { demoConfig } from './utils/config'
 import { fetchOutfits, fetchSkuList } from './utils/api'
 import type { OutfitsApiResponse, SkuItem } from './models/product'
+import type { AiutaMode } from '@sdk/index'
 
 export default function App() {
   const [skus, setSkus] = useState<SkuItem[]>([])
@@ -29,8 +30,8 @@ export default function App() {
       .finally(() => setLoadingOutfits(false))
   }, [])
 
-  const tryOn = (productId: string | string[]) => {
-    void getAiuta().then((sdk) => sdk.tryOn(productId))
+  const tryOn = (productId: string | string[], mode?: AiutaMode) => {
+    void getAiuta().then((sdk) => sdk.tryOn(productId, mode))
   }
 
   return (

@@ -49,6 +49,7 @@ export const useTryOnGeneration = () => {
     tooManyPeopleDetectedDescription,
     childDetectedDescription,
     internalRestrictionDescription,
+    insufficientTargetAreaDescription,
   } = useTryOnStrings()
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
@@ -212,6 +213,10 @@ export const useTryOnGeneration = () => {
             return childDetectedDescription
           case 'INTERNAL_RESTRICTION':
             return internalRestrictionDescription
+          case 'INSUFFICIENT_TARGET_AREA':
+            // Mode-dependent message: the backend code is the same whether a
+            // hat misses a head or shoes miss feet
+            return insufficientTargetAreaDescription
           default:
             return invalidInputImageDescription
         }
@@ -233,6 +238,7 @@ export const useTryOnGeneration = () => {
       tooManyPeopleDetectedDescription,
       childDetectedDescription,
       internalRestrictionDescription,
+      insufficientTargetAreaDescription,
       invalidInputImageDescription,
       invalidInputImageChangePhotoButton,
     ],

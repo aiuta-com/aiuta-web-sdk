@@ -9,6 +9,7 @@ export const usePoweredByStrings = () => {
   const strings = rpc.config.userInterface?.theme?.poweredBy?.strings
 
   return {
-    poweredByAiuta: strings?.poweredByAiuta ?? 'Powered by Aiuta',
+    // The AIUTA wordmark logo is rendered next to this text (see PoweredBy)
+    poweredByAiuta: strings?.poweredByAiuta ?? 'Powered by',
   }
 }

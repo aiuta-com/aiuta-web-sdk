@@ -1,2 +1,2 @@
 export { onboardingSlice, type OnboardingState } from './onboardingSlice'
-export { onboardingCurrentStepSelector, onboardingIsCompletedSelector } from './selectors'
+export { onboardingCurrentStepSelector, onboardingCompletedModesSelector } from './selectors'

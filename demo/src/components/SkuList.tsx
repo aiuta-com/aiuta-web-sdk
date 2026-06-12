@@ -5,12 +5,13 @@ import RetryImage from './RetryImage'
 import Spinner from './Spinner'
 import TryOnIcon from './icons/TryOnIcon'
 import type { SkuItem } from '../models/product'
+import type { AiutaMode } from '@sdk/index'
 
 interface Props {
   items: SkuItem[]
   loading: boolean
   apiKey: string
-  onTryOn: (skuId: string) => void
+  onTryOn: (skuId: string, mode?: AiutaMode) => void
 }
 
 export default function SkuList({ items, loading, apiKey, onTryOn }: Props) {
@@ -64,6 +65,21 @@ export default function SkuList({ items, loading, apiKey, onTryOn }: Props) {
                       />
                     </div>
                     <div className="sku-card__overlay">
+                      {/* Temporary dev shortcut: same item in the shoes try-on mode */}
+                      <button
+                        type="button"
+                        className="btn btn--white sku-card__shoes-try-on"
+                        onPointerDown={(event) => {
+                          event.stopPropagation()
+                          createRipple(event)
+                        }}
+                        onClick={(event) => {
+                          event.stopPropagation()
+                          onTryOn(item.sku_id, 'shoes')
+                        }}
+                      >
+                        <span>Shoes</span>
+                      </button>
                       <button
                         type="button"
                         className="btn btn--white sku-card__try-on"

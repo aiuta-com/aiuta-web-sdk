@@ -24,7 +24,10 @@ export class LocalStorageBackend implements IStorageBackend {
     UPLOADS: 'uploads',
     GENERATIONS: 'generations',
     CONSENT: 'consents',
-    ONBOARDING: 'onboarding',
+    // Legacy single-boolean key from before per-mode onboarding; never read
+    // (completion was deliberately reset for everyone), removed on clear.
+    ONBOARDING_LEGACY: 'onboarding',
+    ONBOARDING_MODES: 'onboarding-modes',
     PREDEFINED_MODELS: 'models',
   } as const
 
@@ -101,16 +104,18 @@ export class LocalStorageBackend implements IStorageBackend {
 
   // ===== Onboarding =====
 
-  async getOnboardingCompleted(): Promise<boolean> {
-    return (await this.adapter.getItem<boolean>(this.KEYS.ONBOARDING)) || false
+  async getOnboardingCompletedModes(): Promise<Record<string, boolean>> {
+    return (await this.adapter.getItem<Record<string, boolean>>(this.KEYS.ONBOARDING_MODES)) || {}
   }
 
-  async setOnboardingCompleted(completed: boolean): Promise<void> {
-    await this.adapter.setItem(this.KEYS.ONBOARDING, completed)
+  async setOnboardingModeCompleted(mode: string): Promise<void> {
+    const current = await this.getOnboardingCompletedModes()
+    await this.adapter.setItem(this.KEYS.ONBOARDING_MODES, { ...current, [mode]: true })
   }
 
   async clearOnboarding(): Promise<void> {
-    await this.adapter.removeItem(this.KEYS.ONBOARDING)
+    await this.adapter.removeItem(this.KEYS.ONBOARDING_MODES)
+    await this.adapter.removeItem(this.KEYS.ONBOARDING_LEGACY)
   }
 
   // ===== Predefined Models =====

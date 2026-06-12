@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useAppDispatch } from '@/store/store'
 import { onboardingSlice } from '@/store/slices/onboardingSlice'
 import { predefinedModelsSlice } from '@/store/slices/predefinedModelsSlice'
-import { useOnboardingData, usePredefinedModelsCache } from '@/hooks/data'
+import { useConsentData, useOnboardingData, usePredefinedModelsCache } from '@/hooks/data'
 
 /**
  * Hook to sync storage data (React Query) with Redux UI state on app initialization
@@ -12,15 +12,18 @@ export const useStorageInitialization = () => {
   const dispatch = useAppDispatch()
 
   // Load data from storage
-  const { data: isOnboardingCompleted, isLoading: isOnboardingLoading } = useOnboardingData()
+  const { data: completedModes, isLoading: isOnboardingLoading } = useOnboardingData()
   const { data: modelsCache, isLoading: isModelsLoading } = usePredefinedModelsCache()
+  // The initial-route decision needs obtained consents (pending consent =
+  // onboarding page with the consent slide), so wait for them too
+  const { isLoading: isConsentLoading } = useConsentData()
 
-  // Sync onboarding state
+  // Sync onboarding state (statuses for all modes arrive in one read)
   useEffect(() => {
-    if (!isOnboardingLoading && isOnboardingCompleted !== undefined) {
-      dispatch(onboardingSlice.actions.setIsCompleted(isOnboardingCompleted))
+    if (!isOnboardingLoading && completedModes !== undefined) {
+      dispatch(onboardingSlice.actions.setCompletedModes(completedModes))
     }
-  }, [dispatch, isOnboardingCompleted, isOnboardingLoading])
+  }, [dispatch, completedModes, isOnboardingLoading])
 
   // Sync predefined models cache
   useEffect(() => {
@@ -38,6 +41,6 @@ export const useStorageInitialization = () => {
 
   // Return loading state so we can wait for initialization
   return {
-    isInitializing: isOnboardingLoading || isModelsLoading,
+    isInitializing: isOnboardingLoading || isModelsLoading || isConsentLoading,
   }
 }

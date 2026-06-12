@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { usePoweredByStrings } from '@/hooks'
+import { AiutaLogo } from './AiutaLogo'
 import styles from './PoweredBy.module.scss'
 
 export const PoweredBy = () => {
@@ -31,9 +32,10 @@ export const PoweredBy = () => {
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className={`aiuta-label-subtle ${styles.label}`}
+        className={`aiuta-label-footnote ${styles.label}`}
       >
-        {poweredByAiuta}
+        <span className={styles.text}>{poweredByAiuta}</span>
+        <AiutaLogo className={styles.logo} />
       </a>
     </footer>
   )

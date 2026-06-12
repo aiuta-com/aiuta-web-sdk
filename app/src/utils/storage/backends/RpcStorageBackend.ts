@@ -81,11 +81,11 @@ export class RpcStorageBackend implements IStorageBackend {
 
   // ===== Onboarding =====
 
-  async getOnboardingCompleted(): Promise<boolean> {
+  async getOnboardingCompletedModes(): Promise<Record<string, boolean>> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 
-  async setOnboardingCompleted(_completed: boolean): Promise<void> {
+  async setOnboardingModeCompleted(_mode: string): Promise<void> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 

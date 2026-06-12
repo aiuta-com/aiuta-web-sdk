@@ -88,17 +88,18 @@ export interface IStorageBackend {
   // ===== Onboarding =====
 
   /**
-   * Gets onboarding completion status
+   * Gets per-mode onboarding completion statuses, all modes in one read
+   * (keyed by AiutaMode; string keys keep future modes storable)
    */
-  getOnboardingCompleted(): Promise<boolean>
+  getOnboardingCompletedModes(): Promise<Record<string, boolean>>
 
   /**
-   * Sets onboarding completion status
+   * Marks onboarding completed for a mode
    */
-  setOnboardingCompleted(completed: boolean): Promise<void>
+  setOnboardingModeCompleted(mode: string): Promise<void>
 
   /**
-   * Clears onboarding status
+   * Clears onboarding statuses
    */
   clearOnboarding(): Promise<void>
 

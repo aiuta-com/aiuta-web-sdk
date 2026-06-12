@@ -9,12 +9,26 @@
   overflow: hidden;
 }
 
-// Desktop app styling
+// Desktop app styling.
+// The panel is placed at the requested top/right but never gets closer to the
+// screen edges than --aiuta-screen-inset: when it would overflow the bottom,
+// it first shifts up (top clamp) and then shrinks (max-height/max-width).
 .appContainer_desktop {
-  width: 394px;
-  height: 632px;
-  top: 12px;
-  right: 12px;
+  width: var(--aiuta-desktop-width);
+  height: var(--aiuta-desktop-height);
+  max-width: calc(100dvw - 2 * var(--aiuta-screen-inset));
+  max-height: calc(100dvh - 2 * var(--aiuta-screen-inset));
+  top: clamp(
+    var(--aiuta-screen-inset),
+    var(--aiuta-desktop-top),
+    calc(
+      100dvh - var(--aiuta-screen-inset) - min(
+          var(--aiuta-desktop-height),
+          calc(100dvh - 2 * var(--aiuta-screen-inset))
+        )
+    )
+  );
+  right: var(--aiuta-desktop-right);
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 

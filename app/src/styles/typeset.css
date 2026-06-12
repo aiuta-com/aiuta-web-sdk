@@ -24,20 +24,20 @@
 .aiuta-title-l {
   font-size: 24px;
   font-style: normal;
-  font-weight: 700;
-  line-height: normal;
+  font-weight: 600;
+  line-height: 1; /* Figma: lineHeight 100% */
 }
 
 .aiuta-title-m {
   font-size: 20px;
   font-style: normal;
   font-weight: 600;
-  line-height: normal;
+  line-height: 1; /* Figma: lineHeight 100% */
 }
 
 /* Labels */
 .aiuta-label-regular {
-  font-size: 16px;
+  font-size: 15px;
   font-style: normal;
   font-weight: 400;
   line-height: 20px;
@@ -52,8 +52,8 @@
   text-wrap: pretty;
 }
 
-.aiuta-label-disclaimer {
-  font-size: 11px;
+.aiuta-label-footnote {
+  font-size: 12px;
   font-style: normal;
   font-weight: 400;
   line-height: 18px;
@@ -64,7 +64,7 @@
 /* Buttons */
 .aiuta-button-m {
   font-family: var(--aiuta-typeface);
-  font-size: 17px;
+  font-size: 15px;
   font-style: normal;
   font-weight: 500;
   line-height: 18px;
@@ -72,7 +72,7 @@
 
 .aiuta-button-s {
   font-family: var(--aiuta-typeface);
-  font-size: 14px;
+  font-size: 13px;
   font-style: normal;
   font-weight: 500;
   line-height: 18px;

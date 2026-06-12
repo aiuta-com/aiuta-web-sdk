@@ -23,11 +23,13 @@ export abstract class BaseAnalyticsService {
   constructor(
     protected rpc: RpcProxy,
     protected productIds: string[] = [],
+    protected mode?: string,
   ) {}
 
   protected createEvent(eventData: Partial<AnalyticsEvent>): AnalyticsEvent {
     return {
       productIds: this.productIds,
+      ...(this.mode ? { mode: this.mode } : {}),
       ...eventData,
     } as AnalyticsEvent
   }

@@ -1,5 +1,9 @@
 export interface AiutaFeatures {
-  onboarding?: Onboarding
+  /**
+   * Absence keeps onboarding enabled with built-in defaults;
+   * explicit null disables it entirely.
+   */
+  onboarding?: Onboarding | null
   imagePicker?: ImagePicker
   tryOn?: TryOn
   share?: Share
@@ -16,8 +20,10 @@ export interface Share {
 }
 
 export interface Onboarding {
-  howItWorksPage?: OnboardingHowItWorksPage
-  bestResultsPage?: OnboardingBestResultsPage
+  /** Explicit null disables the slide; absence keeps it enabled with defaults. */
+  howItWorksPage?: OnboardingHowItWorksPage | null
+  /** Explicit null disables the slide; absence keeps it enabled with defaults. */
+  bestResultsPage?: OnboardingBestResultsPage | null
 
   strings?: {
     onboardingButtonNext?: string
@@ -27,11 +33,13 @@ export interface Onboarding {
 
 export interface OnboardingHowItWorksPage {
   images?: {
+    /** @deprecated The mobile carousel is gone; ignored. Use onboardingHowItWorksMobile. */
     onboardingHowItWorksItems?: Array<{
       itemPhoto?: string
       itemPreview?: string
     }>
     onboardingHowItWorksDesktop?: string
+    onboardingHowItWorksMobile?: string
   }
 
   strings?: {
@@ -132,6 +140,7 @@ export interface TryOnInputImageValidation {
     tooManyPeopleDetectedDescription?: string
     childDetectedDescription?: string
     internalRestrictionDescription?: string
+    insufficientTargetAreaDescription?: string
   }
 }
 
