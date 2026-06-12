@@ -21,16 +21,27 @@ const lightenColor = (
   b + (255 - b) * amount,
 ]
 
-const getColorAt = (
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-): [number, number, number] => {
-  const data = ctx.getImageData(x, y, 1, 1).data
-  return lightenColor([data[0] ?? 0, data[1] ?? 0, data[2] ?? 0], 0.05)
+const getPixelAt = (ctx: CanvasRenderingContext2D, x: number, y: number): Uint8ClampedArray =>
+  ctx.getImageData(x, y, 1, 1).data
+
+// #f3f3f3 — the plain card background a (semi)transparent pixel blends into
+const CARD_BG = 243
+
+const toCornerColor = (pixel: Uint8ClampedArray): string => {
+  // getImageData returns non-premultiplied RGBA, so the blend is plain JS —
+  // no need to re-draw and resample the canvas
+  const alpha = (pixel[3] ?? 0) / 255
+  const blended: [number, number, number] = [
+    (pixel[0] ?? 0) * alpha + CARD_BG * (1 - alpha),
+    (pixel[1] ?? 0) * alpha + CARD_BG * (1 - alpha),
+    (pixel[2] ?? 0) * alpha + CARD_BG * (1 - alpha),
+  ]
+  return rgbToString(...lightenColor(blended, 0.05))
 }
 
-const getGradient = (url: string): Promise<string> =>
+// Resolves to null when the image has no color at the corners to derive a
+// gradient from (a transparent-background packshot)
+const getGradient = (url: string): Promise<string | null> =>
   new Promise((resolve, reject) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
@@ -61,10 +72,21 @@ const getGradient = (url: string): Promise<string> =>
         const yTop = clamp(offsetY, 0, maxY)
         const yBottom = clamp(maxY - offsetY, 0, maxY)
 
-        const tl = rgbToString(...getColorAt(ctx, xLeft, yTop))
-        const tr = rgbToString(...getColorAt(ctx, xRight, yTop))
-        const bl = rgbToString(...getColorAt(ctx, xLeft, yBottom))
-        const br = rgbToString(...getColorAt(ctx, xRight, yBottom))
+        const pixels = [
+          getPixelAt(ctx, xLeft, yTop),
+          getPixelAt(ctx, xRight, yTop),
+          getPixelAt(ctx, xLeft, yBottom),
+          getPixelAt(ctx, xRight, yBottom),
+        ]
+
+        // All four corners fully transparent — the plain card background is
+        // already the right look, no gradient needed
+        if (pixels.every((pixel) => (pixel[3] ?? 0) === 0)) {
+          resolve(null)
+          return
+        }
+
+        const [tl, tr, bl, br] = pixels.map(toCornerColor)
 
         resolve(
           [
