@@ -396,6 +396,7 @@ img {
   }
 
   &__item {
+    position: relative;
     width: 100%;
     aspect-ratio: 3 / 4;
     display: flex;
@@ -418,11 +419,13 @@ img {
     }
   }
 
+  // Anchored inside the fixed-ratio image box (not the whole card), so the
+  // position doesn't depend on how many lines the title wraps to
   &__overlay {
     position: absolute;
     left: 16px;
     right: 16px;
-    bottom: 58px;
+    bottom: 14px;
     z-index: 2;
     display: flex;
     justify-content: center;

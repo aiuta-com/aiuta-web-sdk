@@ -105,23 +105,25 @@ export default function SkuList({
                         }
                         onLoad={() => void initGradient(item.sku_id, image)}
                       />
-                    </div>
-                    <div className="sku-card__overlay">
-                      <button
-                        type="button"
-                        className="btn btn--white sku-card__try-on"
-                        onPointerDown={(event) => {
-                          event.stopPropagation()
-                          createRipple(event)
-                        }}
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          onTryOn(item.sku_id, item.mode)
-                        }}
-                      >
-                        <TryOnIcon className="btn__icon" />
-                        <span>Try On</span>
-                      </button>
+                      {/* Inside the fixed-ratio image box, so the button sits
+                          at the same spot regardless of the title line count */}
+                      <div className="sku-card__overlay">
+                        <button
+                          type="button"
+                          className="btn btn--white sku-card__try-on"
+                          onPointerDown={(event) => {
+                            event.stopPropagation()
+                            createRipple(event)
+                          }}
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            onTryOn(item.sku_id, item.mode)
+                          }}
+                        >
+                          <TryOnIcon className="btn__icon" />
+                          <span>Try On</span>
+                        </button>
+                      </div>
                     </div>
                     <div className="sku-card__content">
                       {item.brand ? <div className="sku-card__brand">{item.brand}</div> : null}
