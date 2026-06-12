@@ -9,14 +9,7 @@ import {
   StorageProvider,
   QueryProvider,
 } from '@/contexts'
-import {
-  PageBar,
-  PoweredBy,
-  FullScreenGallery,
-  Share,
-  AppContainer,
-  ConfigError,
-} from '@/components'
+import { PageBar, FullScreenGallery, Share, AppContainer, ConfigError } from '@/components'
 import {
   useUrlParams,
   useCustomCssUrl,
@@ -124,7 +117,6 @@ function AppContent() {
           <Route path="/generations" element={<GenerationsHistoryPage />} />
           <Route path="/uploads" element={<UploadsHistoryPage />} />
         </Routes>
-        <PoweredBy />
       </AppContainer>
 
       <FullScreenGallery />

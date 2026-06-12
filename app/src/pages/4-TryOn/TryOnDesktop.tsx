@@ -7,8 +7,14 @@ import {
   productIdsSelector,
 } from '@/store/slices/tryOnSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
-import { ErrorSnackbar, TryOnButton, TryOnView } from '@/components'
-import { useTryOnGeneration, useUploadsGallery, useTryOnStrings } from '@/hooks'
+import { ErrorSnackbar, TryOnButton, TryOnView, SecondaryButton } from '@/components'
+import {
+  useTryOnGeneration,
+  useUploadsGallery,
+  useTryOnStrings,
+  useImagePickerStrings,
+} from '@/hooks'
+import { combineClassNames } from '@/utils'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
 
@@ -24,6 +30,7 @@ export default function TryOnDesktop() {
   const { getRecentPhoto } = useUploadsGallery()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
+  const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
 
   const handleChangePhoto = () => {
     navigate('/uploads')
@@ -55,15 +62,20 @@ export default function TryOnDesktop() {
     <main className={styles.tryOn}>
       <ErrorSnackbar onRetry={retryTryOn} />
 
-      <TryOnView
-        image={selectedImage}
-        isGenerating={isGenerating}
-        onChangePhoto={handleChangePhoto}
-      />
+      <TryOnView image={selectedImage} isGenerating={isGenerating} fill />
 
-      <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
-        {tryOn}
-      </TryOnButton>
+      {hasImage && (
+        <div
+          className={combineClassNames(styles.actions, !showTryOnButton && styles.actionsHidden)}
+        >
+          <SecondaryButton onClick={handleChangePhoto} shape="M" classNames={styles.action}>
+            {uploadsHistoryButtonChangePhoto}
+          </SecondaryButton>
+          <TryOnButton onClick={() => startTryOn()} className={styles.action}>
+            {tryOn}
+          </TryOnButton>
+        </div>
+      )}
     </main>
   )
 }

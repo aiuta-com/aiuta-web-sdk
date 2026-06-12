@@ -6,6 +6,7 @@ import {
   UploadResult,
   PrimaryButton,
   FilePicker,
+  PoweredBy,
 } from '@/components'
 import { useQrUpload, useImagePickerStrings, useTryOnStrings } from '@/hooks'
 import { combineClassNames } from '@/utils'
@@ -19,6 +20,10 @@ export default function QrUploadMobile() {
   // Show Next button only when UploadPreview is displayed and not uploading
   const showNextButton =
     uploadState.selectedFile && !uploadState.uploadedUrl && !uploadState.isUploading
+
+  // PoweredBy accompanies the image selection only — not the upload progress
+  // and not the success screen
+  const showPoweredBy = !uploadState.isUploading && !uploadState.uploadedUrl
 
   return (
     <>
@@ -59,6 +64,8 @@ export default function QrUploadMobile() {
           {qrUploadNextButton}
         </PrimaryButton>
       </main>
+
+      {showPoweredBy && <PoweredBy />}
     </>
   )
 }

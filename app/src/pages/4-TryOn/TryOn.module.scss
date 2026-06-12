@@ -7,3 +7,28 @@
   justify-content: center;
   overflow: hidden;
 }
+
+// Desktop action row (Figma: Change photo and Try On side by side, half
+// width each, 8px gap, 404px total on the 420px widget, 26px above the
+// widget bottom)
+.actions {
+  display: flex;
+  gap: 8px;
+  width: calc(100% - 16px);
+  margin: 0 auto 26px;
+
+  .action {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    max-width: none;
+    margin: 0;
+  }
+}
+
+// Keep the layout space while the generation is running
+.actionsHidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}

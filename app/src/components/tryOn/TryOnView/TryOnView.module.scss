@@ -45,6 +45,18 @@
   }
 }
 
+// Desktop picker preview fills the available area edge-to-edge
+// (Figma: 404x600 with 8px side insets, 8px below the navbar)
+.fillContainer {
+  padding: 8px 8px 16px;
+}
+
+.fillContent {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+}
+
 .changePhotoButton {
   cursor: pointer;
   position: absolute;

@@ -4,6 +4,7 @@ import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { useUploadsData } from '@/hooks/data'
 import { useOnboardingFlow } from '@/hooks'
+import { PoweredBy } from '@/components'
 import { OnboardingSlides } from './OnboardingSlides'
 
 /**
@@ -44,10 +45,13 @@ export default function OnboardingPage() {
   if (!slideIds.length) return null
 
   return (
-    <OnboardingSlides
-      slides={slideIds}
-      markSlideCompleted={markSlideCompleted}
-      onComplete={handleComplete}
-    />
+    <>
+      <OnboardingSlides
+        slides={slideIds}
+        markSlideCompleted={markSlideCompleted}
+        onComplete={handleComplete}
+      />
+      {!isMobile && <PoweredBy />}
+    </>
   )
 }
