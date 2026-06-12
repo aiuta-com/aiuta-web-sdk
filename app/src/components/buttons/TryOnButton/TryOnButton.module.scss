@@ -10,7 +10,10 @@
   justify-content: center;
   margin: var(--aiuta-inset-v) auto;
   padding: var(--aiuta-inset-button);
-  transition: all ease-in-out 0.3s;
+  transition:
+    background-color 0.3s ease-in-out,
+    color 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
   white-space: nowrap;
   width: calc(100% - 2 * var(--aiuta-inset-h));
   max-width: var(--aiuta-max-width);
