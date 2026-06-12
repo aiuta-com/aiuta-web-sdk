@@ -16,8 +16,9 @@
   flex: 1;
 }
 
-// Figma: a 20px translucent strip pinned to the bottom edge of the image
-// (grey 60% darkened by black 10%, 2px backdrop blur, white footnote text)
+// A 20px strip pinned to the bottom edge of the image. The fill is tinted
+// inline with the photo's average bottom color (see Disclaimer.tsx); the
+// grey here is only the fallback for a missing tint.
 .disclaimer_overlay {
   position: absolute;
   left: 0;
@@ -28,19 +29,43 @@
   padding: 0 16px;
   gap: 0;
   justify-content: center;
-  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)) rgba(163, 165, 167, 0.6);
+  background-color: rgba(138, 139, 141, 0.64);
   backdrop-filter: blur(2px);
-  color: var(--aiuta-color-on-dark);
+  // Round the strip's own bottom corners to match the image container:
+  // browsers are unreliable at clipping backdrop-filter by an ancestor's
+  // border-radius, which smudged the corners
+  border-radius: 0 0 16px 16px;
+  // The strip mounts only once the image tone is known (see ResultsDesktop),
+  // already in its final colors, and just fades in — a mount animation can't
+  // cross-fade from the wrong variant the way a transition would
+  animation: disclaimer_fade_in 0.3s ease-in-out;
 
   .text {
     flex: 0 1 auto;
     font-size: 11px;
     line-height: normal;
     letter-spacing: 0;
-    opacity: 0.7;
+    color: color-mix(in srgb, var(--aiuta-color-on-dark) 70%, transparent);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+  }
+}
+
+@keyframes disclaimer_fade_in {
+  from {
+    opacity: 0;
+  }
+}
+
+// Over a light image bottom (Figma 12764-35836): dark text. The fill comes
+// inline from the photo's average bottom color (see Disclaimer.tsx); this
+// transparent fallback covers a missing tint.
+.disclaimer_overlayLight {
+  background-color: rgba(138, 139, 141, 0);
+
+  .text {
+    color: color-mix(in srgb, var(--aiuta-color-on-light) 30%, transparent);
   }
 }

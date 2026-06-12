@@ -18,8 +18,7 @@ export const useOnboardingStrings = () => {
     onboardingButtonStart: buttonStrings?.onboardingButtonStart ?? 'Start',
 
     // How It Works page strings
-    onboardingHowItWorksTitle:
-      howItWorksStrings?.onboardingHowItWorksTitle ?? 'Virtual Try-On',
+    onboardingHowItWorksTitle: howItWorksStrings?.onboardingHowItWorksTitle ?? 'Virtual Try-On',
     onboardingHowItWorksDescription:
       howItWorksStrings?.onboardingHowItWorksDescription ??
       'Upload a photo and see how items look on you',

@@ -1,6 +1,6 @@
 import React from 'react'
 import { ResultActions, Disclaimer, Flex, RemoteImage, Feedback } from '@/components'
-import { useResultsGallery } from '@/hooks'
+import { useResultsGallery, useImageTone } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './Results.module.scss'
 
@@ -11,6 +11,10 @@ import styles from './Results.module.scss'
  */
 export default function ResultsDesktop() {
   const { currentImage } = useResultsGallery()
+  // Light image bottom → light disclaimer strip with dark text, tinted with
+  // the photo's average bottom color. Null while still computing — the strip
+  // stays hidden instead of flashing the wrong variant.
+  const toneInfo = useImageTone(currentImage?.url)
 
   return (
     <main className={styles.results}>
@@ -26,7 +30,7 @@ export default function ResultsDesktop() {
             className={styles.feedbackOverlay}
           />
         )}
-        <Disclaimer overlay />
+        {toneInfo && <Disclaimer overlay tone={toneInfo.tone} tint={toneInfo.averageColor} />}
       </Flex>
 
       {currentImage && <ResultActions activeGeneratedImageUrl={currentImage.url} />}

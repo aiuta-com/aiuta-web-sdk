@@ -42,7 +42,12 @@ export const generateScopedName = (name: string, filename: string): string => {
 
   // Check if this is a modifier with _ prefix
   if (name.includes('_')) {
-    const [baseClass, modifier] = name.split('_', 2)
+    // Everything after the first _ is the modifier: split('_', 2) would
+    // silently drop extra segments and collide names like foo_bar_baz
+    // with foo_bar (prefer camelCase modifiers, e.g. foo_barBaz)
+    const separatorIndex = name.indexOf('_')
+    const baseClass = name.slice(0, separatorIndex)
+    const modifier = name.slice(separatorIndex + 1).replace(/_/g, '-')
     const kebabModifier = camelToKebab(modifier)
 
     // If base class matches component name, it's a block modifier
