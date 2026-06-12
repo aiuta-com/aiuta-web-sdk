@@ -76,7 +76,8 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
       contentClassName={combineClassNames(
         fill ? 'aiuta-image-m' : 'aiuta-image-l',
         fill && styles.fillContent,
-        isGenerating && styles.animation,
+        // Desktop (fill) shows the Figma gradient veil; mobile keeps the scan
+        isGenerating && (fill ? styles.loadingGradient : styles.animation),
       )}
     >
       <RemoteImage
@@ -87,7 +88,8 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
         onLoad={handleImageLoad}
       />
 
-      {isGenerating && <TryOnStatus className={styles.processingStatus} />}
+      {/* On desktop (fill) the page renders the status below the image */}
+      {isGenerating && !fill && <TryOnStatus className={styles.processingStatus} />}
 
       {!isGenerating && onChangePhoto && (
         <button

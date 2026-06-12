@@ -26,9 +26,15 @@
   }
 }
 
-// Keep the layout space while the generation is running
-.actionsHidden {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+// The loading status is centered in the whole gap between the image bottom
+// edge and the widget bottom. The negative top margin reaches up into the
+// fillContainer's 16px bottom padding, and the net layout height (92 - 16)
+// equals the action row box (50 + 26) so the preview doesn't shift.
+.loadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 92px;
+  width: calc(100% - 16px);
+  margin: -16px auto 0;
 }

@@ -7,14 +7,13 @@ import {
   productIdsSelector,
 } from '@/store/slices/tryOnSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
-import { ErrorSnackbar, TryOnButton, TryOnView, SecondaryButton } from '@/components'
+import { ErrorSnackbar, TryOnButton, TryOnView, TryOnStatus, SecondaryButton } from '@/components'
 import {
   useTryOnGeneration,
   useUploadsGallery,
   useTryOnStrings,
   useImagePickerStrings,
 } from '@/hooks'
-import { combineClassNames } from '@/utils'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
 
@@ -37,7 +36,6 @@ export default function TryOnDesktop() {
   }
 
   const hasImage = selectedImage !== null
-  const showTryOnButton = !isGenerating && hasImage
 
   // Track page view on mount
   useEffect(() => {
@@ -64,18 +62,23 @@ export default function TryOnDesktop() {
 
       <TryOnView image={selectedImage} isGenerating={isGenerating} fill />
 
-      {hasImage && (
-        <div
-          className={combineClassNames(styles.actions, !showTryOnButton && styles.actionsHidden)}
-        >
-          <SecondaryButton onClick={handleChangePhoto} shape="M" classNames={styles.action}>
-            {uploadsHistoryButtonChangePhoto}
-          </SecondaryButton>
-          <TryOnButton onClick={() => startTryOn()} className={styles.action}>
-            {tryOn}
-          </TryOnButton>
-        </div>
-      )}
+      {hasImage &&
+        (isGenerating ? (
+          // The status takes the action row's place (Figma) so the layout
+          // doesn't jump when the generation starts
+          <div className={styles.loadingRow}>
+            <TryOnStatus />
+          </div>
+        ) : (
+          <div className={styles.actions}>
+            <SecondaryButton onClick={handleChangePhoto} shape="M" classNames={styles.action}>
+              {uploadsHistoryButtonChangePhoto}
+            </SecondaryButton>
+            <TryOnButton onClick={() => startTryOn()} className={styles.action}>
+              {tryOn}
+            </TryOnButton>
+          </div>
+        ))}
     </main>
   )
 }

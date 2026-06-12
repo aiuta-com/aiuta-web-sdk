@@ -36,6 +36,61 @@
   }
 }
 
+// Figma loading veil for the desktop (fill) preview: a periodic diagonal
+// gradient crawling along its own axis. One animation cycle shifts the
+// layer by exactly one period, so the infinite loop is seamless.
+.loadingGradient {
+  // The oversized crawling layer below must not wash over the rest of
+  // the screen (e.g. the status pill under the image)
+  overflow: hidden;
+}
+
+.loadingGradient::after {
+  content: '';
+  position: absolute;
+  // Oversized just enough to cover the one-period translation below while
+  // keeping the retina raster under the 4096px GPU texture limit
+  inset: -710px;
+  // The 900px period is four equal 225px quarters: lit plateau, transition,
+  // transparent plateau, transition. One easing stop next to each plateau
+  // edge rounds the knee so it doesn't read as a bright Mach line.
+  background: repeating-linear-gradient(
+    142deg,
+    rgba(255, 255, 255, 0.5) 0,
+    rgba(255, 255, 255, 0.5) 225px,
+    rgba(255, 255, 255, 0.45) 270px,
+    rgba(255, 255, 255, 0.05) 405px,
+    rgba(255, 255, 255, 0) 450px,
+    rgba(255, 255, 255, 0) 675px,
+    rgba(255, 255, 255, 0.05) 720px,
+    rgba(255, 255, 255, 0.45) 855px,
+    rgba(255, 255, 255, 0.5) 900px
+  );
+  animation:
+    gradient-crawl 3s linear infinite,
+    veil-fade-in 0.6s ease-out both;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes veil-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes gradient-crawl {
+  to {
+    // One gradient period (900px) along the 142deg axis:
+    // (sin 142°, -cos 142°) × 900 = (554.13px, 709.22px) — the loop lands
+    // on an identical frame
+    transform: translate(554.13px, 709.22px);
+  }
+}
+
 @keyframes scan {
   0% {
     top: 10px;
