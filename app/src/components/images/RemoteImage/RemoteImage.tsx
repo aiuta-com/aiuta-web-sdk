@@ -11,6 +11,7 @@ export const RemoteImage = ({
   shape,
   className,
   loading = 'lazy',
+  fit = 'cover',
   onLoad,
   onError,
   ...rest
@@ -48,6 +49,7 @@ export const RemoteImage = ({
           src={imageUrl}
           alt={alt}
           loading={loading}
+          fit={fit}
           onLoad={handleLoad}
           onError={handleError}
         />

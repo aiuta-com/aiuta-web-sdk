@@ -83,6 +83,7 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
         src={imageUrl}
         alt="Try-on image"
         shape={fill ? 'M' : 'L'}
+        fit="smart"
         onLoad={handleImageLoad}
       />
 

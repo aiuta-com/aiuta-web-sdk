@@ -14,7 +14,7 @@ export default function ResultsDesktop() {
   return (
     <main className={styles.results}>
       <Flex contentClassName={combineClassNames('aiuta-image-l')}>
-        <RemoteImage src={currentImage} alt="Try-on image" shape="L" />
+        <RemoteImage src={currentImage} alt="Try-on image" shape="L" fit="smart" />
         {isOtherPhotoEnabled && <OtherPhoto className={styles.otherPhoto} />}
         {currentImage && (
           <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />

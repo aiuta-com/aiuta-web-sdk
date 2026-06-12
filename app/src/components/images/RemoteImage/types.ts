@@ -12,6 +12,8 @@ export interface RemoteImageProps extends Omit<HTMLAttributes<HTMLDivElement>, '
   className?: string
   /** Loading behavior */
   loading?: 'lazy' | 'eager'
+  /** Fitting strategy (see CrossFadeImage): 'cover' (default) or 'smart' */
+  fit?: 'cover' | 'smart'
   /** Callback when image loads successfully */
   onLoad?: () => void
   /** Callback when image fails to load */

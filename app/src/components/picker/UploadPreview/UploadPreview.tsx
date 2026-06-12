@@ -47,6 +47,7 @@ export const UploadPreview = ({ selectedFile, isUploading, onChangePhoto }: Uplo
         src={selectedFile.url}
         alt="Selected photo preview"
         shape="L"
+        fit="smart"
         onLoad={handleImageLoad}
       />
 

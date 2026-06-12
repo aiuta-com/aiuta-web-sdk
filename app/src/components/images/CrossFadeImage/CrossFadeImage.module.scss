@@ -24,3 +24,27 @@
 .image_loaded {
   opacity: 1;
 }
+
+// Smart fit: the image is contained (never cropped by height) over a blurred
+// copy of itself
+.image_contain {
+  object-fit: contain;
+}
+
+.blurBackdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(28px) saturate(1.05) brightness(0.9);
+  // Hides the translucent blur edges behind the container bounds
+  transform: scale(1.12);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.blurBackdrop_loaded {
+  opacity: 1;
+}

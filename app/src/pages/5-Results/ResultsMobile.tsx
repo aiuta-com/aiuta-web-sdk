@@ -78,6 +78,7 @@ export default function ResultsMobile() {
                 src={currentImage}
                 alt="Generated result"
                 shape="L"
+                fit="smart"
                 onClick={() => currentImage && handleMobileImageClick(currentImage.url)}
               />
               <IconButton
