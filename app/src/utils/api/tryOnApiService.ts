@@ -20,9 +20,11 @@ export type AbortReason =
   | string // Allow for future extensions
 
 export interface GenerationResult {
-  status: 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'ABORTED' | 'PENDING'
+  // Unified API operation statuses; the polling treats everything but
+  // SUCCESS/FAILED/CANCELLED/ABORTED as "still in progress"
+  status: 'CREATED' | 'IN_PROGRESS' | 'PAUSED' | 'SUCCESS' | 'FAILED' | 'CANCELLED' | 'ABORTED'
   generated_images?: GeneratedImage[]
-  operation_id?: string
+  id?: string
   error?: string
   abort_reason?: AbortReason
 }
@@ -108,7 +110,7 @@ export class TryOnApiService {
       this.addAuthHeaders(headers, auth)
     }
 
-    const response = await fetch(`${this.BASE_URL}/sku_images_operations`, {
+    const response = await fetch(`${this.BASE_URL}/sku_try_on_operations`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -129,7 +131,7 @@ export class TryOnApiService {
     const headers: Record<string, string> = {}
     this.addAuthHeaders(headers, auth)
 
-    const response = await fetch(`${this.BASE_URL}/sku_images_operations/${operationId}`, {
+    const response = await fetch(`${this.BASE_URL}/sku_try_on_operations/${operationId}`, {
       method: 'GET',
       headers,
     })

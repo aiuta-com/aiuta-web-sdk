@@ -9,25 +9,25 @@ export const buildConfig = {
   env: {
     debug: {
       // relative static, prod api, debug analytics
-      tryOnApi: 'https://api.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.aiuta.com/v1',
       qrApi: 'https://web-sdk.aiuta.com/api',
       analytics: 'https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     dev: {
       static: 'https://static.dev.aiuta.com',
-      tryOnApi: 'https://api.dev.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.dev.aiuta.com/v1',
       qrApi: 'https://web-sdk.dev.aiuta.com/api',
       analytics: 'https://api.dev.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     preprod: {
       static: 'https://static.preprod.aiuta.com',
-      tryOnApi: 'https://api.preprod.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.preprod.aiuta.com/v1',
       qrApi: 'https://web-sdk.preprod.aiuta.com/api',
       analytics: 'https://api.preprod.aiuta.com/analytics/v1/web-sdk-analytics',
     },
     prod: {
       static: 'https://static.aiuta.com',
-      tryOnApi: 'https://api.aiuta.com/digital-try-on/v1',
+      tryOnApi: 'https://api.aiuta.com/v1',
       qrApi: 'https://web-sdk.aiuta.com/api',
       analytics: 'https://api.aiuta.com/analytics/v1/web-sdk-analytics',
     },
