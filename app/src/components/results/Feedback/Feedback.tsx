@@ -6,7 +6,7 @@ import type { FeedbackProps } from './types'
 import { icons } from './icons'
 import styles from './Feedback.module.scss'
 
-export const Feedback = ({ className, generatedImageUrl }: FeedbackProps) => {
+export const Feedback = ({ className, generatedImageUrl, variant = 'fab' }: FeedbackProps) => {
   const { feedbackGratitudeText } = useFeedbackStrings()
   const {
     isDisabled,
@@ -24,33 +24,37 @@ export const Feedback = ({ className, generatedImageUrl }: FeedbackProps) => {
     return null
   }
 
+  const buttonClassName = variant === 'plain' ? styles.plainButton : styles.fabButton
+  const iconSize = variant === 'plain' ? 20 : 24
+
   return (
     <>
       {shouldShowFeedback && (
         <div
           className={combineClassNames(
             styles.feedback,
+            variant === 'plain' && styles.feedback_plain,
             styles[`feedback_${componentAnimationState}`],
             className,
           )}
         >
           <button
-            className={styles.fabButton}
+            className={buttonClassName}
             onClick={handleLike}
             disabled={isDisabled}
             aria-label="Like this result"
             type="button"
           >
-            <Icon icon={icons.like} size={24} viewBox="0 0 24 24" />
+            <Icon icon={icons.like} size={iconSize} viewBox="0 0 24 24" />
           </button>
           <button
-            className={styles.fabButton}
+            className={buttonClassName}
             onClick={handleDislike}
             disabled={isDisabled}
             aria-label="Dislike this result"
             type="button"
           >
-            <Icon icon={icons.dislike} size={24} viewBox="0 0 24 24" />
+            <Icon icon={icons.dislike} size={iconSize} viewBox="0 0 24 24" />
           </button>
         </div>
       )}

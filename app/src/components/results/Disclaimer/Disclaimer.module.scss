@@ -15,3 +15,32 @@
 .text {
   flex: 1;
 }
+
+// Figma: a 20px translucent strip pinned to the bottom edge of the image
+// (grey 60% darkened by black 10%, 2px backdrop blur, white footnote text)
+.disclaimer_overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  height: 20px;
+  padding: 0 16px;
+  gap: 0;
+  justify-content: center;
+  background: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)) rgba(163, 165, 167, 0.6);
+  backdrop-filter: blur(2px);
+  color: var(--aiuta-color-on-dark);
+
+  .text {
+    flex: 0 1 auto;
+    font-size: 11px;
+    line-height: normal;
+    letter-spacing: 0;
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+}

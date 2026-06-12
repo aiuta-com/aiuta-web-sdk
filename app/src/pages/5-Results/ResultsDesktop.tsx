@@ -1,28 +1,35 @@
 import React from 'react'
-import { ResultActions, Disclaimer, Flex, RemoteImage, Feedback, OtherPhoto } from '@/components'
-import { useResultsGallery, useTryOnWithOtherPhoto } from '@/hooks'
+import { ResultActions, Disclaimer, Flex, RemoteImage, Feedback } from '@/components'
+import { useResultsGallery } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import styles from './Results.module.scss'
 
 /**
- * Desktop version of results page with synchronized scrolling
+ * Desktop version of the results page (Figma): the image fills the widget
+ * edge-to-edge with the disclaimer strip and feedback icons laid over it,
+ * and a row of action tiles below
  */
 export default function ResultsDesktop() {
   const { currentImage } = useResultsGallery()
-  const { isEnabled: isOtherPhotoEnabled } = useTryOnWithOtherPhoto()
 
   return (
     <main className={styles.results}>
-      <Flex contentClassName={combineClassNames('aiuta-image-l')}>
-        <RemoteImage src={currentImage} alt="Try-on image" shape="L" fit="smart" />
-        {isOtherPhotoEnabled && <OtherPhoto className={styles.otherPhoto} />}
+      <Flex
+        containerClassName={styles.fillContainer}
+        contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
+      >
+        <RemoteImage src={currentImage} alt="Try-on image" shape="M" fit="smart" />
         {currentImage && (
-          <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
+          <Feedback
+            generatedImageUrl={currentImage.url}
+            variant="plain"
+            className={styles.feedbackOverlay}
+          />
         )}
+        <Disclaimer overlay />
       </Flex>
 
       {currentImage && <ResultActions activeGeneratedImageUrl={currentImage.url} />}
-      <Disclaimer className={styles.disclaimer_compact} />
     </main>
   )
 }

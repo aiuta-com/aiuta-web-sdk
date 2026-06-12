@@ -89,9 +89,26 @@
   margin-bottom: 12px;
 }
 
-.disclaimer_compact {
-  display: flex;
-  justify-content: center;
-  margin-top: 0;
-  margin-bottom: 4px;
+// Desktop (Figma): the image fills the widget edge-to-edge — 8px sides,
+// 8px below the navbar, 10px gap to the action tiles
+.fillContainer {
+  padding: 8px 8px 10px;
+}
+
+.fillContent {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  // Clips the full-width disclaimer strip to the rounded corners
+  overflow: hidden;
+}
+
+// Like/dislike sit flush with the image's right edge, 5px above the
+// 20px disclaimer strip (Figma: bottom 25px); the icons' own 4px
+// padding provides the visual inset
+.feedbackOverlay {
+  position: absolute;
+  bottom: 25px;
+  right: 0;
+  z-index: 2;
 }

@@ -7,6 +7,11 @@
   transition: opacity 0.2s ease-out;
 }
 
+/* Plain (desktop) variant: 4px gap per Figma */
+.feedback_plain {
+  gap: 4px;
+}
+
 /* Animation states for component container */
 .feedback_opening,
 .feedback_open {
@@ -43,6 +48,30 @@
     right: -12px;
     bottom: -12px;
     left: -12px;
+  }
+}
+
+/* Plain buttons (desktop, Figma): bare 20px icons over the image, no
+   circles or blur — just a soft drop shadow for contrast, 4px gap built
+   from the buttons' own padding */
+.plainButton {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  color: var(--aiuta-color-on-dark);
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.2));
+  flex-shrink: 0;
+  position: relative;
+
+  /* Increase touch target area */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -8px;
   }
 }
 
