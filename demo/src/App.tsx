@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react'
 import Header from './components/Header'
 import OutfitList from './components/OutfitList'
 import SkuList from './components/SkuList'
@@ -6,8 +13,13 @@ import VersionBadges from './components/VersionBadges'
 import { getAiuta } from './sdk'
 import { demoConfig } from './utils/config'
 import { fetchOutfits, fetchSkuPage } from './utils/api'
+import { isTryOnFilterEnabled, subscribeTryOnFilter } from './utils/settings'
 import type { CatalogItem, OutfitsApiResponse } from './models/product'
 import type { AiutaMode } from '@sdk/index'
+
+// Smaller extra.order first; items without one keep their fetch order at
+// the end (Array.prototype.sort is stable)
+const byCatalogOrder = (a: CatalogItem, b: CatalogItem) => a.order - b.order
 
 export default function App() {
   const [skus, setSkus] = useState<CatalogItem[]>([])
@@ -33,7 +45,7 @@ export default function App() {
     const offset = paging.nextOffset
     try {
       const page = await fetchSkuPage(offset)
-      setSkus((prev) => (offset === 0 ? page.items : [...prev, ...page.items]))
+      setSkus((prev) => (offset === 0 ? page.items : [...prev, ...page.items]).sort(byCatalogOrder))
       paging.nextOffset = page.nextOffset
       setHasMoreSkus(page.nextOffset !== null)
     } catch (error) {
@@ -68,6 +80,14 @@ export default function App() {
     void getAiuta().then((sdk) => sdk.tryOn(productId, mode))
   }
 
+  // Gear-menu toggle: when on, only items explicitly flagged
+  // extra.single_item_try_on: true stay; by default everything is shown
+  const tryOnFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isTryOnFilterEnabled)
+  const visibleSkus = useMemo(
+    () => (tryOnFilterEnabled ? skus.filter((sku) => sku.singleItemTryOn) : skus),
+    [tryOnFilterEnabled, skus],
+  )
+
   return (
     <>
       <Header />
@@ -75,7 +95,7 @@ export default function App() {
         <OutfitList outfits={outfits} loading={loadingOutfits} onTryOn={tryOn} />
 
         <SkuList
-          items={skus}
+          items={visibleSkus}
           loading={loadingList}
           loadingMore={loadingMoreSkus}
           hasMore={hasMoreSkus}

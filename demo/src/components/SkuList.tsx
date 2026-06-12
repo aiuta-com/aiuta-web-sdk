@@ -46,7 +46,7 @@ export default function SkuList({
   apiKey,
   onTryOn,
 }: Props) {
-  const { getBgStyle, initGradient } = useImageGradient()
+  const { getBgStyle, isMultiplied, initGradient } = useImageGradient()
 
   // Infinite scroll: ask for the next page when the sentinel below the grid
   // comes close to the viewport. Recreated when the list grows so a sentinel
@@ -99,7 +99,10 @@ export default function SkuList({
                         src={image}
                         alt={item.title}
                         loading="lazy"
-                        className="sku-card__image"
+                        className={
+                          'sku-card__image' +
+                          (isMultiplied(item.sku_id) ? ' sku-card__image--multiply' : '')
+                        }
                         onLoad={() => void initGradient(item.sku_id, image)}
                       />
                     </div>

@@ -2,6 +2,18 @@
 
 export type SkuCapabilityReadinessStatus = 'absent' | 'preparing' | 'ready' | 'rejected' | 'failed'
 
+/** Merchant-defined free-form fields the demo understands */
+export interface SkuItemExtra {
+  /** Catalog sort key: the smaller, the earlier in the list */
+  order?: number | null
+  /** Whether to show the item in the single-item try-on list at all */
+  single_item_try_on?: boolean | null
+  /** The main SKU image to show in the demo UI */
+  title_image?: string | null
+  /** All source SKU images (internal, for the mobile demo app) */
+  source_images?: string[] | null
+}
+
 export interface UnifiedSkuItem {
   internal_id: string
   sku_id: string
@@ -13,6 +25,7 @@ export interface UnifiedSkuItem {
     category?: string | null
     image_urls?: string[] | null
     store_url?: string | null
+    extra?: SkuItemExtra | null
   }
   capabilities: {
     try_on?: boolean
@@ -40,6 +53,10 @@ export interface CatalogItem {
   image_url: string
   /** Try-on mode derived from the backend category (shoes vs everything else) */
   mode: 'general' | 'shoes'
+  /** Sort key from extra.order; items without one go last */
+  order: number
+  /** Explicitly flagged extra.single_item_try_on: true (gear-menu filter) */
+  singleItemTryOn: boolean
 }
 
 // ------------------------------------------------------------- Outfits ---

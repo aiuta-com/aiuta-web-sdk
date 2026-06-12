@@ -1,6 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import GearIcon from './icons/GearIcon'
 import { getAiuta } from '../sdk'
+import {
+  isTryOnFilterEnabled,
+  setTryOnFilterEnabled,
+  subscribeTryOnFilter,
+} from '../utils/settings'
 
 type ClearState = 'idle' | 'clearing' | 'done' | 'error'
 
@@ -22,6 +27,8 @@ export default function DebugMenu() {
   const [clearState, setClearState] = useState<ClearState>('idle')
   const rootRef = useRef<HTMLDivElement | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const tryOnFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isTryOnFilterEnabled)
 
   const toggleOpen = () => {
     const rect = rootRef.current?.getBoundingClientRect()
@@ -96,6 +103,14 @@ export default function DebugMenu() {
 
       {open ? (
         <div className={'debug-menu__panel debug-menu__panel--' + panelAlign} role="menu">
+          <label className="debug-menu__item debug-menu__item--checkbox" role="menuitemcheckbox">
+            <input
+              type="checkbox"
+              checked={tryOnFilterEnabled}
+              onChange={(event) => setTryOnFilterEnabled(event.target.checked)}
+            />
+            <span>Filter single items</span>
+          </label>
           <button
             type="button"
             role="menuitem"

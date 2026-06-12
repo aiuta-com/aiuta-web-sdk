@@ -4,6 +4,10 @@ import type { CSSProperties } from 'react'
 /**
  * Derives a soft corner-color radial gradient from a product image and exposes it
  * as a background style for catalog cards. Ported from the marketing demo.
+ *
+ * Special-cases white studio backgrounds: when all four corners are pure
+ * white, the card instead multiply-blends the photo into its grey background
+ * (no gradient needed), so such items keep the rounded grey card look.
  */
 
 const rgbToString = (r: number, g: number, b: number): string =>
@@ -27,21 +31,37 @@ const getPixelAt = (ctx: CanvasRenderingContext2D, x: number, y: number): Uint8C
 // #f3f3f3 — the plain card background a (semi)transparent pixel blends into
 const CARD_BG = 243
 
+// JPEG compression leaves the odd 254 in a pure-white background, so "white"
+// allows a small tolerance
+const WHITE_MIN = 250
+
+const isWhitePixel = (pixel: Uint8ClampedArray): boolean =>
+  (pixel[3] ?? 0) === 255 &&
+  (pixel[0] ?? 0) >= WHITE_MIN &&
+  (pixel[1] ?? 0) >= WHITE_MIN &&
+  (pixel[2] ?? 0) >= WHITE_MIN
+
 const toCornerColor = (pixel: Uint8ClampedArray): string => {
   // getImageData returns non-premultiplied RGBA, so the blend is plain JS —
   // no need to re-draw and resample the canvas
   const alpha = (pixel[3] ?? 0) / 255
+  const channel = (value: number) => value * alpha + CARD_BG * (1 - alpha)
   const blended: [number, number, number] = [
-    (pixel[0] ?? 0) * alpha + CARD_BG * (1 - alpha),
-    (pixel[1] ?? 0) * alpha + CARD_BG * (1 - alpha),
-    (pixel[2] ?? 0) * alpha + CARD_BG * (1 - alpha),
+    channel(pixel[0] ?? 0),
+    channel(pixel[1] ?? 0),
+    channel(pixel[2] ?? 0),
   ]
   return rgbToString(...lightenColor(blended, 0.05))
 }
 
-// Resolves to null when the image has no color at the corners to derive a
-// gradient from (a transparent-background packshot)
-const getGradient = (url: string): Promise<string | null> =>
+interface CardLook {
+  /** Corner gradient, when the corners carry a usable color */
+  gradient: string | null
+  /** Multiply the photo into the card background (white studio background) */
+  multiply: boolean
+}
+
+const getCardLook = (url: string): Promise<CardLook> =>
   new Promise((resolve, reject) => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
@@ -82,20 +102,28 @@ const getGradient = (url: string): Promise<string | null> =>
         // All four corners fully transparent — the plain card background is
         // already the right look, no gradient needed
         if (pixels.every((pixel) => (pixel[3] ?? 0) === 0)) {
-          resolve(null)
+          resolve({ gradient: null, multiply: false })
+          return
+        }
+
+        // Pure white studio background: multiply the photo into the card
+        // instead of painting a (white, invisible) gradient
+        if (pixels.every(isWhitePixel)) {
+          resolve({ gradient: null, multiply: true })
           return
         }
 
         const [tl, tr, bl, br] = pixels.map(toCornerColor)
 
-        resolve(
-          [
+        resolve({
+          gradient: [
             `radial-gradient(circle at left top, ${tl} 0, ${tl} 35%, transparent 65%)`,
             `radial-gradient(circle at right top, ${tr} 0, ${tr} 35%, transparent 65%)`,
             `radial-gradient(circle at left bottom, ${bl} 0, ${bl} 35%, transparent 65%)`,
             `radial-gradient(circle at right bottom, ${br} 0, ${br} 35%, transparent 65%)`,
           ].join(', '),
-        )
+          multiply: false,
+        })
       } catch (e) {
         reject(e instanceof Error ? e : new Error('Failed to read image data'))
       }
@@ -105,7 +133,7 @@ const getGradient = (url: string): Promise<string | null> =>
   })
 
 export const useImageGradient = () => {
-  const [gradients, setGradients] = useState<Record<string, string>>({})
+  const [looks, setLooks] = useState<Record<string, CardLook>>({})
   const seen = useRef(new Set<string>())
 
   const initGradient = useCallback(async (skuId: string, url: string): Promise<void> => {
@@ -113,8 +141,8 @@ export const useImageGradient = () => {
     seen.current.add(skuId)
 
     try {
-      const gradient = await getGradient(url)
-      if (gradient) setGradients((prev) => ({ ...prev, [skuId]: gradient }))
+      const look = await getCardLook(url)
+      if (look.gradient || look.multiply) setLooks((prev) => ({ ...prev, [skuId]: look }))
     } catch {
       // Cross-origin / decode failures fall back to the plain card background.
       seen.current.delete(skuId)
@@ -123,13 +151,17 @@ export const useImageGradient = () => {
 
   const getBgStyle = useCallback(
     (skuId: string): CSSProperties => {
-      const gradient = gradients[skuId]
+      const gradient = looks[skuId]?.gradient
       return gradient
         ? { backgroundImage: gradient, backgroundColor: '#f3f3f3' }
         : { backgroundColor: '#f3f3f3' }
     },
-    [gradients],
+    [looks],
   )
 
-  return { getBgStyle, initGradient }
+  // Whether the photo should multiply-blend into the card background
+  // (white studio background)
+  const isMultiplied = useCallback((skuId: string): boolean => !!looks[skuId]?.multiply, [looks])
+
+  return { getBgStyle, isMultiplied, initGradient }
 }

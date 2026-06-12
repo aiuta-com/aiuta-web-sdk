@@ -49,13 +49,22 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
         item.capabilities?.try_on === true &&
         item.capabilities_readiness?.try_on?.status === 'ready',
     )
-    .map((item) => ({
-      sku_id: item.sku_id,
-      title: item.product_info?.title ?? item.sku_id,
-      brand: item.product_info?.brand ?? undefined,
-      image_url: item.product_info?.image_urls?.[0] ?? '',
-      mode: isShoeCategory(item.product_info?.category) ? ('shoes' as const) : ('general' as const),
-    }))
+    .map((item) => {
+      const extra = item.product_info?.extra ?? {}
+      return {
+        sku_id: item.sku_id,
+        title: item.product_info?.title ?? item.sku_id,
+        brand: item.product_info?.brand ?? undefined,
+        // Image priority: extra.title_image | source_images[0] | image_urls[0]
+        image_url:
+          extra.title_image || extra.source_images?.[0] || item.product_info?.image_urls?.[0] || '',
+        mode: isShoeCategory(item.product_info?.category)
+          ? ('shoes' as const)
+          : ('general' as const),
+        order: typeof extra.order === 'number' ? extra.order : Number.MAX_SAFE_INTEGER,
+        singleItemTryOn: extra.single_item_try_on === true,
+      }
+    })
 
   return { items, nextOffset: data.next_offset ?? null }
 }
