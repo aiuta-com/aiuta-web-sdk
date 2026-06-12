@@ -7,7 +7,6 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  margin-top: 32px;
 }
 
 .previews {
@@ -81,4 +80,5 @@
   margin: 0;
   color: var(--aiuta-color-primary);
   text-align: center;
+  font-weight: 500; // Figma: medium label on this button
 }

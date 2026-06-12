@@ -16,7 +16,9 @@ export const AppContainer = ({ children }: AppContainerProps) => {
   useWindowResize()
   const isMobile = useAppSelector(isMobileSelector)
   const isVisible = useAppSelector(isAppVisibleSelector)
-  usePreventParentScroll(isVisible)
+  // Touch-scroll containment is for the fullscreen mobile presentation only;
+  // isMobile follows window resizes, so this toggles dynamically
+  usePreventParentScroll(isVisible && isMobile)
 
   const containerClasses = combineClassNames(
     !isMobile && 'aiuta-modal',

@@ -24,19 +24,31 @@ const getColorHex = (cssColor: string): string => {
   return cssColor.startsWith('#') ? cssColor : '#000000'
 }
 
+// Blend two hex colors: ratio of `a` over (1 - ratio) of `b`
+const mixHex = (a: string, b: string, ratio: number): string => {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(1 + i * 2, 3 + i * 2), 16)
+  const mixed = [0, 1, 2].map((i) =>
+    Math.round(channel(a, i) * ratio + channel(b, i) * (1 - ratio))
+      .toString(16)
+      .padStart(2, '0'),
+  )
+  return `#${mixed.join('')}`
+}
+
 export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
   const { Canvas } = useQRCode()
 
   // Get CSS variables values and convert to hex
-  const primaryColor =
-    getComputedStyle(document.documentElement).getPropertyValue('--aiuta-color-primary').trim() ||
-    'black'
-  const neutralColor =
-    getComputedStyle(document.documentElement).getPropertyValue('--aiuta-color-neutral').trim() ||
-    '#F2F2F7'
+  const rootStyle = getComputedStyle(document.documentElement)
+  const primaryColor = rootStyle.getPropertyValue('--aiuta-color-primary').trim() || 'black'
+  const borderColor = rootStyle.getPropertyValue('--aiuta-color-border').trim() || '#e5e5ea'
+  const backgroundColor = rootStyle.getPropertyValue('--aiuta-color-background').trim() || '#ffffff'
 
   const darkColor = getColorHex(primaryColor)
-  const lightColor = getColorHex(neutralColor)
+  // Exactly the drag-over fill of the drop zone — color-mix(border 40%,
+  // transparent) composited over the widget background — as an opaque hex,
+  // since the QR renderer can't take a translucent color
+  const lightColor = mixHex(getColorHex(borderColor), getColorHex(backgroundColor), 0.4)
 
   return (
     <div className={styles.qrCode}>

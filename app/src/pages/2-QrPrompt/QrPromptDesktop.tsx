@@ -7,7 +7,9 @@ import {
   FilePicker,
   PrimaryButton,
   ModelsButton,
+  Icon,
 } from '@/components'
+import { icons } from './icons'
 import {
   useQrPrompt,
   useTryOnImage,
@@ -71,17 +73,26 @@ export default function QrPromptDesktop() {
       ) : (
         <div className={combineClassNames(styles.dropZone, isDragging && styles.dropZone_dragging)}>
           <QrCode url={qrUrl} />
-          <div className={styles.options}>
-            <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>
+          <p className={`aiuta-label-regular ${styles.description}`}>{qrPromptDescription}</p>
 
-            <FilePicker onFileSelect={handleFileSelect}>
-              {({ openFilePicker }) => (
-                <PrimaryButton onClick={openFilePicker}>{qrPromptUploadButton}</PrimaryButton>
-              )}
-            </FilePicker>
+          <FilePicker onFileSelect={handleFileSelect}>
+            {({ openFilePicker }) => (
+              <PrimaryButton
+                onClick={openFilePicker}
+                maxWidth={false}
+                className={styles.uploadButton}
+              >
+                <Icon icon={icons.upload} size={20} viewBox="0 0 20 20" />
+                {qrPromptUploadButton}
+              </PrimaryButton>
+            )}
+          </FilePicker>
 
-            {isPredefinedModelsEnabled && <ModelsButton onClick={handleSelectModel} />}
-          </div>
+          {isPredefinedModelsEnabled && (
+            <div className={styles.modelsSlot}>
+              <ModelsButton onClick={handleSelectModel} />
+            </div>
+          )}
         </div>
       )}
     </main>

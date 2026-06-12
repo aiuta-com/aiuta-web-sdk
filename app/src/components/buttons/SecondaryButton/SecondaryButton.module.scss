@@ -9,7 +9,10 @@
   align-items: center;
   justify-content: center;
   margin: var(--aiuta-inset-v) auto;
-  padding: var(--aiuta-inset-button);
+  // Horizontal padding only with a fixed min-height: an icon taller than
+  // the text line must not inflate the button (Figma keeps buttons 50px)
+  padding: 0 var(--aiuta-inset-h);
+  min-height: 50px;
   transition:
     background-color 0.3s ease-in-out,
     color 0.3s ease-in-out,

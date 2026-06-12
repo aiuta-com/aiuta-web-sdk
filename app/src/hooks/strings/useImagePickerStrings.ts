@@ -47,7 +47,7 @@ export const useImagePickerStrings = () => {
     qrPromptHint: qrPromptStrings?.qrPromptHint ?? 'Scan the QR code',
     qrPromptDescription:
       qrPromptStrings?.qrPromptDescription ??
-      'Scan the QR code to upload from your phone, drag and drop here, or',
+      'Scan the QR code to upload from your phone or upload photo here',
     qrPromptUploadButton: qrPromptStrings?.qrPromptUploadButton ?? 'Upload a photo',
   }
 }

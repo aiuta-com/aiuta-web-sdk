@@ -5,15 +5,8 @@
   align-items: stretch;
   justify-content: center;
   flex-direction: column;
-  padding: 0 20px 20px;
-}
-
-// QR code content container
-.content {
-  display: flex;
-  row-gap: 48px;
-  align-items: center;
-  flex-direction: column;
+  // Figma: the dashed zone is inset 8px from the widget edges
+  padding: 0 8px 8px;
 }
 
 // Drop zone container with dashed border (includes QR + options)
@@ -22,34 +15,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  padding: 24px;
+  // Figma: the QR code sits 68px below the navbar
+  padding: 68px 24px 24px;
   border: 1px dashed var(--aiuta-color-border);
   border-radius: 16px;
   transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
-// Drop zone when dragging a file over it
+// Drop zone when dragging a file over it: the dashes disappear and the
+// zone fills with the border color at 40% — the content stays fully opaque
 .dropZone_dragging {
-  border-color: color-mix(in srgb, var(--aiuta-color-try-on) 60%, transparent);
-  background-color: color-mix(in srgb, var(--aiuta-color-try-on) 3%, transparent);
+  border-color: transparent;
+  background-color: color-mix(in srgb, var(--aiuta-color-border) 40%, transparent);
 }
 
-// Upload options section
-.options {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  flex-direction: column;
-}
-
-// Description text
+// Description text: 28px after the QR; the upload button's own 16px top
+// margin adds up to the 32px gap below (Figma)
 .description {
   text-align: center;
-  margin: 0;
+  margin: 28px 0 16px;
+  max-width: 300px;
   color: var(--aiuta-color-primary);
+}
+
+// Compact upload button (Figma hugs the label rather than stretching)
+.uploadButton {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+// The models button centers itself in the space left below the upload button
+.modelsSlot {
+  display: flex;
+  margin: auto 0;
 }
