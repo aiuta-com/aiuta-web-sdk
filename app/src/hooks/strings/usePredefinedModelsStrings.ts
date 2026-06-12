@@ -12,6 +12,12 @@ const capitalize = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
+// Default labels for the fixed gender categories of /try_on_models (Figma)
+const DEFAULT_CATEGORY_LABELS: Record<string, string> = {
+  female: 'Women',
+  male: 'Men',
+}
+
 /**
  * Hook for getting localized Predefined Models feature strings with fallbacks
  */
@@ -36,7 +42,7 @@ export const usePredefinedModelsStrings = () => {
     if (isShoes && shoesCategoryMap[categoryId]) {
       return shoesCategoryMap[categoryId]
     }
-    return categoryMap[categoryId] || capitalize(categoryId)
+    return categoryMap[categoryId] || DEFAULT_CATEGORY_LABELS[categoryId] || capitalize(categoryId)
   }
 
   return {

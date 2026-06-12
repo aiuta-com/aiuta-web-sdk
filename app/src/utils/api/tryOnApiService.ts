@@ -35,11 +35,39 @@ export interface OperationResponse {
 }
 
 /**
+ * A try-on model from the unified /try_on_models endpoint.
+ * gender 'unisex' or a missing tag means the model belongs to both
+ * the female and male categories.
+ */
+export interface TryOnModel extends InputImage {
+  owner_type?: string
+  tags?: {
+    gender?: 'male' | 'female' | 'unisex'
+  }
+}
+
+/**
  * Predefined model category with associated models
  */
 export interface PredefinedModelCategory {
   category: string
   models: InputImage[]
+}
+
+// The flat unified models list is grouped into the fixed gender categories
+// the UI renders; unisex/untagged models appear in both
+const groupModelsByGender = (models: TryOnModel[]): PredefinedModelCategory[] => {
+  const matches = (model: TryOnModel, gender: 'female' | 'male') => {
+    const tag = model.tags?.gender
+    return tag === gender || tag === 'unisex' || !tag
+  }
+
+  return (['female', 'male'] as const)
+    .map((gender) => ({
+      category: gender,
+      models: models.filter((model) => matches(model, gender)),
+    }))
+    .filter((category) => category.models.length > 0)
 }
 
 /**
@@ -162,7 +190,7 @@ export class TryOnApiService {
       headers['If-None-Match'] = ifNoneMatch
     }
 
-    const response = await fetch(`${this.BASE_URL}/predefined_try_on_models`, {
+    const response = await fetch(`${this.BASE_URL}/try_on_models`, {
       method: 'GET',
       headers,
     })
@@ -177,17 +205,17 @@ export class TryOnApiService {
     }
 
     if (!response.ok) {
-      throw new Error(`Failed to get predefined models: ${response.status} ${response.statusText}`)
+      throw new Error(`Failed to get try-on models: ${response.status} ${response.statusText}`)
     }
 
     // Extract ETag from response headers
     const etag = response.headers.get('ETag') || response.headers.get('etag') || null
 
-    // Parse response body
-    const categories: PredefinedModelCategory[] = await response.json()
+    // Parse the flat unified list and group it into gender categories
+    const models: TryOnModel[] = await response.json()
 
     return {
-      categories,
+      categories: groupModelsByGender(models ?? []),
       etag,
       notModified: false,
     }
