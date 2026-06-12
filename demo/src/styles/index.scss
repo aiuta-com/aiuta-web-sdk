@@ -358,6 +358,12 @@ img {
   margin-top: 20px;
 }
 
+// Invisible infinite-scroll trigger right below the grid; the observer's
+// rootMargin makes the next page load before it actually enters the viewport
+.sku-grid__sentinel {
+  height: 1px;
+}
+
 .sku-card {
   display: flex;
   flex-direction: column;
