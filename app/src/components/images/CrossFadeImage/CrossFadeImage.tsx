@@ -5,20 +5,32 @@ import styles from './CrossFadeImage.module.scss'
 
 // The largest fraction of the image width that cover is allowed to crop
 const MAX_WIDTH_CROP = 1 / 4
+// Side bars this thin (per side) read as an artifact rather than a frame,
+// so a barely-narrower image is covered (cropping a bit of height) instead
+const MAX_SIDE_BAR_PX = 16
 
 /**
- * Picks how to fit an image of the given aspect ratio into the container
- * (both ratios are width/height):
- * - the height is never cropped;
+ * Picks how to fit an image of the given aspect ratio (width/height) into
+ * the container:
  * - a wider-than-container image may be cropped by width via cover, but only
  *   while the cropped fraction stays under MAX_WIDTH_CROP;
+ * - a narrower image is covered (cropping some height) only when containing
+ *   it would leave side bars of MAX_SIDE_BAR_PX or thinner;
  * - anything else is contained (the caller renders a blurred backdrop).
  */
-const resolveFit = (imageRatio: number, containerRatio: number): 'cover' | 'contain' => {
-  const coversByWidthOnly = imageRatio >= containerRatio
-  // Cover crops 1 - containerRatio/imageRatio of the width
-  const widthCropIsAcceptable = imageRatio <= containerRatio / (1 - MAX_WIDTH_CROP)
-  return coversByWidthOnly && widthCropIsAcceptable ? 'cover' : 'contain'
+const resolveFit = (
+  imageRatio: number,
+  containerWidth: number,
+  containerHeight: number,
+): 'cover' | 'contain' => {
+  const containerRatio = containerWidth / containerHeight
+  if (imageRatio >= containerRatio) {
+    // Cover crops 1 - containerRatio/imageRatio of the width
+    return imageRatio <= containerRatio / (1 - MAX_WIDTH_CROP) ? 'cover' : 'contain'
+  }
+  // Containing a narrower image leaves two side bars of this width
+  const sideBar = (containerWidth * (1 - imageRatio / containerRatio)) / 2
+  return sideBar <= MAX_SIDE_BAR_PX ? 'cover' : 'contain'
 }
 
 export const CrossFadeImage = ({
@@ -38,11 +50,11 @@ export const CrossFadeImage = ({
   const [isTransitioning, setIsTransitioning] = useState(false)
   const previousSrc = useRef(src)
 
-  // Smart fit inputs: the container ratio (kept up to date by a
+  // Smart fit inputs: the container size (kept up to date by a
   // ResizeObserver) and the natural ratio of every image seen so far
   // (recorded on load; reads happen after a load triggers a re-render)
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const [containerRatio, setContainerRatio] = useState<number | null>(null)
+  const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
   const imageRatios = useRef(new Map<string, number>())
 
   useEffect(() => {
@@ -50,11 +62,14 @@ export const CrossFadeImage = ({
 
     const observer = new ResizeObserver((entries) => {
       const rect = entries[0]?.contentRect
-      if (rect && rect.height > 0) {
-        const ratio = rect.width / rect.height
+      if (rect && rect.width > 0 && rect.height > 0) {
         // Ignore sub-1% changes to avoid re-render churn while animating
-        setContainerRatio((prev) =>
-          prev === null || Math.abs(prev - ratio) / prev > 0.01 ? ratio : prev,
+        setContainerSize((prev) =>
+          prev === null ||
+          Math.abs(prev.width - rect.width) / prev.width > 0.01 ||
+          Math.abs(prev.height - rect.height) / prev.height > 0.01
+            ? { width: rect.width, height: rect.height }
+            : prev,
         )
       }
     })
@@ -71,12 +86,14 @@ export const CrossFadeImage = ({
   }
 
   const getFitForSrc = (imageSrc: string): 'cover' | 'contain' => {
-    if (fit !== 'smart' || containerRatio === null) return 'cover'
+    if (fit !== 'smart' || containerSize === null) return 'cover'
     // The map is keyed by the resolved img.src; fall back to the raw value
     const ratio =
       imageRatios.current.get(imageSrc) ??
       [...imageRatios.current.entries()].find(([key]) => key.endsWith(imageSrc))?.[1]
-    return ratio === undefined ? 'cover' : resolveFit(ratio, containerRatio)
+    return ratio === undefined
+      ? 'cover'
+      : resolveFit(ratio, containerSize.width, containerSize.height)
   }
 
   // Handle src changes for cross-fade
@@ -177,6 +194,23 @@ export const CrossFadeImage = ({
   const currentFit = getFitForSrc(currentSrc)
   const nextFit = nextSrc ? getFitForSrc(nextSrc) : 'cover'
 
+  // The current backdrop fades in only when it appears together with the
+  // image's own load fade. If it (re)mounts while the image is already on
+  // screen — a resize flipped the fit, or a cross-fade handed over — it must
+  // show up instantly, as if it had been there all along. The decision is
+  // frozen at mount so later renders don't restart the animation.
+  const showCurrentBackdrop = currentFit === 'contain'
+  const wasCurrentLoadedRef = useRef(false)
+  const currentBackdropMountedRef = useRef(false)
+  const animateCurrentBackdropRef = useRef(true)
+  if (showCurrentBackdrop && !currentBackdropMountedRef.current) {
+    animateCurrentBackdropRef.current = !wasCurrentLoadedRef.current
+  }
+  useEffect(() => {
+    currentBackdropMountedRef.current = showCurrentBackdrop
+    wasCurrentLoadedRef.current = isCurrentLoaded
+  })
+
   const currentImageClasses = combineClassNames(
     styles.image,
     currentFit === 'contain' && styles.image_contain,
@@ -191,7 +225,7 @@ export const CrossFadeImage = ({
 
   return (
     <div className={containerClasses} ref={containerRef}>
-      {currentFit === 'contain' && (
+      {showCurrentBackdrop && (
         <img
           src={currentSrc}
           alt=""
@@ -199,6 +233,7 @@ export const CrossFadeImage = ({
           className={combineClassNames(
             styles.blurBackdrop,
             isCurrentLoaded && styles.blurBackdrop_loaded,
+            !animateCurrentBackdropRef.current && styles.blurBackdrop_instant,
           )}
           decoding="async"
           draggable={false}

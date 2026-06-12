@@ -42,9 +42,24 @@
   transform: scale(1.12);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease-in-out;
 }
 
+// An animation rather than a transition: the backdrop often mounts with the
+// loaded class already applied (the contain fit is only known after the main
+// image loads), and a transition wouldn't play in that case
 .blurBackdrop_loaded {
   opacity: 1;
+  animation: backdrop_fade_in 0.3s ease-in-out;
+}
+
+// Applied when the backdrop mounts while the image is already on screen
+// (resize-driven fit change): no fade, it should look like it was there
+.blurBackdrop_instant {
+  animation: none;
+}
+
+@keyframes backdrop_fade_in {
+  from {
+    opacity: 0;
+  }
 }
