@@ -21,7 +21,7 @@
   width: calc(100% - 2 * var(--aiuta-inset-h));
   max-width: var(--aiuta-max-width);
   z-index: 1;
-  column-gap: 4px;
+  column-gap: 8px;
 }
 
 .tryOnButton_mobile {
@@ -37,7 +37,7 @@
 }
 
 .icon {
-  width: 20px;
-  height: 20px;
+  width: 15px;
+  height: 15px;
   flex-shrink: 0;
 }

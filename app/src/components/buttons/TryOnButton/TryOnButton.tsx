@@ -21,8 +21,8 @@ export const TryOnButton = (props: TryOnButtonProps) => {
 
   return (
     <button className={buttonClasses} onClick={onClick} disabled={hidden}>
-      {/* Figma: 20px magic icon (the vector itself is drawn on a 16px grid) */}
-      <Icon icon={icons.magic} size={20} viewBox="0 0 16 16" className={styles.icon} />
+      {/* Figma: 15px magic icon (the vector itself is drawn on a 16px grid) */}
+      <Icon icon={icons.magic} size={15} viewBox="0 0 16 16" className={styles.icon} />
       <span>{children}</span>
     </button>
   )
