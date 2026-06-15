@@ -27,6 +27,7 @@ import {
   useImagePickerStrings,
   usePredefinedModels,
   useConsentGate,
+  useSelectedUploadSync,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
@@ -47,6 +48,9 @@ export default function TryOnMobile() {
   const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
+
+  // Keep the preview in sync with the uploads list (auto-select / drop deleted)
+  useSelectedUploadSync()
 
   const handleFileSelect = useCallback(
     async (file: File) => {
@@ -86,12 +90,6 @@ export default function TryOnMobile() {
     })
   }, [rpc, productIds])
 
-  // Auto-select recent photo if no image is selected
-  useEffect(() => {
-    if (!selectedImage && hasRecentPhotos) {
-      dispatch(tryOnSlice.actions.setSelectedImage(recentPhotos[0]))
-    }
-  }, [selectedImage, hasRecentPhotos, recentPhotos, dispatch])
 
   return (
     <main className={styles.tryOn}>

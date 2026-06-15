@@ -1,35 +1,35 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppSelector, useAppDispatch } from '@/store/store'
+import { useAppSelector } from '@/store/store'
 import {
   selectedImageSelector,
   isGeneratingSelector,
   productIdsSelector,
 } from '@/store/slices/tryOnSlice'
-import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { ErrorSnackbar, TryOnButton, TryOnView, TryOnStatus, SecondaryButton } from '@/components'
 import {
   useTryOnGeneration,
-  useUploadsGallery,
   useTryOnStrings,
   useImagePickerStrings,
+  useSelectedUploadSync,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
 
 export default function TryOnDesktop() {
   const navigate = useNavigate()
-  const dispatch = useAppDispatch()
   const rpc = useRpc()
 
   const selectedImage = useAppSelector(selectedImageSelector)
   const isGenerating = useAppSelector(isGeneratingSelector)
   const productIds = useAppSelector(productIdsSelector)
 
-  const { getRecentPhoto } = useUploadsGallery()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
   const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
+
+  // Keep the preview in sync with the uploads list (auto-select / drop deleted)
+  useSelectedUploadSync()
 
   const handleChangePhoto = () => {
     navigate('/uploads')
@@ -45,16 +45,6 @@ export default function TryOnDesktop() {
       productIds,
     })
   }, [rpc, productIds])
-
-  // Auto-select recent photo if no image is selected
-  useEffect(() => {
-    if (!selectedImage) {
-      const recent = getRecentPhoto()
-      if (recent) {
-        dispatch(tryOnSlice.actions.setSelectedImage(recent))
-      }
-    }
-  }, [selectedImage, getRecentPhoto, dispatch])
 
   return (
     <main className={styles.tryOn}>

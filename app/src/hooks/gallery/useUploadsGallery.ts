@@ -2,12 +2,11 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { tryOnSlice, selectedImageSelector } from '@/store/slices/tryOnSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { useImageGallery } from './useImageGallery'
 import { useTryOnImage } from '@/hooks/tryOn/useTryOnImage'
 import { useUploadsData, useDeleteUploadedImages } from '@/hooks/data'
-import { isInputImage } from '@/models'
 import { ImageItem } from './useFullScreenViewer'
 
 interface UseUploadsGalleryProps {
@@ -28,7 +27,6 @@ export const useUploadsGallery = ({
   const { data: recentlyPhotos = [] } = useUploadsData()
   const { mutate: deleteUploadedImages } = useDeleteUploadedImages()
   const isSelecting = useAppSelector(uploadsIsSelectingSelector)
-  const selectedImage = useAppSelector(selectedImageSelector)
   const { selectImageToTryOn } = useTryOnImage()
 
   // Convert React Query data to ImageItem format
@@ -66,15 +64,12 @@ export const useUploadsGallery = ({
     // In selection mode, SelectableImage handles the click
   }
 
-  // Handle image deletion (single image still goes through the batch delete)
+  // Handle image deletion (single image still goes through the batch delete).
+  // Reconciling the try-on selection (clearing it / advancing to the next
+  // photo) is owned by useSelectedUploadSync, which reacts to the uploads list.
   function handleImageDelete(imageId: string) {
     const image = recentlyPhotos.find((img) => img.id === imageId)
     if (image) deleteUploadedImages([image])
-
-    // If deleted image is currently selected for try-on, clear it
-    if (selectedImage && isInputImage(selectedImage) && selectedImage.id === imageId) {
-      dispatch(tryOnSlice.actions.clearSelectedImage())
-    }
   }
 
   // Close uploads images removal modal
