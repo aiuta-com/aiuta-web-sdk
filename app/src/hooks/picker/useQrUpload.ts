@@ -6,6 +6,7 @@ import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { TryOnApiService } from '@/utils/api/tryOnApiService'
 import { resizeAndConvertImage } from '@/utils'
 import { useLogger } from '@/contexts'
+import type { AiutaMode } from '@lib/config'
 
 interface UploadState {
   isUploading: boolean
@@ -24,6 +25,10 @@ export const useQrUpload = () => {
   const query = useQuery()
   const apiKey = query.get('key') || ''
   const subscriptionId = query.get('sid') || ''
+  // Try-on mode passed from the desktop (short value, 's' = shoes); absent
+  // means the default 'general'. This page is standalone (no RPC), so the
+  // URL is the only channel for it.
+  const mode: AiutaMode = query.get('m') === 's' ? 'shoes' : 'general'
 
   const [uploadState, setUploadState] = useState<UploadState>({
     isUploading: false,
@@ -39,6 +44,12 @@ export const useQrUpload = () => {
       QrApiService.setQrScanning(token)
     }
   }, [token])
+
+  // Surface the mode that reached this standalone page (nothing acts on it
+  // yet — the upload page may adapt to it later)
+  useEffect(() => {
+    logger.debug('QR upload mode:', mode)
+  }, [mode, logger])
 
   // Cleanup object URLs on unmount
   useEffect(() => {
@@ -133,5 +144,6 @@ export const useQrUpload = () => {
     selectFile,
     uploadFile,
     reset,
+    mode,
   }
 }

@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { qrSlice } from '@/store/slices/qrSlice'
 import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
-import { productIdsSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector, tryOnModeSelector } from '@/store/slices/tryOnSlice'
 import { QrApiService } from '@/utils/api/qrApiService'
 import { generateRandomString } from '@/utils/helpers/generateRandomString'
 import { useLogger, useRpc } from '@/contexts'
@@ -17,6 +17,7 @@ export const useQrPrompt = () => {
 
   const qrToken = useAppSelector(qrTokenSelector)
   const productIds = useAppSelector(productIdsSelector)
+  const mode = useAppSelector(tryOnModeSelector)
   const isDownloading = useAppSelector(qrIsLoadingSelector)
 
   const auth = rpc.config.auth
@@ -97,12 +98,16 @@ export const useQrPrompt = () => {
 
     const params = hasSubscriptionId ? `sid=${subscriptionId}` : `key=${apiKey}`
 
+    // Pass the try-on mode only when it's non-default, with a short value, so
+    // the QR payload (and density) is unchanged for the common general case
+    const modeParam = mode === 'shoes' ? '&m=s' : ''
+
     // Get current app URL instead of hardcoded static URL
     const currentUrl = new URL(window.location.href)
     const baseUrl = `${currentUrl.protocol}//${currentUrl.host}${currentUrl.pathname}`
 
-    return `${baseUrl}#/qr/${qrToken}?${params}`
-  }, [qrToken, apiKey, subscriptionId])
+    return `${baseUrl}#/qr/${qrToken}?${params}${modeParam}`
+  }, [qrToken, apiKey, subscriptionId, mode])
 
   // Cleanup on unmount
   useEffect(() => {
