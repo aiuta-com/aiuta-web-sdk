@@ -21,6 +21,7 @@ import {
   useTryOnImage,
   usePredefinedModels,
   useUploadsGallery,
+  useImageTone,
 } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
@@ -40,6 +41,9 @@ export default function ResultsMobile() {
   const { selectImageToTryOn } = useTryOnImage()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { recentlyPhotos } = useUploadsGallery()
+
+  // Tone of the image bottom → light/dark disclaimer strip (same as desktop)
+  const toneInfo = useImageTone(currentImage?.url)
 
   const hasMultiplePhotos = recentlyPhotos.length > 1
 
@@ -73,11 +77,14 @@ export default function ResultsMobile() {
       <FilePicker onFileSelect={handleFileSelect}>
         {({ openFilePicker }) => (
           <>
-            <Flex contentClassName={combineClassNames('aiuta-image-l')}>
+            <Flex
+              containerClassName={styles.fillContainer}
+              contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
+            >
               <RemoteImage
                 src={currentImage}
                 alt="Generated result"
-                shape="L"
+                shape="M"
                 fit="smart"
                 onClick={() => currentImage && handleMobileImageClick(currentImage.url)}
               />
@@ -87,12 +94,19 @@ export default function ResultsMobile() {
                 onClick={() => currentImage && shareImage(currentImage.url)}
                 className={styles.shareButton}
               />
-              {isOtherPhotoEnabled && <OtherPhoto className={styles.otherPhoto} />}
+              {isOtherPhotoEnabled && <OtherPhoto className={styles.changePhotoFab} />}
               {currentImage && (
                 <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
               )}
+              {toneInfo && (
+                <Disclaimer overlay tone={toneInfo.tone} tint={toneInfo.averageColor} />
+              )}
             </Flex>
-            <Disclaimer className={styles.disclaimer} />
+
+            {/* We don't render an Add to cart button, but reserve its space so
+                the result image keeps the same height as the loading screen
+                (which has the status row below the image) — no jump on finish */}
+            <div className={styles.cartReserve} aria-hidden="true" />
 
             <UploadsHistorySheet
               onUploadNew={openFilePicker}

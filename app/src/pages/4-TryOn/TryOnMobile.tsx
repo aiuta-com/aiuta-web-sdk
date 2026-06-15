@@ -12,6 +12,8 @@ import {
   UploadsHistorySheet,
   ErrorSnackbar,
   TryOnButton,
+  TryOnStatus,
+  SecondaryButton,
   UploadPrompt,
   FilePicker,
   TryOnView,
@@ -21,6 +23,7 @@ import {
   useTryOnImage,
   useUploadsGallery,
   useTryOnStrings,
+  useImagePickerStrings,
   usePredefinedModels,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
@@ -39,6 +42,7 @@ export default function TryOnMobile() {
   const { selectImageToTryOn } = useTryOnImage()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
+  const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
 
   const handleFileSelect = useCallback(
@@ -68,9 +72,7 @@ export default function TryOnMobile() {
     navigate('/models')
   }, [navigate])
 
-  const hasImage = selectedImage !== null
   const hasRecentPhotos = recentPhotos && recentPhotos.length > 0
-  const showTryOnButton = !isGenerating && hasImage
 
   // Track page view on mount
   useEffect(() => {
@@ -96,11 +98,32 @@ export default function TryOnMobile() {
         {({ openFilePicker }) => (
           <>
             {selectedImage ? (
-              <TryOnView
-                image={selectedImage}
-                isGenerating={isGenerating}
-                onChangePhoto={hasRecentPhotos ? handleOpenBottomSheet : openFilePicker}
-              />
+              <>
+                {/* Full-bleed image with the loading veil (same as desktop);
+                    the change-photo action moves to the button row below */}
+                <TryOnView image={selectedImage} isGenerating={isGenerating} fill />
+
+                {isGenerating ? (
+                  // The status takes the action row's place so the layout
+                  // doesn't jump when the generation starts
+                  <div className={styles.loadingRow}>
+                    <TryOnStatus />
+                  </div>
+                ) : (
+                  <div className={styles.actions}>
+                    <SecondaryButton
+                      onClick={hasRecentPhotos ? handleOpenBottomSheet : openFilePicker}
+                      shape="M"
+                      classNames={styles.action}
+                    >
+                      {uploadsHistoryButtonChangePhoto}
+                    </SecondaryButton>
+                    <TryOnButton onClick={() => startTryOn()} className={styles.action}>
+                      {tryOn}
+                    </TryOnButton>
+                  </div>
+                )}
+              </>
             ) : (
               <UploadPrompt
                 onClick={openFilePicker}
@@ -116,14 +139,6 @@ export default function TryOnMobile() {
           </>
         )}
       </FilePicker>
-
-      {/* Only with an image: in the empty state the prompt card fills the
-          whole area, so the (hidden) button must not reserve bottom space */}
-      {hasImage && (
-        <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
-          {tryOn}
-        </TryOnButton>
-      )}
     </main>
   )
 }

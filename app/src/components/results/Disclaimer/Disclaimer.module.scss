@@ -51,6 +51,11 @@
     text-overflow: ellipsis;
     text-align: center;
   }
+
+  // Mobile: the image is full-bleed and square, so the strip is too
+  @media (max-width: 992px) {
+    border-radius: 0;
+  }
 }
 
 @keyframes disclaimer_fade_in {

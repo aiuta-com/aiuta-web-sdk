@@ -112,6 +112,19 @@
   height: 100%;
 }
 
+// Mobile: the image goes truly full-bleed — no side insets and no rounding
+// (Figma). The breakpoint mirrors MOBILE_BREAKPOINT in useWindowResize.ts.
+@media (max-width: 992px) {
+  .fillContainer {
+    padding: 0 0 16px;
+  }
+
+  .fillContent,
+  .fillContainer :global(.aiuta-image-m) {
+    border-radius: 0;
+  }
+}
+
 .changePhotoButton {
   cursor: pointer;
   position: absolute;
