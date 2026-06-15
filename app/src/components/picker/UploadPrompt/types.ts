@@ -3,4 +3,6 @@ export type UploadPromptProps = {
   onClick: () => void
   /** Callback function when models button is clicked (optional, hides button if not provided) */
   onModelsClick?: () => void
+  /** Extra class on the card, for per-page spacing tweaks */
+  className?: string
 }

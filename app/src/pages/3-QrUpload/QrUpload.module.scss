@@ -14,6 +14,13 @@
   bottom: 8px;
 }
 
+// QR empty state: the picker has a single low-sitting Upload button, so raise
+// it 50px inside the card (extra bottom padding on top of the card's own 24px).
+// Doubled class beats UploadPrompt's own .card padding regardless of bundle order.
+.emptyCard.emptyCard {
+  padding-bottom: 74px;
+}
+
 // Compact top bar on the preview/loading states (Figma 12429-17256): centered
 // title. The empty state renders no bar so it matches the main upload screen.
 .navbar {

@@ -1,12 +1,12 @@
 // QR code container: the 8px padding is the quiet zone (the SVG has no
-// margin); background is set inline to match the QR background.
-// The radius matches the padding so the rounding stays entirely within the
-// grey quiet zone and never clips the code's corner eyes. line-height:0
-// drops the inline-svg baseline gap.
+// margin); background is set inline to match the QR background. The 16px radius
+// rounds the grey quiet zone; the circular finder eyes ('dot') sit far enough
+// from the corner (~13–15px) that the rounding never clips a module.
+// line-height:0 drops the inline-svg baseline gap.
 .qrCode {
   position: relative;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 16px;
   overflow: hidden;
   line-height: 0;
 }

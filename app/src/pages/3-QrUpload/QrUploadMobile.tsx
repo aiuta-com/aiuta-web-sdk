@@ -44,7 +44,7 @@ export default function QrUploadMobile() {
           {({ openFilePicker }) => (
             <>
               {!selectedFile ? (
-                <UploadPrompt onClick={openFilePicker} />
+                <UploadPrompt onClick={openFilePicker} className={styles.emptyCard} />
               ) : !uploadedUrl ? (
                 <>
                   <Flex
