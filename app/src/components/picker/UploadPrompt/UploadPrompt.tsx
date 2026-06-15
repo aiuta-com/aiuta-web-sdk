@@ -6,14 +6,14 @@ import { combineClassNames } from '@/utils'
 import styles from './UploadPrompt.module.scss'
 
 export const UploadPrompt = (props: UploadPromptProps) => {
-  const { onClick, onModelsClick } = props
+  const { onClick, onModelsClick, className } = props
   const { imagePickerTitle, imagePickerDescription, imagePickerButtonUploadPhoto } =
     useImagePickerStrings()
   const { zeroStateImage } = useImagePickerImages()
   const { predefinedModelsTitle, predefinedModelsOr } = usePredefinedModelsStrings()
 
   return (
-    <div className={styles.card}>
+    <div className={combineClassNames(styles.card, className)}>
       {/* Zero-state artwork fit into a reserved slot (onboarding principle) */}
       <img className={styles.image} src={zeroStateImage} alt="" draggable={false} />
 
