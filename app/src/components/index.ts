@@ -50,6 +50,7 @@ export { UploadPreview } from './picker/UploadPreview'
 export { UploadResult } from './picker/UploadResult'
 export { UploadsHistorySheet } from './picker/UploadsHistorySheet'
 export { ModelsList } from './picker/ModelsList'
+export { ModelsGroups } from './picker/ModelsGroups'
 
 // Gallery
 export { ImageGallery } from './gallery/ImageGallery'

@@ -43,15 +43,18 @@ export interface TryOnModel extends InputImage {
   owner_type?: string
   tags?: {
     gender?: 'male' | 'female' | 'unisex'
+    /** Shoes mode groups the models by camera view */
+    view?: 'full-height' | 'bird-view' | 'side-view'
   }
 }
 
 /**
- * Predefined model category with associated models
+ * Predefined model category with associated models. Models keep their tags
+ * (the shoes picker groups them further by `view`).
  */
 export interface PredefinedModelCategory {
   category: string
-  models: InputImage[]
+  models: TryOnModel[]
 }
 
 // The flat unified models list is grouped into the fixed gender categories

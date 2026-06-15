@@ -2,6 +2,7 @@ import { useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { qrTokenSelector } from '@/store/slices/qrSlice'
 import { isMobileSelector } from '@/store/slices/appSlice'
+import { tryOnModeSelector } from '@/store/slices/tryOnSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { useGenerationsData, useUploadsData } from '@/hooks/data'
@@ -12,6 +13,7 @@ export const usePageBarVisibility = () => {
 
   const qrToken = useAppSelector(qrTokenSelector)
   const isMobile = useAppSelector(isMobileSelector)
+  const mode = useAppSelector(tryOnModeSelector)
   const { data: generatedImages = [] } = useGenerationsData()
   const { data: recentlyPhotos = [] } = useUploadsData()
   const isSelectingGenerations = useAppSelector(generationsIsSelectingSelector)
@@ -43,9 +45,11 @@ export const usePageBarVisibility = () => {
     !showBackButton && !isOnOnboardingPage && !isOnHomePage && hasGeneratedImages
 
   // Title visibility: the onboarding navbar has no title (close button only);
-  // on mobile the models page puts its Women/Men segmented control in the
-  // navbar center instead of the title (see ModelsMobile)
-  const showTitle = !isOnOnboardingPage && !(isOnModelsPage && isMobile)
+  // on mobile the general models page puts its Women/Men segmented control in
+  // the navbar center instead of the title (see ModelsMobile). Shoes mode keeps
+  // the title ("Select example") since its gender toggle lives in the content.
+  const isShoes = mode === 'shoes'
+  const showTitle = !isOnOnboardingPage && !(isOnModelsPage && isMobile && !isShoes)
 
   // Right side content visibility
   const showSelectButton = isOnHistoryPage && hasAnyHistory

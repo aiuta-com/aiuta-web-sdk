@@ -46,6 +46,8 @@ export interface ShoesImagePicker {
     strings?: {
       predefinedModelShoesPageTitle?: string
       predefinedModelShoesCategories?: Record<string, string>
+      /** Labels for the view groups, keyed by view (full-height/bird-view/side-view) */
+      predefinedModelShoesGroups?: Record<string, string>
     }
   }
   images?: {
