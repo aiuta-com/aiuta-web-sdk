@@ -117,8 +117,15 @@
 // that's 16px image padding + 50px button + 26px margin = 92px. The full-bleed
 // result image has no bottom padding, so the whole 92px lives in this spacer.
 .cartReserve {
+  position: relative;
   flex-shrink: 0;
+  width: 100%;
   height: 92px;
+
+  // Lift the Powered by footer 20px off the bottom (only here)
+  :global(.aiuta-powered-by) {
+    bottom: 20px;
+  }
 }
 
 // Like/dislike sit flush with the image's right edge, 5px above the

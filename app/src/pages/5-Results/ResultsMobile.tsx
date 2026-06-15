@@ -12,6 +12,7 @@ import {
   OtherPhoto,
   UploadsHistorySheet,
   FilePicker,
+  PoweredBy,
 } from '@/components'
 import {
   useResultsGallery,
@@ -103,10 +104,12 @@ export default function ResultsMobile() {
               )}
             </Flex>
 
-            {/* We don't render an Add to cart button, but reserve its space so
-                the result image keeps the same height as the loading screen
-                (which has the status row below the image) — no jump on finish */}
-            <div className={styles.cartReserve} aria-hidden="true" />
+            {/* No Add to cart button yet, but its space is reserved so the
+                result image keeps the same height as the loading screen (no
+                jump on finish). For now it holds the Powered by footer. */}
+            <div className={styles.cartReserve}>
+              <PoweredBy />
+            </div>
 
             <UploadsHistorySheet
               onUploadNew={openFilePicker}
