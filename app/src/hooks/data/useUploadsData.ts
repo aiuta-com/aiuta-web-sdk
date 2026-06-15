@@ -38,16 +38,17 @@ export function useAddUpload() {
 }
 
 /**
- * Hook to remove an uploaded image
+ * Hook to delete uploaded images (one write for the whole batch → the list
+ * re-renders once instead of flickering per item). Mirrors the
+ * `deleteUploadedImages` data-provider callback; there is no single-delete.
  */
-export function useRemoveUpload() {
+export function useDeleteUploadedImages() {
   const backend = useStorageBackend()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (imageId: string) => backend.removeInputImage(imageId),
+    mutationFn: (images: InputImage[]) => backend.deleteUploadedImages(images),
     onSuccess: (updatedImages) => {
-      // Update cache with new list
       queryClient.setQueryData(uploadsKeys.all, updatedImages)
     },
   })

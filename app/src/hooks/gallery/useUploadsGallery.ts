@@ -6,7 +6,7 @@ import { tryOnSlice, selectedImageSelector } from '@/store/slices/tryOnSlice'
 import { selectedUploadsSelector, uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { useImageGallery } from './useImageGallery'
 import { useTryOnImage } from '@/hooks/tryOn/useTryOnImage'
-import { useUploadsData, useRemoveUpload } from '@/hooks/data'
+import { useUploadsData, useDeleteUploadedImages } from '@/hooks/data'
 import { isInputImage } from '@/models'
 import { ImageItem } from './useFullScreenViewer'
 
@@ -26,7 +26,7 @@ export const useUploadsGallery = ({
   const dispatch = useAppDispatch()
   const selectedImages = useAppSelector(selectedUploadsSelector)
   const { data: recentlyPhotos = [] } = useUploadsData()
-  const { mutate: removeUpload } = useRemoveUpload()
+  const { mutate: deleteUploadedImages } = useDeleteUploadedImages()
   const isSelecting = useAppSelector(uploadsIsSelectingSelector)
   const selectedImage = useAppSelector(selectedImageSelector)
   const { selectImageToTryOn } = useTryOnImage()
@@ -66,9 +66,10 @@ export const useUploadsGallery = ({
     // In selection mode, SelectableImage handles the click
   }
 
-  // Handle image deletion
+  // Handle image deletion (single image still goes through the batch delete)
   function handleImageDelete(imageId: string) {
-    removeUpload(imageId)
+    const image = recentlyPhotos.find((img) => img.id === imageId)
+    if (image) deleteUploadedImages([image])
 
     // If deleted image is currently selected for try-on, clear it
     if (selectedImage && isInputImage(selectedImage) && selectedImage.id === imageId) {
@@ -81,18 +82,23 @@ export const useUploadsGallery = ({
     onCloseModal?.()
   }, [onCloseModal])
 
-  // Delete selected images
+  // Delete selected images in one batch (single write + one re-render)
   const deleteSelectedImages = useCallback(() => {
-    // Delete each selected image
-    selectedImages.forEach((imageId) => {
-      removeUpload(imageId)
-    })
+    const toDelete = recentlyPhotos.filter((img) => selectedImages.includes(img.id))
+    deleteUploadedImages(toDelete)
 
     // Update Redux UI state
     clearSelection() // Clear selection first
     dispatch(uploadsSlice.actions.setIsSelecting(false)) // Exit selection mode
     closeUploadsImagesModal()
-  }, [selectedImages, removeUpload, clearSelection, dispatch, closeUploadsImagesModal])
+  }, [
+    selectedImages,
+    recentlyPhotos,
+    deleteUploadedImages,
+    clearSelection,
+    dispatch,
+    closeUploadsImagesModal,
+  ])
 
   // Toggle select all action
   const toggleSelectAll = useCallback(() => {

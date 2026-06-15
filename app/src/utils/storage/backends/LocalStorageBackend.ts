@@ -48,9 +48,10 @@ export class LocalStorageBackend implements IStorageBackend {
     return updated
   }
 
-  async removeInputImage(imageId: string): Promise<InputImage[]> {
+  async deleteUploadedImages(images: InputImage[]): Promise<InputImage[]> {
+    const ids = new Set(images.map((img) => img.id))
     const current = await this.getInputImages()
-    const updated = current.filter((img) => img.id !== imageId)
+    const updated = current.filter((img) => !ids.has(img.id))
     await this.adapter.setItem(this.KEYS.UPLOADS, updated)
     return updated
   }
@@ -72,9 +73,10 @@ export class LocalStorageBackend implements IStorageBackend {
     return updated
   }
 
-  async removeGeneratedImage(imageId: string): Promise<GeneratedImage[]> {
+  async deleteGeneratedImages(images: GeneratedImage[]): Promise<GeneratedImage[]> {
+    const ids = new Set(images.map((img) => img.id))
     const current = await this.getGeneratedImages()
-    const updated = current.filter((img) => img.id !== imageId)
+    const updated = current.filter((img) => !ids.has(img.id))
     await this.adapter.setItem(this.KEYS.GENERATIONS, updated)
     return updated
   }

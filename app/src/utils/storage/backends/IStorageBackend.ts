@@ -29,10 +29,12 @@ export interface IStorageBackend {
   addInputImage(image: InputImage): Promise<InputImage[]>
 
   /**
-   * Removes an uploaded image by id
+   * Removes the given uploaded images in one write (matches the
+   * `deleteUploadedImages` data-provider callback; there is no single-image
+   * delete by design)
    * @returns Updated list of all images
    */
-  removeInputImage(imageId: string): Promise<InputImage[]>
+  deleteUploadedImages(images: InputImage[]): Promise<InputImage[]>
 
   /**
    * Clears all uploaded images
@@ -53,10 +55,12 @@ export interface IStorageBackend {
   addGeneratedImage(image: GeneratedImage): Promise<GeneratedImage[]>
 
   /**
-   * Removes a generated image by id
+   * Removes the given generated images in one write (matches the
+   * `deleteGeneratedImages` data-provider callback; there is no single-image
+   * delete by design)
    * @returns Updated list of all images
    */
-  removeGeneratedImage(imageId: string): Promise<GeneratedImage[]>
+  deleteGeneratedImages(images: GeneratedImage[]): Promise<GeneratedImage[]>
 
   /**
    * Clears all generated images

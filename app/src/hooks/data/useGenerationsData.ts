@@ -38,16 +38,17 @@ export function useAddGeneration() {
 }
 
 /**
- * Hook to remove a generated image
+ * Hook to delete generated images (one write for the whole batch → the list
+ * re-renders once instead of flickering per item). Mirrors the
+ * `deleteGeneratedImages` data-provider callback; there is no single-delete.
  */
-export function useRemoveGeneration() {
+export function useDeleteGeneratedImages() {
   const backend = useStorageBackend()
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (imageId: string) => backend.removeGeneratedImage(imageId),
+    mutationFn: (images: GeneratedImage[]) => backend.deleteGeneratedImages(images),
     onSuccess: (updatedImages) => {
-      // Update cache with new list
       queryClient.setQueryData(generationsKeys.all, updatedImages)
     },
   })
