@@ -65,9 +65,12 @@ export default function UploadsHistoryPage() {
         onDelete={gallery.deleteSelectedImages}
       />
 
-      <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
-        {buttonText}
-      </PrimaryButton>
+      {/* Pinned over the gallery on a fade-to-background gradient (Figma) */}
+      <div className={styles.uploadButtonContainer}>
+        <PrimaryButton onClick={gallery.navigateToUpload} className={styles.uploadButton}>
+          {buttonText}
+        </PrimaryButton>
+      </div>
     </main>
   )
 }

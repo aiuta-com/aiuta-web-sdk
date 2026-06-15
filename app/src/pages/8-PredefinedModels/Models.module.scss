@@ -11,20 +11,18 @@
 
 .tabs {
   flex-shrink: 0;
-  // Figma: the segmented control sits 8px below the navbar with 11px side
-  // insets and 16px before the models grid
-  margin: 8px 11px 16px;
+  // The segmented control sits 8px below the navbar with 8px side insets
+  // (matching the gallery) and 16px before the models grid
+  margin: 8px 8px 16px;
 }
 
 .gallery {
-  /* Two columns on the standard 420px widget (Figma); wider presentations
-     (mobile fullscreen up to 992px, custom widget widths) gain columns
-     instead of blowing the images up */
+  /* Two columns on the standard 420px widget; wider presentations (mobile
+     fullscreen up to 992px, custom widget widths) gain columns instead of
+     blowing the images up. Insets and gap come from the base gallery (8px);
+     the top inset is dropped since the segmented control above provides it */
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  /* Figma: 12px between the images and from the edges; the 16px gap from
-     the segmented control comes from the tabs margin alone */
-  gap: 12px;
-  padding: 0 12px 12px;
+  padding-top: 0;
 }
 
 .list {
