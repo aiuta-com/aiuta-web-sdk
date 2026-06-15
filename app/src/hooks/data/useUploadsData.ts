@@ -48,6 +48,22 @@ export function useDeleteUploadedImages() {
 
   return useMutation({
     mutationFn: (images: InputImage[]) => backend.deleteUploadedImages(images),
+    // Remove from the cache immediately so the picker's auto-select doesn't
+    // re-pick a just-deleted photo from a stale list (the storage write lags a
+    // tick behind the cache).
+    onMutate: (images) => {
+      const ids = new Set(images.map((image) => image.id))
+      const previous = queryClient.getQueryData<InputImage[]>(uploadsKeys.all)
+      queryClient.setQueryData<InputImage[]>(uploadsKeys.all, (current = []) =>
+        current.filter((image) => !ids.has(image.id)),
+      )
+      return { previous }
+    },
+    onError: (_error, _images, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(uploadsKeys.all, context.previous)
+      }
+    },
     onSuccess: (updatedImages) => {
       queryClient.setQueryData(uploadsKeys.all, updatedImages)
     },

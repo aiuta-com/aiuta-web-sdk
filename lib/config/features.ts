@@ -135,6 +135,8 @@ export interface TryOnInputImageValidation {
   strings?: {
     invalidInputImageDescription?: string
     invalidInputImageChangePhotoButton?: string
+    /** Shown when the selected photo no longer exists on the backend (expired) */
+    expiredInputImageDescription?: string
     // Specific abort reason messages
     noPeopleDetectedDescription?: string
     tooManyPeopleDetectedDescription?: string

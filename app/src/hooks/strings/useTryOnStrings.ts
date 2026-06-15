@@ -45,6 +45,9 @@ export const useTryOnStrings = () => {
       "We couldn't detect anyone in this photo. For best results, please upload a well-lit photo of an adult standing straight in front of a pale background.",
     invalidInputImageChangePhotoButton:
       inputValidationStrings?.invalidInputImageChangePhotoButton ?? 'Change photo',
+    expiredInputImageDescription:
+      inputValidationStrings?.expiredInputImageDescription ??
+      'This photo is no longer available. Please upload a new one.',
 
     // Specific abort reason messages
     noPeopleDetectedDescription:

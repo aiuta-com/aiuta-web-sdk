@@ -16,9 +16,12 @@ export interface Image {
  * - metadata: Technical metadata like dimensions, format, etc.
  * - userProfile: Associated user profile information
  */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface InputImage extends Image {
-  // Future fields will be added here for user history management
+  /**
+   * ISO timestamp when the backend image expires. Stored so expired uploads can
+   * be pruned from the local history instead of breaking try-on later.
+   */
+  expiresAt?: string
 }
 
 /**
