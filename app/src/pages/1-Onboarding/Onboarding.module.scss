@@ -54,7 +54,19 @@
   margin-top: auto;
   margin-bottom: 48px;
 
+  // Mobile: the image box takes all the free space above the (bottom-anchored)
+  // title/description/button, growing full-width with no 21/20 slot and
+  // stopping 8px below the pagebar per Figma. The image is aspect-fit
+  // (contain) inside that box — no crop, and since the box is full width the
+  // fit happens by width, so no side bars. Text-to-button gaps are unchanged.
   &_mobile {
+    width: 100%;
+    height: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+    aspect-ratio: auto;
+    object-fit: contain;
+    margin-top: 8px;
     margin-bottom: 40px;
   }
 }
