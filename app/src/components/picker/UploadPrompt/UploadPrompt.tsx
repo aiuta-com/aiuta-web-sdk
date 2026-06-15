@@ -1,20 +1,20 @@
 import React from 'react'
-import { Flex, PrimaryButton, SecondaryButton } from '@/components'
+import { PrimaryButton, SecondaryButton } from '@/components'
 import { useImagePickerStrings, useImagePickerImages, usePredefinedModelsStrings } from '@/hooks'
 import { UploadPromptProps } from './types'
-import styles from './UploadPrompt.module.scss'
 import { combineClassNames } from '@/utils'
+import styles from './UploadPrompt.module.scss'
 
 export const UploadPrompt = (props: UploadPromptProps) => {
   const { onClick, onModelsClick } = props
   const { imagePickerTitle, imagePickerDescription, imagePickerButtonUploadPhoto } =
     useImagePickerStrings()
   const { examples } = useImagePickerImages()
-  const { predefinedModelsTitle } = usePredefinedModelsStrings()
+  const { predefinedModelsTitle, predefinedModelsOr } = usePredefinedModelsStrings()
 
   return (
-    <Flex contentClassName={combineClassNames('aiuta-image-l', styles.uploadPrompt)}>
-      {/* Example images */}
+    <div className={styles.card}>
+      {/* Two tilted polaroid examples */}
       <div className={styles.examples}>
         {examples.map((example, index) => (
           <img
@@ -33,7 +33,7 @@ export const UploadPrompt = (props: UploadPromptProps) => {
       {/* Text content */}
       <div className={styles.content}>
         <h2 className={combineClassNames('aiuta-title-m', styles.title)}>{imagePickerTitle}</h2>
-        <p className={combineClassNames('aiuta-label-subtle', styles.subtitle)}>
+        <p className={combineClassNames('aiuta-label-regular', styles.subtitle)}>
           {imagePickerDescription}
         </p>
       </div>
@@ -46,7 +46,9 @@ export const UploadPrompt = (props: UploadPromptProps) => {
 
         {onModelsClick && (
           <>
-            <p className={combineClassNames('aiuta-label-regular', styles.or)}>Or</p>
+            <p className={combineClassNames('aiuta-label-regular', styles.or)}>
+              {predefinedModelsOr}
+            </p>
             <SecondaryButton
               onClick={onModelsClick}
               shape="M"
@@ -58,6 +60,6 @@ export const UploadPrompt = (props: UploadPromptProps) => {
           </>
         )}
       </div>
-    </Flex>
+    </div>
   )
 }

@@ -117,9 +117,13 @@ export default function TryOnMobile() {
         )}
       </FilePicker>
 
-      <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
-        {tryOn}
-      </TryOnButton>
+      {/* Only with an image: in the empty state the prompt card fills the
+          whole area, so the (hidden) button must not reserve bottom space */}
+      {hasImage && (
+        <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
+          {tryOn}
+        </TryOnButton>
+      )}
     </main>
   )
 }
