@@ -1,4 +1,5 @@
-// Vertical scroller of view groups
+// Vertical scroller of view groups — full width; the 8px side inset lives on
+// the labels and inside each row's scroller (so rows scroll edge-to-edge)
 .groups {
   flex: 1 1 0;
   min-height: 0;
@@ -7,7 +8,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 0 8px 8px;
+  padding: 0 0 8px;
 
   &::-webkit-scrollbar {
     display: none;
@@ -16,7 +17,7 @@
 }
 
 .groupLabel {
-  margin: 0 0 8px;
+  margin: 0 8px 8px;
   color: var(--aiuta-color-secondary);
 }
 
@@ -24,19 +25,28 @@
   position: relative;
 }
 
-// Horizontal scroller of model cards
+// Horizontal scroller of model cards. The scroller spans the full width so the
+// cards scroll edge-to-edge. Zero-width flex items at both ends turn the row
+// `gap` into an 8px inset before the first and after the last card — reliable
+// in scroll containers, where edge padding/margin can be dropped.
 .row {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
 
   &::-webkit-scrollbar {
     display: none;
   }
   scrollbar-width: none;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 0 0 auto;
+    width: 0;
+  }
 }
 
 // Figma model card: 153×240, 16px radius (from the M image shape). Relative so
@@ -49,7 +59,6 @@
   width: 153px;
   height: 240px;
   cursor: pointer;
-  scroll-snap-align: start;
 }
 
 @media (max-width: 992px) {
@@ -84,9 +93,9 @@
 }
 
 .arrow_left {
-  left: -4px;
+  left: 4px;
 }
 
 .arrow_right {
-  right: -4px;
+  right: 4px;
 }

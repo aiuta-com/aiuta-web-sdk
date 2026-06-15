@@ -45,7 +45,10 @@ export default function App() {
     const offset = paging.nextOffset
     try {
       const page = await fetchSkuPage(offset)
-      setSkus((prev) => (offset === 0 ? page.items : [...prev, ...page.items]).sort(byCatalogOrder))
+      // Sort within the page only and append — re-sorting the whole list on
+      // every page would reshuffle already-shown items as more load
+      const sortedPage = [...page.items].sort(byCatalogOrder)
+      setSkus((prev) => (offset === 0 ? sortedPage : [...prev, ...sortedPage]))
       paging.nextOffset = page.nextOffset
       setHasMoreSkus(page.nextOffset !== null)
     } catch (error) {

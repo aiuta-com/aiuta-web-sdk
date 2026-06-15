@@ -7,7 +7,7 @@ import styles from './CrossFadeImage.module.scss'
 const MAX_WIDTH_CROP = 1 / 4
 // Side bars this thin (per side) read as an artifact rather than a frame,
 // so a barely-narrower image is covered (cropping a bit of height) instead
-const MAX_SIDE_BAR_PX = 20
+const MAX_SIDE_BAR_PX = 0
 
 /**
  * Picks how to fit an image of the given aspect ratio (width/height) into
