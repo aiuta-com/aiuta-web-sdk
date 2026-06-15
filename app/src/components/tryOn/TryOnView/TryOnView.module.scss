@@ -48,23 +48,34 @@
 .loadingGradient::after {
   content: '';
   position: absolute;
-  // Oversized just enough to cover the one-period translation below while
-  // keeping the retina raster under the 4096px GPU texture limit
-  inset: -710px;
-  // The 900px period is four equal 225px quarters: lit plateau, transition,
-  // transparent plateau, transition. One easing stop next to each plateau
-  // edge rounds the knee so it doesn't read as a bright Mach line.
+  // Rendered at half scale and blown up with transform: scale(2). The veil is
+  // a soft gradient, so the 2x upscale is invisible, but the rasterized
+  // texture is a quarter of the area — small enough to stay well under the GPU
+  // texture limit on full-bleed mobile at DPR 3 (a full-size oversized layer
+  // overflowed it and blanked for a couple of frames each loop).
+  //
+  // In this half-scale space everything is halved: the box is
+  // (50% + half the oversize) and grows to cover the container + the up-left
+  // travel extension once scaled from the top-left corner.
+  top: -710px;
+  left: -555px;
+  width: calc(50% + 278px);
+  height: calc(50% + 355px);
+  transform-origin: top left;
+  transform: scale(2);
+  // 450px period here = 900px on screen after scale(2); same four-quarter
+  // structure (lit plateau, transition, transparent plateau, transition)
   background: repeating-linear-gradient(
     142deg,
     rgba(255, 255, 255, 0.5) 0,
-    rgba(255, 255, 255, 0.5) 225px,
-    rgba(255, 255, 255, 0.45) 270px,
-    rgba(255, 255, 255, 0.05) 405px,
-    rgba(255, 255, 255, 0) 450px,
-    rgba(255, 255, 255, 0) 675px,
-    rgba(255, 255, 255, 0.05) 720px,
-    rgba(255, 255, 255, 0.45) 855px,
-    rgba(255, 255, 255, 0.5) 900px
+    rgba(255, 255, 255, 0.5) 112.5px,
+    rgba(255, 255, 255, 0.45) 135px,
+    rgba(255, 255, 255, 0.05) 202.5px,
+    rgba(255, 255, 255, 0) 225px,
+    rgba(255, 255, 255, 0) 337.5px,
+    rgba(255, 255, 255, 0.05) 360px,
+    rgba(255, 255, 255, 0.45) 427.5px,
+    rgba(255, 255, 255, 0.5) 450px
   );
   animation:
     gradient-crawl 3s linear infinite,
@@ -83,11 +94,14 @@
 }
 
 @keyframes gradient-crawl {
+  // Half of one 900px period along the 142deg axis (the layer is scale(2)):
+  // (sin 142°, -cos 142°) × 450 = (277.06px, 354.61px) → 900px on screen, so
+  // the loop lands on an identical frame
+  from {
+    transform: scale(2) translate(0, 0);
+  }
   to {
-    // One gradient period (900px) along the 142deg axis:
-    // (sin 142°, -cos 142°) × 900 = (554.13px, 709.22px) — the loop lands
-    // on an identical frame
-    transform: translate(554.13px, 709.22px);
+    transform: scale(2) translate(277.06px, 354.61px);
   }
 }
 
