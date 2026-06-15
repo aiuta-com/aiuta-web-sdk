@@ -15,9 +15,13 @@ body,
   height: 100%;
 }
 
-/* Keep scroll inside the SDK iframe — don't chain it to the host page —
-   only in the fullscreen mobile presentation. On desktop the widget is a
-   floating panel and the host page must keep scrolling underneath.
+/* Fullscreen mobile presentation: the iframe IS the whole widget, so contain
+   scroll at its root (plus the JS touch hook for iOS). On desktop the iframe
+   is a fullscreen overlay with a small floating panel over a transparent
+   area — the host must keep scrolling when the wheel is over that transparent
+   area (via scroll chaining out of the iframe), so the root is NOT contained
+   there; the desktop panel blocks host scroll via the JS wheel handler in
+   usePreventParentScroll, scoped to the panel element.
    The breakpoint mirrors MOBILE_BREAKPOINT in useWindowResize.ts. */
 @media (max-width: 992px) {
   html,

@@ -1,29 +1,44 @@
-import { useEffect } from 'react'
+import { useEffect, type RefObject } from 'react'
 
 /**
- * Stops touch-scroll gestures inside the iframe from chaining to the host page.
+ * Stops scroll gestures inside the iframe from reaching the host page.
  *
- * iOS Safari routes a touch drag over the iframe to the parent document when the
- * app has nothing to scroll, and neither `overscroll-behavior` nor `touch-action`
- * reliably prevents this across the frame boundary. So we do it in JS: a
- * single-finger drag keeps its native scroll only when it lands on an element
- * that can actually scroll in that direction; otherwise `preventDefault()` stops
- * the gesture before it can pan the parent. Multi-touch (pinch) and the app's own
- * swipe handlers are left untouched (we never stop propagation).
+ * Two paths:
+ *
+ * - Touch (mobile fullscreen): iOS Safari routes a touch drag over the iframe
+ *   to the parent document when the app has nothing to scroll, and neither
+ *   `overscroll-behavior` nor `touch-action` reliably prevents this across the
+ *   frame boundary. A single-finger drag keeps its native scroll only when it
+ *   lands on an element that can actually scroll in that direction; otherwise
+ *   `preventDefault()` stops the gesture before it can pan the parent. This is
+ *   document-wide because the mobile presentation fills the whole iframe.
+ *
+ * - Wheel (desktop floating panel): the iframe is a fullscreen overlay with a
+ *   small panel over a transparent area. The host should keep scrolling when
+ *   the wheel is over the transparent area (native scroll chaining out of the
+ *   iframe), but must NOT scroll while the cursor is over the panel. So the
+ *   wheel handler is scoped to the panel element: a wheel inside it scrolls an
+ *   inner scroller when one can move in that direction, and is cancelled
+ *   otherwise so it can't chain to the host. Wheels over the transparent area
+ *   never reach the panel and chain to the host as before.
+ *
+ * Multi-touch (pinch) and the app's own swipe handlers are left untouched
+ * (we never stop propagation).
  */
-export const usePreventParentScroll = (isEnabled: boolean) => {
+export const usePreventParentScroll = (
+  isEnabled: boolean,
+  isMobile: boolean,
+  containerRef: RefObject<HTMLElement | null>,
+) => {
   useEffect(() => {
     if (!isEnabled) return
 
     let startX = 0
     let startY = 0
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return
-      startX = e.touches[0].clientX
-      startY = e.touches[0].clientY
-    }
-
+    // Whether some scroller between `target` and the document can still move
+    // in the given direction. dx/dy use touch semantics: a positive value
+    // means "reveal content above/left" (so wheel deltas are passed negated).
     const canScrollInDirection = (target: EventTarget | null, dx: number, dy: number): boolean => {
       const horizontal = Math.abs(dx) > Math.abs(dy)
       let node = target instanceof Element ? target : null
@@ -61,6 +76,25 @@ export const usePreventParentScroll = (isEnabled: boolean) => {
       return false
     }
 
+    // Wheel containment for the floating desktop panel: cancel any wheel over
+    // the panel that an inner scroller can't consume, so it never chains to
+    // the host. Wheels over the transparent area aren't in the panel and are
+    // left alone.
+    const onWheel = (e: WheelEvent) => {
+      if (!e.cancelable) return
+      const container = containerRef.current
+      if (!container || !(e.target instanceof Node) || !container.contains(e.target)) return
+      if (!canScrollInDirection(e.target, -e.deltaX, -e.deltaY)) {
+        e.preventDefault()
+      }
+    }
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return
+      startX = e.touches[0].clientX
+      startY = e.touches[0].clientY
+    }
+
     const onTouchMove = (e: TouchEvent) => {
       if (e.touches.length !== 1 || !e.cancelable) return
       const dx = e.touches[0].clientX - startX
@@ -70,12 +104,18 @@ export const usePreventParentScroll = (isEnabled: boolean) => {
       }
     }
 
-    document.addEventListener('touchstart', onTouchStart, { passive: true, capture: true })
-    document.addEventListener('touchmove', onTouchMove, { passive: false, capture: true })
+    document.addEventListener('wheel', onWheel, { passive: false, capture: true })
+
+    // Touch containment is only needed for the mobile fullscreen presentation
+    if (isMobile) {
+      document.addEventListener('touchstart', onTouchStart, { passive: true, capture: true })
+      document.addEventListener('touchmove', onTouchMove, { passive: false, capture: true })
+    }
 
     return () => {
+      document.removeEventListener('wheel', onWheel, true)
       document.removeEventListener('touchstart', onTouchStart, true)
       document.removeEventListener('touchmove', onTouchMove, true)
     }
-  }, [isEnabled])
+  }, [isEnabled, isMobile, containerRef])
 }

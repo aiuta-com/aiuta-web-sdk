@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector, isAppVisibleSelector } from '@/store/slices/appSlice'
 import { useWindowResize, usePreventParentScroll } from '@/hooks'
@@ -16,9 +16,11 @@ export const AppContainer = ({ children }: AppContainerProps) => {
   useWindowResize()
   const isMobile = useAppSelector(isMobileSelector)
   const isVisible = useAppSelector(isAppVisibleSelector)
-  // Touch-scroll containment is for the fullscreen mobile presentation only;
-  // isMobile follows window resizes, so this toggles dynamically
-  usePreventParentScroll(isVisible && isMobile)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  // Keep the host page from scrolling: a wheel over the panel is contained on
+  // desktop, and touch drags are contained on the mobile fullscreen layout.
+  // isMobile follows window resizes, so this toggles dynamically.
+  usePreventParentScroll(isVisible, isMobile, containerRef)
 
   const containerClasses = combineClassNames(
     !isMobile && 'aiuta-modal',
@@ -28,7 +30,7 @@ export const AppContainer = ({ children }: AppContainerProps) => {
   )
 
   return (
-    <div className={containerClasses} data-testid="aiuta-app-container">
+    <div ref={containerRef} className={containerClasses} data-testid="aiuta-app-container">
       {children}
     </div>
   )
