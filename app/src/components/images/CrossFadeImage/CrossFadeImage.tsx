@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react'
 import { combineClassNames } from '@/utils'
 import { CrossFadeImageProps } from './types'
 import styles from './CrossFadeImage.module.scss'
@@ -56,6 +56,18 @@ export const CrossFadeImage = ({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
   const imageRatios = useRef(new Map<string, number>())
+
+  // Measure the container synchronously before the first paint so smart fit is
+  // resolved before the image is ever shown. Otherwise the image (and its
+  // blurred backdrop) first appears full-bleed as cover, then snaps to contain
+  // once the ResizeObserver reports — a large dark flash on mobile.
+  useLayoutEffect(() => {
+    if (fit !== 'smart' || !containerRef.current) return
+    const rect = containerRef.current.getBoundingClientRect()
+    if (rect.width > 0 && rect.height > 0) {
+      setContainerSize((prev) => prev ?? { width: rect.width, height: rect.height })
+    }
+  }, [fit])
 
   useEffect(() => {
     if (fit !== 'smart' || !containerRef.current) return
@@ -194,21 +206,21 @@ export const CrossFadeImage = ({
   const currentFit = getFitForSrc(currentSrc)
   const nextFit = nextSrc ? getFitForSrc(nextSrc) : 'cover'
 
-  // The current backdrop fades in only when it appears together with the
-  // image's own load fade. If it (re)mounts while the image is already on
-  // screen — a resize flipped the fit, or a cross-fade handed over — it must
-  // show up instantly, as if it had been there all along. The decision is
-  // frozen at mount so later renders don't restart the animation.
+  // The backdrop fades in the first time it appears for an image (together
+  // with the image's own load fade — otherwise smart fit flipping cover→
+  // contain after load would pop the dark blurred backdrop in, a visible
+  // flash on full-bleed mobile). A later re-show for the same image — a resize
+  // flipping the fit — is instant, as if it had been there all along.
   const showCurrentBackdrop = currentFit === 'contain'
-  const wasCurrentLoadedRef = useRef(false)
+  const seenBackdropSrcs = useRef(new Set<string>())
   const currentBackdropMountedRef = useRef(false)
   const animateCurrentBackdropRef = useRef(true)
   if (showCurrentBackdrop && !currentBackdropMountedRef.current) {
-    animateCurrentBackdropRef.current = !wasCurrentLoadedRef.current
+    animateCurrentBackdropRef.current = !seenBackdropSrcs.current.has(currentSrc)
+    seenBackdropSrcs.current.add(currentSrc)
   }
   useEffect(() => {
     currentBackdropMountedRef.current = showCurrentBackdrop
-    wasCurrentLoadedRef.current = isCurrentLoaded
   })
 
   const currentImageClasses = combineClassNames(

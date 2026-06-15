@@ -151,7 +151,6 @@ export const useTryOnGeneration = () => {
         // Common logic after navigation
         const finalizeGeneration = () => {
           navigate('/results')
-          dispatch(tryOnSlice.actions.setIsGenerating(false))
 
           // After navigation, add images to history (background, slow storage)
           addGeneration(generatedImage)
@@ -168,6 +167,11 @@ export const useTryOnGeneration = () => {
 
           // Clear usedImageRef after use
           usedImageRef.current = null
+
+          // NB: isGenerating is intentionally NOT reset here. Doing it while the
+          // try-on page is still mounted makes it flash its picker buttons for a
+          // frame before the route switches. It's reset when the results page
+          // mounts (by then the try-on page is gone).
         }
 
         // Preload the generated image for instant display on ResultsPage
