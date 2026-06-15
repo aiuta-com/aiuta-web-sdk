@@ -24,6 +24,7 @@ export const usePageBarVisibility = () => {
   const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
   const isOnOnboardingPage = pathName === '/onboarding'
+  const isOnModelsPage = pathName === '/models'
 
   // Data availability
   const hasGeneratedImages = generatedImages.length > 0
@@ -41,8 +42,10 @@ export const usePageBarVisibility = () => {
   const showHistoryButton =
     !showBackButton && !isOnOnboardingPage && !isOnHomePage && hasGeneratedImages
 
-  // Title visibility: the onboarding navbar has no title (close button only)
-  const showTitle = !isOnOnboardingPage
+  // Title visibility: the onboarding navbar has no title (close button only);
+  // on mobile the models page puts its Women/Men segmented control in the
+  // navbar center instead of the title (see ModelsMobile)
+  const showTitle = !isOnOnboardingPage && !(isOnModelsPage && isMobile)
 
   // Right side content visibility
   const showSelectButton = isOnHistoryPage && hasAnyHistory

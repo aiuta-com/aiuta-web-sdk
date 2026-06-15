@@ -6,7 +6,21 @@
 }
 
 .preview {
-  padding: 0 40px 0;
+  // 8px below the navbar (Figma)
+  padding: 8px 8px 0;
+}
+
+// Mobile: the Women/Men segmented control sits in the navbar center. It's
+// absolute and the nearest positioned ancestor is the fixed AppContainer, so
+// it lands over the pagebar without being part of it. 44px bar, ~40px control
+// → 2px from the top; 200px wide keeps it clear of the back/close buttons.
+.tabsOverlay {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  z-index: 3;
 }
 
 .tabs {
