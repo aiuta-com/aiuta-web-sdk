@@ -9,10 +9,23 @@
   align-items: center;
   justify-content: center;
   margin: var(--aiuta-inset-v) auto;
-  padding: var(--aiuta-inset-button);
-  transition: all ease-in-out 0.3s;
+  // Horizontal padding only with a fixed min-height: an icon taller than
+  // the text line must not inflate the button (Figma keeps buttons 50px)
+  padding: 0 var(--aiuta-inset-h);
+  min-height: 50px;
+  transition:
+    background-color 0.3s ease-in-out,
+    color 0.3s ease-in-out,
+    opacity 0.3s ease-in-out;
   white-space: nowrap;
   z-index: 1;
+
+  // Content row: keeps an optional icon on one line with the label
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
 
   &_disabled {
     background: var(--aiuta-color-secondary);
@@ -20,7 +33,8 @@
   }
 
   &_maxWidth {
-    width: calc(100% - 2 * var(--aiuta-inset-h));
+    // Figma button width: 341/420 on desktop, 320/393 on mobile — both ≈ 81.3%
+    width: 81.3%;
     max-width: var(--aiuta-max-width);
     margin-left: auto;
     margin-right: auto;

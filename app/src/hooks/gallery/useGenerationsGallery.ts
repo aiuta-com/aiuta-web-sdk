@@ -10,7 +10,7 @@ import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { useRpc } from '@/contexts'
 import { useImageGallery } from './useImageGallery'
 import { useImageSelection } from './useImageSelection'
-import { useGenerationsData, useRemoveGeneration, useAddGeneration } from '@/hooks/data'
+import { useGenerationsData, useDeleteGeneratedImages, useAddGeneration } from '@/hooks/data'
 import { ImageItem } from './useFullScreenViewer'
 
 interface UseGenerationsGalleryProps {
@@ -31,7 +31,7 @@ export const useGenerationsGallery = ({
   const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const { data: generatedImages = [] } = useGenerationsData()
-  const { mutate: removeGeneration } = useRemoveGeneration()
+  const { mutate: deleteGeneratedImages } = useDeleteGeneratedImages()
   const { mutate: addGeneration } = useAddGeneration()
   const productIds = useAppSelector(productIdsSelector)
   const isSelecting = useAppSelector(generationsIsSelectingSelector)
@@ -79,13 +79,11 @@ export const useGenerationsGallery = ({
     onCloseModal?.()
   }, [onCloseModal])
 
-  // Delete selected images
+  // Delete selected images in one batch (single write + one re-render)
   const deleteSelectedImages = useCallback(() => {
-    // Delete each selected image
-    selectedImages.forEach((imageId) => {
-      removeGeneration(imageId)
-      trackImageDeleted(imageId)
-    })
+    const toDelete = generatedImages.filter((img) => selectedImages.includes(img.id))
+    deleteGeneratedImages(toDelete)
+    toDelete.forEach((img) => trackImageDeleted(img.id))
 
     // Update Redux UI state
     clearSelection() // Clear selection first
@@ -93,7 +91,8 @@ export const useGenerationsGallery = ({
     closeHistoryImagesModal()
   }, [
     selectedImages,
-    removeGeneration,
+    generatedImages,
+    deleteGeneratedImages,
     clearSelection,
     dispatch,
     closeHistoryImagesModal,

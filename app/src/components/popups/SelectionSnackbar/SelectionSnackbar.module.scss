@@ -25,23 +25,28 @@
 
 .controls {
   display: flex;
-  column-gap: 26px;
+  column-gap: 10px;
   align-items: center;
 }
 
+// Figma: 36px tall pills — the base button's 50px min-height was stretching
+// the whole snackbar; 16px horizontal padding
 .cancelButton {
-  height: auto;
-  padding: 8px 12px !important;
+  min-height: 36px !important;
+  height: 36px;
+  padding: 0 16px !important;
   margin: 0 !important;
   background: var(--aiuta-color-on-dark);
   color: var(--aiuta-color-primary);
 }
 
 .selectAllButton {
+  min-height: 36px !important;
+  height: 36px;
   color: var(--aiuta-color-on-dark);
   background: none;
   border: none;
-  padding: 8px 0 !important;
+  padding: 0 !important;
   margin: 0 !important;
 }
 

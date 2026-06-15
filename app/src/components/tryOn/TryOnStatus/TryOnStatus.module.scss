@@ -1,41 +1,22 @@
+// Figma: blurred pill, 8px radius, 8/16 paddings, Web Button M label
 .tryOnStatus {
   width: max-content;
-  padding: 10px 24px;
+  padding: 8px 16px;
+  border-radius: 8px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(5px);
-  animation: backdrop_refresh 0.1s linear infinite;
-}
+  color: var(--aiuta-color-primary);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 18px;
 
-.statusText {
-  margin-left: 10px;
-}
+  // No background/blur here: on desktop the pill sits below the image on
+  // the plain widget background. The mobile overlay variant (on the photo)
+  // adds them via the className passed from TryOnView.
 
-.spinner {
-  animation: spinner_rotation 0.75s steps(8, end) infinite;
-}
-
-@keyframes spinner_rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes backdrop_refresh {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.99;
-  }
-  100% {
-    opacity: 1;
-  }
+  // The loader ring lives in the shared LoaderRing component.
 }

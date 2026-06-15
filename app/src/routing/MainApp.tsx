@@ -9,14 +9,7 @@ import {
   StorageProvider,
   QueryProvider,
 } from '@/contexts'
-import {
-  PageBar,
-  PoweredBy,
-  FullScreenGallery,
-  Share,
-  AppContainer,
-  ConfigError,
-} from '@/components'
+import { PageBar, FullScreenGallery, Share, AppContainer, ConfigError } from '@/components'
 import {
   useUrlParams,
   useCustomCssUrl,
@@ -27,6 +20,7 @@ import {
   useConfigValidation,
 } from '@/hooks'
 
+import { ClearStorageBridge } from '@/components/debug/ClearStorageBridge'
 import HomePageRouter from '@/pages/Home'
 import OnboardingPage from '@/pages/1-Onboarding'
 import QrPromptPage from '@/pages/2-QrPrompt'
@@ -109,6 +103,7 @@ function AppContent() {
 
   return (
     <DragAndDropProvider>
+      <ClearStorageBridge />
       <AppContainer>
         <AlertRenderer />
         <PageBar />
@@ -122,7 +117,6 @@ function AppContent() {
           <Route path="/generations" element={<GenerationsHistoryPage />} />
           <Route path="/uploads" element={<UploadsHistoryPage />} />
         </Routes>
-        <PoweredBy />
       </AppContainer>
 
       <FullScreenGallery />

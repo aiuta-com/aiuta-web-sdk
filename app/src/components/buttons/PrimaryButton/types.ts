@@ -1,4 +1,4 @@
-import { ReactElement } from 'react'
+import { ReactNode } from 'react'
 
 /**
  * Props for the PrimaryButton component
@@ -14,6 +14,6 @@ export type PrimaryButtonProps = {
   maxWidth?: boolean
   /** Button shape size - determines global class */
   shape?: 'S' | 'M'
-  /** Button content */
-  children: string | ReactElement
+  /** Button content (label, optionally with an icon) */
+  children: ReactNode
 }

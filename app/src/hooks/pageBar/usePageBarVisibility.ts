@@ -2,7 +2,6 @@ import { useLocation } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { qrTokenSelector } from '@/store/slices/qrSlice'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { onboardingIsCompletedSelector } from '@/store/slices/onboardingSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { useGenerationsData, useUploadsData } from '@/hooks/data'
@@ -13,7 +12,6 @@ export const usePageBarVisibility = () => {
 
   const qrToken = useAppSelector(qrTokenSelector)
   const isMobile = useAppSelector(isMobileSelector)
-  const isOnboardingCompleted = useAppSelector(onboardingIsCompletedSelector)
   const { data: generatedImages = [] } = useGenerationsData()
   const { data: recentlyPhotos = [] } = useUploadsData()
   const isSelectingGenerations = useAppSelector(generationsIsSelectingSelector)
@@ -26,6 +24,7 @@ export const usePageBarVisibility = () => {
   const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
   const isOnOnboardingPage = pathName === '/onboarding'
+  const isOnModelsPage = pathName === '/models'
 
   // Data availability
   const hasGeneratedImages = generatedImages.length > 0
@@ -43,8 +42,10 @@ export const usePageBarVisibility = () => {
   const showHistoryButton =
     !showBackButton && !isOnOnboardingPage && !isOnHomePage && hasGeneratedImages
 
-  // Title visibility: always on desktop, on mobile only after onboarding
-  const showTitle = !isMobile || isOnboardingCompleted
+  // Title visibility: the onboarding navbar has no title (close button only);
+  // on mobile the models page puts its Women/Men segmented control in the
+  // navbar center instead of the title (see ModelsMobile)
+  const showTitle = !isOnOnboardingPage && !(isOnModelsPage && isMobile)
 
   // Right side content visibility
   const showSelectButton = isOnHistoryPage && hasAnyHistory

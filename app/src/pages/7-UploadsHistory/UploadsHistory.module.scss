@@ -1,14 +1,36 @@
 .uploadsHistory {
   flex: 1 1 0;
-  overflow-y: auto;
+  min-height: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
 }
 
 .imageGallery {
-  margin-bottom: var(--aiuta-inset-v);
+  // The gallery scrolls under the pinned upload button; the extra bottom
+  // padding lets the last row scroll clear of the button block
+  // (8px base inset + 8px button-block top + 50px button + 16px below)
+  padding-bottom: 82px;
+}
+
+// Figma: the upload button is pinned over the gallery on a
+// transparent-to-background gradient (8px above, 16px below and sides)
+.uploadButtonContainer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 8px 16px 16px;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--aiuta-color-background) 0%, transparent),
+    var(--aiuta-color-background)
+  );
 }
 
 .uploadButton {
-  margin-top: auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }

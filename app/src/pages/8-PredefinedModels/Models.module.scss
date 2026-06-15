@@ -6,18 +6,37 @@
 }
 
 .preview {
-  padding: 0 40px 0;
+  // 8px below the navbar (Figma)
+  padding: 8px 8px 0;
+}
+
+// Mobile: the Women/Men segmented control sits in the navbar center. It's
+// absolute and the nearest positioned ancestor is the fixed AppContainer, so
+// it lands over the pagebar without being part of it. 44px bar, ~40px control
+// → 2px from the top; 200px wide keeps it clear of the back/close buttons.
+.tabsOverlay {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  z-index: 3;
 }
 
 .tabs {
   flex-shrink: 0;
-  padding: 8px var(--aiuta-inset-h);
+  // The segmented control sits 8px below the navbar with 8px side insets
+  // (matching the gallery) and 16px before the models grid
+  margin: 8px 8px 16px;
 }
 
 .gallery {
-  /* Less columns for models */
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 16px;
+  /* Two columns on the standard 420px widget; wider presentations (mobile
+     fullscreen up to 992px, custom widget widths) gain columns instead of
+     blowing the images up. Insets and gap come from the base gallery (8px);
+     the top inset is dropped since the segmented control above provides it */
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  padding-top: 0;
 }
 
 .list {

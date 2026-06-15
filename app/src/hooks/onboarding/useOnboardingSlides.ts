@@ -1,86 +1,40 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useAppSelector, useAppDispatch } from '@/store/store'
-import { onboardingSlice } from '@/store/slices/onboardingSlice'
-import {
-  onboardingCurrentStepSelector,
-  onboardingIsCompletedSelector,
-} from '@/store/slices/onboardingSlice'
-import { useOnboardingAnalytics } from './useOnboardingAnalytics'
-import { OnboardingPageId } from './useOnboardingAnalytics'
-import { useSetOnboardingCompleted } from '@/hooks/data/useOnboardingData'
+import { useOnboardingAnalytics, type OnboardingPageId } from './useOnboardingAnalytics'
+import type { OnboardingSlideId } from '@/utils/onboarding/onboardingFlow'
 
-export interface SlidesConfig {
-  /** Whether to track analytics automatically */
-  enableAnalytics?: boolean
-  /** Initial slide index */
-  initialSlide?: number
+// Analytics page ids stay stable across modes: the shoes best-results slide
+// reports 'bestResults' and is distinguished by the event's mode field.
+const PAGE_IDS: Record<OnboardingSlideId, OnboardingPageId> = {
+  howItWorks: 'howItWorks',
+  bestResults: 'bestResults',
+  shoesBestResults: 'bestResults',
+  consent: 'consent',
 }
 
-export const useOnboardingSlides = (config: SlidesConfig = {}) => {
-  const { enableAnalytics = true, initialSlide = 0 } = config
+export const pageIdForSlide = (slideId: OnboardingSlideId): OnboardingPageId => PAGE_IDS[slideId]
 
-  const dispatch = useAppDispatch()
+/**
+ * Navigation over a session's onboarding slide list with page-view analytics.
+ */
+export const useOnboardingSlides = (slides: OnboardingSlideId[]) => {
   const { trackPageView } = useOnboardingAnalytics()
-  const { mutate: saveOnboarding } = useSetOnboardingCompleted()
 
-  // Redux state
-  const globalCurrentStep = useAppSelector(onboardingCurrentStepSelector)
-  const isOnboardingCompleted = useAppSelector(onboardingIsCompletedSelector)
-
-  // Local state for component-specific slide management
-  const [currentSlide, setCurrentSlide] = useState(initialSlide)
-  const [isConsentChecked, setIsConsentChecked] = useState(false)
-
-  // Map slide index to analytics page ID
-  const getPageIdForSlide = useCallback((slideIndex: number): OnboardingPageId | null => {
-    switch (slideIndex) {
-      case 0:
-        return 'howItWorks'
-      case 1:
-        return 'bestResults'
-      case 2:
-        return 'consent'
-      default:
-        return null
-    }
-  }, [])
+  const [currentSlide, setCurrentSlide] = useState(0)
 
   // Track analytics when slide changes
   useEffect(() => {
-    if (enableAnalytics && !isOnboardingCompleted) {
-      const pageId = getPageIdForSlide(currentSlide)
-      if (pageId) {
-        trackPageView(pageId)
-      }
+    const slideId = slides[currentSlide]
+    if (slideId) {
+      trackPageView(PAGE_IDS[slideId])
     }
-  }, [currentSlide, enableAnalytics, isOnboardingCompleted, getPageIdForSlide, trackPageView])
+  }, [currentSlide, slides, trackPageView])
 
-  // Slide navigation functions
   const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => prev + 1)
-  }, [])
+    setCurrentSlide((prev) => Math.min(prev + 1, slides.length - 1))
+  }, [slides.length])
 
   const previousSlide = useCallback(() => {
     setCurrentSlide((prev) => Math.max(0, prev - 1))
-  }, [])
-
-  const goToSlide = useCallback((slideIndex: number) => {
-    setCurrentSlide(slideIndex)
-  }, [])
-
-  // Redux actions
-  const completeOnboarding = useCallback(() => {
-    dispatch(onboardingSlice.actions.setIsCompleted(true))
-    saveOnboarding(true) // Save to IndexedDB
-  }, [dispatch, saveOnboarding])
-
-  const updateGlobalStep = useCallback(() => {
-    dispatch(onboardingSlice.actions.nextStep())
-  }, [dispatch])
-
-  // Helper functions
-  const isLastSlide = useCallback((slide: number, totalSlides: number) => {
-    return slide >= totalSlides - 1
   }, [])
 
   const getSlideState = useCallback(
@@ -92,37 +46,12 @@ export const useOnboardingSlides = (config: SlidesConfig = {}) => {
     [currentSlide],
   )
 
-  const canProceed = useCallback(
-    (slide: number) => {
-      // Slide 2 (consent) requires checkbox to be checked
-      if (slide === 2) {
-        return isConsentChecked
-      }
-      return true
-    },
-    [isConsentChecked],
-  )
-
   return {
-    // State
     currentSlide,
-    isConsentChecked,
-    isOnboardingCompleted,
-    globalCurrentStep,
-
-    // Actions
-    setCurrentSlide,
-    setIsConsentChecked,
+    currentSlideId: slides[currentSlide],
+    isLastSlide: currentSlide >= slides.length - 1,
     nextSlide,
     previousSlide,
-    goToSlide,
-    completeOnboarding,
-    updateGlobalStep,
-
-    // Helpers
-    isLastSlide,
     getSlideState,
-    canProceed,
-    getPageIdForSlide,
   }
 }

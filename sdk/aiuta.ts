@@ -1,4 +1,4 @@
-import { AiutaConfiguration } from '@lib/config'
+import { AiutaConfiguration, AiutaMode } from '@lib/config'
 import { createLogger, type Logger } from '@lib/logger'
 import IframeManager from './iframe'
 import MessageHandler from './handler'
@@ -76,6 +76,9 @@ export default class Aiuta {
    * the try-on flow. Tracks analytics for the session.
    *
    * @param productId - Single product ID or array of product IDs to try on
+   * @param mode - Try-on mode driving the UI context (onboarding, photo
+   *   guidance, error texts); the generation flow itself is identical.
+   *   Defaults to 'general'.
    * @returns Promise that resolves when try-on is initiated
    * @throws Error if this instance has been destroyed. Create a new Aiuta instance instead.
    *
@@ -86,9 +89,12 @@ export default class Aiuta {
    *
    * // Multiple products
    * await aiuta.tryOn(['product-1', 'product-2', 'product-3']);
+   *
+   * // Shoes try-on
+   * await aiuta.tryOn('sneakers-42', 'shoes');
    * ```
    */
-  async tryOn(productId: string | string[]) {
+  async tryOn(productId: string | string[], mode: AiutaMode = 'general') {
     // Check if instance has been destroyed
     if (this.isDestroyed) {
       const error =
@@ -105,14 +111,44 @@ export default class Aiuta {
       return
     }
 
+    // Partners call from untyped JS — fall back instead of breaking the flow
+    if (mode !== 'general' && mode !== 'shoes') {
+      this.logger.error(`Unknown try-on mode "${mode}", falling back to "general"`)
+      mode = 'general'
+    }
+
     this.analytics.track({
       type: 'session',
       flow: 'tryOn',
       productIds,
+      mode,
     })
 
     await this.iframeManager.ensureIframe()
-    await this.messageHandler.startTryOn(productIds)
+    await this.messageHandler.startTryOn(productIds, mode)
+  }
+
+  /**
+   * Wipes all user data the SDK stores locally: uploaded photos, generation
+   * history, consents, onboarding statuses and caches.
+   *
+   * Intended for testing and debug tooling — the user effectively becomes a
+   * first-time visitor on the next try-on.
+   *
+   * @returns Promise that resolves when the storage has been cleared
+   * @throws Error if this instance has been destroyed, or if the loaded app
+   *   version does not support this method
+   */
+  async clearStorage() {
+    if (this.isDestroyed) {
+      const error =
+        'Cannot call clearStorage() on destroyed Aiuta instance. Please create a new Aiuta instance.'
+      this.logger.error(error)
+      throw new Error(error)
+    }
+
+    await this.iframeManager.ensureIframe()
+    await this.messageHandler.clearStorage()
   }
 
   /**

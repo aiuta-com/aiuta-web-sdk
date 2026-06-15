@@ -6,6 +6,8 @@ import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
 import { useAlert, useLogger } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
+import type { AiutaMode } from '@lib/config'
+import { runClearStorage } from '@/utils/debug/clearStorageRegistry'
 
 declare const __APP_VERSION__: string
 
@@ -56,10 +58,14 @@ export const useRpcInitialization = () => {
         const rpc = new AiutaAppRpc({
           context: { appVersion: __APP_VERSION__ },
           handlers: {
-            tryOn: async (productIds: string | string[]) => {
+            tryOn: async (productIds: string | string[], mode?: AiutaMode) => {
               try {
                 // Support both single and multi-item try-on (backward compatibility)
                 const productIdsArray = Array.isArray(productIds) ? productIds : [productIds]
+
+                // Older SDKs omit the mode; unknown values degrade to 'general'.
+                // Dispatch before showApp() so the initial-route decision sees it.
+                dispatch(tryOnSlice.actions.setMode(mode === 'shoes' ? 'shoes' : 'general'))
 
                 // Show app when tryOn is called
                 showApp()
@@ -73,6 +79,9 @@ export const useRpcInitialization = () => {
                 throw error // Re-throw so RPC can handle the error
               }
             },
+            // Delegates to the implementation registered by ClearStorageBridge
+            // (the storage/query providers mount below this hook)
+            clearStorage: () => runClearStorage(),
           },
         })
 

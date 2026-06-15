@@ -1,38 +1,26 @@
 import React from 'react'
-import { Flex, PrimaryButton, SecondaryButton } from '@/components'
-import { useImagePickerStrings, usePredefinedModelsStrings } from '@/hooks'
+import { PrimaryButton, SecondaryButton } from '@/components'
+import { useImagePickerStrings, useImagePickerImages, usePredefinedModelsStrings } from '@/hooks'
 import { UploadPromptProps } from './types'
-import styles from './UploadPrompt.module.scss'
 import { combineClassNames } from '@/utils'
+import styles from './UploadPrompt.module.scss'
 
 export const UploadPrompt = (props: UploadPromptProps) => {
   const { onClick, onModelsClick } = props
   const { imagePickerTitle, imagePickerDescription, imagePickerButtonUploadPhoto } =
     useImagePickerStrings()
-  const { predefinedModelsTitle } = usePredefinedModelsStrings()
+  const { zeroStateImage } = useImagePickerImages()
+  const { predefinedModelsTitle, predefinedModelsOr } = usePredefinedModelsStrings()
 
   return (
-    <Flex contentClassName={combineClassNames('aiuta-image-l', styles.uploadPrompt)}>
-      {/* Example images */}
-      <div className={styles.examples}>
-        <img
-          src={'./images/image-picker-sample-1.png'}
-          className={combineClassNames(styles.sample, styles.sample1)}
-          alt="Example"
-          draggable={false}
-        />
-        <img
-          src={'./images/image-picker-sample-2.png'}
-          className={combineClassNames(styles.sample, styles.sample2)}
-          alt="Example"
-          draggable={false}
-        />
-      </div>
+    <div className={styles.card}>
+      {/* Zero-state artwork fit into a reserved slot (onboarding principle) */}
+      <img className={styles.image} src={zeroStateImage} alt="" draggable={false} />
 
       {/* Text content */}
       <div className={styles.content}>
         <h2 className={combineClassNames('aiuta-title-m', styles.title)}>{imagePickerTitle}</h2>
-        <p className={combineClassNames('aiuta-label-subtle', styles.subtitle)}>
+        <p className={combineClassNames('aiuta-label-regular', styles.subtitle)}>
           {imagePickerDescription}
         </p>
       </div>
@@ -45,7 +33,9 @@ export const UploadPrompt = (props: UploadPromptProps) => {
 
         {onModelsClick && (
           <>
-            <p className={combineClassNames('aiuta-label-regular', styles.or)}>Or</p>
+            <p className={combineClassNames('aiuta-label-regular', styles.or)}>
+              {predefinedModelsOr}
+            </p>
             <SecondaryButton
               onClick={onModelsClick}
               shape="M"
@@ -57,6 +47,6 @@ export const UploadPrompt = (props: UploadPromptProps) => {
           </>
         )}
       </div>
-    </Flex>
+    </div>
   )
 }

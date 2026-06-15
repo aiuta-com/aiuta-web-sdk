@@ -6,20 +6,33 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-direction: column;
-  height: 60px;
+  height: 24px;
   padding: 0 16px;
 }
 
 .label {
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   margin: 0;
-  background-color: var(--aiuta-color-neutral);
-  display: inline-block;
+  padding: 3px 12px;
+  opacity: 0.6;
+  color: var(--aiuta-color-secondary);
+  text-decoration: none;
   white-space: nowrap;
+}
 
-  /* Override global aiuta-button-s shape for pill design */
-  border-radius: 50px !important;
-  padding: 8px 12px !important;
-  margin-bottom: 6px;
+.text {
+  opacity: 0.8;
+}
+
+.logo {
+  display: block;
+  height: 12px;
+  width: auto;
+  opacity: 0.8;
+  // The wordmark glyphs sit low inside the svg viewBox (headroom for the
+  // dot over the I) — lift it to optically align with the text
+  position: relative;
+  top: -1px;
 }

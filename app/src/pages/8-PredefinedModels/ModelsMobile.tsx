@@ -101,18 +101,21 @@ export default function ModelsMobile() {
 
   return (
     <main className={styles.models}>
-      {/* Large preview of selected model */}
-      <Flex containerClassName={styles.preview}>
-        {selectedModel && <RemoteImage src={selectedModel.url} alt="Selected Model" shape="L" />}
-      </Flex>
-
-      {/* Tabs */}
+      {/* Category segmented control overlaid in the navbar center (Figma).
+          Anchored to the fixed AppContainer rather than embedded in PageBar. */}
       <Tabs
         tabs={tabs}
         activeTabId={selectedCategoryId || categories[0].category}
         onTabChange={handleCategoryChange}
-        className={styles.tabs}
+        className={styles.tabsOverlay}
       />
+
+      {/* Large preview of selected model */}
+      <Flex containerClassName={styles.preview}>
+        {selectedModel && (
+          <RemoteImage src={selectedModel.url} alt="Selected Model" shape="L" fit="smart" />
+        )}
+      </Flex>
 
       {/* Horizontal models list */}
       <ModelsList

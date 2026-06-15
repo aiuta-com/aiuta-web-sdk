@@ -26,7 +26,7 @@ const SUPPORTS_HOVER =
 const isUsableImage = (url?: string): boolean => Boolean(url) && !/\/None$/i.test(url ?? '')
 
 export default function OutfitCard({ outfit, onTryOn }: Props) {
-  const { getBgStyle, initGradient } = useImageGradient()
+  const { getBgStyle, isMultiplied, initGradient } = useImageGradient()
   const [hovered, setHovered] = useState(false)
   const [collageFailed, setCollageFailed] = useState(false)
   const [modelLoaded, setModelLoaded] = useState(false)
@@ -114,7 +114,10 @@ export default function OutfitCard({ outfit, onTryOn }: Props) {
                   src={imageUrl}
                   alt={item.title}
                   loading="lazy"
-                  className="outfit-card__image"
+                  className={
+                    'outfit-card__image' +
+                    (isMultiplied(item.sku_id) ? ' outfit-card__image--multiply' : '')
+                  }
                   onLoad={() => void initGradient(item.sku_id, imageUrl)}
                 />
               </div>

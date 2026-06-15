@@ -2,7 +2,8 @@
   display: flex;
   column-gap: 16px;
   align-items: flex-start;
-  margin-bottom: 16px;
+  // Figma: 12px vertical padding on the checkbox row instead of margins
+  padding: 12px 0;
 }
 
 .input {

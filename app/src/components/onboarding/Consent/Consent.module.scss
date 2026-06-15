@@ -1,21 +1,36 @@
+// Figma: content pinned to the top of the slide, left-aligned,
+// 38px side insets (344px content width on the 420px widget)
 .consent {
   width: 100%;
   height: 100%;
-  padding: 25px;
+  padding: 0 38px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
 }
 
+// Popup layout: the ConsentPopup card supplies the padding and the height is
+// driven by content (doubling the bracket trick keeps it ahead of `.consent`
+// regardless of CSS-module bundle order).
+.consent_compact.consent_compact {
+  height: auto;
+  padding: 0;
+}
+
 .title {
   text-align: left;
-  margin-bottom: 16px;
+  // Reset the UA h2 margins: the title starts flush at the slide top.
+  // This screen's Figma uses normal leading on the title (36px box, the cap
+  // sits ~9px in), unlike the 100% of the global title style; with the 16px
+  // margin the description lands 52px below the title top, as designed.
+  margin: 0 0 16px;
+  line-height: normal;
 }
 
 .description {
   text-align: left;
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 
   a {
     text-decoration: underline;

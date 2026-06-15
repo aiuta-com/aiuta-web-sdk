@@ -1,5 +1,7 @@
 export { useOnboardingAnalytics } from './useOnboardingAnalytics'
 export { useOnboardingSlides } from './useOnboardingSlides'
-export { useCarousel } from './useOnboardingCarousel'
+export { useOnboardingFlow } from './useOnboardingFlow'
 export { useConsentManagement } from './useConsentManagement'
+export { useHasPendingConsents } from './useHasPendingConsents'
+export { useConsentGate } from './useConsentGate'
 export { useOnboardingImages } from './useOnboardingImages'

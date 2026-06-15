@@ -23,6 +23,7 @@ export { CrossFadeImage } from './images/CrossFadeImage'
 
 // Indicators
 export { Spinner } from './indicators/Spinner/Spinner'
+export { LoaderRing } from './indicators/LoaderRing'
 export { CountDown } from './indicators/CountDown/CountDown'
 
 // Picker
@@ -39,8 +40,8 @@ export { Alert } from './popups/Alert'
 
 // Onboarding
 export { Consent } from './onboarding/Consent'
+export { ConsentPopup } from './onboarding/ConsentPopup'
 export { Slide } from './onboarding/Slide'
-export { Carousel } from './onboarding/Carousel'
 
 // Picker (Upload)
 export { QrCode } from './picker/QrCode'

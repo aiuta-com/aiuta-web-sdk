@@ -22,4 +22,13 @@
 
   --aiuta-max-width: 420px;
   --aiuta-max-height: 780px;
+
+  /* Desktop widget geometry: requested position and size of the floating
+     panel. The panel shifts up and shrinks as needed so it never gets closer
+     to the screen edges than --aiuta-screen-inset (see AppContainer). */
+  --aiuta-desktop-width: 420px;
+  --aiuta-desktop-height: 752px;
+  --aiuta-desktop-top: 12px;
+  --aiuta-desktop-right: 12px;
+  --aiuta-screen-inset: 12px;
 }

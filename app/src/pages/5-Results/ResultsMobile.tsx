@@ -12,6 +12,8 @@ import {
   OtherPhoto,
   UploadsHistorySheet,
   FilePicker,
+  PoweredBy,
+  ConsentPopup,
 } from '@/components'
 import {
   useResultsGallery,
@@ -21,6 +23,8 @@ import {
   useTryOnImage,
   usePredefinedModels,
   useUploadsGallery,
+  useImageTone,
+  useConsentGate,
 } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
@@ -40,6 +44,10 @@ export default function ResultsMobile() {
   const { selectImageToTryOn } = useTryOnImage()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { recentlyPhotos } = useUploadsGallery()
+  const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
+
+  // Tone of the image bottom → light/dark disclaimer strip (same as desktop)
+  const toneInfo = useImageTone(currentImage?.url)
 
   const hasMultiplePhotos = recentlyPhotos.length > 1
 
@@ -71,13 +79,19 @@ export default function ResultsMobile() {
   return (
     <main className={styles.results}>
       <FilePicker onFileSelect={handleFileSelect}>
-        {({ openFilePicker }) => (
+        {({ openFilePicker }) => {
+          const requestUpload = () => runWithConsent(openFilePicker)
+          return (
           <>
-            <Flex contentClassName={combineClassNames('aiuta-image-l')}>
+            <Flex
+              containerClassName={styles.fillContainer}
+              contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
+            >
               <RemoteImage
                 src={currentImage}
                 alt="Generated result"
-                shape="L"
+                shape="M"
+                fit="smart"
                 onClick={() => currentImage && handleMobileImageClick(currentImage.url)}
               />
               <IconButton
@@ -86,21 +100,37 @@ export default function ResultsMobile() {
                 onClick={() => currentImage && shareImage(currentImage.url)}
                 className={styles.shareButton}
               />
-              {isOtherPhotoEnabled && <OtherPhoto className={styles.otherPhoto} />}
+              {isOtherPhotoEnabled && <OtherPhoto className={styles.changePhotoFab} />}
               {currentImage && (
                 <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
               )}
+              {toneInfo && (
+                <Disclaimer overlay tone={toneInfo.tone} tint={toneInfo.averageColor} />
+              )}
             </Flex>
-            <Disclaimer className={styles.disclaimer} />
+
+            {/* No Add to cart button yet, but its space is reserved so the
+                result image keeps the same height as the loading screen (no
+                jump on finish). For now it holds the Powered by footer. */}
+            <div className={styles.cartReserve}>
+              <PoweredBy />
+            </div>
 
             <UploadsHistorySheet
-              onUploadNew={openFilePicker}
+              onUploadNew={requestUpload}
               onImageSelect={hasMultiplePhotos ? handleChoosePhotoFromHistory : undefined}
               onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
             />
           </>
-        )}
+          )
+        }}
       </FilePicker>
+
+      <ConsentPopup
+        isOpen={isConsentOpen}
+        onClose={closeConsent}
+        onConfirm={confirmConsent}
+      />
     </main>
   )
 }

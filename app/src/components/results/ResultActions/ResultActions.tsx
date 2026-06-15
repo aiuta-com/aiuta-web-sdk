@@ -1,10 +1,11 @@
 import React from 'react'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
-import { SecondaryButton } from '@/components'
+import { Icon } from '@/components'
 import { ResultActionsProps } from './types'
 import { useRpc, useShare } from '@/contexts'
-import { useShareStrings } from '@/hooks'
+import { useShareStrings, useImagePickerStrings, useTryOnWithOtherPhoto } from '@/hooks'
+import { combineClassNames } from '@/utils'
 import { icons } from './icons'
 import styles from './ResultActions.module.scss'
 
@@ -13,6 +14,12 @@ export const ResultActions = (props: ResultActionsProps) => {
   const rpc = useRpc()
   const { openShareModal } = useShare()
   const { shareButton, downloadButton } = useShareStrings()
+  const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
+  const {
+    isEnabled: isOtherPhotoEnabled,
+    icon: changePhotoIcon,
+    handleClick: handleChangePhoto,
+  } = useTryOnWithOtherPhoto()
 
   const productIds = useAppSelector(productIdsSelector)
 
@@ -60,24 +67,24 @@ export const ResultActions = (props: ResultActionsProps) => {
     rpc.sdk.trackEvent(analytic)
   }
 
+  const tileClassName = combineClassNames('aiuta-button-s', styles.actionTile)
+
   return (
     <div className={styles.resultActions}>
-      <SecondaryButton
-        icon={icons.share}
-        shape="M"
-        onClick={handleShare}
-        classNames={styles.button}
-      >
-        {shareButton}
-      </SecondaryButton>
-      <SecondaryButton
-        icon={icons.download}
-        shape="M"
-        onClick={handleDownload}
-        classNames={styles.button}
-      >
-        {downloadButton}
-      </SecondaryButton>
+      <button className={tileClassName} onClick={handleShare}>
+        <Icon icon={icons.share} size={20} viewBox="0 0 24 24" />
+        <span>{shareButton}</span>
+      </button>
+      <button className={tileClassName} onClick={handleDownload}>
+        <Icon icon={icons.download} size={20} viewBox="0 0 21 20" />
+        <span>{downloadButton}</span>
+      </button>
+      {isOtherPhotoEnabled && (
+        <button className={tileClassName} onClick={handleChangePhoto}>
+          <Icon icon={changePhotoIcon || icons.changePhoto} size={20} viewBox="0 0 24 24" />
+          <span>{uploadsHistoryButtonChangePhoto}</span>
+        </button>
+      )}
     </div>
   )
 }

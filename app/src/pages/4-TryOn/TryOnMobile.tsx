@@ -12,16 +12,22 @@ import {
   UploadsHistorySheet,
   ErrorSnackbar,
   TryOnButton,
+  TryOnStatus,
+  SecondaryButton,
   UploadPrompt,
   FilePicker,
   TryOnView,
+  ConsentPopup,
 } from '@/components'
 import {
   useTryOnGeneration,
   useTryOnImage,
   useUploadsGallery,
   useTryOnStrings,
+  useImagePickerStrings,
   usePredefinedModels,
+  useConsentGate,
+  useSelectedUploadSync,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
@@ -39,7 +45,12 @@ export default function TryOnMobile() {
   const { selectImageToTryOn } = useTryOnImage()
   const { startTryOn, retryTryOn } = useTryOnGeneration()
   const { tryOn } = useTryOnStrings()
+  const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
+  const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
+
+  // Keep the preview in sync with the uploads list (auto-select / drop deleted)
+  useSelectedUploadSync()
 
   const handleFileSelect = useCallback(
     async (file: File) => {
@@ -68,9 +79,7 @@ export default function TryOnMobile() {
     navigate('/models')
   }, [navigate])
 
-  const hasImage = selectedImage !== null
   const hasRecentPhotos = recentPhotos && recentPhotos.length > 0
-  const showTryOnButton = !isGenerating && hasImage
 
   // Track page view on mount
   useEffect(() => {
@@ -81,45 +90,67 @@ export default function TryOnMobile() {
     })
   }, [rpc, productIds])
 
-  // Auto-select recent photo if no image is selected
-  useEffect(() => {
-    if (!selectedImage && hasRecentPhotos) {
-      dispatch(tryOnSlice.actions.setSelectedImage(recentPhotos[0]))
-    }
-  }, [selectedImage, hasRecentPhotos, recentPhotos, dispatch])
 
   return (
     <main className={styles.tryOn}>
       <ErrorSnackbar onRetry={retryTryOn} />
 
       <FilePicker onFileSelect={handleFileSelect}>
-        {({ openFilePicker }) => (
+        {({ openFilePicker }) => {
+          // On mobile the consent popup opens first when consent is still
+          // pending, then resumes straight into the native picker
+          const requestUpload = () => runWithConsent(openFilePicker)
+          return (
           <>
             {selectedImage ? (
-              <TryOnView
-                image={selectedImage}
-                isGenerating={isGenerating}
-                onChangePhoto={hasRecentPhotos ? handleOpenBottomSheet : openFilePicker}
-              />
+              <>
+                {/* Full-bleed image with the loading veil (same as desktop);
+                    the change-photo action moves to the button row below */}
+                <TryOnView image={selectedImage} isGenerating={isGenerating} fill />
+
+                {isGenerating ? (
+                  // The status takes the action row's place so the layout
+                  // doesn't jump when the generation starts
+                  <div className={styles.loadingRow}>
+                    <TryOnStatus />
+                  </div>
+                ) : (
+                  <div className={styles.actions}>
+                    <SecondaryButton
+                      onClick={hasRecentPhotos ? handleOpenBottomSheet : requestUpload}
+                      shape="M"
+                      classNames={styles.action}
+                    >
+                      {uploadsHistoryButtonChangePhoto}
+                    </SecondaryButton>
+                    <TryOnButton onClick={() => startTryOn()} className={styles.action}>
+                      {tryOn}
+                    </TryOnButton>
+                  </div>
+                )}
+              </>
             ) : (
               <UploadPrompt
-                onClick={openFilePicker}
+                onClick={requestUpload}
                 onModelsClick={isModelsEnabled ? handleModelsClick : undefined}
               />
             )}
 
             <UploadsHistorySheet
-              onUploadNew={openFilePicker}
+              onUploadNew={requestUpload}
               onImageSelect={handleChoosePhotoFromHistory}
               onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
             />
           </>
-        )}
+          )
+        }}
       </FilePicker>
 
-      <TryOnButton onClick={() => startTryOn()} hidden={!showTryOnButton}>
-        {tryOn}
-      </TryOnButton>
+      <ConsentPopup
+        isOpen={isConsentOpen}
+        onClose={closeConsent}
+        onConfirm={confirmConsent}
+      />
     </main>
   )
 }

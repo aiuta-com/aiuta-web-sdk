@@ -1,15 +1,16 @@
 import { useRef } from 'react'
 import { useAppSelector } from '@/store/store'
-import { productIdsSelector } from '@/store/slices/tryOnSlice'
+import { productIdsSelector, tryOnModeSelector } from '@/store/slices/tryOnSlice'
 import { useRpc } from '@/contexts'
 import { TryOnAnalyticsService } from '@/utils/analytics/tryOnAnalyticsService'
 
 export const useTryOnAnalytics = () => {
   const rpc = useRpc()
   const productIds = useAppSelector(productIdsSelector)
+  const mode = useAppSelector(tryOnModeSelector)
   const startTimeRef = useRef<number>(0)
 
-  const analytics = new TryOnAnalyticsService(rpc, productIds)
+  const analytics = new TryOnAnalyticsService(rpc, productIds, mode)
 
   const trackTryOnInitiated = () => {
     analytics.trackTryOnInitiated()

@@ -1,0 +1,49 @@
+// Full-widget overlay used only to catch taps outside the card — fully
+// transparent: nothing behind the consent is dimmed or blurred (Figma).
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 13;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  // Figma: the card is inset ~12px from the empty-state grey area, which itself
+  // sits 8px off the widget edges → 20px margins on the sides and bottom.
+  padding: 0 20px 20px;
+  visibility: hidden;
+  transition: visibility 0.25s ease-in-out;
+}
+
+.overlay_active {
+  visibility: visible;
+
+  .card {
+    transform: translateY(0);
+  }
+}
+
+// Figma 12677-50839: rounded 32 card, 24/24/12 padding, soft drop shadow.
+// Anchored to the bottom of the screen and sliding up on open.
+.card {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px 24px 12px;
+  border-radius: 32px;
+  background-color: var(--aiuta-color-background);
+  box-shadow: 0 8px 21px rgba(0, 0, 0, 0.1);
+  transform: translateY(calc(100% + 20px));
+  transition: transform 0.25s ease-out;
+}
+
+// Figma: 24px gap between the checkbox row and the button
+.footer {
+  padding-top: 24px;
+}
+
+// Figma: the Start button spans the full card width here (the card's 24px
+// padding supplies the horizontal inset), unlike onboarding's 81.3% button.
+// Doubled class beats PrimaryButton's own width/margin rules.
+.startButton.startButton {
+  width: 100%;
+  margin: 0;
+}

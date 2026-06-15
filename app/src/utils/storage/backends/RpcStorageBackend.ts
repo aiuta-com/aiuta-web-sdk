@@ -35,7 +35,7 @@ export class RpcStorageBackend implements IStorageBackend {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 
-  async removeInputImage(_imageId: string): Promise<InputImage[]> {
+  async deleteUploadedImages(_images: InputImage[]): Promise<InputImage[]> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 
@@ -53,7 +53,7 @@ export class RpcStorageBackend implements IStorageBackend {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 
-  async removeGeneratedImage(_imageId: string): Promise<GeneratedImage[]> {
+  async deleteGeneratedImages(_images: GeneratedImage[]): Promise<GeneratedImage[]> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 
@@ -81,11 +81,11 @@ export class RpcStorageBackend implements IStorageBackend {
 
   // ===== Onboarding =====
 
-  async getOnboardingCompleted(): Promise<boolean> {
+  async getOnboardingCompletedModes(): Promise<Record<string, boolean>> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 
-  async setOnboardingCompleted(_completed: boolean): Promise<void> {
+  async setOnboardingModeCompleted(_mode: string): Promise<void> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 

@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { onboardingIsCompletedSelector } from '@/store/slices/onboardingSlice'
+import { useOnboardingFlow } from '@/hooks/onboarding/useOnboardingFlow'
 import { useUploadsData } from '@/hooks/data'
 
 /**
@@ -11,17 +11,19 @@ import { useUploadsData } from '@/hooks/data'
 export const useInitialRoute = () => {
   const navigate = useNavigate()
   const isMobile = useAppSelector(isMobileSelector)
-  const isOnboardingCompleted = useAppSelector(onboardingIsCompletedSelector)
+  const { slides } = useOnboardingFlow()
   const { data: uploads = [] } = useUploadsData()
 
+  const hasOnboardingSlides = slides.length > 0
+
   const navigateInitially = useCallback(() => {
-    if (!isOnboardingCompleted) {
-      // First-time user - go to onboarding
+    if (hasOnboardingSlides) {
+      // Something to show for this mode (intro/best-results/consent)
       navigate('/onboarding')
       return
     }
 
-    // Onboarding completed - decide where to go next
+    // Onboarding not needed - decide where to go next
     const hasPhotos = uploads.length > 0
 
     if (hasPhotos) {
@@ -31,7 +33,7 @@ export const useInitialRoute = () => {
       // No photos - mobile goes to tryon, desktop to QR upload
       navigate(isMobile ? '/tryon' : '/qr')
     }
-  }, [navigate, isMobile, isOnboardingCompleted, uploads.length])
+  }, [navigate, isMobile, hasOnboardingSlides, uploads.length])
 
   return { navigateInitially }
 }

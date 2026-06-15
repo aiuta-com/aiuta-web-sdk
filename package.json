@@ -43,7 +43,7 @@
     "bowser": "^2.12.1",
     "dayjs": "^1.11.18",
     "formidable": "^3.5.4",
-    "next-qrcode": "^2.5.1",
+    "qr-code-styling": "^1.9.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",

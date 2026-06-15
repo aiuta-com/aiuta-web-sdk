@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppContainer, PoweredBy } from '@/components'
+import { AppContainer } from '@/components'
 import { useUrlParams, useCustomCssUrl, useStandaloneApp } from '@/hooks'
 import QrUploadPage from '@/pages/3-QrUpload'
 
@@ -20,8 +20,8 @@ export const QrUpload = () => {
 
   return (
     <AppContainer>
+      {/* PoweredBy is rendered inside the page — it depends on the upload state */}
       <QrUploadPage />
-      <PoweredBy />
     </AppContainer>
   )
 }

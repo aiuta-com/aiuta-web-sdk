@@ -1,5 +1,6 @@
 import React from 'react'
 import ChannelIcon from './icons/ChannelIcon'
+import DebugMenu from './DebugMenu'
 import { getVersionInfo } from '../utils/versionInfo'
 
 export default function VersionBadges({ className }: { className?: string }) {
@@ -15,6 +16,7 @@ export default function VersionBadges({ className }: { className?: string }) {
         </span>
       ) : null}
       {env !== 'prod' ? <span className={`badge badge--${env}`}>{env}</span> : null}
+      <DebugMenu />
     </div>
   )
 }

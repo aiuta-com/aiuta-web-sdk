@@ -1,13 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { AiutaMode } from '@lib/config'
+import type { OnboardingCompletedModes } from '@/hooks/data/useOnboardingData'
 
 export interface OnboardingState {
   currentStep: number
-  isCompleted: boolean
+  completedModes: OnboardingCompletedModes
 }
 
 const initialState: OnboardingState = {
   currentStep: 0,
-  isCompleted: false, // Will be loaded via useOnboardingData
+  completedModes: {}, // Will be loaded via useOnboardingData
 }
 
 export const onboardingSlice = createSlice({
@@ -22,14 +24,19 @@ export const onboardingSlice = createSlice({
       state.currentStep++
     },
 
-    setIsCompleted: (state, action: PayloadAction<boolean>) => {
-      state.isCompleted = action.payload
+    setCompletedModes: (state, action: PayloadAction<OnboardingCompletedModes>) => {
+      state.completedModes = action.payload
+      // Storage is handled by React Query mutations
+    },
+
+    setModeCompleted: (state, action: PayloadAction<AiutaMode>) => {
+      state.completedModes[action.payload] = true
       // Storage is handled by React Query mutations
     },
 
     resetOnboarding: (state) => {
       state.currentStep = 0
-      state.isCompleted = false
+      state.completedModes = {}
       // Storage is handled by React Query mutations
     },
   },

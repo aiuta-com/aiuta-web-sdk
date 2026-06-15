@@ -38,7 +38,9 @@
   top: 0px;
   left: 0;
   right: 0;
-  height: 74px;
+  // Just the handle strip by default, so it doesn't sit over the first button
+  // when the sheet is only buttons (no photo list)
+  height: 32px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -50,6 +52,12 @@
   &:active {
     cursor: grabbing;
   }
+}
+
+// With a header above a list, extend the drag area over it so the sheet can
+// be dragged by the title too
+.grabber_tall {
+  height: 74px;
 }
 
 .handle {

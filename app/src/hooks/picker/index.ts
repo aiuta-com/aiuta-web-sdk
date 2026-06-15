@@ -1,4 +1,5 @@
 export { useFilePicker } from './useFilePicker'
+export { useImagePickerImages } from './useImagePickerImages'
 export { useQrUpload } from './useQrUpload'
 export { useQrPrompt } from './useQrPrompt'
 export { useGlobalFileDrop } from './useGlobalFileDrop'

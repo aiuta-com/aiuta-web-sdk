@@ -7,7 +7,6 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  margin-top: 32px;
 }
 
 .previews {
@@ -28,10 +27,9 @@
   border: 2.6px solid var(--aiuta-color-on-dark);
   box-sizing: border-box;
   background: var(--aiuta-color-neutral);
-  transition:
-    transform 0.2s ease,
-    left 0.2s ease,
-    top 0.2s ease;
+  // Transform-only hover animation: transitioning left/top forces layout
+  // under the cursor and Chromium flickers the pointer while moving
+  transition: transform 0.2s ease;
 
   img {
     width: 100%;
@@ -48,8 +46,7 @@
     box-shadow: 0 -13.076px 14.182px 0 rgba(0, 0, 0, 0.04);
 
     .modelsButton:hover & {
-      left: 4px;
-      transform: rotate(-20.065deg);
+      transform: translateX(-4px) rotate(-20.065deg);
     }
   }
 
@@ -62,7 +59,7 @@
     box-shadow: 0 19.614px 14.182px 0 rgba(0, 0, 0, 0.08);
 
     .modelsButton:hover & {
-      top: -2.5px;
+      transform: translateY(-2.5px) rotate(6.742deg);
     }
   }
 
@@ -74,8 +71,7 @@
     box-shadow: 0 0 14.182px 0 rgba(0, 0, 0, 0.08);
 
     .modelsButton:hover & {
-      left: 56px;
-      transform: rotate(25.075deg);
+      transform: translateX(4px) rotate(25.075deg);
     }
   }
 }
@@ -84,4 +80,5 @@
   margin: 0;
   color: var(--aiuta-color-primary);
   text-align: center;
+  font-weight: 500; // Figma: medium label on this button
 }

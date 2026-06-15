@@ -28,39 +28,19 @@
   }
 }
 
-// Common styles for icon buttons
+// Mobile FAB over the image: dark translucent circle with a blurred backdrop
+// and white icon, matching the feedback FABs (Figma)
 .iconButton {
   position: absolute !important;
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: var(--aiuta-color-on-dark);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+  background: color-mix(in srgb, var(--aiuta-color-on-light) 12%, transparent);
+  backdrop-filter: blur(5px);
+  color: var(--aiuta-color-on-dark);
   z-index: 2;
-
-  // Increase touch target area
-  &::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    right: -12px;
-    bottom: -12px;
-    left: -12px;
-  }
-}
-
-.shareButton {
-  @extend .iconButton;
-  top: 24px;
-  right: 24px;
-}
-
-.otherPhoto {
-  @extend .iconButton;
-  bottom: 12px;
-  left: 12px;
-
-  // Override IconButton mobile padding/margin that affects positioning
+  // Neutralize IconButton's mobile touch padding/negative margin, which would
+  // otherwise shift the FAB off its absolute position (to the screen edge)
   padding: 0 !important;
   margin: 0 !important;
 
@@ -75,11 +55,27 @@
   }
 }
 
+// Figma: share top-right, change photo just below it, feedback bottom-right
+.shareButton {
+  @extend .iconButton;
+  top: 16px;
+  right: 12px;
+}
+
+.changePhotoFab {
+  @extend .iconButton;
+  top: 62px;
+  right: 12px;
+}
+
+// Like/dislike as their own vertical column, bottom-right, sitting above the
+// 20px disclaimer strip (Figma: bottom 32 = strip 20 + 12 gap)
 .feedback {
   position: absolute;
-  bottom: 12px;
+  bottom: 32px;
   right: 12px;
   z-index: 2;
+  flex-direction: column;
 }
 
 .disclaimer {
@@ -89,9 +85,55 @@
   margin-bottom: 12px;
 }
 
-.disclaimer_compact {
-  display: flex;
-  justify-content: center;
-  margin-top: 0;
-  margin-bottom: 4px;
+// Desktop (Figma): the image fills the widget edge-to-edge — 8px sides,
+// 8px below the navbar, 10px gap to the action tiles
+.fillContainer {
+  padding: 8px 8px 10px;
+}
+
+.fillContent {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  // Clips the full-width disclaimer strip to the rounded corners
+  overflow: hidden;
+}
+
+// Mobile: the result image goes full-bleed, no insets, no rounding
+// (the breakpoint mirrors MOBILE_BREAKPOINT in useWindowResize.ts)
+@media (max-width: 992px) {
+  .fillContainer {
+    padding: 0;
+  }
+
+  .fillContent,
+  .fillContainer :global(.aiuta-image-m) {
+    border-radius: 0;
+  }
+}
+
+// Reserves the (absent) Add to cart area so the result image is the same
+// height as the loading screen's image: there the image sits above a row
+// that's 16px image padding + 50px button + 26px margin = 92px. The full-bleed
+// result image has no bottom padding, so the whole 92px lives in this spacer.
+.cartReserve {
+  position: relative;
+  flex-shrink: 0;
+  width: 100%;
+  height: 92px;
+
+  // Lift the Powered by footer 20px off the bottom (only here)
+  :global(.aiuta-powered-by) {
+    bottom: 20px;
+  }
+}
+
+// Like/dislike sit flush with the image's right edge, 5px above the
+// 20px disclaimer strip (Figma: bottom 25px); the icons' own 4px
+// padding provides the visual inset
+.feedbackOverlay {
+  position: absolute;
+  bottom: 25px;
+  right: 0;
+  z-index: 2;
 }

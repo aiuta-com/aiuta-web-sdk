@@ -8,10 +8,16 @@ import styles from './TryOnView.module.scss'
 interface TryOnViewProps {
   image: TryOnImage | null
   isGenerating: boolean
+  /** Overlay change-photo button; omit it when the page renders its own */
   onChangePhoto?: () => void
+  /**
+   * Fill the available area edge-to-edge with a 16px radius (desktop picker
+   * per Figma) instead of the aspect-constrained 24px-radius fit
+   */
+  fill?: boolean
 }
 
-export const TryOnView = ({ image, isGenerating, onChangePhoto }: TryOnViewProps) => {
+export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: TryOnViewProps) => {
   const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
 
   // Fix backdrop-filter refresh with minimal opacity change
@@ -65,12 +71,27 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto }: TryOnViewProps
   }
 
   return (
-    <Flex contentClassName={combineClassNames('aiuta-image-l', isGenerating && styles.animation)}>
-      <RemoteImage src={imageUrl} alt="Try-on image" shape="L" onLoad={handleImageLoad} />
+    <Flex
+      containerClassName={combineClassNames(fill && styles.fillContainer)}
+      contentClassName={combineClassNames(
+        fill ? 'aiuta-image-m' : 'aiuta-image-l',
+        fill && styles.fillContent,
+        // Desktop (fill) shows the Figma gradient veil; mobile keeps the scan
+        isGenerating && (fill ? styles.loadingGradient : styles.animation),
+      )}
+    >
+      <RemoteImage
+        src={imageUrl}
+        alt="Try-on image"
+        shape={fill ? 'M' : 'L'}
+        fit="smart"
+        onLoad={handleImageLoad}
+      />
 
-      {isGenerating && <TryOnStatus className={styles.processingStatus} />}
+      {/* On desktop (fill) the page renders the status below the image */}
+      {isGenerating && !fill && <TryOnStatus className={styles.processingStatus} />}
 
-      {!isGenerating && (
+      {!isGenerating && onChangePhoto && (
         <button
           className={`aiuta-button-s ${styles.changePhotoButton}`}
           style={{ opacity: buttonOpacity }}

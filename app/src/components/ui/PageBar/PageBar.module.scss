@@ -1,6 +1,6 @@
 .pageBar {
   position: relative;
-  min-height: 70px;
+  min-height: 52px;
   padding: 0 16px;
   display: flex;
   align-items: center;
@@ -8,10 +8,9 @@
 }
 
 .pageBar_mobile {
-  min-height: 56px;
+  min-height: 44px;
   padding: 0 14px;
   justify-content: flex-end;
-  margin-bottom: 16px;
 }
 
 .titleContainer {
