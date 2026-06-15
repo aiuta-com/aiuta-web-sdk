@@ -5,7 +5,7 @@ import styles from './BottomSheet.module.scss'
 
 const SWIPE_DOWN_THRESHOLD = 100
 
-export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => {
+export const BottomSheet = ({ isOpen, onClose, children, tallGrabber }: BottomSheetProps) => {
   const contentRef = useRef<HTMLDivElement | null>(null)
   const initialMouseYRef = useRef<number | null>(null)
   const lastPositionsRef = useRef<number[]>([])
@@ -162,7 +162,7 @@ export const BottomSheet = ({ isOpen, onClose, children }: BottomSheetProps) => 
     >
       <div ref={contentRef} className={styles.content} onClick={handleContentClick}>
         <div
-          className={styles.grabber}
+          className={combineClassNames(styles.grabber, tallGrabber && styles.grabber_tall)}
           data-scrollable="true"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}

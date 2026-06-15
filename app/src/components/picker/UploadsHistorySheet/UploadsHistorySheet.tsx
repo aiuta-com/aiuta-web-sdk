@@ -44,7 +44,7 @@ export const UploadsHistorySheet = ({
   }
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={handleClose}>
+    <BottomSheet isOpen={isOpen} onClose={handleClose} tallGrabber={!!onImageSelect}>
       {onImageSelect && (
         <>
           <div className={styles.title}>
@@ -74,7 +74,9 @@ export const UploadsHistorySheet = ({
         </>
       )}
 
-      <PrimaryButton onClick={onUploadNew}>{uploadsHistoryButtonNewPhoto}</PrimaryButton>
+      <PrimaryButton onClick={onUploadNew} maxWidth={false} className={styles.uploadButton}>
+        {uploadsHistoryButtonNewPhoto}
+      </PrimaryButton>
 
       {onSelectModel && (
         <SecondaryButton onClick={onSelectModel} shape="M" maxWidth={true}>

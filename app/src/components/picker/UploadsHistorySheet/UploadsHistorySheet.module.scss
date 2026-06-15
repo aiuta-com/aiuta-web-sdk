@@ -33,3 +33,12 @@
 .imageBox {
   flex-shrink: 0;
 }
+
+// Match the SecondaryButton's maxWidth so both sheet buttons are the same
+// width (the PrimaryButton's default maxWidth is the narrower 81.3%)
+.uploadButton {
+  width: calc(100% - 2 * var(--aiuta-inset-h));
+  max-width: var(--aiuta-max-width);
+  margin-left: auto;
+  margin-right: auto;
+}
