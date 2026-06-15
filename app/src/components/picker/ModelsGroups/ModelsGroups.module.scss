@@ -1,0 +1,92 @@
+// Vertical scroller of view groups
+.groups {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 0 8px 8px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+}
+
+.groupLabel {
+  margin: 0 0 8px;
+  color: var(--aiuta-color-secondary);
+}
+
+.rowWrap {
+  position: relative;
+}
+
+// Horizontal scroller of model cards
+.row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  scrollbar-width: none;
+}
+
+// Figma model card: 153×240, 16px radius (from the M image shape). Relative so
+// the absolutely-positioned RemoteImage fills the card instead of escaping to
+// the nearest positioned ancestor (the row wrap). Desktop uses one size for all
+// groups; mobile makes the full-height cards larger and the other views smaller.
+.card {
+  position: relative;
+  flex-shrink: 0;
+  width: 153px;
+  height: 240px;
+  cursor: pointer;
+  scroll-snap-align: start;
+}
+
+@media (max-width: 992px) {
+  .card {
+    width: 120px;
+    height: 188px;
+  }
+
+  .card_large {
+    width: 165px;
+    height: 258px;
+  }
+}
+
+// Round scroll arrows (desktop only), overhanging the row edges
+.arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--aiuta-color-background);
+  color: var(--aiuta-color-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.arrow_left {
+  left: -4px;
+}
+
+.arrow_right {
+  right: -4px;
+}

@@ -18,6 +18,13 @@ const DEFAULT_CATEGORY_LABELS: Record<string, string> = {
   male: 'Men',
 }
 
+// Default labels for the shoes view groups (Figma)
+const DEFAULT_VIEW_LABELS: Record<string, string> = {
+  'full-height': 'Full height models',
+  'bird-view': 'Bird view angle',
+  'side-view': 'Side view',
+}
+
 /**
  * Hook for getting localized Predefined Models feature strings with fallbacks
  */
@@ -30,6 +37,7 @@ export const usePredefinedModelsStrings = () => {
   const shoesStrings = rpc.config.modes?.shoes?.imagePicker?.predefinedModels?.strings
   const categoryMap = strings?.predefinedModelCategories || {}
   const shoesCategoryMap = shoesStrings?.predefinedModelShoesCategories || {}
+  const shoesGroupMap = shoesStrings?.predefinedModelShoesGroups || {}
 
   const isShoes = mode === 'shoes'
 
@@ -45,6 +53,12 @@ export const usePredefinedModelsStrings = () => {
     return categoryMap[categoryId] || DEFAULT_CATEGORY_LABELS[categoryId] || capitalize(categoryId)
   }
 
+  /**
+   * Get the localized label for a shoes view group (full-height/bird-view/side-view)
+   */
+  const getViewLabel = (view: string): string =>
+    shoesGroupMap[view] || DEFAULT_VIEW_LABELS[view] || capitalize(view)
+
   return {
     // In shoes mode the user picks an example photo rather than a model;
     // the same string labels the picker buttons and the /models page title
@@ -55,5 +69,6 @@ export const usePredefinedModelsStrings = () => {
     predefinedModelsEmptyListError:
       strings?.predefinedModelsEmptyListError ?? 'The models list is empty',
     getCategoryName,
+    getViewLabel,
   }
 }

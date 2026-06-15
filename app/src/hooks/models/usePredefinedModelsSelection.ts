@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '@/store/store'
+import { useAppDispatch, useAppSelector } from '@/store/store'
 import { predefinedModelsSlice } from '@/store/slices/predefinedModelsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { tryOnModeSelector } from '@/store/slices/tryOnSlice'
 import { usePredefinedModels } from './usePredefinedModels'
 import { usePredefinedModelsAnalytics } from './usePredefinedModelsAnalytics'
 import { useTryOnGeneration } from '@/hooks/tryOn/useTryOnGeneration'
@@ -19,9 +20,26 @@ export const usePredefinedModelsSelection = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const rpc = useRpc()
-  const { categories, isLoading, isLoaded, isError, isEnabled } = usePredefinedModels()
+  const mode = useAppSelector(tryOnModeSelector)
+  const { categories: allCategories, isLoading, isLoaded, isError, isEnabled } = usePredefinedModels()
   const { startTryOn } = useTryOnGeneration()
   const { trackCategoryChange, trackModelSelected } = usePredefinedModelsAnalytics()
+
+  // General mode shows only full-height models in the classic picker — the
+  // bird/side-view models are shoe angles, surfaced only by the shoes grouped
+  // picker. Untagged (legacy) models are treated as full-height. Shoes mode
+  // keeps every view and groups them in the UI.
+  const categories = useMemo(() => {
+    if (mode === 'shoes') return allCategories
+    return allCategories
+      .map((category) => ({
+        ...category,
+        models: category.models.filter(
+          (model) => !model.tags?.view || model.tags.view === 'full-height',
+        ),
+      }))
+      .filter((category) => category.models.length > 0)
+  }, [allCategories, mode])
 
   // Get preferred category from config
   const preferredCategoryId =
