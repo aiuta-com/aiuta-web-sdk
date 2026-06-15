@@ -10,6 +10,14 @@
   justify-content: flex-start;
 }
 
+// Popup layout: the ConsentPopup card supplies the padding and the height is
+// driven by content (doubling the bracket trick keeps it ahead of `.consent`
+// regardless of CSS-module bundle order).
+.consent_compact.consent_compact {
+  height: auto;
+  padding: 0;
+}
+
 .title {
   text-align: left;
   // Reset the UA h2 margins: the title starts flush at the slide top.

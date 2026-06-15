@@ -13,6 +13,7 @@ import {
   UploadsHistorySheet,
   FilePicker,
   PoweredBy,
+  ConsentPopup,
 } from '@/components'
 import {
   useResultsGallery,
@@ -23,6 +24,7 @@ import {
   usePredefinedModels,
   useUploadsGallery,
   useImageTone,
+  useConsentGate,
 } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
@@ -42,6 +44,7 @@ export default function ResultsMobile() {
   const { selectImageToTryOn } = useTryOnImage()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { recentlyPhotos } = useUploadsGallery()
+  const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
 
   // Tone of the image bottom → light/dark disclaimer strip (same as desktop)
   const toneInfo = useImageTone(currentImage?.url)
@@ -76,7 +79,9 @@ export default function ResultsMobile() {
   return (
     <main className={styles.results}>
       <FilePicker onFileSelect={handleFileSelect}>
-        {({ openFilePicker }) => (
+        {({ openFilePicker }) => {
+          const requestUpload = () => runWithConsent(openFilePicker)
+          return (
           <>
             <Flex
               containerClassName={styles.fillContainer}
@@ -112,13 +117,20 @@ export default function ResultsMobile() {
             </div>
 
             <UploadsHistorySheet
-              onUploadNew={openFilePicker}
+              onUploadNew={requestUpload}
               onImageSelect={hasMultiplePhotos ? handleChoosePhotoFromHistory : undefined}
               onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
             />
           </>
-        )}
+          )
+        }}
       </FilePicker>
+
+      <ConsentPopup
+        isOpen={isConsentOpen}
+        onClose={closeConsent}
+        onConfirm={confirmConsent}
+      />
     </main>
   )
 }

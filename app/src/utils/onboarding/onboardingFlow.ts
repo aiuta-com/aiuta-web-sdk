@@ -15,6 +15,8 @@ export interface OnboardingFlowInput {
   config: AiutaConfiguration
   completedModes: OnboardingCompletedModes
   hasPendingConsents: boolean
+  /** On mobile the consent is collected in a popup, not as an onboarding slide */
+  isMobile: boolean
 }
 
 /**
@@ -22,7 +24,7 @@ export interface OnboardingFlowInput {
  * onboarding page should be skipped entirely.
  */
 export function computeOnboardingSlides(input: OnboardingFlowInput): OnboardingSlideId[] {
-  const { mode, config, completedModes, hasPendingConsents } = input
+  const { mode, config, completedModes, hasPendingConsents, isMobile } = input
 
   const onboarding = config.features?.onboarding
   const generalEnabled = onboarding !== null
@@ -56,9 +58,10 @@ export function computeOnboardingSlides(input: OnboardingFlowInput): OnboardingS
     slides.push('shoesBestResults')
   }
 
-  // Consent collection rides along with the onboarding page, but its
-  // acceptance does not count towards onboarding completion
-  if (hasPendingConsents) {
+  // Consent collection rides along with the onboarding page on desktop, but its
+  // acceptance does not count towards onboarding completion. On mobile it is
+  // moved to a popup triggered by the photo upload, so the slide is skipped.
+  if (hasPendingConsents && !isMobile) {
     slides.push('consent')
   }
 

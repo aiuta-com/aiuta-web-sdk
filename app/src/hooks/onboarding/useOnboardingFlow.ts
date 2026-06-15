@@ -2,17 +2,16 @@ import { useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { useRpc } from '@/contexts'
 import { onboardingSlice, onboardingCompletedModesSelector } from '@/store/slices/onboardingSlice'
+import { isMobileSelector } from '@/store/slices/appSlice'
 import { tryOnModeSelector } from '@/store/slices/tryOnSlice'
-import { useConsentData } from '@/hooks/data'
 import { useSetOnboardingModeCompleted } from '@/hooks/data/useOnboardingData'
-import { ConsentType } from '@lib/config/features'
 import type { AiutaMode } from '@lib/config'
 import {
   computeOnboardingSlides,
   completionForSlide,
   type OnboardingSlideId,
 } from '@/utils/onboarding/onboardingFlow'
-import { DEFAULT_CONSENT } from './useConsentManagement'
+import { useHasPendingConsents } from './useHasPendingConsents'
 
 /**
  * Mode-aware onboarding flow: which slides to show for the current session
@@ -22,18 +21,13 @@ export const useOnboardingFlow = () => {
   const rpc = useRpc()
   const dispatch = useAppDispatch()
   const mode = useAppSelector(tryOnModeSelector)
+  const isMobile = useAppSelector(isMobileSelector)
   const completedModes = useAppSelector(onboardingCompletedModesSelector)
-  const { data: obtainedConsentIds = [] } = useConsentData()
   const { mutate: persistModeCompleted } = useSetOnboardingModeCompleted()
 
-  // Same effective consent list as useConsentManagement (incl. the default)
-  const configConsents = rpc.config.features?.consent?.data?.consents
-  const hasPendingConsents = useMemo(() => {
-    const consents = configConsents?.length ? configConsents : [DEFAULT_CONSENT]
-    return consents
-      .filter((consent) => consent.type === ConsentType.explicitRequired)
-      .some((consent) => !obtainedConsentIds.includes(consent.id))
-  }, [configConsents, obtainedConsentIds])
+  // On mobile the consent moves out of onboarding into a popup gated by the
+  // photo upload, so the slide is suppressed here (see useConsentGate).
+  const hasPendingConsents = useHasPendingConsents()
 
   const slides = useMemo(
     () =>
@@ -42,8 +36,9 @@ export const useOnboardingFlow = () => {
         config: rpc.config,
         completedModes,
         hasPendingConsents,
+        isMobile,
       }),
-    [mode, rpc.config, completedModes, hasPendingConsents],
+    [mode, rpc.config, completedModes, hasPendingConsents, isMobile],
   )
 
   /**

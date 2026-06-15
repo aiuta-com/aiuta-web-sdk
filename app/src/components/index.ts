@@ -39,6 +39,7 @@ export { Alert } from './popups/Alert'
 
 // Onboarding
 export { Consent } from './onboarding/Consent'
+export { ConsentPopup } from './onboarding/ConsentPopup'
 export { Slide } from './onboarding/Slide'
 
 // Picker (Upload)

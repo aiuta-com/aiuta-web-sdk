@@ -17,6 +17,7 @@ import {
   UploadPrompt,
   FilePicker,
   TryOnView,
+  ConsentPopup,
 } from '@/components'
 import {
   useTryOnGeneration,
@@ -25,6 +26,7 @@ import {
   useTryOnStrings,
   useImagePickerStrings,
   usePredefinedModels,
+  useConsentGate,
 } from '@/hooks'
 import { useRpc } from '@/contexts'
 import styles from './TryOn.module.scss'
@@ -44,6 +46,7 @@ export default function TryOnMobile() {
   const { tryOn } = useTryOnStrings()
   const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
+  const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
 
   const handleFileSelect = useCallback(
     async (file: File) => {
@@ -95,7 +98,11 @@ export default function TryOnMobile() {
       <ErrorSnackbar onRetry={retryTryOn} />
 
       <FilePicker onFileSelect={handleFileSelect}>
-        {({ openFilePicker }) => (
+        {({ openFilePicker }) => {
+          // On mobile the consent popup opens first when consent is still
+          // pending, then resumes straight into the native picker
+          const requestUpload = () => runWithConsent(openFilePicker)
+          return (
           <>
             {selectedImage ? (
               <>
@@ -112,7 +119,7 @@ export default function TryOnMobile() {
                 ) : (
                   <div className={styles.actions}>
                     <SecondaryButton
-                      onClick={hasRecentPhotos ? handleOpenBottomSheet : openFilePicker}
+                      onClick={hasRecentPhotos ? handleOpenBottomSheet : requestUpload}
                       shape="M"
                       classNames={styles.action}
                     >
@@ -126,19 +133,26 @@ export default function TryOnMobile() {
               </>
             ) : (
               <UploadPrompt
-                onClick={openFilePicker}
+                onClick={requestUpload}
                 onModelsClick={isModelsEnabled ? handleModelsClick : undefined}
               />
             )}
 
             <UploadsHistorySheet
-              onUploadNew={openFilePicker}
+              onUploadNew={requestUpload}
               onImageSelect={handleChoosePhotoFromHistory}
               onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
             />
           </>
-        )}
+          )
+        }}
       </FilePicker>
+
+      <ConsentPopup
+        isOpen={isConsentOpen}
+        onClose={closeConsent}
+        onConfirm={confirmConsent}
+      />
     </main>
   )
 }
