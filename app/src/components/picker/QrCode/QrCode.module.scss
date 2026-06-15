@@ -1,8 +1,8 @@
-// QR code container
+// QR code container: wraps the canvas exactly (its quiet zone is the margin)
+// and rounds the tile. line-height:0 drops the inline-canvas baseline gap.
 .qrCode {
   position: relative;
-  max-width: 200px;
-  max-height: 200px;
   border-radius: 16px; // Figma: same radius as the image shapes
   overflow: hidden;
+  line-height: 0;
 }

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useQRCode } from 'next-qrcode'
+import { QRCode } from 'react-qrcode-logo'
 import { QrCodeProps } from './types'
 import styles from './QrCode.module.scss'
 
@@ -35,9 +35,11 @@ const mixHex = (a: string, b: string, ratio: number): string => {
   return `#${mixed.join('')}`
 }
 
-export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
-  const { Canvas } = useQRCode()
+// Rounded eyes (Figma): same radius on the outer ring and inner dot of all
+// three finder patterns
+const EYE_RADIUS = { outer: 8, inner: 4 }
 
+export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
   // Get CSS variables values and convert to hex
   const rootStyle = getComputedStyle(document.documentElement)
   const primaryColor = rootStyle.getPropertyValue('--aiuta-color-primary').trim() || 'black'
@@ -52,21 +54,20 @@ export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
 
   return (
     <div className={styles.qrCode}>
-      <Canvas
-        text={url}
-        logo={{
-          options: { width: 50 },
-          src: './aiuta.svg',
-        }}
-        options={{
-          errorCorrectionLevel: 'M',
-          width: 200,
-          margin: 6,
-          color: {
-            dark: darkColor,
-            light: lightColor,
-          },
-        }}
+      <QRCode
+        value={url}
+        size={184}
+        quietZone={8}
+        ecLevel="M"
+        bgColor={lightColor}
+        fgColor={darkColor}
+        eyeColor={darkColor}
+        eyeRadius={EYE_RADIUS}
+        qrStyle="fluid"
+        logoImage="./aiuta.svg"
+        logoWidth={44}
+        logoHeight={44}
+        removeQrCodeBehindLogo
       />
     </div>
   )
