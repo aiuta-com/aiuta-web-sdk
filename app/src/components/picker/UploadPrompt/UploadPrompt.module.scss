@@ -1,6 +1,6 @@
 // Empty-state image picker card (Figma 12550-25877): a neutral rounded card
-// filling the picker area with 8px insets, holding two tilted example
-// polaroids, a title/description and the upload buttons.
+// filling the picker area with 8px insets, holding the zero-state artwork, a
+// title/description and the upload buttons.
 .card {
   flex: 1 1 0;
   min-height: 0;
@@ -16,40 +16,17 @@
   overflow: hidden;
 }
 
-// Two example photos as overlapping tilted polaroids (Figma 240x180 slot)
-.examples {
-  position: relative;
-  width: 240px;
-  height: 180px;
-  flex-shrink: 0;
-  margin-bottom: 24px;
-}
-
-.sample {
-  position: absolute;
-  top: 50%;
-  width: 87px;
-  height: 127px;
-  border: 4px solid var(--aiuta-color-background);
-  border-radius: 18px;
-  object-fit: cover;
-  object-position: top;
-  // Figma Shadow/300
-  box-shadow:
-    0 8px 16px -6px rgba(0, 0, 0, 0.08),
-    0 6px 8px -6px rgba(0, 0, 0, 0.12);
-}
-
-.sample1 {
-  left: 39px;
-  transform: translateY(-50%) rotate(-8deg);
-  z-index: 1;
-}
-
-.sample2 {
-  right: 39px;
-  transform: translateY(-50%) rotate(8deg);
-  z-index: 2;
+// Zero-state artwork fit into the free space above the title (onboarding
+// principle: a reserved slot, the whole composition lives in the image).
+// Only small gaps to the top and the title, so the image stays as large as
+// the card allows.
+.image {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  object-fit: contain;
+  margin-top: 8px;
+  margin-bottom: 16px;
 }
 
 .content {

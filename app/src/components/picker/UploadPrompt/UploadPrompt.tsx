@@ -9,26 +9,13 @@ export const UploadPrompt = (props: UploadPromptProps) => {
   const { onClick, onModelsClick } = props
   const { imagePickerTitle, imagePickerDescription, imagePickerButtonUploadPhoto } =
     useImagePickerStrings()
-  const { examples } = useImagePickerImages()
+  const { zeroStateImage } = useImagePickerImages()
   const { predefinedModelsTitle, predefinedModelsOr } = usePredefinedModelsStrings()
 
   return (
     <div className={styles.card}>
-      {/* Two tilted polaroid examples */}
-      <div className={styles.examples}>
-        {examples.map((example, index) => (
-          <img
-            key={example}
-            src={example}
-            className={combineClassNames(
-              styles.sample,
-              index === 0 ? styles.sample1 : styles.sample2,
-            )}
-            alt="Example"
-            draggable={false}
-          />
-        ))}
-      </div>
+      {/* Zero-state artwork fit into a reserved slot (onboarding principle) */}
+      <img className={styles.image} src={zeroStateImage} alt="" draggable={false} />
 
       {/* Text content */}
       <div className={styles.content}>
