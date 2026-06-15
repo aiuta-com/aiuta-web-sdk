@@ -8,28 +8,136 @@
   overflow: hidden;
 }
 
-.header {
-  position: relative;
-  min-height: 56px;
-  padding: 0 14px;
+// Lift the Powered by footer 8px off the bottom on the QR upload screen only
+// (it's pinned to bottom: 0 of the fixed AppContainer by default)
+.poweredByWrap :global(.aiuta-powered-by) {
+  bottom: 8px;
+}
+
+// Compact top bar on the preview/loading states (Figma 12429-17256): centered
+// title. The empty state renders no bar so it matches the main upload screen.
+.navbar {
+  min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 20px;
+  padding: 0 14px;
+  flex-shrink: 0;
 }
 
-.pageTitle {
+.navbarTitle {
+  margin: 0;
+  text-align: center;
+}
+
+// Preview/loading image goes full-bleed, like the main try-on screen
+.fillContainer {
+  padding: 0;
+}
+
+.fillContent {
+  aspect-ratio: auto;
+  width: 100%;
+  height: 100%;
+  // Clip the covered image to the container box
+  overflow: hidden;
+}
+
+.fillContent,
+.fillContainer :global(.aiuta-image-m) {
+  border-radius: 0;
+}
+
+// Loading veil over the QR preview image: the same diagonal crawling gradient
+// as the main try-on screen (TryOnView .loadingGradient), kept self-contained
+// here so the main veil — carefully tuned for the GPU texture limit — is left
+// untouched. See TryOnView.module.scss for the derivation of these numbers.
+.loadingVeil {
+  overflow: hidden;
+}
+
+.loadingVeil::after {
+  content: '';
+  position: absolute;
+  // Half-scale render blown up with transform: scale(2) to keep the rasterized
+  // texture under the mobile GPU texture limit (900px on-screen period)
+  top: -710px;
+  left: -555px;
+  width: calc(50% + 278px);
+  height: calc(50% + 355px);
+  transform-origin: top left;
+  transform: scale(2);
+  background: repeating-linear-gradient(
+    142deg,
+    rgba(255, 255, 255, 0.5) 0,
+    rgba(255, 255, 255, 0.5) 112.5px,
+    rgba(255, 255, 255, 0.45) 135px,
+    rgba(255, 255, 255, 0.05) 202.5px,
+    rgba(255, 255, 255, 0) 225px,
+    rgba(255, 255, 255, 0) 337.5px,
+    rgba(255, 255, 255, 0.05) 360px,
+    rgba(255, 255, 255, 0.45) 427.5px,
+    rgba(255, 255, 255, 0.5) 450px
+  );
+  animation:
+    qr-gradient-crawl 3s linear infinite,
+    qr-veil-fade-in 0.6s ease-out both;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes qr-veil-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes qr-gradient-crawl {
+  from {
+    transform: scale(2) translate(0, 0);
+  }
+  to {
+    transform: scale(2) translate(277.06px, 354.61px);
+  }
+}
+
+// Stacked action buttons under the preview image (Figma: Next + Change photo,
+// 4px gap, full width minus 8px insets, 16px above the bottom). The doubled
+// class beats the buttons' own width/margin rules.
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: calc(100% - 16px);
+  margin: 0 auto;
+  // Figma: 8px gap between the image and the first button
+  padding-top: 8px;
+  padding-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.action.action {
+  width: 100%;
+  max-width: none;
   margin: 0;
 }
 
-.nextButton {
-  margin-top: 0;
-}
-
-.nextButton_hidden {
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  cursor: default !important;
-  transition: none !important;
+// Upload progress row that replaces the actions while uploading (Figma
+// 12429-17397: loader ring + label, same metrics as the try-on status).
+// Its height matches the actions box (8 + 50 + 4 + 50 + 16) so the full-bleed
+// image keeps the same height across the preview/loading states.
+.loadingRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 128px;
+  flex-shrink: 0;
+  color: var(--aiuta-color-primary);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 18px;
 }

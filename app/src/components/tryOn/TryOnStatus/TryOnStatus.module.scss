@@ -17,58 +17,6 @@
   // No background/blur here: on desktop the pill sits below the image on
   // the plain widget background. The mobile overlay variant (on the photo)
   // adds them via the className passed from TryOnView.
-}
 
-// Figma ic_24/loader: a ring arc whose tail fades along the circle (true
-// angular fade — SVG can't do conic gradients, CSS can). The dot pseudo
-// element is the rounded cap at the head of the arc.
-.spinner {
-  position: relative;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  // The tail fades all the way to zero with an eased knee so its very end
-  // dissolves instead of cutting off at the 75deg edge
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg 55deg,
-    color-mix(in srgb, var(--aiuta-color-primary) 0%, transparent) 55deg,
-    color-mix(in srgb, var(--aiuta-color-primary) 6%, transparent) 95deg,
-    var(--aiuta-color-primary) 360deg
-  );
-  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2.8px));
-  -webkit-mask: radial-gradient(
-    farthest-side,
-    transparent calc(100% - 3px),
-    #000 calc(100% - 2.8px)
-  );
-  animation: spinner_rotation 1s linear infinite;
-
-  // Rounded cap at the head of the arc (12 o'clock, full color). Slightly
-  // larger than the ring thickness so the rounding actually reads at this
-  // size; centered on the ring centerline (y = 1.5px).
-  &::after {
-    content: '';
-    position: absolute;
-    top: -0.5px;
-    left: 50%;
-    width: 4px;
-    height: 4px;
-    margin-left: -2px;
-    border-radius: 50%;
-    background: var(--aiuta-color-primary);
-  }
-
-  // No cap on the tail: it fades out to near-transparent, so a hard end
-  // isn't visible, and a faint dot there reads as a stray speck.
-}
-
-@keyframes spinner_rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  // The loader ring lives in the shared LoaderRing component.
 }

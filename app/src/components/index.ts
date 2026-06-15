@@ -23,6 +23,7 @@ export { CrossFadeImage } from './images/CrossFadeImage'
 
 // Indicators
 export { Spinner } from './indicators/Spinner/Spinner'
+export { LoaderRing } from './indicators/LoaderRing'
 export { CountDown } from './indicators/CountDown/CountDown'
 
 // Picker

@@ -1,6 +1,7 @@
 import React from 'react'
 import { TryOnStatusProps } from './types'
 import { combineClassNames } from '@/utils/helpers/combineClassNames'
+import { LoaderRing } from '@/components'
 import { useTryOnStrings } from '@/hooks'
 import { useAppSelector } from '@/store/store'
 import { generationStageSelector } from '@/store/slices/tryOnSlice'
@@ -27,7 +28,7 @@ export const TryOnStatus = ({ className }: TryOnStatusProps) => {
 
   return (
     <div className={combineClassNames(styles.tryOnStatus, className)}>
-      <span className={styles.spinner} aria-hidden="true" />
+      <LoaderRing />
       <span>{displayText}</span>
     </div>
   )
