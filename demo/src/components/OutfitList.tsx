@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import OutfitCard from './OutfitCard'
 import Spinner from './Spinner'
 import type { OutfitsApiResponse } from '../models/product'
@@ -13,6 +20,8 @@ interface Props {
 
 export default function OutfitList({ outfits, loading, onTryOn }: Props) {
   const viewportRef = useRef<HTMLDivElement | null>(null)
+  const dotsViewportRef = useRef<HTMLDivElement | null>(null)
+  const dotsTrackRef = useRef<HTMLDivElement | null>(null)
   const [activeFilter, setActiveFilter] = useState<string>(ALL_FILTER_VALUE)
   // Fractional scroll position (0 = first card, 1 = second, ...) so the pager can
   // render the in-between state continuously while dragging.
@@ -99,6 +108,43 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
     const id = window.requestAnimationFrame(updateScrollState)
     return () => window.cancelAnimationFrame(id)
   }, [filteredOutfits, loading, updateScrollState])
+
+  // Pager position: the dots track is clipped (no scroll) and slides so the
+  // active dot stays centered, but clamped to the edges so it never detaches
+  // from them (iOS page-control style). When the dots fit, the whole track is
+  // just centered.
+  const positionDots = useCallback(() => {
+    const viewport = dotsViewportRef.current
+    const track = dotsTrackRef.current
+    if (!viewport || !track) return
+    const dots = Array.from(track.children) as HTMLElement[]
+    if (!dots.length) {
+      track.style.transform = 'translateX(0)'
+      return
+    }
+    const viewportWidth = viewport.clientWidth
+    const trackWidth = track.scrollWidth
+
+    let offset: number
+    if (trackWidth <= viewportWidth) {
+      offset = (viewportWidth - trackWidth) / 2
+    } else {
+      const lo = Math.max(0, Math.min(Math.floor(progress), dots.length - 1))
+      const hi = Math.min(lo + 1, dots.length - 1)
+      const center = (dot: HTMLElement) => dot.offsetLeft + dot.offsetWidth / 2
+      const activeCenter = center(dots[lo]) + (center(dots[hi]) - center(dots[lo])) * (progress - lo)
+      // Clamp so the track edges never pull away from the viewport edges
+      offset = Math.min(0, Math.max(viewportWidth - trackWidth, viewportWidth / 2 - activeCenter))
+    }
+    track.style.transform = `translateX(${offset}px)`
+  }, [progress])
+
+  useLayoutEffect(positionDots, [positionDots, filteredOutfits])
+
+  useEffect(() => {
+    window.addEventListener('resize', positionDots)
+    return () => window.removeEventListener('resize', positionDots)
+  }, [positionDots])
 
   const goPrev = () => {
     const step = getScrollStep()
@@ -217,11 +263,18 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
       </div>
 
       {/* Always rendered so its height is reserved on mobile (no jump in the gap
-          to the next section when a filter has too few outfits to page). */}
-      <div className="outfit__dots" role="tablist" aria-label="Outfit pagination">
-        {!loading &&
-          filteredOutfits.length > 1 &&
-          filteredOutfits.map((_, index) => {
+          to the next section when a filter has too few outfits to page). The
+          outer element clips; the track slides to keep the active dot centered. */}
+      <div className="outfit__dots" ref={dotsViewportRef}>
+        <div
+          className="outfit__dots-track"
+          ref={dotsTrackRef}
+          role="tablist"
+          aria-label="Outfit pagination"
+        >
+          {!loading &&
+            filteredOutfits.length > 1 &&
+            filteredOutfits.map((_, index) => {
             // Closeness of this dot to the current scroll position (1 = exactly
             // here, 0 = a full card away) — drives the pill width/shade so the
             // active indicator glides between dots as you drag.
@@ -241,7 +294,8 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
                 onClick={() => setIndex(index)}
               />
             )
-          })}
+            })}
+        </div>
       </div>
     </div>
   )
