@@ -2,6 +2,7 @@
 
 // General UI
 export { AppContainer } from './ui/AppContainer'
+export { Shell } from './ui/Shell'
 export { PageBar } from './ui/PageBar'
 export { PoweredBy } from './ui/PoweredBy'
 export { Icon } from './ui/Icon'
