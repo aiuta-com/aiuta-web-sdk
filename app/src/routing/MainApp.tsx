@@ -9,7 +9,14 @@ import {
   StorageProvider,
   QueryProvider,
 } from '@/contexts'
-import { PageBar, FullScreenGallery, Share, AppContainer, ConfigError } from '@/components'
+import {
+  PageBar,
+  FullScreenGallery,
+  Share,
+  AppContainer,
+  ConfigError,
+  Shell,
+} from '@/components'
 import {
   useUrlParams,
   useCustomCssUrl,
@@ -22,7 +29,6 @@ import {
 
 import { useAppSelector } from '@/store/store'
 import { isMobileSelector } from '@/store/slices/appSlice'
-import { combineClassNames } from '@/utils'
 import { ClearStorageBridge } from '@/components/debug/ClearStorageBridge'
 import HomePageRouter from '@/pages/Home'
 import OnboardingPage from '@/pages/1-Onboarding'
@@ -31,7 +37,6 @@ import TryOnPage from '@/pages/4-TryOn'
 import ResultsPage from '@/pages/5-Results'
 import GenerationsHistoryPage from '@/pages/6-GenerationsHistory'
 import UploadsHistoryPage from '@/pages/7-UploadsHistory'
-import styles from './MainApp.module.scss'
 import PredefinedModelsPage from '@/pages/8-PredefinedModels'
 
 /**
@@ -109,9 +114,9 @@ function AppContent() {
   return (
     <DragAndDropProvider>
       <ClearStorageBridge />
-      {/* The shell scales down on small screens (mobile only); keeping the zoom
-          here means the overlays below scale with the panel, not just it */}
-      <div className={combineClassNames(styles.shell, isMobile && styles.shell_mobile)}>
+      {/* Scale the panel and its overlays together on small screens (mobile
+          only; the desktop floating panel clamps its own size instead) */}
+      <Shell scaled={isMobile}>
         <AppContainer>
           <AlertRenderer />
           <PageBar />
@@ -129,7 +134,7 @@ function AppContent() {
 
         <FullScreenGallery />
         <Share />
-      </div>
+      </Shell>
     </DragAndDropProvider>
   )
 }

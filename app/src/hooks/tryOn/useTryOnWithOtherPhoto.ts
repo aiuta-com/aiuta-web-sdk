@@ -41,8 +41,10 @@ export const useTryOnWithOtherPhoto = () => {
         // Mobile: open bottom sheet without image selection (shows only buttons)
         dispatch(uploadsSlice.actions.setIsBottomSheetOpen(true))
       } else {
-        // Desktop: navigate to QR page
-        navigate('/qr')
+        // Desktop: navigate to QR page. Mark it returnable so the page bar
+        // shows a back arrow (not the history icon) — we routed here from
+        // "Add new", so there is somewhere to go back to.
+        navigate('/qr', { state: { canGoBack: true } })
       }
     }
   }, [hasMultiplePhotos, isMobile, navigate, dispatch])

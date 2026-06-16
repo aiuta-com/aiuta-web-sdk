@@ -1,8 +1,8 @@
 // Small-screen scaling for the whole SDK shell — the panel AND every overlay
-// (share, fullscreen gallery, confirmation, alerts). It lives here rather than
-// on AppContainer so the overlays, which are rendered as siblings, scale too.
-// Only the mobile fullscreen layout scales; the desktop floating panel uses its
-// own size clamps instead.
+// (share, fullscreen gallery, confirmation, alerts). It lives on the shell
+// rather than on AppContainer so the overlays, which are rendered as siblings,
+// scale too. Callers enable it only for fullscreen layouts (mobile / the QR
+// upload page); the desktop floating panel uses its own size clamps instead.
 //
 // Implemented with `transform: scale` (not `zoom`): the shell is over-sized by
 // 1/scale and scaled back down, so it still fills the viewport AND reflows the
@@ -10,7 +10,7 @@
 // viewport units and leaves the panel shrunk; transform doesn't). The transform
 // also makes the shell the containing block for its fixed children, which is why
 // the full-screen elements inside use `%` (of the shell) instead of vw/vh.
-.shell_mobile {
+.shell_scaled {
   --aiuta-zoom: 1;
   position: fixed;
   top: 0;

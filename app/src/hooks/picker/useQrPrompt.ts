@@ -57,8 +57,9 @@ export const useQrPrompt = () => {
         // Clean up QR token
         await QrApiService.deleteQrToken(qrToken)
 
-        // Navigate to try-on page
-        navigate('/tryon')
+        // Navigate to try-on page (replace: the picker entry is consumed, not
+        // stacked — /tryon and the result that follows have no back button)
+        navigate('/tryon', { replace: true })
 
         // Stop polling
         stopPolling()

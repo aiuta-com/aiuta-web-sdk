@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppContainer } from '@/components'
+import { AppContainer, Shell } from '@/components'
 import { useUrlParams, useCustomCssUrl, useStandaloneApp } from '@/hooks'
 import QrUploadPage from '@/pages/3-QrUpload'
 
@@ -19,9 +19,13 @@ export const QrUpload = () => {
   }
 
   return (
-    <AppContainer>
-      {/* PoweredBy is rendered inside the page — it depends on the upload state */}
-      <QrUploadPage />
-    </AppContainer>
+    // The QR upload page is always a mobile fullscreen layout, so it scales
+    // down on small screens like the main app shell.
+    <Shell scaled>
+      <AppContainer fullscreen>
+        {/* PoweredBy is rendered inside the page — it depends on the upload state */}
+        <QrUploadPage />
+      </AppContainer>
+    </Shell>
   )
 }

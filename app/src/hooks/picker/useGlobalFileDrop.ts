@@ -27,9 +27,10 @@ export const useGlobalFileDrop = () => {
       // Discard any open alerts without triggering callbacks (e.g., navigate('/'))
       discardAlert()
 
-      // Select image and navigate to try-on page
+      // Select image and navigate to try-on page (replace: the current screen
+      // is consumed, not stacked — /tryon has no back button)
       await selectImageToTryOn(file)
-      navigate('/tryon')
+      navigate('/tryon', { replace: true })
     },
     [isGenerating, discardAlert, selectImageToTryOn, navigate],
   )

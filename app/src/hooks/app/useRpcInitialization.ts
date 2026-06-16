@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
+import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
 import { useAlert, useLogger } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
@@ -44,6 +45,10 @@ export const useRpcInitialization = () => {
         const showApp = () => {
           // Close any active alerts when showing app
           closeAlert()
+
+          // Reset transient picker UI so a fresh open never restores a sheet
+          // that was left open in a previous session (e.g. "Change photo")
+          dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
 
           // Always navigate to home when showing the app, clearing history
           navigate('/', { replace: true })

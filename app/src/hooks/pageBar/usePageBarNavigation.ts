@@ -72,6 +72,12 @@ export const usePageBarNavigation = () => {
   }
 
   const handleHistoryNavigation = (targetPath: string) => {
+    // QR prompt reached via "Add new" → the left button is a back arrow
+    if (pathName === '/qr' && (location.state as { canGoBack?: boolean } | null)?.canGoBack) {
+      navigate(-1)
+      return
+    }
+
     const isOnHistoryPage = pathName === '/generations' || pathName === '/uploads'
     const isOnModelsPage = pathName === '/models'
 

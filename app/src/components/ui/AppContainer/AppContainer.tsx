@@ -7,14 +7,17 @@ import styles from './AppContainer.module.scss'
 
 interface AppContainerProps {
   children: React.ReactNode
+  /** Always use the mobile fullscreen layout, regardless of width (QR upload) */
+  fullscreen?: boolean
 }
 
 /**
  * App container that handles app sizing and positioning
  */
-export const AppContainer = ({ children }: AppContainerProps) => {
+export const AppContainer = ({ children, fullscreen }: AppContainerProps) => {
   useWindowResize()
-  const isMobile = useAppSelector(isMobileSelector)
+  const isMobileWidth = useAppSelector(isMobileSelector)
+  const isMobile = fullscreen || isMobileWidth
   const isVisible = useAppSelector(isAppVisibleSelector)
   const containerRef = useRef<HTMLDivElement | null>(null)
   // Keep the host page from scrolling: a wheel over the panel is contained on

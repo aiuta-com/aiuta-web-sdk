@@ -59,7 +59,9 @@ export const useUploadsGallery = ({
           url: image.url,
         }),
       )
-      navigate('/tryon')
+      // Replace: /tryon (and the result that follows) has no back button, so
+      // consume the picker entry instead of stacking it
+      navigate('/tryon', { replace: true })
     }
     // In selection mode, SelectableImage handles the click
   }
@@ -123,16 +125,19 @@ export const useUploadsGallery = ({
   const handlePhotoUpload = useCallback(
     async (file: File) => {
       await selectImageToTryOn(file)
-      // Navigate to try-on page after successful selection
-      navigate('/tryon')
+      // Navigate to try-on page after successful selection (replace: the picker
+      // entry is consumed, not stacked — /tryon has no back button)
+      navigate('/tryon', { replace: true })
     },
     [selectImageToTryOn, navigate],
   )
 
   // Navigate to upload page
   const navigateToUpload = useCallback(() => {
-    // Always go to QR page when user explicitly wants to upload
-    navigate('/qr')
+    // Always go to QR page when user explicitly wants to upload. Mark it
+    // returnable so the page bar shows a back arrow (not the history icon) —
+    // we routed here from the picker, so there is somewhere to go back to.
+    navigate('/qr', { state: { canGoBack: true } })
   }, [navigate])
 
   // Get most recent photo
