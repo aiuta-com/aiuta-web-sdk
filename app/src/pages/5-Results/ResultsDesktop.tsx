@@ -19,6 +19,7 @@ export default function ResultsDesktop() {
   return (
     <main className={styles.results}>
       <Flex
+        fill
         containerClassName={styles.fillContainer}
         contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
       >
