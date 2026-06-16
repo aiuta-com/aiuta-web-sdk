@@ -27,6 +27,11 @@ export const usePageBarVisibility = () => {
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
   const isOnOnboardingPage = pathName === '/onboarding'
   const isOnModelsPage = pathName === '/models'
+  // The QR prompt is both an entry screen (from onboarding) and an "Add new"
+  // destination. Only the latter is routed with { canGoBack }, where the left
+  // button must be a back arrow instead of the history icon.
+  const isReturnableQrPage =
+    pathName === '/qr' && !!(location.state as { canGoBack?: boolean } | null)?.canGoBack
 
   // Data availability
   const hasGeneratedImages = generatedImages.length > 0
@@ -37,8 +42,10 @@ export const usePageBarVisibility = () => {
   const isAnySelectionActive = isSelectingGenerations || isSelectingUploads
 
   // Navigation buttons logic (simplified)
-  // 1. Back button: always show on /generations, /uploads, /models (but not on home page)
-  const showBackButton = isOnBackButtonPage && !isOnQrTokenPage && !isOnHomePage
+  // 1. Back button: always show on /generations, /uploads, /models, and on the
+  // QR prompt when it was reached via "Add new" (but not on home page)
+  const showBackButton =
+    (isOnBackButtonPage || isReturnableQrPage) && !isOnQrTokenPage && !isOnHomePage
 
   // 2. History button: show only if NOT showing back button, NOT on onboarding, NOT on home page, and have images
   const showHistoryButton =

@@ -152,7 +152,11 @@ export const useTryOnGeneration = () => {
 
         // Common logic after navigation
         const finalizeGeneration = () => {
-          navigate('/results')
+          // Replace: a result is the end of a generation cycle and has no back
+          // button, so it consumes the /tryon (loading) entry instead of
+          // stacking — together with the picker→/tryon replaces this keeps the
+          // history from growing on every generation.
+          navigate('/results', { replace: true })
 
           // After navigation, add images to history (background, slow storage)
           addGeneration(generatedImage)

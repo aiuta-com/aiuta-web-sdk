@@ -53,7 +53,10 @@ export default function QrPromptDesktop() {
   const handleFileSelect = useCallback(
     async (file: File) => {
       await selectImageToTryOn(file)
-      navigate('/tryon')
+      // Replace: /tryon (and the result that follows) has no back button, so
+      // the picker entry that led here should be consumed, not stacked. This
+      // keeps the "Add new" loop from growing the history on every generation.
+      navigate('/tryon', { replace: true })
     },
     [selectImageToTryOn, navigate],
   )

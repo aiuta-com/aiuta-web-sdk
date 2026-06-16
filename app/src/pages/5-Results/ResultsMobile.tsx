@@ -55,7 +55,9 @@ export default function ResultsMobile() {
     async (file: File) => {
       dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
       const newImage = await selectImageToTryOn(file)
-      navigate('/tryon')
+      // Replace: /tryon and the result that follows have no back button, so the
+      // current results entry is consumed instead of stacked
+      navigate('/tryon', { replace: true })
       startTryOn(newImage)
     },
     [dispatch, navigate, selectImageToTryOn, startTryOn],
@@ -66,7 +68,8 @@ export default function ResultsMobile() {
       const imageToTryOn = { id, url }
       dispatch(tryOnSlice.actions.setSelectedImage(imageToTryOn))
       dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
-      navigate('/tryon')
+      // Replace: see handleFileSelect — consume the results entry, don't stack
+      navigate('/tryon', { replace: true })
       startTryOn(imageToTryOn)
     },
     [dispatch, navigate, startTryOn],
