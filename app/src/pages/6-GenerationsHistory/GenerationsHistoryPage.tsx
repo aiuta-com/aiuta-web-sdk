@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
-import { ImageGallery, SelectionSnackbar } from '@/components'
-import { useGenerationsGallery } from '@/hooks'
+import React, { useEffect, useState } from 'react'
+import { ImageGallery, SelectionSnackbar, Confirmation } from '@/components'
+import { useGenerationsGallery, useSelectionStrings } from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
@@ -18,7 +18,13 @@ import styles from './GenerationsHistory.module.scss'
 export default function GenerationsHistoryPage() {
   const rpc = useRpc()
   const productIds = useAppSelector(productIdsSelector)
-  const gallery = useGenerationsGallery()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const gallery = useGenerationsGallery({
+    onShowDeleteModal: () => setConfirmDelete(true),
+    onCloseModal: () => setConfirmDelete(false),
+  })
+  const { deleteConfirmationTitle, deleteConfirmationKeep, deleteConfirmationDelete } =
+    useSelectionStrings()
 
   // Track page view on mount
   useEffect(() => {
@@ -43,8 +49,17 @@ export default function GenerationsHistoryPage() {
         totalCount={gallery.totalCount}
         onCancel={gallery.onCancel}
         onSelectAll={gallery.onSelectAll}
-        onDelete={gallery.deleteSelectedImages}
+        onDelete={gallery.onDelete}
         onDownload={gallery.onDownload}
+      />
+
+      <Confirmation
+        isVisible={confirmDelete}
+        message={deleteConfirmationTitle}
+        leftButtonText={deleteConfirmationKeep}
+        rightButtonText={deleteConfirmationDelete}
+        onLeftClick={() => setConfirmDelete(false)}
+        onRightClick={gallery.deleteSelectedImages}
       />
     </main>
   )

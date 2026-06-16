@@ -1,7 +1,6 @@
 import { useCallback } from 'react'
-
-// TODO: Replace with RPC - need to support opening fullscreen modal from iframe to SDK
-// Required data: { images: InputImage[], modalType?: string, activeImage?: InputImage }
+import { useAppDispatch } from '@/store/store'
+import { galleryModalSlice } from '@/store/slices/galleryModalSlice'
 
 export interface ImageItem {
   id: string
@@ -14,21 +13,25 @@ interface UseFullScreenViewerOptions {
 }
 
 /**
- * Hook for managing full-screen image viewing
+ * Hook for opening the desktop fullscreen gallery modal. Only the generations
+ * history uses it (uploads have no fullscreen flow); the mobile fullscreen is a
+ * separate single-image flow on uploadsSlice.
  */
 export const useFullScreenViewer = ({ modalType, images }: UseFullScreenViewerOptions) => {
+  const dispatch = useAppDispatch()
+
   const showFullScreen = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    (_activeImage: ImageItem) => {
-      // TODO: Replace with RPC call to SDK
-      // await rpc.sdk.openFullScreenModal({
-      //   images,
-      //   modalType,
-      //   activeImage
-      // })
-      // Note: Legacy messaging removed, implement RPC method openFullScreenModal
+    (activeImage: ImageItem) => {
+      if (modalType !== 'generations') return
+      dispatch(
+        galleryModalSlice.actions.openGalleryModal({
+          images,
+          activeId: activeImage.id,
+          modalType: 'generations',
+        }),
+      )
     },
-    [modalType, images],
+    [dispatch, modalType, images],
   )
 
   return {

@@ -15,6 +15,10 @@ export interface SelectionSnackbar {
     cancel?: string
     selectAll?: string
     unselectAll?: string
+    /** Delete confirmation dialog */
+    deleteConfirmationTitle?: string
+    deleteConfirmationKeep?: string
+    deleteConfirmationDelete?: string
   }
 }
 

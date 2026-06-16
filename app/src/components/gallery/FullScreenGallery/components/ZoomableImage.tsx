@@ -13,11 +13,35 @@ const DOUBLE_TAP_MS = 280
 const DOUBLE_TAP_DIST = 30
 const DOUBLE_TAP_ZOOM = 2.5
 
+/** Displayed image rectangle in the container's local coordinate space. */
+export interface ImageBox {
+  left: number
+  top: number
+  right: number
+  bottom: number
+  /** Bottom edge of the fitted (un-zoomed) image — stable across zoom. */
+  fitBottom: number
+  /** Container width, so a parent can clamp controls to stay on-screen. */
+  containerW: number
+}
+
 interface ZoomableImageProps {
   src: string
   alt?: string
   /** Called on a clean tap (no pan/pinch) — used to dismiss the viewer. */
   onClose: () => void
+  /**
+   * Whether a clean tap/click dismisses the viewer. True for the mobile
+   * fullscreen (tap to close); false for the desktop gallery, which closes via
+   * the X button / backdrop and keeps taps for zoom only.
+   */
+  tapToClose?: boolean
+  /**
+   * Reports the displayed image rectangle (after fit/zoom/pan) so a parent can
+   * anchor controls to the image's edge and follow it as it zooms. Null until
+   * the image is measured.
+   */
+  onImageBox?: (box: ImageBox | null) => void
 }
 
 interface Transform {
@@ -29,16 +53,23 @@ interface Transform {
 }
 
 /**
- * Pinch-to-zoom + pan image viewer for the mobile fullscreen result.
+ * Zoom + pan image viewer used by both fullscreen flows.
  *
  * The transform model mirrors the qa-tool ZoomCanvas (anchor the point under
- * the gesture focus, clamp so image edges never leave the viewport), but the
- * input here is touch: two fingers zoom around their midpoint, one finger pans
- * once zoomed in, and a clean tap closes. Coordinates are converted into the
+ * the gesture focus, clamp so image edges never leave the viewport). Touch:
+ * two fingers zoom around their midpoint, one finger pans, double-tap toggles
+ * zoom, clean tap closes. Mouse (desktop): wheel zooms around the cursor, drag
+ * pans, double-click toggles zoom. Coordinates are converted into the
  * container's *local* space so the math stays correct under the scaled shell
  * (transform: scale(--aiuta-zoom)) used on very small screens.
  */
-export const ZoomableImage = ({ src, alt = 'Full screen image', onClose }: ZoomableImageProps) => {
+export const ZoomableImage = ({
+  src,
+  alt = 'Full screen image',
+  onClose,
+  tapToClose = true,
+  onImageBox,
+}: ZoomableImageProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const natRef = useRef<{ w: number; h: number } | null>(null)
   const tfRef = useRef<Transform>({ s: 1, tx: 0, ty: 0 })
@@ -255,16 +286,18 @@ export const ZoomableImage = ({ src, alt = 'Full screen image', onClose }: Zooma
               }
             }
           } else {
-            // First (possibly only) tap: remember it and defer the close so a
-            // second tap can still upgrade the gesture to a double-tap zoom.
+            // First (possibly only) tap: remember it (so a second tap can still
+            // upgrade to a double-tap zoom) and, when enabled, defer the close.
             g.lastTapT = e.timeStamp
             g.lastTapX = g.downX
             g.lastTapY = g.downY
-            cancelPendingClose()
-            closeTimerRef.current = setTimeout(() => {
-              closeTimerRef.current = null
-              onClose()
-            }, DOUBLE_TAP_MS)
+            if (tapToClose) {
+              cancelPendingClose()
+              closeTimerRef.current = setTimeout(() => {
+                closeTimerRef.current = null
+                onClose()
+              }, DOUBLE_TAP_MS)
+            }
           }
         }
       }
@@ -281,17 +314,190 @@ export const ZoomableImage = ({ src, alt = 'Full screen image', onClose }: Zooma
       el.removeEventListener('touchend', onEnd)
       el.removeEventListener('touchcancel', onEnd)
     }
-  }, [metrics, fitScale, clamp, apply, reset, cancelPendingClose, onClose])
+  }, [metrics, fitScale, clamp, apply, reset, cancelPendingClose, onClose, tapToClose])
+
+  // Mouse gestures (desktop): wheel zoom around the cursor, drag to pan,
+  // double-click to toggle zoom.
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const toLocal = (clientX: number, clientY: number) => {
+      const m = metrics()
+      if (!m) return { x: 0, y: 0 }
+      return { x: (clientX - m.left) / m.scaleFactor, y: (clientY - m.top) / m.scaleFactor }
+    }
+
+    const drag = { active: false, lastX: 0, lastY: 0 }
+    // Track a clean click so a click on the empty area around the image closes
+    const click = { downX: 0, downY: 0, moved: false, tracking: false }
+
+    // Wheel intent (mirrors qa-tool ZoomCanvas): a trackpad pinch arrives as a
+    // wheel with ctrlKey synthesised by the OS → zoom; a real mouse wheel is a
+    // chunky delta / non-pixel deltaMode → zoom; a trackpad two-finger swipe is
+    // small pixel deltas → pan. The verdict is locked per gesture so a velocity
+    // spike mid-swipe doesn't flip pan into zoom.
+    const GESTURE_GAP_MS = 150
+    const wheelGesture = { intent: null as 'pan' | 'zoom' | null, lastAt: 0 }
+
+    const onWheel = (e: WheelEvent) => {
+      const m = metrics()
+      const nat = natRef.current
+      if (!m || !nat) return
+      e.preventDefault()
+      setAnimate(false)
+
+      const now = e.timeStamp
+      if (now - wheelGesture.lastAt > GESTURE_GAP_MS) wheelGesture.intent = null
+      wheelGesture.lastAt = now
+
+      const isPinch = e.ctrlKey
+      const looksLikeMouseWheel =
+        e.deltaMode !== 0 || Math.abs(e.deltaY) >= 80 || Math.abs(e.deltaX) >= 80
+      if (isPinch) wheelGesture.intent = 'zoom'
+      else if (wheelGesture.intent === null) wheelGesture.intent = looksLikeMouseWheel ? 'zoom' : 'pan'
+
+      const { s, tx, ty } = tfRef.current
+
+      if (wheelGesture.intent === 'pan') {
+        apply(clamp({ s, tx: tx - e.deltaX, ty: ty - e.deltaY }))
+        return
+      }
+
+      const fit = fitScale(m.cw, m.ch)
+      const p = toLocal(e.clientX, e.clientY)
+      const imgX = (p.x - tx) / s
+      const imgY = (p.y - ty) / s
+      // Pinch deltas are tiny, mouse-wheel deltas are chunky → different gains.
+      const sensitivity = isPinch ? 0.005 : 0.0015
+      const factor = Math.exp(-e.deltaY * sensitivity)
+      const newS = Math.max(fit, Math.min(fit * MAX_ZOOM, s * factor))
+      apply(clamp({ s: newS, tx: p.x - imgX * newS, ty: p.y - imgY * newS }))
+    }
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return
+      const m = metrics()
+      const nat = natRef.current
+      if (!m || !nat) return
+      const p = toLocal(e.clientX, e.clientY)
+      click.downX = p.x
+      click.downY = p.y
+      click.moved = false
+      click.tracking = true
+      const { s } = tfRef.current
+      const canPan = nat.w * s > m.cw + 0.5 || nat.h * s > m.ch + 0.5
+      if (canPan) {
+        e.preventDefault()
+        setAnimate(false)
+        drag.active = true
+        drag.lastX = p.x
+        drag.lastY = p.y
+        el.style.cursor = 'grabbing'
+      }
+    }
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!drag.active) return
+      const p = toLocal(e.clientX, e.clientY)
+      const dx = p.x - drag.lastX
+      const dy = p.y - drag.lastY
+      drag.lastX = p.x
+      drag.lastY = p.y
+      click.moved = true
+      const { s, tx, ty } = tfRef.current
+      apply(clamp({ s, tx: tx + dx, ty: ty + dy }))
+    }
+
+    const onMouseUp = () => {
+      if (drag.active) {
+        drag.active = false
+        el.style.cursor = ''
+      }
+      // A clean click on the empty area around the image dismisses the viewer
+      if (click.tracking && !click.moved) {
+        const nat = natRef.current
+        if (nat) {
+          const { s, tx, ty } = tfRef.current
+          const inside =
+            click.downX >= tx &&
+            click.downX <= tx + nat.w * s &&
+            click.downY >= ty &&
+            click.downY <= ty + nat.h * s
+          if (!inside) onClose()
+        }
+      }
+      click.tracking = false
+    }
+
+    const onDblClick = (e: MouseEvent) => {
+      const m = metrics()
+      const nat = natRef.current
+      if (!m || !nat) return
+      e.preventDefault()
+      const fit = fitScale(m.cw, m.ch)
+      setAnimate(true)
+      if (tfRef.current.s > fit * 1.05) {
+        reset()
+      } else {
+        const p = toLocal(e.clientX, e.clientY)
+        const newS = fit * DOUBLE_TAP_ZOOM
+        const { s, tx, ty } = tfRef.current
+        const imgX = (p.x - tx) / s
+        const imgY = (p.y - ty) / s
+        apply(clamp({ s: newS, tx: p.x - imgX * newS, ty: p.y - imgY * newS }))
+      }
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    el.addEventListener('mousedown', onMouseDown)
+    el.addEventListener('dblclick', onDblClick)
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      el.removeEventListener('wheel', onWheel)
+      el.removeEventListener('mousedown', onMouseDown)
+      el.removeEventListener('dblclick', onDblClick)
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [metrics, fitScale, clamp, apply, reset, onClose])
 
   // Clear any pending single-tap close on unmount.
   useEffect(() => () => cancelPendingClose(), [cancelPendingClose])
 
+  // Report the displayed image rectangle so the parent can anchor controls.
+  useEffect(() => {
+    if (!onImageBox) return
+    const nat = natRef.current
+    const m = metrics()
+    if (!ready || !nat || !m) {
+      onImageBox(null)
+      return
+    }
+    const fit = fitScale(m.cw, m.ch)
+    const fitBottom = (m.ch + nat.h * fit) / 2
+    onImageBox({
+      left: tf.tx,
+      top: tf.ty,
+      right: tf.tx + nat.w * tf.s,
+      bottom: tf.ty + nat.h * tf.s,
+      fitBottom,
+      containerW: m.cw,
+    })
+  }, [tf, ready, onImageBox, metrics, fitScale])
+
   const nat = natRef.current
 
   return (
-    // onClick is the non-touch (desktop) fallback; on touch the tap path above
-    // calls onClose and cancels the synthesized click.
-    <div ref={containerRef} className={styles.container} onClick={() => onClose()}>
+    // onClick is the non-touch fallback for tap-to-close (mobile); on touch the
+    // tap path above already calls onClose and cancels the synthesized click.
+    // Desktop (tapToClose=false) closes via the X / backdrop instead.
+    <div
+      ref={containerRef}
+      className={styles.container}
+      onClick={tapToClose ? () => onClose() : undefined}
+    >
       <img
         src={src}
         alt={alt}

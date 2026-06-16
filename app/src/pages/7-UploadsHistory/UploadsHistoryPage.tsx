@@ -1,8 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PrimaryButton } from '@/components'
-import { ImageGallery, SelectionSnackbar } from '@/components'
-import { useUploadsGallery, useImagePickerStrings, usePredefinedModels } from '@/hooks'
+import { ImageGallery, SelectionSnackbar, Confirmation } from '@/components'
+import {
+  useUploadsGallery,
+  useImagePickerStrings,
+  usePredefinedModels,
+  useSelectionStrings,
+} from '@/hooks'
 import { useRpc } from '@/contexts'
 import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
@@ -22,8 +27,14 @@ export default function UploadsHistoryPage() {
   const navigate = useNavigate()
   const rpc = useRpc()
   const productIds = useAppSelector(productIdsSelector)
-  const gallery = useUploadsGallery()
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const gallery = useUploadsGallery({
+    onShowDeleteModal: () => setConfirmDelete(true),
+    onCloseModal: () => setConfirmDelete(false),
+  })
   const { uploadsHistoryButtonNewPhoto, uploadsHistoryButtonAddNew } = useImagePickerStrings()
+  const { deleteConfirmationTitle, deleteConfirmationKeep, deleteConfirmationDelete } =
+    useSelectionStrings()
   const { isEnabled: isPredefinedModelsEnabled } = usePredefinedModels()
 
   // Use different button text if PredefinedModels feature is enabled
@@ -62,7 +73,16 @@ export default function UploadsHistoryPage() {
         totalCount={gallery.totalCount}
         onCancel={gallery.onCancel}
         onSelectAll={gallery.onSelectAll}
-        onDelete={gallery.deleteSelectedImages}
+        onDelete={gallery.onDelete}
+      />
+
+      <Confirmation
+        isVisible={confirmDelete}
+        message={deleteConfirmationTitle}
+        leftButtonText={deleteConfirmationKeep}
+        rightButtonText={deleteConfirmationDelete}
+        onLeftClick={() => setConfirmDelete(false)}
+        onRightClick={gallery.deleteSelectedImages}
       />
 
       {/* Pinned over the gallery on a fade-to-background gradient (Figma) */}

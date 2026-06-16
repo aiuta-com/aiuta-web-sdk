@@ -23,6 +23,12 @@
   background: var(--aiuta-color-screen-dim);
 }
 
+/* Second dim layer (opened over a fullscreen viewer) — much lighter so the
+   stacked dimming doesn't go too dark */
+.share_secondLayer.share_open {
+  background: var(--aiuta-color-container-dim);
+}
+
 .share_closing {
   background: transparent;
 }

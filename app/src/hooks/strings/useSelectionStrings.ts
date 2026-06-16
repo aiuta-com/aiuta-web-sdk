@@ -13,5 +13,9 @@ export const useSelectionStrings = () => {
     cancel: strings?.cancel ?? 'Cancel',
     selectAll: strings?.selectAll ?? 'Select All',
     unselectAll: strings?.unselectAll ?? 'Unselect All',
+    deleteConfirmationTitle:
+      strings?.deleteConfirmationTitle ?? 'Are you sure you want to delete this?',
+    deleteConfirmationKeep: strings?.deleteConfirmationKeep ?? 'Keep',
+    deleteConfirmationDelete: strings?.deleteConfirmationDelete ?? 'Delete',
   }
 }
