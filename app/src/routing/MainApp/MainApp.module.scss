@@ -1,0 +1,55 @@
+// Small-screen scaling for the whole SDK shell — the panel AND every overlay
+// (share, fullscreen gallery, confirmation, alerts). It lives here rather than
+// on AppContainer so the overlays, which are rendered as siblings, scale too.
+// Only the mobile fullscreen layout scales; the desktop floating panel uses its
+// own size clamps instead.
+//
+// Implemented with `transform: scale` (not `zoom`): the shell is over-sized by
+// 1/scale and scaled back down, so it still fills the viewport AND reflows the
+// content — identically in Chrome and Safari (Chrome's `zoom` multiplies
+// viewport units and leaves the panel shrunk; transform doesn't). The transform
+// also makes the shell the containing block for its fixed children, which is why
+// the full-screen elements inside use `%` (of the shell) instead of vw/vh.
+.shell_mobile {
+  --aiuta-zoom: 1;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100dvw / var(--aiuta-zoom));
+  height: calc(100dvh / var(--aiuta-zoom));
+  transform: scale(var(--aiuta-zoom));
+  transform-origin: top left;
+
+  @media (max-height: 600px), (max-width: 370px) {
+    --aiuta-zoom: 0.8;
+  }
+
+  @media (max-height: 500px), (max-width: 300px) {
+    --aiuta-zoom: 0.7;
+  }
+
+  @media (max-height: 420px), (max-width: 280px) {
+    --aiuta-zoom: 0.6;
+  }
+
+  @media (max-height: 370px), (max-width: 250px) {
+    --aiuta-zoom: 0.5;
+  }
+
+  @media (max-height: 320px), (max-width: 220px) {
+    --aiuta-zoom: 0.4;
+  }
+
+  @media (max-height: 250px), (max-width: 170px) {
+    --aiuta-zoom: 0.3;
+  }
+
+  @media (max-height: 170px), (max-width: 120px) {
+    --aiuta-zoom: 0.2;
+  }
+
+  // Keep scaling down to ~50×50 instead of ever hiding the UI
+  @media (max-height: 100px), (max-width: 70px) {
+    --aiuta-zoom: 0.1;
+  }
+}
