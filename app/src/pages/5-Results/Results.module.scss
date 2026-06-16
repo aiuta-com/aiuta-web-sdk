@@ -132,6 +132,7 @@
 .feedbackOverlay {
   position: absolute;
   bottom: 25px;
-  right: 0;
+  // 6px gap from the widget's right edge to the dislike button (Figma)
+  right: 6px;
   z-index: 2;
 }

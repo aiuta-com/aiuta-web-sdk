@@ -30,6 +30,8 @@
 .thumbnailItem {
   width: 54px;
   height: 96px;
+  // Keep the fixed size in a scrolling flex column instead of shrinking to fit
+  flex-shrink: 0;
   cursor: pointer;
   scroll-snap-align: start;
   transition: border ease-in-out 0.3s;

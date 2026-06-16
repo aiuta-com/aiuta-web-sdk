@@ -1,6 +1,8 @@
 import React from 'react'
 import { ResultActions, Disclaimer, Flex, RemoteImage, Feedback } from '@/components'
 import { useResultsGallery, useImageTone } from '@/hooks'
+import { useAppDispatch } from '@/store/store'
+import { galleryModalSlice } from '@/store/slices/galleryModalSlice'
 import { combineClassNames } from '@/utils'
 import styles from './Results.module.scss'
 
@@ -10,11 +12,23 @@ import styles from './Results.module.scss'
  * and a row of action tiles below
  */
 export default function ResultsDesktop() {
-  const { currentImage } = useResultsGallery()
+  const dispatch = useAppDispatch()
+  const { currentImage, images } = useResultsGallery()
   // Light image bottom → light disclaimer strip with dark text, tinted with
   // the photo's average bottom color. Null while still computing — the strip
   // stays hidden instead of flashing the wrong variant.
   const toneInfo = useImageTone(currentImage?.url)
+
+  const openFullScreen = () => {
+    if (!currentImage) return
+    dispatch(
+      galleryModalSlice.actions.openGalleryModal({
+        images: images.map(({ id, url }) => ({ id, url })),
+        activeId: currentImage.id,
+        modalType: 'results',
+      }),
+    )
+  }
 
   return (
     <main className={styles.results}>
@@ -23,7 +37,14 @@ export default function ResultsDesktop() {
         containerClassName={styles.fillContainer}
         contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
       >
-        <RemoteImage src={currentImage} alt="Try-on image" shape="M" fit="smart" />
+        <RemoteImage
+          src={currentImage}
+          alt="Try-on image"
+          shape="M"
+          fit="smart"
+          onClick={openFullScreen}
+          style={{ cursor: 'zoom-in' }}
+        />
         {currentImage && (
           <Feedback
             generatedImageUrl={currentImage.url}

@@ -1,6 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { appSlice } from './slices/appSlice'
 import { errorSnackbarSlice } from './slices/errorSnackbarSlice'
+import { galleryModalSlice } from './slices/galleryModalSlice'
 import { generationsSlice } from './slices/generationsSlice'
 import { onboardingSlice } from './slices/onboardingSlice'
 import { predefinedModelsSlice } from './slices/predefinedModelsSlice'
@@ -11,6 +12,7 @@ import { uploadsSlice } from './slices/uploadsSlice'
 const rootReducer = combineReducers({
   [appSlice.name]: appSlice.reducer,
   [errorSnackbarSlice.name]: errorSnackbarSlice.reducer,
+  [galleryModalSlice.name]: galleryModalSlice.reducer,
   [generationsSlice.name]: generationsSlice.reducer,
   [onboardingSlice.name]: onboardingSlice.reducer,
   [predefinedModelsSlice.name]: predefinedModelsSlice.reducer,

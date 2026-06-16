@@ -13,5 +13,7 @@ export const useResultsGallery = () => {
   return {
     // Return last generated image (most recent)
     currentImage: generatedImages[generatedImages.length - 1],
+    // Full result set (oldest → newest), for the fullscreen gallery
+    images: generatedImages,
   }
 }

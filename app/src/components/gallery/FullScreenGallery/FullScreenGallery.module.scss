@@ -1,3 +1,12 @@
+// Fade a backdrop from transparent up to its own background-color on mount.
+// Declared per-module: a global @keyframes referenced from a CSS module isn't
+// reliably matched (the name gets scoped), so only same-file keyframes work.
+@keyframes aiuta-dim-in {
+  from {
+    background-color: transparent;
+  }
+}
+
 .fullScreenModal {
   position: fixed;
   top: 0;
@@ -10,7 +19,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.9);
+  // Mobile fullscreen dims to near-black (a touch of transparency)
+  background-color: color-mix(in srgb, var(--aiuta-color-on-light) 92%, transparent);
   cursor: pointer;
 
   .fullImage {
@@ -31,92 +41,90 @@
   }
 }
 
+// Right strip reserved for the action buttons column so the image never sits
+// under them: gap(12) + column(52) + edge(12). The image area (.centerContent)
+// stops 76px short of the screen edge; the buttons overflow into this strip and
+// end up 12px from the edge — the same gap they keep from the image.
+$actions-reserve: 76px;
+
 .advancedFullScreenModal {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
   z-index: 10000;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: stretch;
-  justify-content: space-between;
-  padding: 16px 14px 0px 22px;
-  box-sizing: border-box;
+  background-color: var(--aiuta-color-screen-dim);
+  animation: aiuta-dim-in 0.25s ease-out;
   user-select: none;
   overflow: hidden;
   margin: 0;
   border: none;
   outline: none;
 
+  // Vertical thumbnail strip — scrolls the full screen height; the top/bottom
+  // spacing is padding inside the scroll area so items aren't clipped by an inset
   .leftContent {
-    margin-top: 4px;
+    position: absolute;
+    left: 22px;
+    top: 0;
+    bottom: 0;
+    width: 84px;
     display: flex;
-    row-gap: 8px;
-    min-width: 100px;
-    overflow-y: auto;
-    max-height: 100vh;
-    scrollbar-width: none;
     flex-direction: column;
+    row-gap: 8px;
+    overflow-y: auto;
+    scrollbar-width: none;
     box-sizing: border-box;
-    padding-bottom: 30px;
+    padding-top: 16px;
+    padding-bottom: 16px;
 
     &::-webkit-scrollbar {
       display: none;
     }
   }
 
+  // Image area: between the thumbnails and the reserved right strip
   .centerContent {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    flex: 1;
+    position: absolute;
+    left: 112px;
+    right: $actions-reserve;
+    top: 16px;
+    bottom: 16px;
+  }
+
+  // With no thumbnail strip, mirror the right reserve so the image area is
+  // centered symmetrically
+  .centerContent_noThumbnails {
+    left: $actions-reserve;
+  }
+
+  // Fills the image area; ZoomableImage fits/zooms the image within it
+  .zoomArea {
     position: relative;
-    background: transparent;
-    height: calc(100vh - 40px);
+    width: 100%;
+    height: 100%;
   }
 
-  .imageContainer {
-    position: relative;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
+  // Outgoing image held behind the new one during a thumbnail switch
+  .prevImage {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
   }
 
-  .activeImage {
-    width: 660px;
-    object-fit: cover;
-    height: calc(100vh - 40px);
-    border-radius: 16px;
-    background: transparent;
-  }
-
+  // Positioned from JS (anchored to the image's right edge); these are the
+  // pre-measure defaults
   .actionButtons {
     position: absolute;
-    right: -72px;
-    bottom: 0;
+    right: -64px;
+    bottom: 24px;
     display: flex;
     align-items: flex-end;
     flex-direction: column;
     row-gap: 11px;
     background: transparent;
     width: 52px;
-  }
-
-  .rightContent {
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-end;
-  }
-
-  .closeButton {
-    width: 36px;
-    height: 36px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .actionButton {
@@ -127,6 +135,7 @@
     border-radius: 50%;
     align-items: center;
     justify-content: center;
+    color: var(--aiuta-color-on-dark);
     background-color: rgba(0, 0, 0, 0.3);
     transition: all 0.2s ease-in-out;
 
@@ -137,6 +146,9 @@
   }
 
   .closeButton {
+    position: absolute;
+    top: 16px;
+    right: 16px;
     width: 36px;
     height: 36px;
     cursor: pointer;
@@ -153,10 +165,7 @@
 
   .shareModalOverlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 10000;
   }
 }
