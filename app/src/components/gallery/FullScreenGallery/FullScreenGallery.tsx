@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice, fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
@@ -23,9 +23,16 @@ export const FullScreenGallery = () => {
   const { openShareModal } = useShare()
   const { deleteConfirmationTitle, deleteConfirmationKeep, deleteConfirmationDelete } =
     useSelectionStrings()
+  // The previous image, held behind the new one while it loads so switching
+  // thumbnails doesn't flash an empty frame
+  const [prevUrl, setPrevUrl] = useState<string | null>(null)
   // Displayed image rect, so the action buttons can hug its right edge
   const [imageBox, setImageBox] = useState<ImageBox | null>(null)
-  const handleImageBox = useCallback((box: ImageBox | null) => setImageBox(box), [])
+  const handleImageBox = useCallback((box: ImageBox | null) => {
+    setImageBox(box)
+    // New image is measured/loaded → drop the held previous one
+    if (box) setPrevUrl(null)
+  }, [])
   // Delete confirmation dialog visibility
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -33,6 +40,34 @@ export const FullScreenGallery = () => {
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
   // Desktop: gallery modal (thumbnails + zoomable image + actions)
   const { isOpen, images, activeId, modalType } = useAppSelector(galleryModalSelector)
+
+  const activeUrl = isOpen
+    ? (images.find((image) => image.id === activeId)?.url ?? images[0]?.url)
+    : undefined
+
+  // Detect an image switch DURING render (not in an effect) so the outgoing
+  // image's layer is already in the same commit that mounts the new one —
+  // otherwise there's a blank frame between unmount and the effect firing.
+  const shownUrlRef = useRef<string | undefined>(undefined)
+  if (!isOpen) {
+    shownUrlRef.current = undefined
+  } else if (activeUrl !== shownUrlRef.current) {
+    if (shownUrlRef.current && activeUrl) setPrevUrl(shownUrlRef.current)
+    shownUrlRef.current = activeUrl
+  }
+
+  // Hold the outgoing image for at most 100ms (the new one usually becomes
+  // ready first and clears it via handleImageBox)
+  useEffect(() => {
+    if (!prevUrl) return
+    const t = setTimeout(() => setPrevUrl(null), 100)
+    return () => clearTimeout(t)
+  }, [prevUrl])
+
+  // Reset when the gallery closes
+  useEffect(() => {
+    if (!isOpen) setPrevUrl(null)
+  }, [isOpen])
 
   const { data: generations = [] } = useGenerationsData()
   const { mutate: deleteGenerations } = useDeleteGeneratedImages()
@@ -140,6 +175,9 @@ export const FullScreenGallery = () => {
           )}
         >
           <div className={styles.zoomArea}>
+            {prevUrl && prevUrl !== activeImage.url && (
+              <img src={prevUrl} alt="" aria-hidden="true" className={styles.prevImage} />
+            )}
             <ZoomableImage
               key={activeImage.url}
               src={activeImage.url}

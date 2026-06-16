@@ -20,3 +20,15 @@
   -webkit-user-select: none;
   -webkit-user-drag: none;
 }
+
+// The shared LoaderRing (same as the try-on loading screen), centered and
+// recolored white by overriding the color variable it draws with. Centered via
+// margin, not transform, because LoaderRing animates its own transform (rotation).
+.spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -10px 0 0 -10px;
+  --aiuta-color-primary: var(--aiuta-color-on-dark);
+  pointer-events: none;
+}

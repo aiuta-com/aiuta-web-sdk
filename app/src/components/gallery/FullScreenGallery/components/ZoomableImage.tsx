@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { LoaderRing } from '@/components'
 import styles from './ZoomableImage.module.scss'
 
 // Max magnification relative to the fit-to-screen scale.
@@ -75,6 +76,10 @@ export const ZoomableImage = ({
   const tfRef = useRef<Transform>({ s: 1, tx: 0, ty: 0 })
   const [tf, setTf] = useState<Transform>(tfRef.current)
   const [ready, setReady] = useState(false)
+  // Delay the spinner so it doesn't flash for an already-cached image; a slow
+  // load (spinner shown) also fades the image in, a fast one appears instantly
+  const [showSpinner, setShowSpinner] = useState(false)
+  const [fadeIn, setFadeIn] = useState(false)
   // Smooth the transform only for double-tap zoom (never during a live gesture).
   const [animate, setAnimate] = useState(false)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -466,6 +471,19 @@ export const ZoomableImage = ({
   // Clear any pending single-tap close on unmount.
   useEffect(() => () => cancelPendingClose(), [cancelPendingClose])
 
+  // Show the spinner only if loading takes longer than 100ms.
+  useEffect(() => {
+    if (ready) {
+      setShowSpinner(false)
+      return
+    }
+    const t = setTimeout(() => {
+      setShowSpinner(true)
+      setFadeIn(true)
+    }, 100)
+    return () => clearTimeout(t)
+  }, [ready])
+
   // Report the displayed image rectangle so the parent can anchor controls.
   useEffect(() => {
     if (!onImageBox) return
@@ -489,6 +507,31 @@ export const ZoomableImage = ({
 
   const nat = natRef.current
 
+  // Hidden until loaded, then fades in (like RemoteImage); double-tap also
+  // animates the transform.
+  const transitions = [
+    // Fade in only after a slow load; a fast (cached) load appears instantly
+    fadeIn && 'opacity 0.3s ease-out',
+    animate && 'transform 0.2s ease-out',
+  ].filter(Boolean)
+  const imgStyle: React.CSSProperties =
+    ready && nat
+      ? {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: nat.w,
+          height: nat.h,
+          maxWidth: 'none',
+          maxHeight: 'none',
+          transform: `translate3d(${tf.tx}px, ${tf.ty}px, 0) scale(${tf.s})`,
+          transformOrigin: '0 0',
+          willChange: 'transform',
+          opacity: 1,
+          transition: transitions.length ? transitions.join(', ') : undefined,
+        }
+      : { opacity: 0 }
+
   return (
     // onClick is the non-touch fallback for tap-to-close (mobile); on touch the
     // tap path above already calls onClose and cancels the synthesized click.
@@ -498,29 +541,14 @@ export const ZoomableImage = ({
       className={styles.container}
       onClick={tapToClose ? () => onClose() : undefined}
     >
+      {!ready && showSpinner && <LoaderRing className={styles.spinner} />}
       <img
         src={src}
         alt={alt}
         draggable={false}
         onLoad={handleImgLoad}
         className={styles.image}
-        style={
-          ready && nat
-            ? {
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: nat.w,
-                height: nat.h,
-                maxWidth: 'none',
-                maxHeight: 'none',
-                transform: `translate3d(${tf.tx}px, ${tf.ty}px, 0) scale(${tf.s})`,
-                transformOrigin: '0 0',
-                willChange: 'transform',
-                transition: animate ? 'transform 0.2s ease-out' : undefined,
-              }
-            : undefined
-        }
+        style={imgStyle}
       />
     </div>
   )
