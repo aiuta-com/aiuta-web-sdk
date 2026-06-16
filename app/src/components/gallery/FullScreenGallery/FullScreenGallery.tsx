@@ -2,10 +2,11 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
-import { Share, ThumbnailList, RemoteImage, IconButton } from '@/components'
+import { Share, ThumbnailList, IconButton } from '@/components'
 import { useShare, useLogger } from '@/contexts'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
 import { FullScreenImageViewer } from './components/FullScreenImageViewer'
+import { ZoomableImage } from './components/ZoomableImage'
 import { ImageType, FullScreenModalData } from './types'
 import { icons } from './icons'
 import styles from './FullScreenGallery.module.scss'
@@ -98,17 +99,11 @@ export const FullScreenGallery = () => {
     [modalData],
   )
 
-  // Render simple fullscreen for single image (existing behavior)
+  // Render simple fullscreen for single image (mobile): pinch-to-zoom + pan,
+  // tap to dismiss
   if (fullScreenImageUrl && !modalData) {
     return (
-      <div
-        className={styles.fullScreenModal}
-        onClick={(e) => {
-          e.stopPropagation()
-          handleCloseModal()
-        }}
-        data-testid="aiuta-fullscreen-gallery"
-      >
+      <div className={styles.fullScreenModal} data-testid="aiuta-fullscreen-gallery">
         <IconButton
           icon='<path d="M18.9495 5.05C19.3401 5.44052 19.3401 6.07369 18.9495 6.46421L13.4142 11.9995L18.9502 17.5355C19.3404 17.926 19.3404 18.5593 18.9502 18.9498C18.5598 19.3402 17.9266 19.34 17.536 18.9498L12 13.4137L6.46399 18.9498C6.07344 19.34 5.44021 19.3402 5.04978 18.9498C4.65955 18.5593 4.65958 17.926 5.04978 17.5355L10.5858 11.9995L5.05047 6.46421C4.65994 6.07369 4.65994 5.44052 5.05047 5.05C5.44101 4.65969 6.07423 4.65955 6.46468 5.05L12 10.5853L17.5353 5.05C17.9258 4.65954 18.559 4.65969 18.9495 5.05Z" fill="currentColor"/>'
           label="Close fullscreen image"
@@ -119,16 +114,7 @@ export const FullScreenGallery = () => {
           className={styles.closeButton}
           size={20}
         />
-        <RemoteImage
-          src={fullScreenImageUrl}
-          alt="Full Screen Image"
-          shape={null}
-          className={styles.fullImage}
-          onClick={(e) => {
-            e?.stopPropagation()
-            handleCloseModal()
-          }}
-        />
+        <ZoomableImage src={fullScreenImageUrl} alt="Full Screen Image" onClose={handleCloseModal} />
       </div>
     )
   }
