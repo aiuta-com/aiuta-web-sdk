@@ -6,10 +6,27 @@ import { useRpc, useLogger, useShare } from '@/contexts'
 import { useGenerationsData } from '@/hooks/data'
 
 /**
- * Hook for sharing a result: native Web Share API when the device supports it,
+ * Whether to use the native Web Share API instead of the in-app modal.
+ *
+ * Desktop browsers advertise `navigator.share`, but the native sheet is
+ * unreliable there — Chrome desktop in incognito, for instance, rejects with
+ * AbortError without ever showing a sheet, so a feature check alone silently
+ * fails. Native share only adds value on real touch/mobile devices, so we gate
+ * on that and let every desktop fall back to the in-app modal.
+ */
+const canUseNativeShare = (): boolean => {
+  if (!navigator.share) return false
+  // Chromium exposes a reliable mobile signal; elsewhere fall back to a
+  // coarse pointer (touchscreen) with no fine pointer (mouse).
+  const ua = (navigator as Navigator & { userAgentData?: { mobile: boolean } }).userAgentData
+  if (ua) return ua.mobile
+  return matchMedia('(pointer: coarse)').matches && !matchMedia('(pointer: fine)').matches
+}
+
+/**
+ * Hook for sharing a result: native Web Share API on touch/mobile devices,
  * otherwise the in-app share modal (copy / WhatsApp / Messenger). The choice is
- * by capability, not viewport width — a narrow desktop window has no native
- * share, so it must fall back instead of silently failing.
+ * by device capability, not viewport width.
  */
 export const useNavigatorShare = () => {
   const dispatch = useAppDispatch()
@@ -25,8 +42,9 @@ export const useNavigatorShare = () => {
       const urlToShare = imageUrl || generatedImages[0]?.url
       if (!urlToShare) return
 
-      // No native Web Share API (e.g. desktop) → use the in-app share modal
-      if (!navigator.share) {
+      // Not a device where native share is reliable (e.g. any desktop) → use
+      // the in-app share modal
+      if (!canUseNativeShare()) {
         openShareModal(urlToShare)
         return
       }
