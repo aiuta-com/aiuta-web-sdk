@@ -17,7 +17,15 @@ export type AnyFn = (...args: any[]) => any
 
 export const PROTOCOL_VERSION = '1.0.0'
 export const RPC_TIMEOUT = 15_000
-export const HANDSHAKE_TIMEOUT = 10_000
+// The SDK opens the handshake right after creating the iframe, so this window
+// also has to cover the app bundle downloading and booting inside the iframe —
+// not just the HELLO/ACK round trip. Keep it generous so a slow connection
+// (e.g. throttled mobile) doesn't error out mid-load.
+export const HANDSHAKE_TIMEOUT = 30_000
+// The app re-broadcasts HELLO on this interval until it gets an ACK. With the
+// iframe preloaded, the app boots before the SDK attaches its handshake
+// listener (that happens on the first tryOn), so a single HELLO would be missed.
+export const HANDSHAKE_HELLO_RETRY_MS = 300
 
 /* ---------- Handshake Message Types ---------- */
 

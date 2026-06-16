@@ -67,6 +67,14 @@ export default class Aiuta {
     )
 
     this.analytics.track({ type: 'configure' })
+
+    // Preload the iframe so the app bundle downloads and boots in the background
+    // before the first tryOn — on a slow connection this is the difference
+    // between an instant open and waiting (or timing out) on click. The app
+    // re-broadcasts its handshake HELLO until the SDK connects on tryOn.
+    this.iframeManager.ensureIframe().catch((error) => {
+      this.logger.warn('Aiuta iframe preload failed:', error)
+    })
   }
 
   /**

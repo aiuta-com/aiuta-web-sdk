@@ -8,7 +8,7 @@ import type { AppApi, AppContext } from '../api/app'
 import type { InternalSdkApi } from '../protocol/internal'
 import {
   PROTOCOL_VERSION,
-  HANDSHAKE_TIMEOUT,
+  HANDSHAKE_HELLO_RETRY_MS,
   HANDSHAKE_MESSAGE_HELLO,
   HANDSHAKE_MESSAGE_ACK,
 } from '../protocol/core'
@@ -25,6 +25,7 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
   config!: AiutaConfiguration
   private expectedParentOrigin?: string
   private handshakeListener?: (event: MessageEvent) => void
+  private helloRetryTimer?: ReturnType<typeof setInterval>
   private sdkClient?: ReturnType<typeof createRpcClient<InternalSdkApi>>
   private internalSdk!: InternalSdkApi
 
@@ -98,12 +99,12 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
       port: MessagePort
       methodsFromAck?: string[]
     }>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        if (this.handshakeListener) {
-          window.removeEventListener('message', this.handshakeListener)
+      const stopRetry = () => {
+        if (this.helloRetryTimer) {
+          clearInterval(this.helloRetryTimer)
+          this.helloRetryTimer = undefined
         }
-        reject(new Error('App handshake timeout'))
-      }, HANDSHAKE_TIMEOUT)
+      }
 
       this.handshakeListener = (e: MessageEvent) => {
         // Validate origin
@@ -131,12 +132,16 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
         const p = e.ports?.[0]
 
         if (!p) {
-          clearTimeout(timeout)
+          stopRetry()
+          if (this.handshakeListener) {
+            window.removeEventListener('message', this.handshakeListener)
+            this.handshakeListener = undefined
+          }
           reject(new Error('No port in handshake response'))
           return
         }
 
-        clearTimeout(timeout)
+        stopRetry()
         if (this.handshakeListener) {
           window.removeEventListener('message', this.handshakeListener)
           this.handshakeListener = undefined
@@ -152,19 +157,33 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
 
       window.addEventListener('message', this.handshakeListener)
 
-      try {
-        const helloMessage = {
-          type: HANDSHAKE_MESSAGE_HELLO,
-          nonce,
-          version: PROTOCOL_VERSION,
-          appVersion: this._context.appVersion,
-          methods: Object.keys(this.buildRegistry()),
-        }
-        window.parent.postMessage(helloMessage, this.expectedParentOrigin!)
-      } catch (error) {
-        clearTimeout(timeout)
-        reject(new Error(`Failed to send handshake: ${error}`))
+      const helloMessage = {
+        type: HANDSHAKE_MESSAGE_HELLO,
+        nonce,
+        version: PROTOCOL_VERSION,
+        appVersion: this._context.appVersion,
+        methods: Object.keys(this.buildRegistry()),
       }
+
+      const sendHello = () => {
+        try {
+          window.parent.postMessage(helloMessage, this.expectedParentOrigin!)
+        } catch (error) {
+          stopRetry()
+          if (this.handshakeListener) {
+            window.removeEventListener('message', this.handshakeListener)
+            this.handshakeListener = undefined
+          }
+          reject(new Error(`Failed to send handshake: ${error}`))
+        }
+      }
+
+      // Keep broadcasting until the SDK ACKs. With a preloaded iframe the app
+      // boots before the SDK attaches its listener (on the first tryOn), so a
+      // single HELLO would be missed; there is no timeout — the app simply waits
+      // to be activated, and the SDK side has its own handshake timeout.
+      sendHello()
+      this.helloRetryTimer = setInterval(sendHello, HANDSHAKE_HELLO_RETRY_MS)
     })
   }
 
@@ -180,7 +199,11 @@ export class AiutaAppRpc extends AiutaRpcBase<AppApi, SdkApi, AppContext> {
       this.sdkClient = undefined
     }
 
-    // Remove handshake listener
+    // Remove handshake listener and stop any HELLO retries
+    if (this.helloRetryTimer) {
+      clearInterval(this.helloRetryTimer)
+      this.helloRetryTimer = undefined
+    }
     if (this.handshakeListener) {
       window.removeEventListener('message', this.handshakeListener)
       this.handshakeListener = undefined

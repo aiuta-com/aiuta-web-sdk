@@ -18,6 +18,7 @@ export default class IframeManager {
   private customCssUrl?: string
   private hasDebugIframe = false
   private hideTimer: ReturnType<typeof setTimeout> | null = null
+  private creating: Promise<void> | null = null
 
   constructor(
     configuration: AiutaConfiguration,
@@ -45,9 +46,16 @@ export default class IframeManager {
     const existing = document.getElementById(this.iframeId) as HTMLIFrameElement | null
     if (existing) {
       this.iframe = existing
-    } else {
-      await this.createIframe()
+      return
     }
+    // Guard against concurrent calls (preload + an early tryOn) creating the
+    // iframe twice while createIframe is still awaiting (debug URL check).
+    if (!this.creating) {
+      this.creating = this.createIframe().finally(() => {
+        this.creating = null
+      })
+    }
+    await this.creating
   }
 
   setInteractive(interactive: boolean) {
