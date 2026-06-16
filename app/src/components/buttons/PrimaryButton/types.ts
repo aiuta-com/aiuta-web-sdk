@@ -12,6 +12,8 @@ export type PrimaryButtonProps = {
   className?: string
   /** Whether button should use max width behavior */
   maxWidth?: boolean
+  /** Compact height: 36px min-height instead of the default 50px */
+  compact?: boolean
   /** Button shape size - determines global class */
   shape?: 'S' | 'M'
   /** Button content (label, optionally with an icon) */

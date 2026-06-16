@@ -11,6 +11,8 @@ export type SecondaryButtonProps = {
   variant?: 'default' | 'on-dark'
   /** Whether button should use max width behavior */
   maxWidth?: boolean
+  /** Compact height: 36px min-height instead of the default 50px */
+  compact?: boolean
   /** Additional CSS classes */
   classNames?: string
   /** Click handler */

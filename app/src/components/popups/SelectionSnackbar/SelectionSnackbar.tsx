@@ -60,10 +60,10 @@ export const SelectionSnackbar = (props: SelectionSnackbarProps) => {
     <div className={containerClasses}>
       <div className={styles.content}>
         <div className={styles.controls}>
-          <SecondaryButton onClick={onCancel} classNames={styles.cancelButton}>
+          <SecondaryButton onClick={onCancel} compact classNames={styles.cancelButton}>
             {cancel}
           </SecondaryButton>
-          <SecondaryButton onClick={onSelectAll} classNames={styles.selectAllButton}>
+          <SecondaryButton onClick={onSelectAll} compact classNames={styles.selectAllButton}>
             {isAllSelected ? unselectAll : selectAll}
           </SecondaryButton>
         </div>
