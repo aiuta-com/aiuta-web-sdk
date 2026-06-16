@@ -20,6 +20,9 @@ import {
   useConfigValidation,
 } from '@/hooks'
 
+import { useAppSelector } from '@/store/store'
+import { isMobileSelector } from '@/store/slices/appSlice'
+import { combineClassNames } from '@/utils'
 import { ClearStorageBridge } from '@/components/debug/ClearStorageBridge'
 import HomePageRouter from '@/pages/Home'
 import OnboardingPage from '@/pages/1-Onboarding'
@@ -28,6 +31,7 @@ import TryOnPage from '@/pages/4-TryOn'
 import ResultsPage from '@/pages/5-Results'
 import GenerationsHistoryPage from '@/pages/6-GenerationsHistory'
 import UploadsHistoryPage from '@/pages/7-UploadsHistory'
+import styles from './MainApp.module.scss'
 import PredefinedModelsPage from '@/pages/8-PredefinedModels'
 
 /**
@@ -100,27 +104,32 @@ function ConfigValidator() {
 
 function AppContent() {
   usePredefinedModels()
+  const isMobile = useAppSelector(isMobileSelector)
 
   return (
     <DragAndDropProvider>
       <ClearStorageBridge />
-      <AppContainer>
-        <AlertRenderer />
-        <PageBar />
-        <Routes>
-          <Route path="/" element={<HomePageRouter />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/qr" element={<QrPromptPage />} />
-          <Route path="/models" element={<PredefinedModelsPage />} />
-          <Route path="/tryon" element={<TryOnPage />} />
-          <Route path="/results" element={<ResultsPage />} />
-          <Route path="/generations" element={<GenerationsHistoryPage />} />
-          <Route path="/uploads" element={<UploadsHistoryPage />} />
-        </Routes>
-      </AppContainer>
+      {/* The shell scales down on small screens (mobile only); keeping the zoom
+          here means the overlays below scale with the panel, not just it */}
+      <div className={combineClassNames(styles.shell, isMobile && styles.shell_mobile)}>
+        <AppContainer>
+          <AlertRenderer />
+          <PageBar />
+          <Routes>
+            <Route path="/" element={<HomePageRouter />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
+            <Route path="/qr" element={<QrPromptPage />} />
+            <Route path="/models" element={<PredefinedModelsPage />} />
+            <Route path="/tryon" element={<TryOnPage />} />
+            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/generations" element={<GenerationsHistoryPage />} />
+            <Route path="/uploads" element={<UploadsHistoryPage />} />
+          </Routes>
+        </AppContainer>
 
-      <FullScreenGallery />
-      <Share />
+        <FullScreenGallery />
+        <Share />
+      </div>
     </DragAndDropProvider>
   )
 }

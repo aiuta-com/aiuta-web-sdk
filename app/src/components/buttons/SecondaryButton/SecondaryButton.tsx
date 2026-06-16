@@ -11,6 +11,7 @@ export const SecondaryButton = (props: SecondaryButtonProps) => {
     shape = 'S',
     variant = 'default',
     maxWidth = false,
+    compact,
     classNames,
     onClick,
   } = props
@@ -23,6 +24,7 @@ export const SecondaryButton = (props: SecondaryButtonProps) => {
     styles.secondaryButton,
     variantClass,
     maxWidth && styles.secondaryButton_maxWidth,
+    compact && styles.secondaryButton_compact,
     classNames,
   )
 

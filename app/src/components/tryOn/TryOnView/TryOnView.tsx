@@ -72,6 +72,7 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
 
   return (
     <Flex
+      fill={fill}
       containerClassName={combineClassNames(fill && styles.fillContainer)}
       contentClassName={combineClassNames(
         fill ? 'aiuta-image-m' : 'aiuta-image-l',

@@ -30,6 +30,11 @@
   &_onDark {
     background: var(--aiuta-color-on-dark);
   }
+
+  // Compact pill (snackbars): 36px instead of 50px
+  &_compact {
+    min-height: 36px;
+  }
 }
 
 .icon {

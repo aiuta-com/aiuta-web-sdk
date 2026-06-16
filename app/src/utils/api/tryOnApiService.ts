@@ -99,7 +99,7 @@ export class TryOnApiService {
   static async uploadImage(
     file: File,
     auth: ApiAuthParams,
-  ): Promise<InputImage & { owner_type?: string; error?: string }> {
+  ): Promise<InputImage & { owner_type?: string; error?: string; expires_at?: string }> {
     const formData = new FormData()
     formData.append('image_data', file)
 
@@ -149,7 +149,16 @@ export class TryOnApiService {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ error: 'Operation creation failed' }))
-      throw new Error(JSON.stringify(errorData))
+      // Carry the HTTP status and detail so callers can tell a missing input
+      // image apart from other failures and self-heal the stale history entry.
+      // The backend returns 400 with detail "Input image was not found".
+      const error = new Error(JSON.stringify(errorData)) as Error & {
+        status?: number
+        detail?: string
+      }
+      error.status = response.status
+      error.detail = typeof errorData?.detail === 'string' ? errorData.detail : undefined
+      throw error
     }
 
     return response.json()

@@ -21,6 +21,8 @@ body {
   -webkit-font-smoothing: antialiased;
   // No grey flash on tap (inherited by all elements).
   -webkit-tap-highlight-color: transparent;
+  // Below 300px the layout stops shrinking and scrolls horizontally instead
+  min-width: 300px;
 }
 
 h2 {
@@ -637,10 +639,12 @@ img {
   }
 
   &__viewport {
-    width: 100vw;
+    // max(…, 300px) keeps the full-bleed aligned once the page hits its 300px
+    // min-width and starts scrolling horizontally
+    width: max(100vw, 300px);
     overflow-x: auto;
     overflow-y: visible;
-    margin-left: calc(50% - 50vw);
+    margin-left: calc(50% - max(100vw, 300px) / 2);
     // Leading offset via container padding (not spacer items) so the track gap
     // can't add a stray gap before the first card. Trailing offset is a margin on
     // the last card — Safari ignores a scroll container's inline-end padding, but
@@ -658,8 +662,8 @@ img {
   }
 
   &__card {
-    flex: 0 0 min(320px, calc(100vw - 64px));
-    width: min(320px, calc(100vw - 64px));
+    flex: 0 0 min(320px, calc(max(100vw, 300px) - 64px));
+    width: min(320px, calc(max(100vw, 300px) - 64px));
     scroll-snap-align: start;
 
     &:last-child {
@@ -678,19 +682,28 @@ img {
     border-radius: 18px;
   }
 
+  // Clip viewport: when there are too many dots to fit they're cut off (no
+  // scroll), and the track slides to keep the active one centered (see
+  // OutfitList.positionDots).
   &__dots {
     display: none;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    margin-top: 0;
+    overflow: hidden;
     // Reserve the dot height even when empty so the gap below doesn't jump.
     min-height: 6px;
+  }
+
+  &__dots-track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: max-content;
+    // translateX is set inline to center the active dot, clamped to the edges
   }
 
   &__dot {
     // width + background are driven inline by scroll progress (see OutfitList)
     // for a continuous pager; no transition so it tracks the drag in real time.
+    flex-shrink: 0;
     width: 6px;
     height: 6px;
     padding: 0;
@@ -708,7 +721,7 @@ img {
     }
 
     &__dots {
-      display: flex;
+      display: block;
     }
 
     &__skeleton-card {

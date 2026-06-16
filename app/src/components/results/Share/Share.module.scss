@@ -1,6 +1,8 @@
 .share {
-  min-width: 100vw;
-  min-height: 100vh;
+  // % of the containing block (the scaled shell on mobile, the viewport on
+  // desktop) so it fills under the shell's transform — see MainApp.module.scss
+  width: 100%;
+  height: 100%;
   position: fixed;
   z-index: 99999;
   top: 0px;
@@ -28,10 +30,15 @@
 .modal {
   position: relative;
   width: 466px;
-  height: 248px;
-  padding: 20px 20px 16px;
+  // Fit a narrow viewport (e.g. a narrow desktop window) instead of overflowing
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
   background: var(--aiuta-color-background);
   border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 24px;
 }
 
 .closeButton {
@@ -39,26 +46,47 @@
   position: absolute;
   right: 20px;
   top: 20px;
+  z-index: 1;
+}
+
+// Preview of the shared image (Figma: centered, portrait, 12px radius)
+.preview {
+  position: relative;
+  align-self: center;
+  height: 206px;
+  aspect-ratio: var(--aiuta-aspect-ratio);
+  max-width: 100%;
+  margin: 8px 0 24px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.title {
+  margin: 0 0 16px;
 }
 
 .shareButtons {
   display: flex;
   column-gap: 20px;
   align-items: center;
-  margin: 20px 0px 28px 0px;
+  margin: 0 0 24px;
 }
 
 .copySection {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   border-radius: 16px;
   padding: 8px 12px 8px 16px;
   background: var(--aiuta-color-neutral);
 }
 
 .urlText {
-  max-width: 300px;
+  // Take the remaining width and ellipsize, so a long URL shrinks on narrow
+  // viewports instead of pushing the copy button out of the modal
+  flex: 1 1 auto;
+  min-width: 0;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -66,7 +94,23 @@
 }
 
 .copyButton {
-  padding: 12px 24px !important;
+  flex-shrink: 0;
+  // Horizontal padding only — height is the button's compact 36px
+  padding: 0 24px !important;
   border-radius: 50px !important;
   margin: 0 !important;
+}
+
+// Overlap Copy / Copied in one cell so the button width = the wider label
+.copyLabel {
+  display: grid;
+}
+
+.copyLabel > span {
+  grid-area: 1 / 1;
+  text-align: center;
+}
+
+.copyLabel_hidden {
+  visibility: hidden;
 }

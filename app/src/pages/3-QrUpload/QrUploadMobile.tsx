@@ -48,6 +48,7 @@ export default function QrUploadMobile() {
               ) : !uploadedUrl ? (
                 <>
                   <Flex
+                    fill
                     containerClassName={styles.fillContainer}
                     contentClassName={combineClassNames(
                       'aiuta-image-m',

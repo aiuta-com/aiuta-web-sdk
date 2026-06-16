@@ -18,7 +18,7 @@ import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
 import { useUploadsGallery } from '@/hooks/gallery/useUploadsGallery'
 import { useTryOnStrings } from '@/hooks'
-import { useAddGeneration, useAddUpload } from '@/hooks/data'
+import { useAddGeneration, useAddUpload, useDeleteUploadedImages } from '@/hooks/data'
 
 export const useTryOnGeneration = () => {
   const navigate = useNavigate()
@@ -31,6 +31,7 @@ export const useTryOnGeneration = () => {
   const productIds = useAppSelector(productIdsSelector)
   const { mutate: addGeneration } = useAddGeneration()
   const { mutate: addUpload } = useAddUpload()
+  const { mutate: deleteUploadedImages } = useDeleteUploadedImages()
 
   const {
     trackTryOnInitiated,
@@ -45,6 +46,7 @@ export const useTryOnGeneration = () => {
   const {
     invalidInputImageDescription,
     invalidInputImageChangePhotoButton,
+    expiredInputImageDescription,
     noPeopleDetectedDescription,
     tooManyPeopleDetectedDescription,
     childDetectedDescription,
@@ -111,7 +113,7 @@ export const useTryOnGeneration = () => {
         }
       } catch (error: any) {
         trackTryOnError('requestOperationFailed', error.message)
-        return null
+        throw error
       }
     },
     [getAuthParams, getProductIds, rpc, trackTryOnError],
@@ -129,7 +131,7 @@ export const useTryOnGeneration = () => {
         return result.operation_id || null
       } catch (error: any) {
         trackTryOnError('requestOperationFailed', error.message)
-        return null
+        throw error
       }
     },
     [getAuthParams, getProductIds, trackTryOnError],
@@ -329,7 +331,11 @@ export const useTryOnGeneration = () => {
             throw new Error(uploadResult.error || 'Upload failed')
           }
 
-          uploadedImage = { id: uploadResult.id, url: uploadResult.url }
+          uploadedImage = {
+            id: uploadResult.id,
+            url: uploadResult.url,
+            expiresAt: uploadResult.expires_at,
+          }
         } catch (error: any) {
           logger.error('Image upload error:', error)
           dispatch(tryOnSlice.actions.setIsGenerating(false))
@@ -355,9 +361,37 @@ export const useTryOnGeneration = () => {
       dispatch(tryOnSlice.actions.setGenerationStage('scanning'))
 
       const hasSubscriptionId = auth.subscriptionId && auth.subscriptionId.length > 0
-      const operationId = hasSubscriptionId
-        ? await createOperationWithJwt(uploadedImage.id)
-        : await createOperationWithoutJwt(uploadedImage.id)
+
+      let operationId: string | null
+      try {
+        operationId = hasSubscriptionId
+          ? await createOperationWithJwt(uploadedImage.id)
+          : await createOperationWithoutJwt(uploadedImage.id)
+      } catch (error: any) {
+        dispatch(tryOnSlice.actions.setIsGenerating(false))
+
+        // The backend reports a gone input image (expired, or left over from a
+        // previous apiKey) as HTTP 400 with detail "Input image was not found".
+        // Gate on that exact signal — 400 is also used for SKU errors, so we
+        // must not delete the photo on those. Drop the dead image from history
+        // (so it isn't auto-selected again) and prompt for a new photo.
+        const isImageNotFound =
+          error?.status === 400 && /input image .*not found/i.test(error?.detail ?? '')
+
+        if (isImageNotFound && isInputImage(targetImage)) {
+          // Defer removing the dead photo until the user dismisses the alert,
+          // otherwise the history (and the picker behind it) updates while the
+          // alert is still up — leaving it hovering over an empty screen
+          showAlert(expiredInputImageDescription, invalidInputImageChangePhotoButton, () => {
+            deleteUploadedImages([uploadedImage])
+            dispatch(tryOnSlice.actions.clearSelectedImage())
+            navigate('/')
+          })
+        } else {
+          dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
+        }
+        return
+      }
 
       if (!operationId) {
         dispatch(tryOnSlice.actions.setIsGenerating(false))
@@ -386,6 +420,11 @@ export const useTryOnGeneration = () => {
       trackTryOnInitiated,
       trackUploadError,
       dispatch,
+      navigate,
+      showAlert,
+      deleteUploadedImages,
+      expiredInputImageDescription,
+      invalidInputImageChangePhotoButton,
       createOperationWithJwt,
       createOperationWithoutJwt,
       pollGenerationStatus,

@@ -1,0 +1,1 @@
+export { QrUpload } from './QrUpload'

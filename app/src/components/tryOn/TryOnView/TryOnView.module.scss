@@ -120,11 +120,8 @@
   padding: 8px 8px 16px;
 }
 
-.fillContent {
-  aspect-ratio: auto;
-  width: 100%;
-  height: 100%;
-}
+// Edge-to-edge sizing comes from Flex's `fill` prop; this class only carries
+// the mobile border-radius override (below).
 
 // Mobile: the image goes truly full-bleed — no side insets and no rounding
 // (Figma). The breakpoint mirrors MOBILE_BREAKPOINT in useWindowResize.ts.

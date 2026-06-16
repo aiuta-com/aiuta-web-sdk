@@ -38,7 +38,23 @@ export class LocalStorageBackend implements IStorageBackend {
   // ===== Uploads =====
 
   async getInputImages(): Promise<InputImage[]> {
-    return (await this.adapter.getItem<InputImage[]>(this.KEYS.UPLOADS)) || []
+    const stored = (await this.adapter.getItem<InputImage[]>(this.KEYS.UPLOADS)) || []
+
+    // Drop expired uploads: the backend image is already gone, so keeping it
+    // would only break try-on (and the auto-select) later. Items without a
+    // (parseable) expiry are kept.
+    const now = Date.now()
+    const fresh = stored.filter((image) => {
+      if (!image.expiresAt) return true
+      const expiry = Date.parse(image.expiresAt)
+      return Number.isNaN(expiry) || expiry > now
+    })
+
+    if (fresh.length !== stored.length) {
+      await this.adapter.setItem(this.KEYS.UPLOADS, fresh)
+    }
+
+    return fresh
   }
 
   async addInputImage(image: InputImage): Promise<InputImage[]> {

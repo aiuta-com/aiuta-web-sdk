@@ -15,13 +15,26 @@ const AUTO_HIDE_DELAY = 15000
 const ANIMATION_DURATION = 200
 
 export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
-  const { onRetry, className } = props
+  const { onRetry, className, open, message, onClose } = props
   const dispatch = useAppDispatch()
 
   const { defaultErrorMessage, tryAgainButton } = useErrorStrings()
-  const isVisible = useAppSelector(isErrorSnackbarVisibleSelector)
+  const sliceVisible = useAppSelector(isErrorSnackbarVisibleSelector)
   const [shouldRender, setShouldRender] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+
+  // Controlled mode (open prop) overrides the global error slice
+  const isControlled = open !== undefined
+  const isVisible = isControlled ? open : sliceVisible
+  const text = message ?? defaultErrorMessage
+
+  const dismiss = () => {
+    if (isControlled) {
+      onClose?.()
+    } else {
+      dispatch(hideErrorSnackbar())
+    }
+  }
 
   const hasRetry = onRetry && typeof onRetry === 'function'
 
@@ -48,16 +61,20 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
   useEffect(() => {
     if (isVisible) {
       const timer = setTimeout(() => {
-        dispatch(hideErrorSnackbar())
+        if (isControlled) {
+          onClose?.()
+        } else {
+          dispatch(hideErrorSnackbar())
+        }
       }, AUTO_HIDE_DELAY)
 
       return () => clearTimeout(timer)
     }
-  }, [isVisible, dispatch])
+  }, [isVisible, isControlled, onClose, dispatch])
 
   // Handle swipe down and tap to dismiss
   const handleDismiss = () => {
-    dispatch(hideErrorSnackbar())
+    dismiss()
   }
 
   const swipeHandlers = useSwipeGesture(
@@ -94,16 +111,16 @@ export const ErrorSnackbar = (props: ErrorSnackbarProps) => {
         <Icon icon={icons.warning} size={36} viewBox="0 0 36 36" className={styles.icon} />
         <div className={messageClasses}>
           <p>
-            {defaultErrorMessage.split('\n').map((line, index) => (
+            {text.split('\n').map((line, index) => (
               <React.Fragment key={index}>
                 {line}
-                {index < defaultErrorMessage.split('\n').length - 1 && <br />}
+                {index < text.split('\n').length - 1 && <br />}
               </React.Fragment>
             ))}
           </p>
         </div>
         {hasRetry && (
-          <SecondaryButton classNames={styles.retryButton} onClick={handleButtonClick}>
+          <SecondaryButton compact classNames={styles.retryButton} onClick={handleButtonClick}>
             {tryAgainButton}
           </SecondaryButton>
         )}

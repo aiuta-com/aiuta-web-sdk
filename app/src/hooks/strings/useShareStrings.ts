@@ -12,6 +12,8 @@ export const useShareStrings = () => {
     shareButton: strings?.shareButton ?? 'Share',
     sharePageTitle: strings?.sharePageTitle ?? 'Share with',
     copyButton: strings?.copyButton ?? 'Copy',
+    copiedButton: strings?.copiedButton ?? 'Copied',
+    copyError: strings?.copyError ?? "Couldn't copy the link",
     downloadButton: strings?.downloadButton ?? 'Download',
   }
 }

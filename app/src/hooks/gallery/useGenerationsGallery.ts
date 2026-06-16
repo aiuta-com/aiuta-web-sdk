@@ -122,23 +122,29 @@ export const useGenerationsGallery = ({
 
   // Handle download selected images
   const handleDownloadSelectedImages = useCallback(async () => {
-    for (const image of generatedImages) {
-      if (selectedImages.includes(image.id)) {
-        const response = await fetch(image.url, { mode: 'cors' })
-        const blob = await response.blob()
+    const toDownload = generatedImages.filter((image) => selectedImages.includes(image.id))
 
-        const blobUrl = URL.createObjectURL(blob)
-        const link = document.createElement('a')
+    // Fetch every selected image in parallel, then trigger the downloads
+    // together (the browser asks once to allow multiple files)
+    const blobs = await Promise.all(
+      toDownload.map((image) => fetch(image.url, { mode: 'cors' }).then((response) => response.blob())),
+    )
 
-        link.href = blobUrl
-        link.download = `try-on-${Date.now()}`
-        document.body.appendChild(link)
+    const timestamp = Date.now()
+    blobs.forEach((blob, i) => {
+      const blobUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
 
-        link.click()
-        document.body.removeChild(link)
-        URL.revokeObjectURL(blobUrl)
-      }
-    }
+      link.href = blobUrl
+      // Unique name per file, otherwise the browser dedupes same-named downloads
+      link.download = `try-on-${timestamp}-${i + 1}`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+
+      // Revoke later — revoking immediately can abort the download
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000)
+    })
 
     const analytic = {
       type: 'share',

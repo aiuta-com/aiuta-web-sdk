@@ -29,11 +29,8 @@
   align-items: center;
 }
 
-// Figma: 36px tall pills — the base button's 50px min-height was stretching
-// the whole snackbar; 16px horizontal padding
+// Figma: 36px tall pills (height comes from the buttons' `compact` prop)
 .cancelButton {
-  min-height: 36px !important;
-  height: 36px;
   padding: 0 16px !important;
   margin: 0 !important;
   background: var(--aiuta-color-on-dark);
@@ -41,8 +38,6 @@
 }
 
 .selectAllButton {
-  min-height: 36px !important;
-  height: 36px;
   color: var(--aiuta-color-on-dark);
   background: none;
   border: none;

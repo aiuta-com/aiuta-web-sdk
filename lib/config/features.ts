@@ -15,6 +15,10 @@ export interface Share {
     shareButton?: string
     sharePageTitle?: string
     copyButton?: string
+    /** Shown on the copy button for a moment after copying */
+    copiedButton?: string
+    /** Error snackbar shown when the browser blocks clipboard copy */
+    copyError?: string
     downloadButton?: string
   }
 }
@@ -135,6 +139,8 @@ export interface TryOnInputImageValidation {
   strings?: {
     invalidInputImageDescription?: string
     invalidInputImageChangePhotoButton?: string
+    /** Shown when the selected photo no longer exists on the backend (expired) */
+    expiredInputImageDescription?: string
     // Specific abort reason messages
     noPeopleDetectedDescription?: string
     tooManyPeopleDetectedDescription?: string

@@ -84,6 +84,7 @@ export default function ResultsMobile() {
           return (
           <>
             <Flex
+              fill
               containerClassName={styles.fillContainer}
               contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
             >
