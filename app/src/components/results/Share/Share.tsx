@@ -1,11 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { useRpc, useShare, useLogger } from '@/contexts'
-import { IconButton, SocialButton, PrimaryButton } from '@/components'
+import { IconButton, SocialButton, PrimaryButton, RemoteImage, ErrorSnackbar } from '@/components'
 import { combineClassNames } from '@/utils'
 import { useShareStrings } from '@/hooks'
 import { icons } from './icons'
 import styles from './Share.module.scss'
+
+// How long the copy button shows "Copied" after a successful copy
+const COPIED_RESET_MS = 2000
 
 interface ShareButton {
   id: string
@@ -19,10 +22,16 @@ type ShareMethod = 'whatsApp' | 'messenger' | 'copy'
 
 export const Share = () => {
   const [hasShared, setHasShared] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [copyFailed, setCopyFailed] = useState(false)
+  const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const rpc = useRpc()
   const logger = useLogger()
   const { modalData, animationState, isVisible, closeShareModal } = useShare()
-  const { sharePageTitle, copyButton } = useShareStrings()
+  const { sharePageTitle, copyButton, copiedButton, copyError } = useShareStrings()
+
+  // Drop the "Copied" timer on unmount
+  useEffect(() => () => clearTimeout(copiedTimer.current ?? undefined), [])
 
   const shareButtons: ShareButton[] = [
     {
@@ -48,6 +57,9 @@ export const Share = () => {
     }
     closeShareModal()
     setHasShared(false)
+    setCopied(false)
+    setCopyFailed(false)
+    clearTimeout(copiedTimer.current ?? undefined)
   }
 
   const handleShare = (shareMethod: ShareMethod) => {
@@ -58,11 +70,19 @@ export const Share = () => {
   const handleCopyToClipboard = async () => {
     if (modalData?.imageUrl) {
       try {
+        // navigator.clipboard is undefined on insecure (http) origins and can be
+        // blocked by permissions — both throw and surface the error snackbar
         await navigator.clipboard.writeText(modalData.imageUrl)
         setHasShared(true)
         sendAnalytics('copy')
+
+        // Swap the button to "Copied" for a couple of seconds
+        setCopied(true)
+        clearTimeout(copiedTimer.current ?? undefined)
+        copiedTimer.current = setTimeout(() => setCopied(false), COPIED_RESET_MS)
       } catch (error) {
         logger.error('Failed to copy to clipboard:', error)
+        setCopyFailed(true)
       }
     }
   }
@@ -103,8 +123,6 @@ export const Share = () => {
           className={combineClassNames('aiuta-modal', styles.modal)}
           onClick={(e) => e.stopPropagation()}
         >
-          <h2 className="aiuta-page-title">{sharePageTitle}</h2>
-
           <IconButton
             icon={icons.close}
             label="Close"
@@ -113,6 +131,13 @@ export const Share = () => {
             className={styles.closeButton}
             onClick={handleCloseModal}
           />
+
+          {/* Preview of the image being shared (Figma) */}
+          <div className={styles.preview}>
+            <RemoteImage src={modalData.imageUrl} alt="Shared result" shape={null} fit="cover" />
+          </div>
+
+          <h2 className={combineClassNames('aiuta-page-title', styles.title)}>{sharePageTitle}</h2>
 
           <div className={styles.shareButtons}>
             {shareButtons.map((button) => (
@@ -131,14 +156,36 @@ export const Share = () => {
             <PrimaryButton
               shape="S"
               maxWidth={false}
+              compact
               onClick={handleCopyToClipboard}
               className={styles.copyButton}
             >
-              {copyButton}
+              {/* Both labels overlap in one grid cell so the button is sized to
+                  the wider of them and never jumps when it swaps (works for any
+                  localization, e.g. Copy → OK) */}
+              <span className={styles.copyLabel}>
+                <span className={copied ? styles.copyLabel_hidden : undefined}>{copyButton}</span>
+                <span
+                  aria-hidden={!copied}
+                  className={copied ? undefined : styles.copyLabel_hidden}
+                >
+                  {copiedButton}
+                </span>
+              </span>
             </PrimaryButton>
           </div>
         </div>
       )}
+
+      {/* Copy failures (clipboard blocked, e.g. on http) surface here, above
+          the modal. Wrapper stops the dismiss tap from closing the modal. */}
+      <div onClick={(e) => e.stopPropagation()}>
+        <ErrorSnackbar
+          open={copyFailed}
+          message={copyError}
+          onClose={() => setCopyFailed(false)}
+        />
+      </div>
     </div>
   )
 }

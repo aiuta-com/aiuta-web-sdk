@@ -15,6 +15,10 @@ export interface Share {
     shareButton?: string
     sharePageTitle?: string
     copyButton?: string
+    /** Shown on the copy button for a moment after copying */
+    copiedButton?: string
+    /** Error snackbar shown when the browser blocks clipboard copy */
+    copyError?: string
     downloadButton?: string
   }
 }
