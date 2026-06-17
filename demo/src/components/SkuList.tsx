@@ -81,7 +81,6 @@ export default function SkuList({
 
   return (
     <section className="skus">
-      <h2>Single-Item Try-On</h2>
       <div className="sku-grid">
         {loading && !items.length
           ? Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)

@@ -63,12 +63,17 @@ export interface CatalogItem {
 // The suggested_outfits endpoint still returns items in the legacy SkuItem
 // shape (with descriptive_image_urls) — see the OpenAPI spec
 
+export interface OutfitTags {
+  gender?: string
+  /** Human-readable occasion, used as the card title (e.g. "Office Hours") */
+  occasion?: string
+  style?: string
+}
+
 export interface OutfitsApiResponse {
   items: SkuItem[]
-  model_image_url: string
   collage_image_url: string
-  title: string
-  style: string
+  tags: OutfitTags
 }
 
 export interface SkuItem {

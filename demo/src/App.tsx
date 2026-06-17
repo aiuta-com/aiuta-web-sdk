@@ -21,6 +21,19 @@ import type { AiutaMode } from '@sdk/index'
 // the end (Array.prototype.sort is stable)
 const byCatalogOrder = (a: CatalogItem, b: CatalogItem) => a.order - b.order
 
+type TabValue = 'single' | 'outfit'
+
+const TABS: { value: TabValue; label: string }[] = [
+  { value: 'single', label: 'Single-Item Try-On' },
+  { value: 'outfit', label: 'Outfit Visualization' },
+]
+
+// Single-Item Try-On is the default when the hash is missing/unrecognized.
+const readTabFromHash = (): TabValue => {
+  const hash = window.location.hash.replace(/^#/, '')
+  return TABS.some((tab) => tab.value === hash) ? (hash as TabValue) : 'single'
+}
+
 export default function App() {
   const [skus, setSkus] = useState<CatalogItem[]>([])
   const [outfits, setOutfits] = useState<OutfitsApiResponse[]>([])
@@ -91,21 +104,56 @@ export default function App() {
     [tryOnFilterEnabled, skus],
   )
 
+  // Single-Item Try-On is the default tab; outfits (which load slowly) sit
+  // behind their own tab so they never hold up the main catalog view. They
+  // keep loading in the background so the tab is ready when opened. The active
+  // tab is mirrored in the URL hash so it survives a refresh / deep link.
+  const [activeTab, setActiveTab] = useState<TabValue>(readTabFromHash)
+
+  const selectTab = (tab: TabValue) => {
+    setActiveTab(tab)
+    window.location.hash = tab
+  }
+
+  // Keep the tab in sync with the hash for back/forward and manual edits.
+  useEffect(() => {
+    const onHashChange = () => setActiveTab(readTabFromHash())
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
   return (
     <>
       <Header />
       <div className="page-container">
-        <OutfitList outfits={outfits} loading={loadingOutfits} onTryOn={tryOn} />
+        <div className="tabs" role="tablist" aria-label="Try-on mode">
+          {TABS.map((tab) => (
+            <button
+              key={tab.value}
+              type="button"
+              role="tab"
+              className={'tab' + (activeTab === tab.value ? ' tab--active' : '')}
+              aria-selected={activeTab === tab.value}
+              onClick={() => selectTab(tab.value)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-        <SkuList
-          items={visibleSkus}
-          loading={loadingList}
-          loadingMore={loadingMoreSkus}
-          hasMore={hasMoreSkus}
-          onLoadMore={loadMoreSkus}
-          apiKey={demoConfig.apiKey}
-          onTryOn={tryOn}
-        />
+        {activeTab === 'single' ? (
+          <SkuList
+            items={visibleSkus}
+            loading={loadingList}
+            loadingMore={loadingMoreSkus}
+            hasMore={hasMoreSkus}
+            onLoadMore={loadMoreSkus}
+            apiKey={demoConfig.apiKey}
+            onTryOn={tryOn}
+          />
+        ) : (
+          <OutfitList outfits={outfits} loading={loadingOutfits} onTryOn={tryOn} />
+        )}
       </div>
 
       {/* Desktop-only copy pinned to the top-right corner (the header copy is
