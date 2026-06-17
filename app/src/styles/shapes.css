@@ -25,22 +25,32 @@
   border-radius: 8px;
 }
 
+/*
+ * Image shapes. The neutral fill is the image-area placeholder: it shows only
+ * while there's no image yet (loading) — otherwise the image and its blur
+ * backdrop cover it.
+ */
+
 /* Image Large Shape */
 .aiuta-image-l {
   border-radius: 24px;
+  background-color: var(--aiuta-color-neutral);
 }
 
 /* Image Medium Shape */
 .aiuta-image-m {
   border-radius: 16px;
+  background-color: var(--aiuta-color-neutral);
 }
 
 /* Image Small Shape */
 .aiuta-image-s {
   border-radius: 8px;
+  background-color: var(--aiuta-color-neutral);
 }
 
 /* Image Extra Small Shape */
 .aiuta-image-xs {
   border-radius: 4px;
+  background-color: var(--aiuta-color-neutral);
 }

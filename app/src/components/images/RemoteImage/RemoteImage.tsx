@@ -58,6 +58,13 @@ export const RemoteImage = ({
       onError?.()
     }
 
+    // Local blobs/data URLs don't support HEAD (it errors with
+    // ERR_METHOD_NOT_SUPPORTED) and won't recover on retry — fail immediately.
+    if (urlAtFailure.startsWith('blob:') || urlAtFailure.startsWith('data:')) {
+      failNow()
+      return
+    }
+
     if (attempt >= MAX_RETRIES) {
       failNow()
       return

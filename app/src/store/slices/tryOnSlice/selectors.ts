@@ -1,6 +1,7 @@
 import { RootState } from '@/store/store'
 
 export const isGeneratingSelector = (state: RootState) => state.tryOn.isGenerating
+export const isProcessingImageSelector = (state: RootState) => state.tryOn.isProcessingImage
 export const selectedImageSelector = (state: RootState) => state.tryOn.selectedImage
 export const generationStageSelector = (state: RootState) => state.tryOn.generationStage
 export const operationIdSelector = (state: RootState) => state.tryOn.operationId

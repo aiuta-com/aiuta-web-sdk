@@ -8,6 +8,9 @@ const MAX_WIDTH_CROP = 1 / 4
 // Side bars this thin (per side) read as an artifact rather than a frame,
 // so a barely-narrower image is covered (cropping a bit of height) instead
 const MAX_SIDE_BAR_PX = 0
+// Matches the layer's CSS opacity transition; how long the outgoing layer is
+// kept around to fade out
+const FADE_MS = 300
 
 /**
  * Picks how to fit an image of the given aspect ratio (width/height) into
@@ -16,7 +19,7 @@ const MAX_SIDE_BAR_PX = 0
  *   while the cropped fraction stays under MAX_WIDTH_CROP;
  * - a narrower image is covered (cropping some height) only when containing
  *   it would leave side bars of MAX_SIDE_BAR_PX or thinner;
- * - anything else is contained (the caller renders a blurred backdrop).
+ * - anything else is contained (a blurred backdrop fills the letterbox).
  */
 const resolveFit = (
   imageRatio: number,
@@ -33,6 +36,15 @@ const resolveFit = (
   return sideBar <= MAX_SIDE_BAR_PX ? 'cover' : 'contain'
 }
 
+/**
+ * Cross-fades between images. Each image + its blur backdrop is one composited
+ * "layer" whose opacity is animated, so the (opaque) contained image fully
+ * covers its own backdrop — no see-through mush, and the backdrop only reads in
+ * the letterbox. On a src change the new layer fades in on top while the
+ * previous one stays underneath, then the previous one is removed once the new
+ * fully covers it (no dissolve). The previous layer keeps its DOM (keyed by
+ * src) so it isn't reloaded/reflashed. Every image appears as one fading-in unit.
+ */
 export const CrossFadeImage = ({
   src,
   alt,
@@ -42,17 +54,20 @@ export const CrossFadeImage = ({
   onLoad,
   onError,
 }: CrossFadeImageProps) => {
+  // currentSrc fades in; prevSrc (if any) is the outgoing layer kept underneath
   const [currentSrc, setCurrentSrc] = useState(src)
-  const [nextSrc, setNextSrc] = useState<string | null>(null)
-  const [pendingSrc, setPendingSrc] = useState<string | null>(null)
-  const [isCurrentLoaded, setIsCurrentLoaded] = useState(false)
-  const [isNextLoaded, setIsNextLoaded] = useState(false)
-  const [isTransitioning, setIsTransitioning] = useState(false)
-  const previousSrc = useRef(src)
+  const [prevSrc, setPrevSrc] = useState<string | null>(null)
+  // The layer fades in only once BOTH its image and its backdrop are ready, so
+  // they appear together as one unit (the backdrop never pops in late).
+  const [imageReady, setImageReady] = useState(false)
+  const [backdropReady, setBackdropReady] = useState(false)
+  const currentSrcRef = useRef(src)
+  // Bumped on every src change; a decode() that resolves for a stale src is
+  // ignored (its element may already be the outgoing layer).
+  const loadToken = useRef(0)
 
-  // Smart fit inputs: the container size (kept up to date by a
-  // ResizeObserver) and the natural ratio of every image seen so far
-  // (recorded on load; reads happen after a load triggers a re-render)
+  // Smart fit inputs: the container size (kept up to date by a ResizeObserver)
+  // and the natural ratio of every image seen so far (recorded on load).
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [containerSize, setContainerSize] = useState<{ width: number; height: number } | null>(null)
   const imageRatios = useRef(new Map<string, number>())
@@ -90,6 +105,20 @@ export const CrossFadeImage = ({
     return () => observer.disconnect()
   }, [fit])
 
+  // On a src change the old src becomes the outgoing layer (kept fully visible
+  // underneath until the new layer has faded in on top), the new becomes the
+  // current layer (transparent, fades in once ready). currentSrcRef avoids a
+  // render loop without listing it as a dep.
+  useEffect(() => {
+    if (src === currentSrcRef.current) return
+    setPrevSrc(currentSrcRef.current)
+    currentSrcRef.current = src
+    loadToken.current += 1
+    setCurrentSrc(src)
+    setImageReady(false)
+    setBackdropReady(false)
+  }, [src])
+
   const recordImageRatio = (event: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = event.currentTarget
     if (naturalWidth > 0 && naturalHeight > 0) {
@@ -108,185 +137,119 @@ export const CrossFadeImage = ({
       : resolveFit(ratio, containerSize.width, containerSize.height)
   }
 
-  // Handle src changes for cross-fade
-  useEffect(() => {
-    if (src !== previousSrc.current) {
-      if (isCurrentLoaded) {
-        if (isTransitioning) {
-          // Animation in progress - always update pending to the latest src
-          setPendingSrc(src)
-        } else {
-          // Start transition to new image
-          setNextSrc(src)
-          setIsNextLoaded(false)
-          setIsTransitioning(true)
-        }
-      } else {
-        // First load or current image not loaded yet
-        setCurrentSrc(src)
+  // Mark a layer part ready only once it's decoded (ready to paint), not merely
+  // loaded: onLoad fires on download, but a separate <img> — especially the
+  // blurred backdrop — paints a frame or two later. Gating the fade on load
+  // alone reveals the contained image before its backdrop has painted, so the
+  // old image shows through the letterbox until the backdrop "arrives".
+  const markReadyWhenDecoded = useCallback(
+    (img: HTMLImageElement, setReady: (ready: boolean) => void) => {
+      const token = loadToken.current
+      const finish = () => {
+        if (token === loadToken.current) setReady(true)
       }
-      previousSrc.current = src
-    }
-  }, [src, isCurrentLoaded, isTransitioning, currentSrc, nextSrc, pendingSrc])
+      if (img.decode) img.decode().then(finish, finish)
+      else finish()
+    },
+    [],
+  )
 
   const handleCurrentLoad = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
       recordImageRatio(event)
-      setIsCurrentLoaded(true)
-      if (!isTransitioning) {
-        onLoad?.()
-      }
+      markReadyWhenDecoded(event.currentTarget, setImageReady)
+      onLoad?.()
     },
-    [onLoad, isTransitioning],
+    [onLoad, markReadyWhenDecoded],
   )
 
-  const handleNextLoad = useCallback(
+  const handleBackdropLoad = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
-      recordImageRatio(event)
-      // Force a small delay to ensure CSS transition starts
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsNextLoaded(true)
-        })
-
-        // Wait for the fade-in animation to complete before switching
-        setTimeout(() => {
-          setCurrentSrc(nextSrc!)
-          setIsCurrentLoaded(true)
-          setNextSrc(null)
-          setIsNextLoaded(false)
-          setIsTransitioning(false)
-
-          // Use functional update to get current pendingSrc value
-          setPendingSrc((currentPendingSrc) => {
-            if (currentPendingSrc) {
-              // Update previousSrc to ensure we track the latest transition
-              previousSrc.current = currentPendingSrc
-              // Start next transition immediately
-              setTimeout(() => {
-                setNextSrc(currentPendingSrc)
-                setIsNextLoaded(false)
-                setIsTransitioning(true)
-              }, 0)
-              return null // Clear pendingSrc
-            } else {
-              onLoad?.()
-              return null // Keep pendingSrc as null
-            }
-          })
-        }, 300) // Match the CSS transition duration
-      })
+      markReadyWhenDecoded(event.currentTarget, setBackdropReady)
     },
-    [nextSrc, onLoad],
+    [markReadyWhenDecoded],
   )
+
+  const handleBackdropError = useCallback(() => setBackdropReady(true), [])
 
   const handleCurrentError = useCallback(() => {
-    setIsCurrentLoaded(false)
+    setImageReady(false)
     onError?.()
   }, [onError])
 
-  const handleNextError = useCallback(() => {
-    // If next image fails, try pending or cancel transition
-    if (pendingSrc) {
-      const nextPendingSrc = pendingSrc
-      setPendingSrc(null)
-      setNextSrc(nextPendingSrc)
-      setIsNextLoaded(false)
-      // Keep isTransitioning true to continue with pending
-    } else {
-      setNextSrc(null)
-      setIsNextLoaded(false)
-      setIsTransitioning(false)
-      onError?.()
-    }
-  }, [pendingSrc, onError])
-
   const containerClasses = combineClassNames(styles.crossFadeImage, className)
 
-  const currentFit = getFitForSrc(currentSrc)
-  const nextFit = nextSrc ? getFitForSrc(nextSrc) : 'cover'
+  // The backdrop only exists in smart mode; the layer is "loaded" (ready to
+  // fade in) once the image and — when present — the backdrop are both ready.
+  const needsBackdrop = fit === 'smart'
+  const currentLoaded = imageReady && (!needsBackdrop || backdropReady)
 
-  // The backdrop fades in the first time it appears for an image (together
-  // with the image's own load fade — otherwise smart fit flipping cover→
-  // contain after load would pop the dark blurred backdrop in, a visible
-  // flash on full-bleed mobile). A later re-show for the same image — a resize
-  // flipping the fit — is instant, as if it had been there all along.
-  const showCurrentBackdrop = currentFit === 'contain'
-  const seenBackdropSrcs = useRef(new Set<string>())
-  const currentBackdropMountedRef = useRef(false)
-  const animateCurrentBackdropRef = useRef(true)
-  if (showCurrentBackdrop && !currentBackdropMountedRef.current) {
-    animateCurrentBackdropRef.current = !seenBackdropSrcs.current.has(currentSrc)
-    seenBackdropSrcs.current.add(currentSrc)
-  }
+  // Once the new layer is fully shown, drop the outgoing layer (it's covered)
   useEffect(() => {
-    currentBackdropMountedRef.current = showCurrentBackdrop
-  })
+    if (!currentLoaded || !prevSrc) return
+    const timer = setTimeout(() => setPrevSrc(null), FADE_MS)
+    return () => clearTimeout(timer)
+  }, [currentLoaded, prevSrc])
 
-  const currentImageClasses = combineClassNames(
-    styles.image,
-    currentFit === 'contain' && styles.image_contain,
-    isCurrentLoaded && styles.image_loaded,
-  )
-
-  const nextImageClasses = combineClassNames(
-    styles.image,
-    nextFit === 'contain' && styles.image_contain,
-    isNextLoaded && styles.image_loaded,
-  )
+  const currentFit = getFitForSrc(currentSrc)
+  const prevFit = prevSrc ? getFitForSrc(prevSrc) : 'cover'
 
   return (
     <div className={containerClasses} ref={containerRef}>
-      {showCurrentBackdrop && (
+      {prevSrc && (
+        // Outgoing layer: stays fully opaque underneath while the new layer
+        // fades in on top, then is removed once the new one fully covers it
+        // (no dissolve). Keyed by src so React reuses the existing
+        // (already-loaded) element instead of reloading.
+        <div
+          key={prevSrc}
+          className={combineClassNames(styles.layer, styles.layer_loaded)}
+          aria-hidden="true"
+        >
+          {fit === 'smart' && (
+            <img src={prevSrc} alt="" className={styles.blurBackdrop} decoding="async" draggable={false} />
+          )}
+          <img
+            src={prevSrc}
+            alt=""
+            className={combineClassNames(styles.image, prevFit === 'contain' && styles.image_contain)}
+            decoding="async"
+            draggable={false}
+          />
+        </div>
+      )}
+
+      <div
+        key={currentSrc}
+        className={combineClassNames(styles.layer, currentLoaded && styles.layer_loaded)}
+      >
+        {/* Rendered for every smart image (not just once contain is resolved) so
+            it loads/decodes alongside the main image and fades in with the layer
+            instead of popping in late. For a cover image it sits hidden behind
+            the full-bleed image. */}
+        {fit === 'smart' && (
+          <img
+            src={currentSrc}
+            alt=""
+            aria-hidden="true"
+            className={styles.blurBackdrop}
+            decoding="async"
+            draggable={false}
+            onLoad={handleBackdropLoad}
+            onError={handleBackdropError}
+          />
+        )}
         <img
           src={currentSrc}
-          alt=""
-          aria-hidden="true"
-          className={combineClassNames(
-            styles.blurBackdrop,
-            isCurrentLoaded && styles.blurBackdrop_loaded,
-            !animateCurrentBackdropRef.current && styles.blurBackdrop_instant,
-          )}
-          decoding="async"
-          draggable={false}
-        />
-      )}
-      <img
-        src={currentSrc}
-        alt={alt}
-        className={currentImageClasses}
-        loading={loading}
-        decoding="async"
-        draggable={false}
-        onLoad={handleCurrentLoad}
-        onError={handleCurrentError}
-      />
-
-      {nextSrc && nextFit === 'contain' && (
-        <img
-          src={nextSrc}
-          alt=""
-          aria-hidden="true"
-          className={combineClassNames(
-            styles.blurBackdrop,
-            isNextLoaded && styles.blurBackdrop_loaded,
-          )}
-          decoding="async"
-          draggable={false}
-        />
-      )}
-      {nextSrc && (
-        <img
-          src={nextSrc}
           alt={alt}
-          className={nextImageClasses}
-          loading="eager"
+          className={combineClassNames(styles.image, currentFit === 'contain' && styles.image_contain)}
+          loading={loading}
           decoding="async"
           draggable={false}
-          onLoad={handleNextLoad}
-          onError={handleNextError}
+          onLoad={handleCurrentLoad}
+          onError={handleCurrentError}
         />
-      )}
+      </div>
     </div>
   )
 }

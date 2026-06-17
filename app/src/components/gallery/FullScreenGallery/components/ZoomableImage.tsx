@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { LoaderRing } from '@/components'
+import { Loader } from '@/components/ui/Loader'
 import styles from './ZoomableImage.module.scss'
 
 // Max magnification relative to the fit-to-screen scale.
@@ -541,7 +541,7 @@ export const ZoomableImage = ({
       className={styles.container}
       onClick={tapToClose ? () => onClose() : undefined}
     >
-      {!ready && showSpinner && <LoaderRing className={styles.spinner} />}
+      {!ready && showSpinner && <Loader onDark />}
       <img
         src={src}
         alt={alt}

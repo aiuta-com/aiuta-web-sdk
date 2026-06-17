@@ -1,5 +1,5 @@
 import React from 'react'
-import { AppContainer, Shell } from '@/components'
+import { AppContainer, Shell, ImagePickerLoader } from '@/components'
 import { useUrlParams, useCustomCssUrl, useStandaloneApp } from '@/hooks'
 import QrUploadPage from '@/pages/3-QrUpload'
 
@@ -25,6 +25,8 @@ export const QrUpload = () => {
       <AppContainer fullscreen>
         {/* PoweredBy is rendered inside the page — it depends on the upload state */}
         <QrUploadPage />
+        {/* Covers the page while a picked file is being prepared (HEIC decode) */}
+        <ImagePickerLoader />
       </AppContainer>
     </Shell>
   )
