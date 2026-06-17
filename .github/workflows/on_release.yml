@@ -78,13 +78,6 @@ jobs:
           bucket_name: ${{ env.DEV_BUCKET }}
           destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
 
-      - name: 🚀 Deploy to Dev (latest)
-        uses: ./.github/actions/deploy-to-gcs
-        with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_DEV }}
-          bucket_name: ${{ env.DEV_BUCKET }}
-          destination_path: sdk/latest/
-
       - name: 📦 Build preprod project
         run: npm run build:preprod
         env:
@@ -103,13 +96,6 @@ jobs:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
           bucket_name: ${{ env.PREPROD_BUCKET }}
           destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
-
-      - name: 🚀 Deploy to Preprod (latest)
-        uses: ./.github/actions/deploy-to-gcs
-        with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PREPROD }}
-          bucket_name: ${{ env.PREPROD_BUCKET }}
-          destination_path: sdk/latest/
 
       # The prod build comes last: release.zip and the release assets below
       # must be produced from this build, and each build overwrites dist/.
@@ -135,13 +121,6 @@ jobs:
           credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
           bucket_name: ${{ env.PROD_BUCKET }}
           destination_path: sdk/${{ env.PREFIXED_FULL_VERSION }}/
-
-      - name: 🚀 Deploy to Prod (latest)
-        uses: ./.github/actions/deploy-to-gcs
-        with:
-          credentials_json: ${{ secrets.GCP_STATIC_UPLOADER_SA_KEY_JSON_PROD }}
-          bucket_name: ${{ env.PROD_BUCKET }}
-          destination_path: sdk/latest/
 
       - name: 📤 Upload artifacts to release
         env:
@@ -207,13 +186,6 @@ jobs:
           for file in dist/sdk/*; do
             filename=$(basename "$file")
           echo "- ${{ env.PROD_URL }}/sdk/${{ env.PREFIXED_MAJOR_VERSION }}/${filename}" >> updated_description.md
-          done
-
-          # Generate links for latest files
-          echo -e "\n### Latest Files (always points to the most recent release)" >> updated_description.md
-          for file in dist/sdk/*; do
-            filename=$(basename "$file")
-          echo "- ${{ env.PROD_URL }}/sdk/latest/${filename}" >> updated_description.md
           done
 
           # Update the release description
