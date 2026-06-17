@@ -70,7 +70,9 @@ const getCardLook = (url: string): Promise<CardLook> =>
     img.onload = () => {
       try {
         const canvas = document.createElement('canvas')
-        const ctx = canvas.getContext('2d')
+        // willReadFrequently: this canvas is sampled via getImageData, so keep
+        // it on the CPU for fast readback
+        const ctx = canvas.getContext('2d', { willReadFrequently: true })
         if (!ctx) {
           reject(new Error('Canvas not supported'))
           return

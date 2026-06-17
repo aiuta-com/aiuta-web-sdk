@@ -16,6 +16,7 @@ import {
   AppContainer,
   ConfigError,
   Shell,
+  ImagePickerLoader,
 } from '@/components'
 import {
   useUrlParams,
@@ -130,6 +131,9 @@ function AppContent() {
             <Route path="/generations" element={<GenerationsHistoryPage />} />
             <Route path="/uploads" element={<UploadsHistoryPage />} />
           </Routes>
+
+          {/* Covers the picker while a picked file is being prepared */}
+          <ImagePickerLoader />
         </AppContainer>
 
         <FullScreenGallery />

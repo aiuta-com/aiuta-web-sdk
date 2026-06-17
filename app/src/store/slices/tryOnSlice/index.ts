@@ -1,6 +1,7 @@
 export { tryOnSlice, type TryOnState, type GenerationStage } from './tryOnSlice'
 export {
   isGeneratingSelector,
+  isProcessingImageSelector,
   selectedImageSelector,
   generationStageSelector,
   operationIdSelector,

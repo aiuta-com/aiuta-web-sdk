@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useLocation } from 'react-router-dom'
 import { useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
+import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { QrApiService, type QrEndpointData } from '@/utils/api/qrApiService'
 import { TryOnApiService } from '@/utils/api/tryOnApiService'
 import { resizeAndConvertImage } from '@/utils'
@@ -60,22 +61,35 @@ export const useQrUpload = () => {
     }
   }, [])
 
-  // Select file for upload
-  const selectFile = useCallback((file: File) => {
-    // Cleanup previous URL
-    if (cleanupUrlRef.current) {
-      URL.revokeObjectURL(cleanupUrlRef.current)
-    }
+  // Select file for upload. Process it up front (resize, convert, fix EXIF, and
+  // decode HEIC → JPEG) so the preview renders in every browser, not just Safari,
+  // and so the upload reuses the already-processed file. Flag processing so the
+  // page can show a loader (HEIC decode can take a moment).
+  const selectFile = useCallback(
+    async (file: File) => {
+      dispatch(tryOnSlice.actions.setIsProcessingImage(true))
+      try {
+        const processedFile = await resizeAndConvertImage(file)
 
-    const objectUrl = URL.createObjectURL(file)
-    cleanupUrlRef.current = objectUrl
+        // Cleanup previous URL
+        if (cleanupUrlRef.current) {
+          URL.revokeObjectURL(cleanupUrlRef.current)
+        }
 
-    setUploadState((prev) => ({
-      ...prev,
-      selectedFile: { file, url: objectUrl },
-      uploadedUrl: null,
-    }))
-  }, [])
+        const objectUrl = URL.createObjectURL(processedFile)
+        cleanupUrlRef.current = objectUrl
+
+        setUploadState((prev) => ({
+          ...prev,
+          selectedFile: { file: processedFile, url: objectUrl },
+          uploadedUrl: null,
+        }))
+      } finally {
+        dispatch(tryOnSlice.actions.setIsProcessingImage(false))
+      }
+    },
+    [dispatch],
+  )
 
   // Handle upload errors
   const handleUploadError = useCallback(

@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { TryOnStatus, RemoteImage, Flex } from '@/components'
+import { TryOnStatus, RemoteImage, Flex, Loader } from '@/components'
 import { combineClassNames } from '@/utils'
 import { useImagePickerStrings } from '@/hooks'
+import { useAppSelector } from '@/store/store'
+import { isProcessingImageSelector } from '@/store/slices/tryOnSlice'
 import { isNewImage, isInputImage, type TryOnImage } from '@/models'
 import styles from './TryOnView.module.scss'
+
+// Delay before showing the loader, so a fast image (jpg/png) that paints almost
+// immediately doesn't flash it. Also longer than the cross-fade so a normal
+// image swap (its onLoad lands after the ~0.3s transition) never flashes it.
+const LOADER_DELAY_MS = 500
 
 interface TryOnViewProps {
   image: TryOnImage | null
@@ -23,6 +30,16 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
   // Fix backdrop-filter refresh with minimal opacity change
   const [buttonOpacity, setButtonOpacity] = useState(1)
 
+  // A picked file is being prepared (resize / HEIC decode). While it is, the
+  // previous image is hidden and a loader is shown instead.
+  const isProcessing = useAppSelector(isProcessingImageSelector)
+
+  // Whether the currently selected image has painted. Reset per image, so a new
+  // selection shows the loader (not the old image) until the new one is ready.
+  const [imageLoaded, setImageLoaded] = useState(false)
+  // The loader appears only after LOADER_DELAY_MS of still-not-ready
+  const [loaderVisible, setLoaderVisible] = useState(false)
+
   // Force backdrop-filter refresh
   const refreshBackdropFilter = () => {
     setButtonOpacity(0.99)
@@ -41,34 +58,55 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
         : null
     : null
 
-  // Refresh when image changes
+  // A new image hasn't painted yet → show the loader until it loads
   useEffect(() => {
+    setImageLoaded(false)
     if (imageUrl) {
       const timer = refreshBackdropFilter()
       return () => clearTimeout(timer)
     }
   }, [imageUrl])
 
-  // Refresh when image actually loads
+  // Refresh when image actually loads. onLoad can fire during a concurrent
+  // render (a cached/instant image in React 19), so the first refresh runs in a
+  // microtask — out of the render phase (no "setState while rendering" warning)
+  // but still this frame, before paint (no visible backdrop flicker).
   const handleImageLoad = useCallback(() => {
-    // Immediate refresh
-    refreshBackdropFilter()
-
-    // Delayed refresh to ensure image is fully rendered
-    setTimeout(() => {
+    // Defer state updates out of the render phase: onLoad can fire during a
+    // concurrent render (cached/instant image in React 19), and a synchronous
+    // setState there both warns and forces an extra re-render that flickers the
+    // image in Chrome.
+    queueMicrotask(() => {
+      setImageLoaded(true)
       refreshBackdropFilter()
-    }, 100)
+    })
 
-    // Extra delayed refresh as fallback
-    setTimeout(() => {
-      refreshBackdropFilter()
-    }, 300)
+    // Delayed refreshes to ensure the image is fully rendered
+    setTimeout(() => refreshBackdropFilter(), 100)
+    setTimeout(() => refreshBackdropFilter(), 300)
   }, [])
 
-  // If there is no image to show
-  if (!imageUrl) {
+  // Loader is wanted while preparing or until the image paints (the generation
+  // veil takes over once generation starts), but only shown after a short delay
+  const wantsLoader = (isProcessing || (!!imageUrl && !imageLoaded)) && !isGenerating
+  useEffect(() => {
+    if (!wantsLoader) {
+      setLoaderVisible(false)
+      return
+    }
+    const timer = setTimeout(() => setLoaderVisible(true), LOADER_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [wantsLoader])
+
+  // Nothing to show and nothing being prepared
+  if (!imageUrl && !isProcessing) {
     return null
   }
+
+  // Keep the current image (and its cross-fade) until the loader actually
+  // appears — so a fast decode just cross-fades old → new, and only a slow
+  // decode unmounts the old image right when the loader shows.
+  const showImage = !!imageUrl && !(isProcessing && loaderVisible)
 
   return (
     <Flex
@@ -81,18 +119,22 @@ export const TryOnView = ({ image, isGenerating, onChangePhoto, fill = false }: 
         isGenerating && (fill ? styles.loadingGradient : styles.animation),
       )}
     >
-      <RemoteImage
-        src={imageUrl}
-        alt="Try-on image"
-        shape={fill ? 'M' : 'L'}
-        fit="smart"
-        onLoad={handleImageLoad}
-      />
+      {showImage && (
+        <RemoteImage
+          src={imageUrl}
+          alt="Try-on image"
+          shape={fill ? 'M' : 'L'}
+          fit="smart"
+          onLoad={handleImageLoad}
+        />
+      )}
+
+      {loaderVisible && <Loader />}
 
       {/* On desktop (fill) the page renders the status below the image */}
       {isGenerating && !fill && <TryOnStatus className={styles.processingStatus} />}
 
-      {!isGenerating && onChangePhoto && (
+      {!isGenerating && !loaderVisible && onChangePhoto && (
         <button
           className={`aiuta-button-s ${styles.changePhotoButton}`}
           style={{ opacity: buttonOpacity }}

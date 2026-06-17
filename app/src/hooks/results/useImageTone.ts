@@ -46,7 +46,9 @@ const computeTone = (url: string): Promise<ImageToneInfo> =>
         const canvas = document.createElement('canvas')
         canvas.width = SAMPLE_WIDTH
         canvas.height = SAMPLE_HEIGHT
-        const ctx = canvas.getContext('2d')
+        // willReadFrequently: this canvas exists only to getImageData (read
+        // back pixels), so hint the browser to keep it on the CPU
+        const ctx = canvas.getContext('2d', { willReadFrequently: true })
         if (!ctx) {
           resolve(DARK_FALLBACK)
           return

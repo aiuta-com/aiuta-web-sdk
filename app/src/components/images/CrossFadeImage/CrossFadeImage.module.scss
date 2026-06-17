@@ -8,6 +8,21 @@
   line-height: 0;
 }
 
+// Image + its blur backdrop fade together as one unit. Animating the layer's
+// opacity (not each child's) composites the opaque contained image over the
+// backdrop first, then fades the result — so the image never shows its own
+// backdrop through itself ("mush"); the backdrop only reads in the letterbox.
+.layer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.layer_loaded {
+  opacity: 1;
+}
+
 .image {
   position: absolute;
   top: 0;
@@ -17,12 +32,6 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
-}
-
-.image_loaded {
-  opacity: 1;
 }
 
 // Smart fit: the image is contained (never cropped by height) over a blurred
@@ -41,25 +50,4 @@
   // Hides the translucent blur edges behind the container bounds
   transform: scale(1.12);
   pointer-events: none;
-  opacity: 0;
-}
-
-// An animation rather than a transition: the backdrop often mounts with the
-// loaded class already applied (the contain fit is only known after the main
-// image loads), and a transition wouldn't play in that case
-.blurBackdrop_loaded {
-  opacity: 1;
-  animation: backdrop_fade_in 0.3s ease-in-out;
-}
-
-// Applied when the backdrop mounts while the image is already on screen
-// (resize-driven fit change): no fade, it should look like it was there
-.blurBackdrop_instant {
-  animation: none;
-}
-
-@keyframes backdrop_fade_in {
-  from {
-    opacity: 0;
-  }
 }

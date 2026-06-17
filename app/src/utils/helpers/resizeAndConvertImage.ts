@@ -3,6 +3,8 @@
  *
  * Resizes and converts images while preserving quality.
  * Сorrects EXIF orientation by drawing through canvas.
+ * HEIC/HEIF (iPhone photos) are decoded to JPEG first, since browsers other
+ * than Safari can't render them in a canvas/<img>.
  */
 
 export type ProcessOptions = {
@@ -30,8 +32,28 @@ export async function resizeAndConvertImage(file: File, opts: ProcessOptions = {
   const quality = opts.quality ?? 0.92
   const maxSide = opts.maxSide ?? 1500
 
+  // HEIC/HEIF output is re-encoded to JPEG by the canvas anyway, so give it a
+  // .jpg name to keep downstream consistent.
+  const heic = isHeic(file)
+  const outputName = heic ? file.name.replace(/\.(heic|heif)$/i, '.jpg') : file.name
+
   try {
-    const img = await createImageElement(file)
+    // Try the browser's native decode first — Safari handles HEIC, so it never
+    // needs the heavy decoder. Only when the native decode fails on a HEIC
+    // (e.g. Chrome) do we lazy-load heic-to.
+    let img: HTMLImageElement
+    try {
+      img = await createImageElement(file)
+    } catch (nativeError) {
+      if (!heic) throw nativeError
+      try {
+        img = await createImageElement(await convertHeicToJpeg(file, quality))
+      } catch (decodeError) {
+        console.warn('[aiuta] HEIC → JPEG conversion failed:', decodeError)
+        throw decodeError
+      }
+    }
+
     const targetDimensions = calculateTargetDimensions(img, maxSide)
 
     const drawParams: CanvasDrawParams = {
@@ -44,7 +66,7 @@ export async function resizeAndConvertImage(file: File, opts: ProcessOptions = {
     const blob = await processOnCanvas(img, drawParams, outputMime, quality)
 
     // Create File from processed Blob
-    return new File([blob], file.name, {
+    return new File([blob], outputName, {
       type: blob.type || outputMime,
       lastModified: file.lastModified,
     })
@@ -52,6 +74,29 @@ export async function resizeAndConvertImage(file: File, opts: ProcessOptions = {
     // Fallback to original file silently (no logger needed for this helper)
     return file
   }
+}
+
+/* ===================== HEIC ===================== */
+
+/**
+ * Detect HEIC/HEIF. iOS sometimes hands over an empty MIME type, so fall back
+ * to the file extension.
+ */
+function isHeic(file: File): boolean {
+  const type = file.type.toLowerCase()
+  if (type === 'image/heic' || type === 'image/heif') return true
+  return /\.(heic|heif)$/i.test(file.name)
+}
+
+/**
+ * Decode a HEIC/HEIF blob to a JPEG blob. heic-to wraps an up-to-date
+ * libheif-js (handles modern iPhone photos that heic2any's older build
+ * rejected with "ERR_LIBHEIF format not supported"). Loaded lazily — only when
+ * a HEIC is actually picked — to keep the wasm decoder out of the main bundle.
+ */
+async function convertHeicToJpeg(file: Blob, quality: number): Promise<Blob> {
+  const { heicTo } = await import('heic-to')
+  return heicTo({ blob: file, type: 'image/jpeg', quality })
 }
 
 /* ===================== DIMENSIONS ===================== */

@@ -9,16 +9,23 @@ export const useTryOnImage = () => {
 
   const selectImageToTryOn = useCallback(
     async (file: File): Promise<NewImage> => {
-      const processedFile = await resizeAndConvertImage(file)
+      // Preparing can take a while (resize, and especially HEIC decode which
+      // lazy-loads a wasm decoder) — flag it so the UI can show a loader.
+      dispatch(tryOnSlice.actions.setIsProcessingImage(true))
+      try {
+        const processedFile = await resizeAndConvertImage(file)
 
-      const newImage: NewImage = {
-        file: processedFile,
-        localUrl: URL.createObjectURL(processedFile),
+        const newImage: NewImage = {
+          file: processedFile,
+          localUrl: URL.createObjectURL(processedFile),
+        }
+
+        dispatch(tryOnSlice.actions.setSelectedImage(newImage))
+
+        return newImage
+      } finally {
+        dispatch(tryOnSlice.actions.setIsProcessingImage(false))
       }
-
-      dispatch(tryOnSlice.actions.setSelectedImage(newImage))
-
-      return newImage
     },
     [dispatch],
   )

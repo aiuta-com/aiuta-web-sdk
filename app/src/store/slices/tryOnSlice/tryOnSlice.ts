@@ -7,6 +7,8 @@ export type GenerationStage = 'idle' | 'uploading' | 'scanning' | 'generating'
 
 export interface TryOnState {
   isGenerating: boolean
+  // A picked file is being prepared (resize / HEIC decode) before it can show
+  isProcessingImage: boolean
   selectedImage: TryOnImage | null
   generationStage: GenerationStage
   operationId: string | null
@@ -18,6 +20,7 @@ export interface TryOnState {
 
 const initialState: TryOnState = {
   isGenerating: false,
+  isProcessingImage: false,
   selectedImage: null,
   generationStage: 'idle',
   operationId: null,
@@ -35,6 +38,10 @@ export const tryOnSlice = createSlice({
       if (!action.payload) {
         state.generationStage = 'idle'
       }
+    },
+
+    setIsProcessingImage: (state, action: PayloadAction<boolean>) => {
+      state.isProcessingImage = action.payload
     },
 
     setSelectedImage: (state, action: PayloadAction<TryOnImage | null>) => {
