@@ -12,6 +12,9 @@ export default class MessageHandler {
   // De-dupes concurrent connects: rapid repeated tryOn calls before the
   // handshake completes must await the same connection, not start new ones
   private connecting?: Promise<void>
+  // Coalesces rapid tryOn calls: only the latest request is forwarded to the app
+  private pendingTryOn?: { productIds: string[]; mode: AiutaMode }
+  private tryOnRunning = false
 
   constructor(
     private readonly analytics: AnalyticsTracker,
@@ -40,15 +43,30 @@ export default class MessageHandler {
   }
 
   async startTryOn(productIds: string[], mode: AiutaMode) {
+    // Always record the latest request. If a run is already in flight, it will
+    // pick this up — only the most recent tryOn reaches the app.
+    this.pendingTryOn = { productIds, mode }
+    if (this.tryOnRunning) return
+
+    this.tryOnRunning = true
     try {
       const iframe = this.iframeManager.getIframe()
-      if (iframe) {
-        await this.ensureConnected(iframe)
-        await this.rpc.app.tryOn(productIds, mode)
+      if (!iframe) return
+
+      await this.ensureConnected(iframe)
+
+      // Drain to the latest pending request (more may have arrived during the
+      // connect / the previous send), so the app always ends on the last one.
+      while (this.pendingTryOn) {
+        const next = this.pendingTryOn
+        this.pendingTryOn = undefined
+        await this.rpc.app.tryOn(next.productIds, next.mode)
       }
     } catch (error) {
       this.logger.error('Aiuta RPC tryOn failed:', error)
       this.analytics.track({ type: 'session', event: 'rpcFailed' })
+    } finally {
+      this.tryOnRunning = false
     }
   }
 
