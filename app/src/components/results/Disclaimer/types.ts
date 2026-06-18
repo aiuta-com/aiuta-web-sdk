@@ -2,18 +2,25 @@ export interface DisclaimerProps {
   /** Additional CSS class name for the container */
   className?: string
   /**
-   * Render as a translucent strip laid over the bottom edge of the image
-   * (desktop results, Figma) instead of the inline icon + text row
+   * - `plain`: a centered footnote at the bottom of the screen, below the
+   *   action tiles (desktop, Figma 12340-33737).
+   * - `strip`: a full-width strip flush under the photo (mobile), its
+   *   background the photo's stretched bottom row, tinted for legibility.
    */
-  overlay?: boolean
+  variant?: 'plain' | 'strip'
   /**
-   * Tone of the image area under the overlay strip: a light bottom gets the
-   * light strip with dark text (Figma 12764-35836). Defaults to dark.
+   * Tone of the photo bottom for the `strip` variant: a light row gets dark
+   * text. Defaults to dark.
    */
   tone?: 'dark' | 'light'
   /**
-   * Average color of the image bottom; the light variant tints its fill
-   * with it so the strip blends into the photo
+   * Average color of the photo's bottom row; the `strip` variant tints its
+   * fill with it so the text stays legible over the stretched row.
    */
   tint?: [number, number, number] | null
+  /**
+   * The photo's bottom 1px row as a data URL; stretched behind the `strip`
+   * variant so it reads as a continuation of the photo.
+   */
+  stripUrl?: string | null
 }

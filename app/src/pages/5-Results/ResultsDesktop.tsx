@@ -1,23 +1,19 @@
 import React from 'react'
 import { ResultActions, Disclaimer, Flex, RemoteImage, Feedback } from '@/components'
-import { useResultsGallery, useImageTone } from '@/hooks'
+import { useResultsGallery } from '@/hooks'
 import { useAppDispatch } from '@/store/store'
 import { galleryModalSlice } from '@/store/slices/galleryModalSlice'
 import { combineClassNames } from '@/utils'
 import styles from './Results.module.scss'
 
 /**
- * Desktop version of the results page (Figma): the image fills the widget
- * edge-to-edge with the disclaimer strip and feedback icons laid over it,
- * and a row of action tiles below
+ * Desktop version of the results page (Figma 12340-33737): the image fills the
+ * widget edge-to-edge with the feedback icons laid over it, a row of action
+ * tiles below, and the fit disclaimer as a footnote at the very bottom.
  */
 export default function ResultsDesktop() {
   const dispatch = useAppDispatch()
   const { currentImage, images } = useResultsGallery()
-  // Light image bottom → light disclaimer strip with dark text, tinted with
-  // the photo's average bottom color. Null while still computing — the strip
-  // stays hidden instead of flashing the wrong variant.
-  const toneInfo = useImageTone(currentImage?.url)
 
   const openFullScreen = () => {
     if (!currentImage) return
@@ -52,10 +48,10 @@ export default function ResultsDesktop() {
             className={styles.feedbackOverlay}
           />
         )}
-        {toneInfo && <Disclaimer overlay tone={toneInfo.tone} tint={toneInfo.averageColor} />}
       </Flex>
 
       {currentImage && <ResultActions activeGeneratedImageUrl={currentImage.url} />}
+      {currentImage && <Disclaimer variant="plain" />}
     </main>
   )
 }

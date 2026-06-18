@@ -115,9 +115,10 @@
 }
 
 // Desktop picker preview fills the available area edge-to-edge
-// (Figma: 404x600 with 8px side insets, 8px below the navbar)
+// (Figma: 8px side insets, 8px below the navbar, 12px gap to the action row —
+// matching the results screen so the image keeps its size across the flow)
 .fillContainer {
-  padding: 8px 8px 16px;
+  padding: 8px 8px 12px;
 }
 
 // Edge-to-edge sizing comes from Flex's `fill` prop; this class only carries

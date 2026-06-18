@@ -108,15 +108,24 @@ export default function ResultsMobile() {
               {currentImage && (
                 <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
               )}
-              {toneInfo && (
-                <Disclaimer overlay tone={toneInfo.tone} tint={toneInfo.averageColor} />
-              )}
             </Flex>
 
             {/* No Add to cart button yet, but its space is reserved so the
                 result image keeps the same height as the loading screen (no
-                jump on finish). For now it holds the Powered by footer. */}
+                jump on finish). It holds the fit disclaimer — flush under the
+                photo, full-width, its background the photo's stretched bottom
+                row — and the Powered by footer. Keeping the disclaimer inside
+                this reserve (not as its own row) is what stops the image from
+                shrinking. */}
             <div className={styles.cartReserve}>
+              {toneInfo && (
+                <Disclaimer
+                  variant="strip"
+                  tone={toneInfo.tone}
+                  tint={toneInfo.averageColor}
+                  stripUrl={toneInfo.stripUrl}
+                />
+              )}
               <PoweredBy />
             </div>
 

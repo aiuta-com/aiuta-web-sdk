@@ -1,11 +1,11 @@
-// Figma: three action tiles in a row, 8px gaps, 8px side insets,
-// 10px above the widget bottom
+// Figma: three action tiles in a row, 8px gaps, 8px side insets. The gap below
+// (to the widget bottom) is the disclaimer's 30px box, so no margin here.
 .resultActions {
   display: flex;
   gap: 8px;
   align-items: center;
   width: calc(100% - 16px);
-  margin: 0 auto 10px;
+  margin: 0 auto;
 }
 
 .actionTile {

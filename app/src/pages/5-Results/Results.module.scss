@@ -68,27 +68,20 @@
   right: 12px;
 }
 
-// Like/dislike as their own vertical column, bottom-right, sitting above the
-// 20px disclaimer strip (Figma: bottom 32 = strip 20 + 12 gap)
+// Like/dislike as their own vertical column at the photo's bottom-right (the
+// disclaimer is no longer overlaid on the image, so they sit near its edge)
 .feedback {
   position: absolute;
-  bottom: 32px;
+  bottom: 12px;
   right: 12px;
   z-index: 2;
   flex-direction: column;
 }
 
-.disclaimer {
-  display: flex;
-  justify-content: center;
-  margin-top: 26px;
-  margin-bottom: 12px;
-}
-
 // Desktop (Figma): the image fills the widget edge-to-edge — 8px sides,
-// 8px below the navbar, 10px gap to the action tiles
+// 8px below the navbar, 12px gap to the action tiles
 .fillContainer {
-  padding: 8px 8px 10px;
+  padding: 8px 8px 12px;
 }
 
 .fillContent {
@@ -126,12 +119,11 @@
   }
 }
 
-// Like/dislike sit flush with the image's right edge, 5px above the
-// 20px disclaimer strip (Figma: bottom 25px); the icons' own 4px
-// padding provides the visual inset
+// Like/dislike at the photo's bottom-right (Figma 12340-33737: bottom 8px);
+// the icons' own 4px padding provides the visual inset
 .feedbackOverlay {
   position: absolute;
-  bottom: 25px;
+  bottom: 8px;
   // 6px gap from the widget's right edge to the dislike button (Figma)
   right: 6px;
   z-index: 2;
