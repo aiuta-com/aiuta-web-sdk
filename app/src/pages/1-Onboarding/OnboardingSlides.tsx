@@ -48,18 +48,23 @@ export const OnboardingSlides = ({
       case 'howItWorks':
         return {
           image: isMobile ? images.howItWorksMobileImage : images.howItWorksDesktopImage,
+          // Looped video (png as poster); skipped when a partner configured a
+          // custom How It Works image.
+          video: images.howItWorksHasCustomImage ? undefined : images.howItWorksVideo,
           title: strings.onboardingHowItWorksTitle,
           description: strings.onboardingHowItWorksDescription,
         }
       case 'bestResults':
         return {
           image: isMobile ? images.bestResultsMobileImage : images.bestResultsDesktopImage,
+          video: undefined,
           title: strings.onboardingBestResultsTitle,
           description: strings.onboardingBestResultsDescription,
         }
       case 'shoesBestResults':
         return {
           image: images.shoesBestResultsImage,
+          video: undefined,
           title: strings.onboardingShoesBestResultsTitle,
           description: strings.onboardingShoesBestResultsDescription,
         }
@@ -107,12 +112,29 @@ export const OnboardingSlides = ({
             <Slide key={slideId} state={getSlideState(index)}>
               {content ? (
                 <>
-                  <img
-                    alt={content.title}
-                    className={`${styles.image} ${isMobile ? styles.image_mobile : ''}`}
-                    src={content.image}
-                    draggable={false}
-                  />
+                  {content.video ? (
+                    <video
+                      className={`${styles.image} ${isMobile ? styles.image_mobile : ''}`}
+                      poster={content.image}
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      preload="auto"
+                      disablePictureInPicture
+                      tabIndex={-1}
+                      aria-label={content.title}
+                    >
+                      <source src={content.video} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <img
+                      alt={content.title}
+                      className={`${styles.image} ${isMobile ? styles.image_mobile : ''}`}
+                      src={content.image}
+                      draggable={false}
+                    />
+                  )}
                   <h2 className={`${isMobile ? 'aiuta-title-m' : 'aiuta-title-l'} ${styles.title}`}>
                     {content.title}
                   </h2>

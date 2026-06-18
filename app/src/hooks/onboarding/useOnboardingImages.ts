@@ -22,6 +22,13 @@ export const useOnboardingImages = () => {
       howItWorksImages?.onboardingHowItWorksDesktop ?? './images/onboarding-how-it-works.png',
     howItWorksMobileImage:
       howItWorksImages?.onboardingHowItWorksMobile ?? './images/onboarding-how-it-works.png',
+    // Built-in How It Works video, shown in place of the default image (the png
+    // is its poster / fallback). A partner-configured image overrides it — then
+    // no video plays.
+    howItWorksVideo: './videos/onboarding-how-it-works.m4v',
+    howItWorksHasCustomImage: Boolean(
+      howItWorksImages?.onboardingHowItWorksDesktop ?? howItWorksImages?.onboardingHowItWorksMobile,
+    ),
     // Best Results images
     bestResultsDesktopImage:
       bestResultsImages?.onboardingBestResultsDesktop ?? './images/onboarding-best-results.png',
