@@ -17,8 +17,25 @@
     flex-direction: column;
     overflow-y: auto;
     scrollbar-width: none;
-    max-height: 100vh;
-    padding-bottom: 30px;
+    // Top/bottom fades; their heights are set inline, scaled by how far the
+    // strip is scrolled from each extreme (0 at the edge → up to 42px), so they
+    // grow/shrink continuously with the scroll position.
+    --aiuta-thumb-fade-top: 0px;
+    --aiuta-thumb-fade-bottom: 0px;
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 var(--aiuta-thumb-fade-top),
+      #000 calc(100% - var(--aiuta-thumb-fade-bottom)),
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0,
+      #000 var(--aiuta-thumb-fade-top),
+      #000 calc(100% - var(--aiuta-thumb-fade-bottom)),
+      transparent 100%
+    );
 
     &::-webkit-scrollbar {
       display: none;
@@ -26,18 +43,17 @@
   }
 }
 
-// Individual thumbnail item (internal component)
+// Individual thumbnail (internal component). Slightly portrait (54×80), 8px
+// radius, no border by default — only the active one gets a white outline.
 .thumbnailItem {
   width: 54px;
-  height: 96px;
+  height: 80px;
   // Keep the fixed size in a scrolling flex column instead of shrinking to fit
   flex-shrink: 0;
+  box-sizing: border-box;
   cursor: pointer;
-  scroll-snap-align: start;
-  transition: border ease-in-out 0.3s;
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
-  border: 3px solid #ffffff4d;
   background-color: #f0f0f0;
   display: flex;
   align-items: center;
@@ -49,6 +65,20 @@
     height: 100%;
     object-fit: cover;
     display: block;
+  }
+
+  // Subtle outline drawn over the image edges (translucent, inset) rather than a
+  // layout border — the active one turns opaque white. Only its color animates;
+  // animating the size looked off (it appeared to shrink before growing).
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    border-radius: 8px;
+    box-sizing: border-box;
+    pointer-events: none;
+    transition: border-color 0.2s ease-in-out;
   }
 
   // Loading state placeholder effect
@@ -82,38 +112,12 @@
   }
 }
 
+// Selected thumbnail: larger (60×89) with an opaque white outline.
 .thumbnailItemActive {
-  border-color: #fff;
-}
+  width: 60px;
+  height: 89px;
 
-// Fullscreen gallery variant
-.thumbnailItem_fullscreen {
-  border-color: rgba(255, 255, 255, 0.2);
-  position: relative;
-  transition: all 0.2s ease-in-out;
-
-  // Animated resize on active state
-  &.thumbnailItemActive {
-    width: 68px;
-    height: 120px;
-    border-color: rgba(255, 255, 255, 0.2);
-  }
-
-  // Additional border element for fullscreen variant
   &::after {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border-radius: 16px;
-    border: 3px solid rgba(255, 255, 255, 0.2);
-    transition: all 0.2s ease-in-out;
-    pointer-events: none;
-  }
-
-  &.thumbnailItemActive::after {
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: #fff;
   }
 }

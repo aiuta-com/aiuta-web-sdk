@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { uploadsSlice, fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 import { galleryModalSlice, galleryModalSelector } from '@/store/slices/galleryModalSlice'
+import { isMobileSelector } from '@/store/slices/appSlice'
 import { ThumbnailList, IconButton, Confirmation } from '@/components'
 import { useShare, useLogger } from '@/contexts'
-import { useSelectionStrings } from '@/hooks'
+import { useSelectionStrings, usePreventParentScroll } from '@/hooks'
 import { useGenerationsData, useDeleteGeneratedImages } from '@/hooks/data'
 import { combineClassNames } from '@/utils'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
@@ -40,6 +41,14 @@ export const FullScreenGallery = () => {
   const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
   // Desktop: gallery modal (thumbnails + zoomable image + actions)
   const { isOpen, images, activeId, modalType } = useAppSelector(galleryModalSelector)
+  const isMobile = useAppSelector(isMobileSelector)
+
+  // Block the screen underneath from scrolling while the viewer is open: a
+  // wheel/touch the viewer can't consume (over the dim backdrop or image) is
+  // cancelled so it never scrolls the page behind or chains out of the iframe.
+  // Scrolling the thumbnail strip still works (it can consume the gesture).
+  const modalRef = useRef<HTMLDivElement>(null)
+  usePreventParentScroll(isOpen || !!fullScreenImageUrl, isMobile, modalRef)
 
   const activeUrl = isOpen
     ? (images.find((image) => image.id === activeId)?.url ?? images[0]?.url)
@@ -81,6 +90,35 @@ export const FullScreenGallery = () => {
     dispatch(galleryModalSlice.actions.closeGalleryModal())
   }, [dispatch])
 
+  // Keyboard navigation for the desktop gallery: arrows step through the images
+  // (clamped at the ends), Escape closes.
+  useEffect(() => {
+    if (!isOpen) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeGallery()
+        return
+      }
+      if (images.length < 2) return
+      const idx = images.findIndex((image) => image.id === activeId)
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault()
+        const target = images[Math.max(0, idx - 1)]
+        if (target.id !== activeId) {
+          dispatch(galleryModalSlice.actions.setActiveGalleryImage(target.id))
+        }
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault()
+        const target = images[Math.min(images.length - 1, idx + 1)]
+        if (target.id !== activeId) {
+          dispatch(galleryModalSlice.actions.setActiveGalleryImage(target.id))
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [isOpen, images, activeId, dispatch, closeGallery])
+
   const downloadImage = useCallback(
     async (url: string) => {
       try {
@@ -105,7 +143,11 @@ export const FullScreenGallery = () => {
   // ===== Mobile single-image fullscreen =====
   if (fullScreenImageUrl && !isOpen) {
     return (
-      <div className={styles.fullScreenModal} data-testid="aiuta-fullscreen-gallery">
+      <div
+        ref={modalRef}
+        className={styles.fullScreenModal}
+        data-testid="aiuta-fullscreen-gallery"
+      >
         <IconButton
           icon='<path d="M18.9495 5.05C19.3401 5.44052 19.3401 6.07369 18.9495 6.46421L13.4142 11.9995L18.9502 17.5355C19.3404 17.926 19.3404 18.5593 18.9502 18.9498C18.5598 19.3402 17.9266 19.34 17.536 18.9498L12 13.4137L6.46399 18.9498C6.07344 19.34 5.44021 19.3402 5.04978 18.9498C4.65955 18.5593 4.65958 17.926 5.04978 17.5355L10.5858 11.9995L5.05047 6.46421C4.65994 6.07369 4.65994 5.44052 5.05047 5.05C5.44101 4.65969 6.07423 4.65955 6.46468 5.05L12 10.5853L17.5353 5.05C17.9258 4.65954 18.559 4.65969 18.9495 5.05Z" fill="currentColor"/>'
           label="Close fullscreen image"
@@ -150,6 +192,7 @@ export const FullScreenGallery = () => {
 
     return (
       <div
+        ref={modalRef}
         className={styles.advancedFullScreenModal}
         data-testid="fullscreen-gallery"
         // Clicking the dark backdrop (not the image or controls) closes
