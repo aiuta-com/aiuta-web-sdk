@@ -63,7 +63,11 @@ export const useRpcInitialization = () => {
         const rpc = new AiutaAppRpc({
           context: { appVersion: __APP_VERSION__ },
           handlers: {
-            tryOn: async (productIds: string | string[], mode?: AiutaMode) => {
+            tryOn: async (
+              productIds: string | string[],
+              mode?: AiutaMode,
+              options?: { gender?: string },
+            ) => {
               try {
                 // Support both single and multi-item try-on (backward compatibility)
                 const productIdsArray = Array.isArray(productIds) ? productIds : [productIds]
@@ -71,6 +75,11 @@ export const useRpcInitialization = () => {
                 // Older SDKs omit the mode; unknown values degrade to 'general'.
                 // Dispatch before showApp() so the initial-route decision sees it.
                 dispatch(tryOnSlice.actions.setMode(mode === 'shoes' ? 'shoes' : 'general'))
+
+                // Product gender → default predefined-model category for this
+                // try-on. Reset to null when absent so it doesn't leak into a
+                // later request that carried no gender.
+                dispatch(tryOnSlice.actions.setPreferredCategoryId(options?.gender ?? null))
 
                 // Show app when tryOn is called
                 showApp()

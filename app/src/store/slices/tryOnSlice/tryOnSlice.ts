@@ -16,6 +16,10 @@ export interface TryOnState {
   productIds: string[]
   // Arrives with productIds on every tryOn RPC and shares their lifecycle
   mode: AiutaMode
+  // Product gender from the tryOn request → default predefined-model category
+  // for this try-on (overrides the configured preferredCategoryId). null when
+  // the request carried no gender.
+  preferredCategoryId: string | null
 }
 
 const initialState: TryOnState = {
@@ -27,6 +31,7 @@ const initialState: TryOnState = {
   generatedImageUrl: '',
   productIds: [],
   mode: 'general',
+  preferredCategoryId: null,
 }
 
 export const tryOnSlice = createSlice({
@@ -82,6 +87,10 @@ export const tryOnSlice = createSlice({
 
     setMode: (state, action: PayloadAction<AiutaMode>) => {
       state.mode = action.payload
+    },
+
+    setPreferredCategoryId: (state, action: PayloadAction<string | null>) => {
+      state.preferredCategoryId = action.payload
     },
 
     resetTryOnState: (state) => {

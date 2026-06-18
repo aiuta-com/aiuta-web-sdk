@@ -23,6 +23,7 @@ export interface UnifiedSkuItem {
     description?: string | null
     brand?: string | null
     category?: string | null
+    gender?: string | null
     image_urls?: string[] | null
     store_url?: string | null
     extra?: SkuItemExtra | null
@@ -51,6 +52,8 @@ export interface CatalogItem {
   title: string
   brand?: string
   image_url: string
+  /** Product gender (e.g. "male" / "female"), used to preselect the model category */
+  gender?: string
   /** Try-on mode derived from the backend category (shoes vs everything else) */
   mode: 'general' | 'shoes'
   /** Sort key from extra.order; items without one go last */

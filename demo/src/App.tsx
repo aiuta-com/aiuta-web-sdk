@@ -92,8 +92,8 @@ export default function App() {
       .finally(() => setLoadingOutfits(false))
   }, [loadSkuPage])
 
-  const tryOn = (productId: string | string[], mode?: AiutaMode) => {
-    void getAiuta().then((sdk) => sdk.tryOn(productId, mode))
+  const tryOn = (productId: string | string[], mode?: AiutaMode, gender?: string) => {
+    void getAiuta().then((sdk) => sdk.tryOn(productId, { mode, gender }))
   }
 
   // Gear-menu toggle: when on, only items explicitly flagged
@@ -152,7 +152,11 @@ export default function App() {
             onTryOn={tryOn}
           />
         ) : (
-          <OutfitList outfits={outfits} loading={loadingOutfits} onTryOn={tryOn} />
+          <OutfitList
+            outfits={outfits}
+            loading={loadingOutfits}
+            onTryOn={(skuIds, gender) => tryOn(skuIds, 'general', gender)}
+          />
         )}
       </div>
 

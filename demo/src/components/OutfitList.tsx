@@ -6,7 +6,7 @@ import type { OutfitsApiResponse } from '../models/product'
 interface Props {
   outfits: OutfitsApiResponse[]
   loading: boolean
-  onTryOn: (skuIds: string[]) => void
+  onTryOn: (skuIds: string[], gender?: string) => void
 }
 
 export default function OutfitList({ outfits, loading, onTryOn }: Props) {
@@ -34,7 +34,7 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
               <OutfitCard
                 key={index}
                 outfit={outfit}
-                onTryOn={(o) => onTryOn(o.items.map((i) => i.sku_id))}
+                onTryOn={(o) => onTryOn(o.items.map((i) => i.sku_id), o.tags?.gender)}
               />
             ))}
       </div>

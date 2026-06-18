@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { predefinedModelsSlice } from '@/store/slices/predefinedModelsSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
-import { tryOnModeSelector } from '@/store/slices/tryOnSlice'
+import { tryOnModeSelector, tryOnPreferredCategoryIdSelector } from '@/store/slices/tryOnSlice'
 import { usePredefinedModels } from './usePredefinedModels'
 import { usePredefinedModelsAnalytics } from './usePredefinedModelsAnalytics'
 import { useTryOnGeneration } from '@/hooks/tryOn/useTryOnGeneration'
@@ -29,6 +29,10 @@ export const usePredefinedModelsSelection = () => {
   const predefinedConfig = rpc.config.features?.imagePicker?.predefinedModels?.data
   const preferredCategoryId = predefinedConfig?.preferredCategoryId
   const preferredCategoryOrder = predefinedConfig?.preferredCategoryOrder
+
+  // Per-try-on override from the product gender (set via tryOn options), wins
+  // over the configured preferredCategoryId.
+  const tryOnPreferredCategoryId = useAppSelector(tryOnPreferredCategoryIdSelector)
 
   // General mode shows only full-height models in the classic picker — the
   // bird/side-view models are shoe angles, surfaced only by the shoes grouped
@@ -71,23 +75,21 @@ export const usePredefinedModelsSelection = () => {
   // The user's explicit in-session pick (null until they tap a category tab).
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
 
-  // Default when the user hasn't picked this session. preferredCategoryId from
-  // config wins; only when it's absent do we fall back to the saved selection;
-  // then the first available. Recomputed when categories/config arrive, so a
-  // late RPC config still applies (the choice isn't frozen on first render).
+  // Default when the user hasn't picked this session. Priority: per-try-on
+  // gender override → configured preferredCategoryId → saved selection → first.
+  // Recomputed when categories/config arrive, so a late RPC config still
+  // applies (the choice isn't frozen on first render).
   const defaultCategoryId = useMemo(() => {
     if (categories.length === 0) return null
 
-    // Config-preferred takes priority; saved value is the fallback only when no
-    // preferredCategoryId is configured.
-    const candidate = preferredCategoryId || getSavedCategoryId()
+    const candidate = tryOnPreferredCategoryId || preferredCategoryId || getSavedCategoryId()
     if (candidate) {
       const found = categories.find((cat) => cat.category === candidate)
       if (found) return found.category
     }
 
     return categories[0].category
-  }, [categories, preferredCategoryId, getSavedCategoryId])
+  }, [categories, tryOnPreferredCategoryId, preferredCategoryId, getSavedCategoryId])
 
   // Category actually shown: the explicit pick wins, otherwise the default. The
   // default is NOT persisted — only an explicit change is (see

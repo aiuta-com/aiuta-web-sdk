@@ -1,4 +1,4 @@
-import { AiutaConfiguration, AiutaMode } from '@lib/config'
+import { AiutaConfiguration, AiutaMode, AiutaTryOnOptions } from '@lib/config'
 import { createLogger, type Logger } from '@lib/logger'
 import IframeManager from './iframe'
 import MessageHandler from './handler'
@@ -84,9 +84,12 @@ export default class Aiuta {
    * the try-on flow. Tracks analytics for the session.
    *
    * @param productId - Single product ID or array of product IDs to try on
-   * @param mode - Try-on mode driving the UI context (onboarding, photo
-   *   guidance, error texts); the generation flow itself is identical.
-   *   Defaults to 'general'.
+   * @param options - Either a bare mode string (legacy) or an options object:
+   *   - `mode` - Try-on mode driving the UI context (onboarding, photo
+   *     guidance, error texts); the generation flow itself is identical.
+   *     Defaults to 'general'.
+   *   - `gender` - Product gender; defaults the predefined-model picker to the
+   *     matching category for this try-on.
    * @returns Promise that resolves when try-on is initiated
    * @throws Error if this instance has been destroyed. Create a new Aiuta instance instead.
    *
@@ -98,11 +101,14 @@ export default class Aiuta {
    * // Multiple products
    * await aiuta.tryOn(['product-1', 'product-2', 'product-3']);
    *
-   * // Shoes try-on
+   * // Shoes try-on (legacy bare-mode string still works)
    * await aiuta.tryOn('sneakers-42', 'shoes');
+   *
+   * // Options object with the product gender
+   * await aiuta.tryOn('dress-7', { mode: 'general', gender: 'female' });
    * ```
    */
-  async tryOn(productId: string | string[], mode: AiutaMode = 'general') {
+  async tryOn(productId: string | string[], options?: AiutaMode | AiutaTryOnOptions) {
     // Check if instance has been destroyed
     if (this.isDestroyed) {
       const error =
@@ -119,6 +125,12 @@ export default class Aiuta {
       return
     }
 
+    // The second arg is overloaded: a bare mode string (legacy) or an options
+    // object. Normalize both into a single options shape.
+    const opts: AiutaTryOnOptions = typeof options === 'string' ? { mode: options } : (options ?? {})
+    let mode = opts.mode ?? 'general'
+    const gender = opts.gender
+
     // Partners call from untyped JS — fall back instead of breaking the flow
     if (mode !== 'general' && mode !== 'shoes') {
       this.logger.error(`Unknown try-on mode "${mode}", falling back to "general"`)
@@ -133,7 +145,7 @@ export default class Aiuta {
     })
 
     await this.iframeManager.ensureIframe()
-    await this.messageHandler.startTryOn(productIds, mode)
+    await this.messageHandler.startTryOn(productIds, mode, gender)
   }
 
   /**
