@@ -18,6 +18,18 @@ import type { AiutaConfiguration } from '@sdk/index'
 
 const aiutaConfiguration: AiutaConfiguration = {
   auth: { apiKey: demoConfig.apiKey },
+  features: {
+    imagePicker: {
+      predefinedModels: {
+        // Demo: default to the male models and show Men before Women.
+        // (The backend tags models as "male" / "female".)
+        data: {
+          preferredCategoryId: 'male',
+          preferredCategoryOrder: ['male', 'female'],
+        },
+      },
+    },
+  },
   userInterface: {
     theme: {
       // - Poppins as the preferred SDK typeface, matching the demo page.

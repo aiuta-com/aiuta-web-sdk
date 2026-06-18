@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { predefinedModelsSlice } from '@/store/slices/predefinedModelsSlice'
@@ -25,25 +25,39 @@ export const usePredefinedModelsSelection = () => {
   const { startTryOn } = useTryOnGeneration()
   const { trackCategoryChange, trackModelSelected } = usePredefinedModelsAnalytics()
 
+  // Predefined-models config (preferred default category + tab order)
+  const predefinedConfig = rpc.config.features?.imagePicker?.predefinedModels?.data
+  const preferredCategoryId = predefinedConfig?.preferredCategoryId
+  const preferredCategoryOrder = predefinedConfig?.preferredCategoryOrder
+
   // General mode shows only full-height models in the classic picker — the
   // bird/side-view models are shoe angles, surfaced only by the shoes grouped
   // picker. Untagged (legacy) models are treated as full-height. Shoes mode
   // keeps every view and groups them in the UI.
   const categories = useMemo(() => {
-    if (mode === 'shoes') return allCategories
-    return allCategories
-      .map((category) => ({
-        ...category,
-        models: category.models.filter(
-          (model) => !model.tags?.view || model.tags.view === 'full-height',
-        ),
-      }))
-      .filter((category) => category.models.length > 0)
-  }, [allCategories, mode])
+    const filtered =
+      mode === 'shoes'
+        ? allCategories
+        : allCategories
+            .map((category) => ({
+              ...category,
+              models: category.models.filter(
+                (model) => !model.tags?.view || model.tags.view === 'full-height',
+              ),
+            }))
+            .filter((category) => category.models.length > 0)
 
-  // Get preferred category from config
-  const preferredCategoryId =
-    rpc.config.features?.imagePicker?.predefinedModels?.data?.preferredCategoryId
+    // Apply the configured tab order; unlisted categories keep their original
+    // order, after the listed ones (Array.prototype.sort is stable).
+    if (preferredCategoryOrder?.length) {
+      const rank = (id: string) => {
+        const index = preferredCategoryOrder.indexOf(id)
+        return index === -1 ? Number.MAX_SAFE_INTEGER : index
+      }
+      return [...filtered].sort((a, b) => rank(a.category) - rank(b.category))
+    }
+    return filtered
+  }, [allCategories, mode, preferredCategoryOrder])
 
   // Get saved category from sessionStorage
   const getSavedCategoryId = useCallback(() => {
@@ -54,50 +68,38 @@ export const usePredefinedModelsSelection = () => {
     }
   }, [])
 
-  // Selected category state
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(getSavedCategoryId)
+  // The user's explicit in-session pick (null until they tap a category tab).
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null)
 
-  // Determine initial category based on saved value, config, or first available
-  const initialCategory = useMemo(() => {
+  // Default when the user hasn't picked this session. preferredCategoryId from
+  // config wins; only when it's absent do we fall back to the saved selection;
+  // then the first available. Recomputed when categories/config arrive, so a
+  // late RPC config still applies (the choice isn't frozen on first render).
+  const defaultCategoryId = useMemo(() => {
     if (categories.length === 0) return null
 
-    const savedCategoryId = getSavedCategoryId()
-
-    // Priority 1: Saved category (if exists in current list)
-    if (savedCategoryId) {
-      const saved = categories.find((cat) => cat.category === savedCategoryId)
-      if (saved) return saved.category
+    // Config-preferred takes priority; saved value is the fallback only when no
+    // preferredCategoryId is configured.
+    const candidate = preferredCategoryId || getSavedCategoryId()
+    if (candidate) {
+      const found = categories.find((cat) => cat.category === candidate)
+      if (found) return found.category
     }
 
-    // Priority 2: Preferred category from config (if exists in the list)
-    if (preferredCategoryId) {
-      const preferred = categories.find((cat) => cat.category === preferredCategoryId)
-      if (preferred) return preferred.category
-    }
-
-    // Priority 3: First category
     return categories[0].category
   }, [categories, preferredCategoryId, getSavedCategoryId])
 
-  // Set initial category when categories load
-  useEffect(() => {
-    if (initialCategory && !selectedCategoryId) {
-      setSelectedCategoryId(initialCategory)
-
-      // Save to sessionStorage
-      try {
-        sessionStorage.setItem(SELECTED_CATEGORY_KEY, initialCategory)
-      } catch {
-        // Ignore errors
-      }
-    }
-  }, [initialCategory, selectedCategoryId])
+  // Category actually shown: the explicit pick wins, otherwise the default. The
+  // default is NOT persisted — only an explicit change is (see
+  // handleCategoryChange) — so an auto-applied default never masks
+  // preferredCategoryId on a later load.
+  const effectiveCategoryId = selectedCategoryId ?? defaultCategoryId
 
   // Get current category data
   const currentCategory = useMemo(() => {
-    if (!selectedCategoryId) return null
-    return categories.find((cat) => cat.category === selectedCategoryId) || null
-  }, [categories, selectedCategoryId])
+    if (!effectiveCategoryId) return null
+    return categories.find((cat) => cat.category === effectiveCategoryId) || null
+  }, [categories, effectiveCategoryId])
 
   // Handle category change
   const handleCategoryChange = useCallback(
@@ -119,7 +121,7 @@ export const usePredefinedModelsSelection = () => {
   const handleModelSelect = useCallback(
     async (model: InputImage) => {
       // Track selection
-      trackModelSelected(model.id, selectedCategoryId || '')
+      trackModelSelected(model.id, effectiveCategoryId || '')
 
       // Close bottom sheet if open
       dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
@@ -131,7 +133,7 @@ export const usePredefinedModelsSelection = () => {
       // Start try-on with selected model
       await startTryOn(model)
     },
-    [navigate, startTryOn, trackModelSelected, selectedCategoryId, dispatch],
+    [navigate, startTryOn, trackModelSelected, effectiveCategoryId, dispatch],
   )
 
   // Retry loading (resets state to allow new loading attempt)
@@ -144,7 +146,7 @@ export const usePredefinedModelsSelection = () => {
     // Data
     categories,
     currentCategory,
-    selectedCategoryId,
+    selectedCategoryId: effectiveCategoryId,
 
     // State flags
     isLoading,
