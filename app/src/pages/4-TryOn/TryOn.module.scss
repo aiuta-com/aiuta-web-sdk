@@ -8,14 +8,15 @@
   overflow: hidden;
 }
 
-// Desktop action row (Figma: Change photo and Try On side by side, half
-// width each, 8px gap, 404px total on the 420px widget, 26px above the
-// widget bottom)
+// Desktop action row (Change photo and Try On side by side, half width each,
+// 8px gap). 52px below the widget bottom: with the 12px gap above and the 50px
+// buttons that's 114px under the image — matching the results screen (72px
+// tiles + 30px disclaimer) so the preview keeps its size across the flow.
 .actions {
   display: flex;
   gap: 8px;
   width: calc(100% - 16px);
-  margin: 0 auto 26px;
+  margin: 0 auto 52px;
 
   .action {
     flex: 1 1 0;
@@ -26,15 +27,27 @@
   }
 }
 
-// The loading status is centered in the whole gap between the image bottom
-// edge and the widget bottom. The negative top margin reaches up into the
-// fillContainer's 16px bottom padding, and the net layout height (92 - 16)
-// equals the action row box (50 + 26) so the preview doesn't shift.
+// The loading status is centered in the whole gap between the image bottom edge
+// and the widget bottom. The negative top margin reaches up into the
+// fillContainer's bottom padding so the row spans the full area the action row
+// occupies (114px desktop) and the preview doesn't shift.
 .loadingRow {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 92px;
+  height: 114px;
   width: calc(100% - 16px);
-  margin: -16px auto 0;
+  margin: -12px auto 0;
+}
+
+// Mobile keeps the original 92px bottom area (16px padding + 50px button + 26px)
+@media (max-width: 992px) {
+  .actions {
+    margin-bottom: 26px;
+  }
+
+  .loadingRow {
+    height: 92px;
+    margin-top: -16px;
+  }
 }

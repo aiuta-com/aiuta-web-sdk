@@ -13,7 +13,7 @@ export default class MessageHandler {
   // handshake completes must await the same connection, not start new ones
   private connecting?: Promise<void>
   // Coalesces rapid tryOn calls: only the latest request is forwarded to the app
-  private pendingTryOn?: { productIds: string[]; mode: AiutaMode }
+  private pendingTryOn?: { productIds: string[]; mode: AiutaMode; gender?: string }
   private tryOnRunning = false
 
   constructor(
@@ -42,10 +42,10 @@ export default class MessageHandler {
     })
   }
 
-  async startTryOn(productIds: string[], mode: AiutaMode) {
+  async startTryOn(productIds: string[], mode: AiutaMode, gender?: string) {
     // Always record the latest request. If a run is already in flight, it will
     // pick this up — only the most recent tryOn reaches the app.
-    this.pendingTryOn = { productIds, mode }
+    this.pendingTryOn = { productIds, mode, gender }
     if (this.tryOnRunning) return
 
     this.tryOnRunning = true
@@ -60,7 +60,11 @@ export default class MessageHandler {
       while (this.pendingTryOn) {
         const next = this.pendingTryOn
         this.pendingTryOn = undefined
-        await this.rpc.app.tryOn(next.productIds, next.mode)
+        await this.rpc.app.tryOn(
+          next.productIds,
+          next.mode,
+          next.gender ? { gender: next.gender } : undefined,
+        )
       }
     } catch (error) {
       this.logger.error('Aiuta RPC tryOn failed:', error)

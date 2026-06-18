@@ -7,6 +7,7 @@ export type {
   AiutaUserInterface,
   AiutaFeatures,
   AiutaMode,
+  AiutaTryOnOptions,
   AiutaModes,
   AiutaShoesMode,
   AiutaAnalytics,

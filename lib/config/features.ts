@@ -103,7 +103,13 @@ export interface ImagePickerUploadsHistory {
 
 export interface ImagePickerPredefinedModels {
   data?: {
+    /** Category selected by default (e.g. "male" / "female") */
     preferredCategoryId?: string
+    /**
+     * Display order of the category tabs, by category id. Categories not
+     * listed keep their original order, after the listed ones.
+     */
+    preferredCategoryOrder?: string[]
   }
   strings?: {
     predefinedModelsTitle?: string

@@ -12,6 +12,22 @@
 
 export type AiutaMode = 'general' | 'shoes'
 
+/**
+ * Per-call options for `aiuta.tryOn`. Passed as the second argument instead of a
+ * bare mode string (which is still accepted for backward compatibility).
+ */
+export interface AiutaTryOnOptions {
+  /** Try-on mode driving the UI context; defaults to 'general'. */
+  mode?: AiutaMode
+  /**
+   * Gender of the product being tried on. Selects the matching predefined-model
+   * category by default (the category id equals the gender tag, e.g. "male" /
+   * "female"), overriding `predefinedModels.data.preferredCategoryId` for this
+   * try-on. Omit to fall back to the configured preference.
+   */
+  gender?: string
+}
+
 export interface AiutaModes {
   /**
    * Shoes try-on. Absence keeps the mode enabled with built-in defaults;

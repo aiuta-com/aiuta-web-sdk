@@ -15,7 +15,7 @@ interface Props {
   hasMore: boolean
   onLoadMore: () => void
   apiKey: string
-  onTryOn: (skuId: string, mode?: AiutaMode) => void
+  onTryOn: (skuId: string, mode?: AiutaMode, gender?: string) => void
 }
 
 function SkeletonCard() {
@@ -81,7 +81,6 @@ export default function SkuList({
 
   return (
     <section className="skus">
-      <h2>Single-Item Try-On</h2>
       <div className="sku-grid">
         {loading && !items.length
           ? Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)
@@ -91,7 +90,7 @@ export default function SkuList({
                 <div
                   className="sku-card sku-card--clickable"
                   key={item.sku_id}
-                  onClick={() => onTryOn(item.sku_id, item.mode)}
+                  onClick={() => onTryOn(item.sku_id, item.mode, item.gender)}
                 >
                   <div className="sku-card__inner" onPointerDown={createRipple}>
                     <div className="sku-card__item" style={getBgStyle(item.sku_id)}>
@@ -117,7 +116,7 @@ export default function SkuList({
                           }}
                           onClick={(event) => {
                             event.stopPropagation()
-                            onTryOn(item.sku_id, item.mode)
+                            onTryOn(item.sku_id, item.mode, item.gender)
                           }}
                         >
                           <TryOnIcon className="btn__icon" />

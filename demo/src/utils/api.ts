@@ -55,6 +55,7 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
         sku_id: item.sku_id,
         title: item.product_info?.title ?? item.sku_id,
         brand: item.product_info?.brand ?? undefined,
+        gender: item.product_info?.gender ?? undefined,
         // Image priority: extra.title_image | source_images[0] | image_urls[0]
         image_url:
           extra.title_image || extra.source_images?.[0] || item.product_info?.image_urls?.[0] || '',

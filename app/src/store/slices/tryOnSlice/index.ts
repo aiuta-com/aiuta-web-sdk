@@ -8,4 +8,5 @@ export {
   generatedImageUrlSelector,
   productIdsSelector,
   tryOnModeSelector,
+  tryOnPreferredCategoryIdSelector,
 } from './selectors'

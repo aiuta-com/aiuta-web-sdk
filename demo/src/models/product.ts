@@ -23,6 +23,7 @@ export interface UnifiedSkuItem {
     description?: string | null
     brand?: string | null
     category?: string | null
+    gender?: string | null
     image_urls?: string[] | null
     store_url?: string | null
     extra?: SkuItemExtra | null
@@ -51,6 +52,8 @@ export interface CatalogItem {
   title: string
   brand?: string
   image_url: string
+  /** Product gender (e.g. "male" / "female"), used to preselect the model category */
+  gender?: string
   /** Try-on mode derived from the backend category (shoes vs everything else) */
   mode: 'general' | 'shoes'
   /** Sort key from extra.order; items without one go last */
@@ -63,12 +66,17 @@ export interface CatalogItem {
 // The suggested_outfits endpoint still returns items in the legacy SkuItem
 // shape (with descriptive_image_urls) — see the OpenAPI spec
 
+export interface OutfitTags {
+  gender?: string
+  /** Human-readable occasion, used as the card title (e.g. "Office Hours") */
+  occasion?: string
+  style?: string
+}
+
 export interface OutfitsApiResponse {
   items: SkuItem[]
-  model_image_url: string
   collage_image_url: string
-  title: string
-  style: string
+  tags: OutfitTags
 }
 
 export interface SkuItem {
