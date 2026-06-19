@@ -87,8 +87,6 @@ export const ThumbnailList = ({
   // thumbnail moves into this fixed on-screen spot, so the active stays roughly
   // where the previous one was.
   const anchorRef = useRef<number | null>(null)
-  // Whether the initial active item has been revealed/anchored once on open.
-  const didInitRef = useRef(false)
 
   const updateFade = useCallback(() => {
     const el = containerRef.current
@@ -101,44 +99,49 @@ export const ThumbnailList = ({
     setFade((prev) => (prev.top === top && prev.bottom === bottom ? prev : { top, bottom }))
   }, [])
 
-  // Capture the active zone when the selection is set by click / keyboard / open
-  // (not by scrolling): remember where the active thumbnail sits on screen so
-  // later scrolling hands the selection to whatever enters that spot. On the
-  // first open only, if the active item is off screen, reveal it first (and
-  // anchor at its revealed position); a user click already sits where it is, so
-  // the strip is left in place and the zone is taken from its current position.
-  useEffect(() => {
-    if (scrollDrivenRef.current) {
-      // Scroll-driven change: keep the existing zone fixed on screen.
-      scrollDrivenRef.current = false
-      return
-    }
-    const el = activeItemRef.current
-    const container = containerRef.current
-    if (!el || !container || direction !== 'vertical') return
-
-    const activeCenter = el.offsetTop + el.offsetHeight / 2
-    const viewTop = container.scrollTop
-    const viewBottom = viewTop + container.clientHeight
-    const needsReveal =
-      !didInitRef.current &&
-      (activeCenter < viewTop + FOLLOW_MARGIN || activeCenter > viewBottom - FOLLOW_MARGIN)
-    didInitRef.current = true
-
-    if (needsReveal) {
+  // Bring the active thumbnail into comfortable view (clear of the edge fades)
+  // if it's clipped or under an edge, then capture the active zone at its
+  // resulting on-screen position. A comfortably-visible item is left in place,
+  // so its current spot becomes the zone. Used on click/keyboard/open and on
+  // resize, so the active is never left half outside the strip.
+  const anchorActive = useCallback(
+    (animate: boolean) => {
+      const el = activeItemRef.current
+      const container = containerRef.current
+      if (!el || !container || direction !== 'vertical') return
+      const top = el.offsetTop
+      const bottom = top + el.offsetHeight
+      const viewTop = container.scrollTop
+      const viewBottom = viewTop + container.clientHeight
+      let target = viewTop
+      if (top < viewTop + FOLLOW_MARGIN) target = top - FOLLOW_MARGIN
+      else if (bottom > viewBottom - FOLLOW_MARGIN)
+        target = bottom - container.clientHeight + FOLLOW_MARGIN
       const max = container.scrollHeight - container.clientHeight
-      const target = Math.max(0, Math.min(max, activeCenter - container.clientHeight / 2))
-      anchorRef.current = activeCenter - target
+      target = Math.max(0, Math.min(max, target))
+      // Zone = the active's center relative to its (post-scroll) viewport top.
+      anchorRef.current = top + el.offsetHeight / 2 - target
+      if (Math.abs(target - viewTop) < 1) return
+      // Mark this scroll as programmatic so it doesn't trip the follow logic.
       programmaticRef.current = true
       if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
       programmaticTimer.current = setTimeout(() => {
         programmaticRef.current = false
       }, 400)
-      container.scrollTo({ top: target, behavior: 'auto' })
-    } else {
-      anchorRef.current = activeCenter - viewTop
+      container.scrollTo({ top: target, behavior: animate ? 'smooth' : 'auto' })
+    },
+    [direction],
+  )
+
+  // On a click/keyboard/open selection change, reveal + anchor the active.
+  // Skipped when the change came from scrolling (the zone stays fixed there).
+  useEffect(() => {
+    if (scrollDrivenRef.current) {
+      scrollDrivenRef.current = false
+      return
     }
-  }, [activeId, direction])
+    anchorActive(true)
+  }, [activeId, anchorActive])
 
   useEffect(() => () => {
     if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
@@ -243,15 +246,19 @@ export const ThumbnailList = ({
     return () => el.removeEventListener('wheel', onWheel)
   }, [direction, items, activeId, onItemClick])
 
-  // Recompute the fades when the items or the container size change.
+  // Recompute the fades when the items or the container size change, and on
+  // resize keep the active thumbnail in view and refresh the active zone.
   useEffect(() => {
     updateFade()
     const el = containerRef.current
     if (!el) return
-    const ro = new ResizeObserver(updateFade)
+    const ro = new ResizeObserver(() => {
+      updateFade()
+      anchorActive(false)
+    })
     ro.observe(el)
     return () => ro.disconnect()
-  }, [items, updateFade])
+  }, [items, updateFade, anchorActive])
 
   // Feed the scroll-scaled fade heights to the mask (vertical only).
   const fadeStyle = useMemo(() => {
