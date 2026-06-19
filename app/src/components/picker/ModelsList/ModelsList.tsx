@@ -4,6 +4,10 @@ import { combineClassNames } from '@/utils'
 import type { ModelsListProps } from './types'
 import styles from './ModelsList.module.scss'
 
+// The card at the viewport center reaches this scale (44×70 base → ~50×80);
+// cards a full pitch away sit at 1. Interpolated by scroll distance.
+const MAX_SCALE = 80 / 70
+
 export const ModelsList = ({
   models,
   selectedModelId,
@@ -23,8 +27,51 @@ export const ModelsList = ({
   // First centering is instant (before paint); later selection changes animate
   const hasCenteredRef = useRef(false)
   const rafRef = useRef<number | null>(null)
+  const scaleRafRef = useRef<number | null>(null)
   const manualScrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const programmaticTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Scale each card by how close its center is to the viewport center (the
+  // centered card grows, neighbours shrink to the base size as they move away),
+  // and translate cards outward so the scaled-up ones don't eat the gap — the
+  // visual gap between cards stays equal to the layout gap. All math is in
+  // layout coords (offsetLeft, unaffected by the transform) → no feedback.
+  const updateScales = useCallback(() => {
+    const el = containerRef.current
+    if (!el) return
+    const cards = Array.from(el.querySelectorAll<HTMLElement>('[data-card]'))
+    if (cards.length === 0) return
+    const base = cards[0].offsetWidth || 44
+    const pitch = cards.length >= 2 ? cards[1].offsetLeft - cards[0].offsetLeft : base + 4
+    const viewportCenter = el.scrollLeft + el.clientWidth / 2
+
+    // Scale per card, and the card nearest the center (anchor: it keeps tx 0 so
+    // it stays exactly centered).
+    let anchor = 0
+    let best = Infinity
+    const scales = cards.map((card, i) => {
+      const center = card.offsetLeft + card.offsetWidth / 2
+      const dist = Math.abs(center - viewportCenter)
+      if (dist < best) {
+        best = dist
+        anchor = i
+      }
+      return 1 + (MAX_SCALE - 1) * Math.max(0, 1 - dist / pitch)
+    })
+
+    // Push neighbours out by the cumulative half-overflow so gaps stay constant.
+    const tx = new Array<number>(cards.length).fill(0)
+    for (let i = anchor + 1; i < cards.length; i++) {
+      tx[i] = tx[i - 1] + (base / 2) * (scales[i - 1] + scales[i] - 2)
+    }
+    for (let i = anchor - 1; i >= 0; i--) {
+      tx[i] = tx[i + 1] - (base / 2) * (scales[i] + scales[i + 1] - 2)
+    }
+
+    cards.forEach((card, i) => {
+      card.style.transform = `translateX(${tx[i]}px) scale(${scales[i]})`
+    })
+  }, [])
 
   // Scroll a card to the exact center. Flags the scroll as programmatic so the
   // resulting scroll events don't re-run the selection/center logic, and clears
@@ -75,6 +122,10 @@ export const ModelsList = ({
 
   // Handle scroll - select card in real-time with throttle
   const handleScroll = useCallback(() => {
+    // Scale follows the scroll position always (even programmatic / pre-gesture)
+    if (scaleRafRef.current) cancelAnimationFrame(scaleRafRef.current)
+    scaleRafRef.current = requestAnimationFrame(updateScales)
+
     if (isScrollingProgrammaticallyRef.current) return
     // Ignore scrolls before the first real gesture (initial layout / spacer
     // sizing): they must not flag "manual scrolling" and suppress the centering.
@@ -92,7 +143,7 @@ export const ModelsList = ({
       cancelAnimationFrame(rafRef.current)
     }
     rafRef.current = requestAnimationFrame(selectCenterCard)
-  }, [selectCenterCard])
+  }, [selectCenterCard, updateScales])
 
   // Real lead/trailing spacers (half the viewport minus half a card) so that
   // ANY card — including the first and last — can be scrolled to the exact
@@ -102,7 +153,9 @@ export const ModelsList = ({
   const updateSpacers = useCallback(() => {
     const el = containerRef.current
     if (!el) return
-    const cardWidth = selectedRef.current?.offsetWidth || 50
+    // Base (unscaled) card width — the centering math works in layout space.
+    const cardWidth =
+      (selectedRef.current ?? el.querySelector<HTMLElement>('[data-card]'))?.offsetWidth || 44
     const width = Math.max(0, (el.clientWidth - cardWidth) / 2)
     if (leadSpacerRef.current) leadSpacerRef.current.style.width = `${width}px`
     if (trailSpacerRef.current) trailSpacerRef.current.style.width = `${width}px`
@@ -112,7 +165,9 @@ export const ModelsList = ({
     if (!isScrollingManuallyRef.current) {
       centerCard(selectedRef.current ?? el.querySelector<HTMLElement>('[data-card]'), 'auto')
     }
-  }, [centerCard])
+    // Apply the scale for the (now-centered) position before paint
+    updateScales()
+  }, [centerCard, updateScales])
 
   // Layout effect so the spacers are sized before paint (no flash of the
   // left-aligned list before it centers).
@@ -130,6 +185,9 @@ export const ModelsList = ({
     return () => {
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current)
+      }
+      if (scaleRafRef.current) {
+        cancelAnimationFrame(scaleRafRef.current)
       }
       if (manualScrollTimeoutRef.current) {
         clearTimeout(manualScrollTimeoutRef.current)
@@ -172,10 +230,7 @@ export const ModelsList = ({
             key={model.id}
             data-card
             ref={isSelected ? selectedRef : null}
-            className={combineClassNames(
-              styles.modelCard,
-              isSelected ? styles.modelCard_selected : '',
-            )}
+            className={styles.modelCard}
             onClick={() => onModelSelect(model)}
           >
             <RemoteImage src={model.url} alt="Model" shape="XS" />

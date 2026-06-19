@@ -114,7 +114,13 @@ export default function ModelsMobile() {
           (same as the image picker preview) */}
       <Flex fill containerClassName={styles.preview}>
         {selectedModel && (
-          <RemoteImage src={selectedModel.url} alt="Selected Model" shape={null} fit="smart" />
+          <RemoteImage
+            src={selectedModel.url}
+            alt="Selected Model"
+            shape={null}
+            fit="smart"
+            crossFade={false}
+          />
         )}
       </Flex>
 

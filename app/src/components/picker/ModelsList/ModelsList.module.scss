@@ -1,4 +1,5 @@
 .modelsList {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -22,19 +23,17 @@
   align-self: stretch;
 }
 
+// Base size = the non-active thumbnail (44×70). The card nearest the viewport
+// center is scaled up (to ~50×80) continuously by scroll distance — see
+// ModelsList.tsx updateScales — instead of a width/height animation, so the
+// size tracks the scroll position. transform-origin: center keeps the layout
+// center stable (so centering math stays correct).
 .modelCard {
   position: relative;
   flex-shrink: 0;
   width: 44px;
   height: 70px;
   cursor: pointer;
-  scroll-snap-align: center; /* Snap each card to center */
-  transition:
-    width 0.3s,
-    height 0.3s;
-
-  &_selected {
-    width: 50px;
-    height: 80px;
-  }
+  scroll-snap-align: center; /* Snap to center on scroll end */
+  transform-origin: center center;
 }

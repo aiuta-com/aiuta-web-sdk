@@ -20,6 +20,7 @@ export const RemoteImage = ({
   className,
   loading = 'lazy',
   fit = 'cover',
+  crossFade = true,
   onLoad,
   onError,
   ...rest
@@ -109,6 +110,7 @@ export const RemoteImage = ({
           alt={alt}
           loading={loading}
           fit={fit}
+          crossFade={crossFade}
           onLoad={handleLoad}
           onError={handleError}
         />

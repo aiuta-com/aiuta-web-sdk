@@ -51,12 +51,17 @@ export const CrossFadeImage = ({
   className,
   loading = 'lazy',
   fit = 'cover',
+  crossFade = true,
   onLoad,
   onError,
 }: CrossFadeImageProps) => {
   // currentSrc fades in; prevSrc (if any) is the outgoing layer kept underneath
   const [currentSrc, setCurrentSrc] = useState(src)
   const [prevSrc, setPrevSrc] = useState<string | null>(null)
+  // When crossFade is off, a swap (not the first appearance) is instant: the new
+  // layer pops in with no opacity transition and the previous one is dropped at
+  // once. The first appearance still fades in (instantSwap stays false on mount).
+  const [instantSwap, setInstantSwap] = useState(false)
   // The layer fades in only once BOTH its image and its backdrop are ready, so
   // they appear together as one unit (the backdrop never pops in late).
   const [imageReady, setImageReady] = useState(false)
@@ -111,13 +116,16 @@ export const CrossFadeImage = ({
   // render loop without listing it as a dep.
   useEffect(() => {
     if (src === currentSrcRef.current) return
+    // This effect only runs on an actual change → it's a swap, not the first
+    // appearance. Instant when crossFade is off.
+    setInstantSwap(!crossFade)
     setPrevSrc(currentSrcRef.current)
     currentSrcRef.current = src
     loadToken.current += 1
     setCurrentSrc(src)
     setImageReady(false)
     setBackdropReady(false)
-  }, [src])
+  }, [src, crossFade])
 
   const recordImageRatio = (event: React.SyntheticEvent<HTMLImageElement>) => {
     const { naturalWidth, naturalHeight } = event.currentTarget
@@ -184,12 +192,13 @@ export const CrossFadeImage = ({
   const needsBackdrop = fit === 'smart'
   const currentLoaded = imageReady && (!needsBackdrop || backdropReady)
 
-  // Once the new layer is fully shown, drop the outgoing layer (it's covered)
+  // Once the new layer is fully shown, drop the outgoing layer (it's covered).
+  // Instant swaps drop it immediately (no fade overlap).
   useEffect(() => {
     if (!currentLoaded || !prevSrc) return
-    const timer = setTimeout(() => setPrevSrc(null), FADE_MS)
+    const timer = setTimeout(() => setPrevSrc(null), instantSwap ? 0 : FADE_MS)
     return () => clearTimeout(timer)
-  }, [currentLoaded, prevSrc])
+  }, [currentLoaded, prevSrc, instantSwap])
 
   const currentFit = getFitForSrc(currentSrc)
   const prevFit = prevSrc ? getFitForSrc(prevSrc) : 'cover'
@@ -221,7 +230,11 @@ export const CrossFadeImage = ({
 
       <div
         key={currentSrc}
-        className={combineClassNames(styles.layer, currentLoaded && styles.layer_loaded)}
+        className={combineClassNames(
+          styles.layer,
+          currentLoaded && styles.layer_loaded,
+          instantSwap && styles.layer_instant,
+        )}
       >
         {/* Rendered for every smart image (not just once contain is resolved) so
             it loads/decodes alongside the main image and fades in with the layer

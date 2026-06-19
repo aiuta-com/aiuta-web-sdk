@@ -16,6 +16,13 @@ export interface CrossFadeImageProps extends React.ImgHTMLAttributes<HTMLImageEl
    *   under ~half, otherwise contain over a blurred backdrop of the same image
    */
   fit?: 'cover' | 'smart'
+  /**
+   * Cross-fade when switching between already-loaded images. Default true.
+   * When false, the first image still fades in (from empty), but later swaps
+   * are instant (the previous image is held until the new one is decoded, then
+   * replaced without a fade) — avoids flicker when the source changes rapidly.
+   */
+  crossFade?: boolean
   /** Callback when image loads successfully */
   onLoad?: () => void
   /** Callback when image fails to load */
