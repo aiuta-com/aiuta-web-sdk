@@ -8,14 +8,11 @@ import { ThumbnailList, IconButton, Confirmation } from '@/components'
 import { useShare, useLogger } from '@/contexts'
 import { useSelectionStrings, usePreventParentScroll } from '@/hooks'
 import { useGenerationsData, useDeleteGeneratedImages } from '@/hooks/data'
-import { combineClassNames } from '@/utils'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
-import { ZoomableImage, type ImageBox } from './components/ZoomableImage'
+import { ZoomableImage } from './components/ZoomableImage'
+import { GalleryPager } from './components/GalleryPager'
 import { icons } from './icons'
 import styles from './FullScreenGallery.module.scss'
-
-// Gap between the image's right edge and the action buttons column
-const ACTIONS_GAP = 12
 
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
@@ -24,16 +21,6 @@ export const FullScreenGallery = () => {
   const { openShareModal } = useShare()
   const { deleteConfirmationTitle, deleteConfirmationKeep, deleteConfirmationDelete } =
     useSelectionStrings()
-  // The previous image, held behind the new one while it loads so switching
-  // thumbnails doesn't flash an empty frame
-  const [prevUrl, setPrevUrl] = useState<string | null>(null)
-  // Displayed image rect, so the action buttons can hug its right edge
-  const [imageBox, setImageBox] = useState<ImageBox | null>(null)
-  const handleImageBox = useCallback((box: ImageBox | null) => {
-    setImageBox(box)
-    // New image is measured/loaded → drop the held previous one
-    if (box) setPrevUrl(null)
-  }, [])
   // Delete confirmation dialog visibility
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -49,34 +36,6 @@ export const FullScreenGallery = () => {
   // Scrolling the thumbnail strip still works (it can consume the gesture).
   const modalRef = useRef<HTMLDivElement>(null)
   usePreventParentScroll(isOpen || !!fullScreenImageUrl, isMobile, modalRef)
-
-  const activeUrl = isOpen
-    ? (images.find((image) => image.id === activeId)?.url ?? images[0]?.url)
-    : undefined
-
-  // Detect an image switch DURING render (not in an effect) so the outgoing
-  // image's layer is already in the same commit that mounts the new one —
-  // otherwise there's a blank frame between unmount and the effect firing.
-  const shownUrlRef = useRef<string | undefined>(undefined)
-  if (!isOpen) {
-    shownUrlRef.current = undefined
-  } else if (activeUrl !== shownUrlRef.current) {
-    if (shownUrlRef.current && activeUrl) setPrevUrl(shownUrlRef.current)
-    shownUrlRef.current = activeUrl
-  }
-
-  // Hold the outgoing image for at most 100ms (the new one usually becomes
-  // ready first and clears it via handleImageBox)
-  useEffect(() => {
-    if (!prevUrl) return
-    const t = setTimeout(() => setPrevUrl(null), 100)
-    return () => clearTimeout(t)
-  }, [prevUrl])
-
-  // Reset when the gallery closes
-  useEffect(() => {
-    if (!isOpen) setPrevUrl(null)
-  }, [isOpen])
 
   const { data: generations = [] } = useGenerationsData()
   const { mutate: deleteGenerations } = useDeleteGeneratedImages()
@@ -210,47 +169,22 @@ export const FullScreenGallery = () => {
           className={styles.leftContent}
         />
 
-        {/* Center content with image and action buttons */}
-        <div
-          className={combineClassNames(
-            styles.centerContent,
-            !hasThumbnails && styles.centerContent_noThumbnails,
-          )}
-        >
-          <div className={styles.zoomArea}>
-            {prevUrl && prevUrl !== activeImage.url && (
-              <img src={prevUrl} alt="" aria-hidden="true" className={styles.prevImage} />
-            )}
-            <ZoomableImage
-              key={activeImage.url}
-              src={activeImage.url}
-              alt="Full Screen Image"
-              tapToClose={false}
-              onClose={closeGallery}
-              onImageBox={handleImageBox}
-            />
-          </div>
-          <ActionButtonsPanel
-            onShare={() => openShareModal(activeImage.url)}
-            onDownload={() => downloadImage(activeImage.url)}
-            onDelete={() => setConfirmDelete(true)}
-            showDelete={showDelete}
-            // Hug the image's visible right edge (clamped to the image area, so
-            // the column stops at the reserved strip instead of sliding under a
-            // zoomed image). Vertical is anchored to the fitted image's bottom.
-            style={
-              imageBox
-                ? {
-                    left: Math.min(imageBox.right, imageBox.containerW) + ACTIONS_GAP,
-                    top: imageBox.fitBottom,
-                    right: 'auto',
-                    bottom: 'auto',
-                    transform: 'translateY(-100%)',
-                  }
-                : undefined
-            }
-          />
-        </div>
+        {/* Center: vertical paged scroller over all images */}
+        <GalleryPager
+          images={images}
+          activeId={activeImage.id}
+          onActiveChange={(id) => dispatch(galleryModalSlice.actions.setActiveGalleryImage(id))}
+          hasThumbnails={hasThumbnails}
+          onClose={closeGallery}
+        />
+
+        {/* Fixed bottom-right in the reserved strip — not tied to the image */}
+        <ActionButtonsPanel
+          onShare={() => openShareModal(activeImage.url)}
+          onDownload={() => downloadImage(activeImage.url)}
+          onDelete={() => setConfirmDelete(true)}
+          showDelete={showDelete}
+        />
 
         {/* Close button (top-right) */}
         <IconButton
