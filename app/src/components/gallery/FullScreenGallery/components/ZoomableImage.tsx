@@ -43,13 +43,6 @@ interface ZoomableImageProps {
    * the image is measured.
    */
   onImageBox?: (box: ImageBox | null) => void
-  /**
-   * When the image sits in a scroll/pager, let a plain (non-pinch) wheel pass
-   * through to the scroller while the image is at fit scale, so it can page.
-   * Zoom is then reached via pinch (ctrl+wheel) or double-click; once zoomed in,
-   * the wheel pans/zooms the image as usual.
-   */
-  allowPageScroll?: boolean
 }
 
 interface Transform {
@@ -77,7 +70,6 @@ export const ZoomableImage = ({
   onClose,
   tapToClose = true,
   onImageBox,
-  allowPageScroll = false,
 }: ZoomableImageProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const natRef = useRef<{ w: number; h: number } | null>(null)
@@ -357,9 +349,6 @@ export const ZoomableImage = ({
       const m = metrics()
       const nat = natRef.current
       if (!m || !nat) return
-      // In a pager, a plain wheel at fit scale scrolls/pages instead of zooming.
-      const atFit = tfRef.current.s <= fitScale(m.cw, m.ch) * 1.01
-      if (allowPageScroll && !e.ctrlKey && atFit) return
       e.preventDefault()
       setAnimate(false)
 
@@ -477,7 +466,7 @@ export const ZoomableImage = ({
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
     }
-  }, [metrics, fitScale, clamp, apply, reset, onClose, allowPageScroll])
+  }, [metrics, fitScale, clamp, apply, reset, onClose])
 
   // Clear any pending single-tap close on unmount.
   useEffect(() => () => cancelPendingClose(), [cancelPendingClose])
