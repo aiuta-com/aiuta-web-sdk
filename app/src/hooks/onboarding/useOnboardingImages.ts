@@ -17,18 +17,13 @@ export const useOnboardingImages = () => {
   // The built-in defaults are a single image per slide; the config can still
   // override desktop and mobile separately
   return {
-    // How It Works images
+    // How It Works — the built-in default is an animated WebP (a looped
+    // outfit-swap that plays as a plain image, so it's not subject to video
+    // autoplay restrictions). A partner-configured image overrides it.
     howItWorksDesktopImage:
-      howItWorksImages?.onboardingHowItWorksDesktop ?? './images/onboarding-how-it-works.png',
+      howItWorksImages?.onboardingHowItWorksDesktop ?? './images/onboarding-how-it-works.webp',
     howItWorksMobileImage:
-      howItWorksImages?.onboardingHowItWorksMobile ?? './images/onboarding-how-it-works.png',
-    // Built-in How It Works video, shown in place of the default image (the png
-    // is its poster / fallback). A partner-configured image overrides it — then
-    // no video plays.
-    howItWorksVideo: './videos/onboarding-how-it-works.m4v',
-    howItWorksHasCustomImage: Boolean(
-      howItWorksImages?.onboardingHowItWorksDesktop ?? howItWorksImages?.onboardingHowItWorksMobile,
-    ),
+      howItWorksImages?.onboardingHowItWorksMobile ?? './images/onboarding-how-it-works.webp',
     // Best Results images
     bestResultsDesktopImage:
       bestResultsImages?.onboardingBestResultsDesktop ?? './images/onboarding-best-results.png',

@@ -12,7 +12,6 @@ import {
 import { pageIdForSlide } from '@/hooks/onboarding/useOnboardingSlides'
 import type { OnboardingSlideId } from '@/utils/onboarding/onboardingFlow'
 import type { AiutaMode } from '@lib/config'
-import { OnboardingVideo } from './OnboardingVideo'
 import styles from './Onboarding.module.scss'
 
 interface OnboardingSlidesProps {
@@ -49,23 +48,18 @@ export const OnboardingSlides = ({
       case 'howItWorks':
         return {
           image: isMobile ? images.howItWorksMobileImage : images.howItWorksDesktopImage,
-          // Looped video (png as poster); skipped when a partner configured a
-          // custom How It Works image.
-          video: images.howItWorksHasCustomImage ? undefined : images.howItWorksVideo,
           title: strings.onboardingHowItWorksTitle,
           description: strings.onboardingHowItWorksDescription,
         }
       case 'bestResults':
         return {
           image: isMobile ? images.bestResultsMobileImage : images.bestResultsDesktopImage,
-          video: undefined,
           title: strings.onboardingBestResultsTitle,
           description: strings.onboardingBestResultsDescription,
         }
       case 'shoesBestResults':
         return {
           image: images.shoesBestResultsImage,
-          video: undefined,
           title: strings.onboardingShoesBestResultsTitle,
           description: strings.onboardingShoesBestResultsDescription,
         }
@@ -113,21 +107,12 @@ export const OnboardingSlides = ({
             <Slide key={slideId} state={getSlideState(index)}>
               {content ? (
                 <>
-                  {content.video ? (
-                    <OnboardingVideo
-                      className={`${styles.image} ${isMobile ? styles.image_mobile : ''} ${styles.video}`}
-                      src={content.video}
-                      poster={content.image}
-                      title={content.title}
-                    />
-                  ) : (
-                    <img
-                      alt={content.title}
-                      className={`${styles.image} ${isMobile ? styles.image_mobile : ''}`}
-                      src={content.image}
-                      draggable={false}
-                    />
-                  )}
+                  <img
+                    alt={content.title}
+                    className={`${styles.image} ${isMobile ? styles.image_mobile : ''}`}
+                    src={content.image}
+                    draggable={false}
+                  />
                   <h2 className={`${isMobile ? 'aiuta-title-m' : 'aiuta-title-l'} ${styles.title}`}>
                     {content.title}
                   </h2>
