@@ -81,6 +81,14 @@ export const ThumbnailList = ({
   // Wheel delta accumulated past a scroll extreme, to keep "scrolling" the
   // selection at the same pace once the strip itself can't move further.
   const overscrollRef = useRef(0)
+  // The "active zone": the active thumbnail's on-screen position (its center,
+  // measured from the strip's top edge) captured when the selection is set by a
+  // click/keyboard/open. Scrolling then hands the selection to whichever
+  // thumbnail moves into this fixed on-screen spot, so the active stays roughly
+  // where the previous one was.
+  const anchorRef = useRef<number | null>(null)
+  // Whether the initial active item has been revealed/anchored once on open.
+  const didInitRef = useRef(false)
 
   const updateFade = useCallback(() => {
     const el = containerRef.current
@@ -93,61 +101,89 @@ export const ThumbnailList = ({
     setFade((prev) => (prev.top === top && prev.bottom === bottom ? prev : { top, bottom }))
   }, [])
 
-  // Bring the active thumbnail into view only when it's outside the visible area
-  // (scroll the minimum needed, not to the center) — for click / keyboard /
-  // delete. Skipped when the selection change itself came from scrolling.
+  // Capture the active zone when the selection is set by click / keyboard / open
+  // (not by scrolling): remember where the active thumbnail sits on screen so
+  // later scrolling hands the selection to whatever enters that spot. On the
+  // first open only, if the active item is off screen, reveal it first (and
+  // anchor at its revealed position); a user click already sits where it is, so
+  // the strip is left in place and the zone is taken from its current position.
   useEffect(() => {
     if (scrollDrivenRef.current) {
+      // Scroll-driven change: keep the existing zone fixed on screen.
       scrollDrivenRef.current = false
       return
     }
     const el = activeItemRef.current
-    const container = el?.parentElement
+    const container = containerRef.current
     if (!el || !container || direction !== 'vertical') return
-    const top = el.offsetTop
-    const bottom = top + el.offsetHeight
+
+    const activeCenter = el.offsetTop + el.offsetHeight / 2
     const viewTop = container.scrollTop
     const viewBottom = viewTop + container.clientHeight
-    let target: number | null = null
-    if (top < viewTop + FOLLOW_MARGIN) target = top - FOLLOW_MARGIN
-    else if (bottom > viewBottom - FOLLOW_MARGIN)
-      target = bottom - container.clientHeight + FOLLOW_MARGIN
-    if (target === null) return
-    // Mark this scroll as programmatic so it doesn't trip the follow logic.
-    programmaticRef.current = true
-    if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
-    programmaticTimer.current = setTimeout(() => {
-      programmaticRef.current = false
-    }, 400)
-    container.scrollTo({ top: target, behavior: 'smooth' })
+    const needsReveal =
+      !didInitRef.current &&
+      (activeCenter < viewTop + FOLLOW_MARGIN || activeCenter > viewBottom - FOLLOW_MARGIN)
+    didInitRef.current = true
+
+    if (needsReveal) {
+      const max = container.scrollHeight - container.clientHeight
+      const target = Math.max(0, Math.min(max, activeCenter - container.clientHeight / 2))
+      anchorRef.current = activeCenter - target
+      programmaticRef.current = true
+      if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
+      programmaticTimer.current = setTimeout(() => {
+        programmaticRef.current = false
+      }, 400)
+      container.scrollTo({ top: target, behavior: 'auto' })
+    } else {
+      anchorRef.current = activeCenter - viewTop
+    }
   }, [activeId, direction])
 
   useEffect(() => () => {
     if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
   }, [])
 
-  // While the user scrolls the strip, hand the selection to the next/previous
-  // thumbnail once the active one is scrolled past the FOLLOW_MARGIN bound.
+  // While the user scrolls the strip, the active is whichever thumbnail moves
+  // into the active zone (the fixed on-screen spot captured when the selection
+  // was last set by click/keyboard/open). The strip moves and the selection
+  // changes together, and the active stays roughly where the previous one was.
   const handleScroll = useCallback(() => {
     updateFade()
     if (programmaticRef.current || direction !== 'vertical') return
     const el = containerRef.current
-    const active = activeItemRef.current
-    if (!el || !active) return
-    const aTop = active.offsetTop
-    const aBottom = aTop + active.offsetHeight
+    if (!el || anchorRef.current === null) return
+    // The active zone in content space: scroll offset + its on-screen position.
     const viewTop = el.scrollTop
     const viewBottom = viewTop + el.clientHeight
-    const idx = items.findIndex((item) => item.id === activeId)
-    if (idx === -1) return
-    if (aTop < viewTop + FOLLOW_MARGIN && idx < items.length - 1) {
-      // Scrolled down past the active → advance to the next one
+    const zoneY = viewTop + anchorRef.current
+    const thumbs = el.querySelectorAll<HTMLElement>(`.${styles.thumbnailItem}`)
+    if (!thumbs.length) return
+    // Prefer the thumbnail nearest the zone among those fully in view, so the
+    // active never ends up half-clipped at a scroll edge; fall back to the
+    // nearest overall if none is fully visible.
+    let bestIdx = -1
+    let bestDist = Infinity
+    let bestVisibleIdx = -1
+    let bestVisibleDist = Infinity
+    thumbs.forEach((thumb, i) => {
+      const top = thumb.offsetTop
+      const bottom = top + thumb.offsetHeight
+      const dist = Math.abs((top + bottom) / 2 - zoneY)
+      if (dist < bestDist) {
+        bestDist = dist
+        bestIdx = i
+      }
+      const fullyVisible = top >= viewTop - 0.5 && bottom <= viewBottom + 0.5
+      if (fullyVisible && dist < bestVisibleDist) {
+        bestVisibleDist = dist
+        bestVisibleIdx = i
+      }
+    })
+    const chosen = bestVisibleIdx >= 0 ? bestVisibleIdx : bestIdx
+    if (chosen >= 0 && items[chosen] && items[chosen].id !== activeId) {
       scrollDrivenRef.current = true
-      onItemClick(items[idx + 1], idx + 1)
-    } else if (aBottom > viewBottom - FOLLOW_MARGIN && idx > 0) {
-      // Scrolled up past the active → go back to the previous one
-      scrollDrivenRef.current = true
-      onItemClick(items[idx - 1], idx - 1)
+      onItemClick(items[chosen], chosen)
     }
   }, [updateFade, direction, items, activeId, onItemClick])
 
@@ -195,6 +231,11 @@ export const ThumbnailList = ({
       }
       if (idx !== idx0) {
         scrollDrivenRef.current = true
+        // Move the active zone onto the newly selected thumbnail so reversing
+        // the scroll resumes from here instead of snapping back to the old zone.
+        const thumbs = el.querySelectorAll<HTMLElement>(`.${styles.thumbnailItem}`)
+        const thumb = thumbs[idx]
+        if (thumb) anchorRef.current = thumb.offsetTop + thumb.offsetHeight / 2 - el.scrollTop
         onItemClick(items[idx], idx)
       }
     }
