@@ -72,6 +72,17 @@
   }
 }
 
+// Safari paints a ~1px black edge along a playing <video> (a WebKit video-layer
+// seam — absent in Chrome, and not present in the media itself). Overscan the
+// video a hair and clip 1px inside the box, so that boundary seam is dropped
+// with no transparent gap (the overscan keeps the box covered) and only ~1px of
+// imperceptible crop. Doubled class beats .image / .image_mobile.
+.video.video {
+  transform: scale(1.01);
+  clip-path: inset(1px);
+}
+
+
 .title {
   margin: 0;
   padding: 4px 24px;

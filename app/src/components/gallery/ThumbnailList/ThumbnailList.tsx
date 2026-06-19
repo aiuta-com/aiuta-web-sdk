@@ -81,6 +81,12 @@ export const ThumbnailList = ({
   // Wheel delta accumulated past a scroll extreme, to keep "scrolling" the
   // selection at the same pace once the strip itself can't move further.
   const overscrollRef = useRef(0)
+  // The "active zone": the active thumbnail's on-screen position (its center,
+  // measured from the strip's top edge) captured when the selection is set by a
+  // click/keyboard/open. Scrolling then hands the selection to whichever
+  // thumbnail moves into this fixed on-screen spot, so the active stays roughly
+  // where the previous one was.
+  const anchorRef = useRef<number | null>(null)
 
   const updateFade = useCallback(() => {
     const el = containerRef.current
@@ -93,61 +99,94 @@ export const ThumbnailList = ({
     setFade((prev) => (prev.top === top && prev.bottom === bottom ? prev : { top, bottom }))
   }, [])
 
-  // Bring the active thumbnail into view only when it's outside the visible area
-  // (scroll the minimum needed, not to the center) — for click / keyboard /
-  // delete. Skipped when the selection change itself came from scrolling.
+  // Bring the active thumbnail into comfortable view (clear of the edge fades)
+  // if it's clipped or under an edge, then capture the active zone at its
+  // resulting on-screen position. A comfortably-visible item is left in place,
+  // so its current spot becomes the zone. Used on click/keyboard/open and on
+  // resize, so the active is never left half outside the strip.
+  const anchorActive = useCallback(
+    (animate: boolean) => {
+      const el = activeItemRef.current
+      const container = containerRef.current
+      if (!el || !container || direction !== 'vertical') return
+      const top = el.offsetTop
+      const bottom = top + el.offsetHeight
+      const viewTop = container.scrollTop
+      const viewBottom = viewTop + container.clientHeight
+      let target = viewTop
+      if (top < viewTop + FOLLOW_MARGIN) target = top - FOLLOW_MARGIN
+      else if (bottom > viewBottom - FOLLOW_MARGIN)
+        target = bottom - container.clientHeight + FOLLOW_MARGIN
+      const max = container.scrollHeight - container.clientHeight
+      target = Math.max(0, Math.min(max, target))
+      // Zone = the active's center relative to its (post-scroll) viewport top.
+      anchorRef.current = top + el.offsetHeight / 2 - target
+      if (Math.abs(target - viewTop) < 1) return
+      // Mark this scroll as programmatic so it doesn't trip the follow logic.
+      programmaticRef.current = true
+      if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
+      programmaticTimer.current = setTimeout(() => {
+        programmaticRef.current = false
+      }, 400)
+      container.scrollTo({ top: target, behavior: animate ? 'smooth' : 'auto' })
+    },
+    [direction],
+  )
+
+  // On a click/keyboard/open selection change, reveal + anchor the active.
+  // Skipped when the change came from scrolling (the zone stays fixed there).
   useEffect(() => {
     if (scrollDrivenRef.current) {
       scrollDrivenRef.current = false
       return
     }
-    const el = activeItemRef.current
-    const container = el?.parentElement
-    if (!el || !container || direction !== 'vertical') return
-    const top = el.offsetTop
-    const bottom = top + el.offsetHeight
-    const viewTop = container.scrollTop
-    const viewBottom = viewTop + container.clientHeight
-    let target: number | null = null
-    if (top < viewTop + FOLLOW_MARGIN) target = top - FOLLOW_MARGIN
-    else if (bottom > viewBottom - FOLLOW_MARGIN)
-      target = bottom - container.clientHeight + FOLLOW_MARGIN
-    if (target === null) return
-    // Mark this scroll as programmatic so it doesn't trip the follow logic.
-    programmaticRef.current = true
-    if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
-    programmaticTimer.current = setTimeout(() => {
-      programmaticRef.current = false
-    }, 400)
-    container.scrollTo({ top: target, behavior: 'smooth' })
-  }, [activeId, direction])
+    anchorActive(true)
+  }, [activeId, anchorActive])
 
   useEffect(() => () => {
     if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
   }, [])
 
-  // While the user scrolls the strip, hand the selection to the next/previous
-  // thumbnail once the active one is scrolled past the FOLLOW_MARGIN bound.
+  // While the user scrolls the strip, the active is whichever thumbnail moves
+  // into the active zone (the fixed on-screen spot captured when the selection
+  // was last set by click/keyboard/open). The strip moves and the selection
+  // changes together, and the active stays roughly where the previous one was.
   const handleScroll = useCallback(() => {
     updateFade()
     if (programmaticRef.current || direction !== 'vertical') return
     const el = containerRef.current
-    const active = activeItemRef.current
-    if (!el || !active) return
-    const aTop = active.offsetTop
-    const aBottom = aTop + active.offsetHeight
+    if (!el || anchorRef.current === null) return
+    // The active zone in content space: scroll offset + its on-screen position.
     const viewTop = el.scrollTop
     const viewBottom = viewTop + el.clientHeight
-    const idx = items.findIndex((item) => item.id === activeId)
-    if (idx === -1) return
-    if (aTop < viewTop + FOLLOW_MARGIN && idx < items.length - 1) {
-      // Scrolled down past the active → advance to the next one
+    const zoneY = viewTop + anchorRef.current
+    const thumbs = el.querySelectorAll<HTMLElement>(`.${styles.thumbnailItem}`)
+    if (!thumbs.length) return
+    // Prefer the thumbnail nearest the zone among those fully in view, so the
+    // active never ends up half-clipped at a scroll edge; fall back to the
+    // nearest overall if none is fully visible.
+    let bestIdx = -1
+    let bestDist = Infinity
+    let bestVisibleIdx = -1
+    let bestVisibleDist = Infinity
+    thumbs.forEach((thumb, i) => {
+      const top = thumb.offsetTop
+      const bottom = top + thumb.offsetHeight
+      const dist = Math.abs((top + bottom) / 2 - zoneY)
+      if (dist < bestDist) {
+        bestDist = dist
+        bestIdx = i
+      }
+      const fullyVisible = top >= viewTop - 0.5 && bottom <= viewBottom + 0.5
+      if (fullyVisible && dist < bestVisibleDist) {
+        bestVisibleDist = dist
+        bestVisibleIdx = i
+      }
+    })
+    const chosen = bestVisibleIdx >= 0 ? bestVisibleIdx : bestIdx
+    if (chosen >= 0 && items[chosen] && items[chosen].id !== activeId) {
       scrollDrivenRef.current = true
-      onItemClick(items[idx + 1], idx + 1)
-    } else if (aBottom > viewBottom - FOLLOW_MARGIN && idx > 0) {
-      // Scrolled up past the active → go back to the previous one
-      scrollDrivenRef.current = true
-      onItemClick(items[idx - 1], idx - 1)
+      onItemClick(items[chosen], chosen)
     }
   }, [updateFade, direction, items, activeId, onItemClick])
 
@@ -195,6 +234,11 @@ export const ThumbnailList = ({
       }
       if (idx !== idx0) {
         scrollDrivenRef.current = true
+        // Move the active zone onto the newly selected thumbnail so reversing
+        // the scroll resumes from here instead of snapping back to the old zone.
+        const thumbs = el.querySelectorAll<HTMLElement>(`.${styles.thumbnailItem}`)
+        const thumb = thumbs[idx]
+        if (thumb) anchorRef.current = thumb.offsetTop + thumb.offsetHeight / 2 - el.scrollTop
         onItemClick(items[idx], idx)
       }
     }
@@ -202,15 +246,19 @@ export const ThumbnailList = ({
     return () => el.removeEventListener('wheel', onWheel)
   }, [direction, items, activeId, onItemClick])
 
-  // Recompute the fades when the items or the container size change.
+  // Recompute the fades when the items or the container size change, and on
+  // resize keep the active thumbnail in view and refresh the active zone.
   useEffect(() => {
     updateFade()
     const el = containerRef.current
     if (!el) return
-    const ro = new ResizeObserver(updateFade)
+    const ro = new ResizeObserver(() => {
+      updateFade()
+      anchorActive(false)
+    })
     ro.observe(el)
     return () => ro.disconnect()
-  }, [items, updateFade])
+  }, [items, updateFade, anchorActive])
 
   // Feed the scroll-scaled fade heights to the mask (vertical only).
   const fadeStyle = useMemo(() => {
