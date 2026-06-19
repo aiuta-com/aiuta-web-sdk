@@ -7,6 +7,10 @@ import styles from './ThumbnailList.module.scss'
 // hands the selection to the next/previous thumbnail. Matches the fade height.
 const FOLLOW_MARGIN = 42
 
+// Once the strip is at a scroll extreme, one selection step per this much
+// accumulated wheel delta (thumbnail height 80 + gap 8).
+const STEP = 88
+
 // Internal ThumbnailItem component
 interface ThumbnailItemProps {
   item: ThumbnailData
@@ -66,6 +70,7 @@ export const ThumbnailList = ({
   direction = 'horizontal',
   className,
   showSingleItem = false,
+  wheelApiRef,
 }: ThumbnailListProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const activeItemRef = useRef<HTMLDivElement>(null)
@@ -190,38 +195,37 @@ export const ThumbnailList = ({
     }
   }, [updateFade, direction, items, activeId, onItemClick])
 
-  // Once the strip can't scroll further in the wheel direction, keep stepping
-  // the selection at the same pace ("virtual scroll") — one thumbnail per ~its
-  // own height of accumulated delta. Non-passive so we can preventDefault at the
-  // edge; while the strip can still scroll, we leave the native scroll alone.
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el || direction !== 'vertical') return
-    const STEP = 88 // thumbnail height (80) + gap (8): matches the scroll pace
-    const onWheel = (e: WheelEvent) => {
-      let delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX
-      if (delta === 0) return
+  // Shared wheel handling. In range it moves the selection by scrolling (zone
+  // selection runs via onScroll); at a scroll extreme it keeps stepping the
+  // selection at the same pace ("virtual scroll"). `active` actively scrolls the
+  // strip for the in-range case — used when the wheel is forwarded from outside
+  // the strip (the central image / backdrop); a wheel directly on the strip
+  // leaves that to native scrolling. Returns true if the edge step ran (the
+  // caller should preventDefault).
+  const consumeWheel = useCallback(
+    (deltaY: number, deltaX: number, deltaMode: number, active: boolean) => {
+      const el = containerRef.current
+      if (!el || direction !== 'vertical') return false
+      let delta = Math.abs(deltaY) >= Math.abs(deltaX) ? deltaY : deltaX
+      if (delta === 0) return false
       const dir = delta > 0 ? 1 : -1
       const canScrollMore =
-        dir > 0
-          ? el.scrollTop + el.clientHeight < el.scrollHeight - 1
-          : el.scrollTop > 1
+        dir > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 1
+      // Normalize line/page wheel modes to pixels
+      if (deltaMode === 1) delta *= 16
+      else if (deltaMode === 2) delta *= el.clientHeight
       if (canScrollMore) {
         overscrollRef.current = 0
-        return
+        if (active) el.scrollTop += delta
+        return false
       }
-      if (!e.cancelable) return
-      e.preventDefault()
-      // Normalize line/page wheel modes to pixels
-      if (e.deltaMode === 1) delta *= 16
-      else if (e.deltaMode === 2) delta *= el.clientHeight
       // Reset the accumulator when the direction flips
       if (overscrollRef.current !== 0 && Math.sign(overscrollRef.current) !== dir) {
         overscrollRef.current = 0
       }
       overscrollRef.current += delta
       const idx0 = items.findIndex((item) => item.id === activeId)
-      if (idx0 === -1) return
+      if (idx0 === -1) return true
       let idx = idx0
       while (Math.abs(overscrollRef.current) >= STEP) {
         overscrollRef.current -= dir * STEP
@@ -241,10 +245,37 @@ export const ThumbnailList = ({
         if (thumb) anchorRef.current = thumb.offsetTop + thumb.offsetHeight / 2 - el.scrollTop
         onItemClick(items[idx], idx)
       }
+      return true
+    },
+    [direction, items, activeId, onItemClick],
+  )
+
+  // Wheel directly on the strip: native scroll in range, virtual step at the
+  // edge (non-passive so we can preventDefault there).
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el || direction !== 'vertical') return
+    const onWheel = (e: WheelEvent) => {
+      const steppedAtEdge = consumeWheel(e.deltaY, e.deltaX, e.deltaMode, false)
+      if (steppedAtEdge && e.cancelable) e.preventDefault()
     }
     el.addEventListener('wheel', onWheel, { passive: false })
     return () => el.removeEventListener('wheel', onWheel)
-  }, [direction, items, activeId, onItemClick])
+  }, [direction, consumeWheel])
+
+  // Expose wheel forwarding so the gallery can route central-area wheel/trackpad
+  // gestures into the strip (over the backdrop and the un-zoomed image).
+  useEffect(() => {
+    if (!wheelApiRef) return
+    const ref = wheelApiRef
+    ref.current = {
+      scrollByWheel: (deltaY: number, deltaX: number, deltaMode: number) =>
+        consumeWheel(deltaY, deltaX, deltaMode, true),
+    }
+    return () => {
+      ref.current = null
+    }
+  }, [wheelApiRef, consumeWheel])
 
   // Recompute the fades when the items or the container size change, and on
   // resize keep the active thumbnail in view and refresh the active zone.

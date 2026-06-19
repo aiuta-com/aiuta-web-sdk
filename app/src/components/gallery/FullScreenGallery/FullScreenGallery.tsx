@@ -5,12 +5,13 @@ import { uploadsSlice, fullScreenImageUrlSelector } from '@/store/slices/uploads
 import { galleryModalSlice, galleryModalSelector } from '@/store/slices/galleryModalSlice'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { ThumbnailList, IconButton, Confirmation } from '@/components'
+import type { ThumbnailWheelApi } from '@/components/gallery/ThumbnailList/types'
 import { useShare, useLogger } from '@/contexts'
 import { useSelectionStrings, usePreventParentScroll } from '@/hooks'
 import { useGenerationsData, useDeleteGeneratedImages } from '@/hooks/data'
+import { combineClassNames } from '@/utils'
 import { ActionButtonsPanel } from './components/ActionButtonsPanel'
-import { ZoomableImage } from './components/ZoomableImage'
-import { GalleryPager } from './components/GalleryPager'
+import { ZoomableImage, type ImageBox } from './components/ZoomableImage'
 import { icons } from './icons'
 import styles from './FullScreenGallery.module.scss'
 
@@ -21,6 +22,14 @@ export const FullScreenGallery = () => {
   const { openShareModal } = useShare()
   const { deleteConfirmationTitle, deleteConfirmationKeep, deleteConfirmationDelete } =
     useSelectionStrings()
+  // The previous image, held behind the new one while it loads so switching
+  // images doesn't flash an empty frame
+  const [prevUrl, setPrevUrl] = useState<string | null>(null)
+  // ZoomableImage reports its measured box once the new image is ready → drop
+  // the held previous one.
+  const handleImageBox = useCallback((box: ImageBox | null) => {
+    if (box) setPrevUrl(null)
+  }, [])
   // Delete confirmation dialog visibility
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -36,6 +45,47 @@ export const FullScreenGallery = () => {
   // Scrolling the thumbnail strip still works (it can consume the gesture).
   const modalRef = useRef<HTMLDivElement>(null)
   usePreventParentScroll(isOpen || !!fullScreenImageUrl, isMobile, modalRef)
+
+  // Wheel/trackpad gestures over the central image (un-zoomed) or the backdrop
+  // are forwarded to the thumbnail strip, so the whole center scrolls the strip.
+  const thumbWheelApi = useRef<ThumbnailWheelApi | null>(null)
+  const handleCenterWheel = useCallback((e: React.WheelEvent) => {
+    const api = thumbWheelApi.current
+    if (!api) return
+    // A wheel directly on the strip is handled by the strip itself; a zoomed
+    // image stops propagation — so reaching here means the backdrop or an
+    // un-zoomed image. Forward it to the strip.
+    if ((e.target as Element).closest?.(`.${styles.leftContent}`)) return
+    api.scrollByWheel(e.deltaY, e.deltaX, e.deltaMode)
+  }, [])
+
+  const activeUrl = isOpen
+    ? (images.find((image) => image.id === activeId)?.url ?? images[0]?.url)
+    : undefined
+
+  // Detect an image switch DURING render (not in an effect) so the outgoing
+  // image's layer is already in the same commit that mounts the new one —
+  // otherwise there's a blank frame between unmount and the effect firing.
+  const shownUrlRef = useRef<string | undefined>(undefined)
+  if (!isOpen) {
+    shownUrlRef.current = undefined
+  } else if (activeUrl !== shownUrlRef.current) {
+    if (shownUrlRef.current && activeUrl) setPrevUrl(shownUrlRef.current)
+    shownUrlRef.current = activeUrl
+  }
+
+  // Hold the outgoing image for at most 100ms (the new one usually becomes
+  // ready first and clears it via handleImageBox)
+  useEffect(() => {
+    if (!prevUrl) return
+    const t = setTimeout(() => setPrevUrl(null), 100)
+    return () => clearTimeout(t)
+  }, [prevUrl])
+
+  // Reset when the gallery closes
+  useEffect(() => {
+    if (!isOpen) setPrevUrl(null)
+  }, [isOpen])
 
   const { data: generations = [] } = useGenerationsData()
   const { mutate: deleteGenerations } = useDeleteGeneratedImages()
@@ -158,6 +208,7 @@ export const FullScreenGallery = () => {
         onClick={(e) => {
           if (e.target === e.currentTarget) closeGallery()
         }}
+        onWheel={handleCenterWheel}
       >
         {/* Left sidebar with image thumbnails */}
         <ThumbnailList
@@ -167,16 +218,31 @@ export const FullScreenGallery = () => {
           variant="fullscreen"
           direction="vertical"
           className={styles.leftContent}
+          wheelApiRef={thumbWheelApi}
         />
 
-        {/* Center: vertical paged scroller over all images */}
-        <GalleryPager
-          images={images}
-          activeId={activeImage.id}
-          onActiveChange={(id) => dispatch(galleryModalSlice.actions.setActiveGalleryImage(id))}
-          hasThumbnails={hasThumbnails}
-          onClose={closeGallery}
-        />
+        {/* Center content: the active image (crossfaded on switch) */}
+        <div
+          className={combineClassNames(
+            styles.centerContent,
+            !hasThumbnails && styles.centerContent_noThumbnails,
+          )}
+        >
+          <div className={styles.zoomArea}>
+            {prevUrl && prevUrl !== activeImage.url && (
+              <img src={prevUrl} alt="" aria-hidden="true" className={styles.prevImage} />
+            )}
+            <ZoomableImage
+              key={activeImage.url}
+              src={activeImage.url}
+              alt="Full Screen Image"
+              tapToClose={false}
+              onClose={closeGallery}
+              onImageBox={handleImageBox}
+              disableZoom
+            />
+          </div>
+        </div>
 
         {/* Fixed bottom-right in the reserved strip — not tied to the image */}
         <ActionButtonsPanel

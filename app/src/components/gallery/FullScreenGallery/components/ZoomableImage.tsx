@@ -44,12 +44,18 @@ interface ZoomableImageProps {
    */
   onImageBox?: (box: ImageBox | null) => void
   /**
-   * When the image sits in a scroll/pager, let a plain (non-pinch) wheel pass
-   * through to the scroller while the image is at fit scale, so it can page.
-   * Zoom is then reached via pinch (ctrl+wheel) or double-click; once zoomed in,
-   * the wheel pans/zooms the image as usual.
+   * When at fit scale, let a plain (non-pinch) wheel bubble up instead of
+   * zooming, so a parent can forward it elsewhere (the gallery routes it to the
+   * thumbnail strip). Zoom is then reached via pinch (ctrl+wheel) / double-click;
+   * once zoomed in, the wheel zooms/pans and is no longer forwarded.
    */
-  allowPageScroll?: boolean
+  deferWheelAtFit?: boolean
+  /**
+   * Disable all zoom/pan interaction: the image stays fit-to-screen and every
+   * wheel/pinch/double-click is ignored here (wheels bubble so the gallery can
+   * forward them to the thumbnail strip).
+   */
+  disableZoom?: boolean
 }
 
 interface Transform {
@@ -77,7 +83,8 @@ export const ZoomableImage = ({
   onClose,
   tapToClose = true,
   onImageBox,
-  allowPageScroll = false,
+  deferWheelAtFit = false,
+  disableZoom = false,
 }: ZoomableImageProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const natRef = useRef<{ w: number; h: number } | null>(null)
@@ -215,7 +222,7 @@ export const ZoomableImage = ({
         g.downY = p.y
         g.moved = false
         g.downT = e.timeStamp
-      } else if (e.touches.length === 2) {
+      } else if (e.touches.length === 2 && !disableZoom) {
         g.mode = 'pinch'
         g.startDist = distance(e.touches[0], e.touches[1])
         g.startS = tfRef.current.s
@@ -279,7 +286,7 @@ export const ZoomableImage = ({
             Math.abs(g.downX - g.lastTapX) < DOUBLE_TAP_DIST &&
             Math.abs(g.downY - g.lastTapY) < DOUBLE_TAP_DIST
 
-          if (isDoubleTap) {
+          if (isDoubleTap && !disableZoom) {
             // Second tap → toggle zoom, cancel the deferred close from the first.
             g.lastTapT = 0
             cancelPendingClose()
@@ -327,7 +334,7 @@ export const ZoomableImage = ({
       el.removeEventListener('touchend', onEnd)
       el.removeEventListener('touchcancel', onEnd)
     }
-  }, [metrics, fitScale, clamp, apply, reset, cancelPendingClose, onClose, tapToClose])
+  }, [metrics, fitScale, clamp, apply, reset, cancelPendingClose, onClose, tapToClose, disableZoom])
 
   // Mouse gestures (desktop): wheel zoom around the cursor, drag to pan,
   // double-click to toggle zoom.
@@ -357,10 +364,15 @@ export const ZoomableImage = ({
       const m = metrics()
       const nat = natRef.current
       if (!m || !nat) return
-      // In a pager, a plain wheel at fit scale scrolls/pages instead of zooming.
+      // Zoom disabled → let every wheel bubble (the gallery forwards it).
+      if (disableZoom) return
+      // At fit scale, let a plain (non-pinch) wheel bubble so the gallery can
+      // forward it to the thumbnail strip; zoom needs pinch / double-click.
       const atFit = tfRef.current.s <= fitScale(m.cw, m.ch) * 1.01
-      if (allowPageScroll && !e.ctrlKey && atFit) return
+      if (deferWheelAtFit && !e.ctrlKey && atFit) return
       e.preventDefault()
+      // We're handling the wheel (zoom/pan) — don't let the gallery forward it.
+      e.stopPropagation()
       setAnimate(false)
 
       const now = e.timeStamp
@@ -447,6 +459,7 @@ export const ZoomableImage = ({
     }
 
     const onDblClick = (e: MouseEvent) => {
+      if (disableZoom) return
       const m = metrics()
       const nat = natRef.current
       if (!m || !nat) return
@@ -477,7 +490,7 @@ export const ZoomableImage = ({
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', onMouseUp)
     }
-  }, [metrics, fitScale, clamp, apply, reset, onClose, allowPageScroll])
+  }, [metrics, fitScale, clamp, apply, reset, onClose, deferWheelAtFit, disableZoom])
 
   // Clear any pending single-tap close on unmount.
   useEffect(() => () => cancelPendingClose(), [cancelPendingClose])
