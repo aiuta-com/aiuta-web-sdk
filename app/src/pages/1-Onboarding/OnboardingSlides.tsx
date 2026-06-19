@@ -12,6 +12,7 @@ import {
 import { pageIdForSlide } from '@/hooks/onboarding/useOnboardingSlides'
 import type { OnboardingSlideId } from '@/utils/onboarding/onboardingFlow'
 import type { AiutaMode } from '@lib/config'
+import { OnboardingVideo } from './OnboardingVideo'
 import styles from './Onboarding.module.scss'
 
 interface OnboardingSlidesProps {
@@ -113,20 +114,12 @@ export const OnboardingSlides = ({
               {content ? (
                 <>
                   {content.video ? (
-                    <video
-                      className={`${styles.image} ${isMobile ? styles.image_mobile : ''}`}
+                    <OnboardingVideo
+                      className={`${styles.image} ${isMobile ? styles.image_mobile : ''} ${styles.video}`}
+                      src={content.video}
                       poster={content.image}
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      preload="auto"
-                      disablePictureInPicture
-                      tabIndex={-1}
-                      aria-label={content.title}
-                    >
-                      <source src={content.video} type="video/mp4" />
-                    </video>
+                      title={content.title}
+                    />
                   ) : (
                     <img
                       alt={content.title}
