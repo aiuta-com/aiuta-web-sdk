@@ -133,12 +133,13 @@ $actions-reserve: 76px;
     pointer-events: none;
   }
 
-  // Positioned from JS (anchored to the image's right edge); these are the
-  // pre-measure defaults
+  // Fixed bottom-right of the modal, not tied to the image position. 12px from
+  // the right edge (the 52px column sits inside the $actions-reserve strip, 12px
+  // clear of the image area) and 16px from the bottom (matching the image inset).
   .actionButtons {
     position: absolute;
-    right: -64px;
-    bottom: 24px;
+    right: 12px;
+    bottom: 16px;
     display: flex;
     align-items: flex-end;
     flex-direction: column;

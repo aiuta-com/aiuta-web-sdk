@@ -8,8 +8,6 @@ interface ActionButtonsPanelProps {
   onDownload: () => void
   onDelete?: () => void
   showDelete?: boolean
-  /** Dynamic positioning (anchors the column to the image's right edge) */
-  style?: React.CSSProperties
 }
 
 export const ActionButtonsPanel = ({
@@ -17,10 +15,9 @@ export const ActionButtonsPanel = ({
   onDownload,
   onDelete,
   showDelete,
-  style,
 }: ActionButtonsPanelProps) => {
   return (
-    <div className={styles.actionButtons} style={style}>
+    <div className={styles.actionButtons}>
       <IconButton
         icon={icons.share}
         label="Share"

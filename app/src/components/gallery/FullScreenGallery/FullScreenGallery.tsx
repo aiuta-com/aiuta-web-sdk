@@ -14,9 +14,6 @@ import { ZoomableImage, type ImageBox } from './components/ZoomableImage'
 import { icons } from './icons'
 import styles from './FullScreenGallery.module.scss'
 
-// Gap between the image's right edge and the action buttons column
-const ACTIONS_GAP = 12
-
 export const FullScreenGallery = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -27,11 +24,9 @@ export const FullScreenGallery = () => {
   // The previous image, held behind the new one while it loads so switching
   // thumbnails doesn't flash an empty frame
   const [prevUrl, setPrevUrl] = useState<string | null>(null)
-  // Displayed image rect, so the action buttons can hug its right edge
-  const [imageBox, setImageBox] = useState<ImageBox | null>(null)
+  // ZoomableImage reports its measured box once the new image is ready → drop
+  // the held previous one (the box itself is no longer used for positioning).
   const handleImageBox = useCallback((box: ImageBox | null) => {
-    setImageBox(box)
-    // New image is measured/loaded → drop the held previous one
     if (box) setPrevUrl(null)
   }, [])
   // Delete confirmation dialog visibility
@@ -230,27 +225,15 @@ export const FullScreenGallery = () => {
               onImageBox={handleImageBox}
             />
           </div>
-          <ActionButtonsPanel
-            onShare={() => openShareModal(activeImage.url)}
-            onDownload={() => downloadImage(activeImage.url)}
-            onDelete={() => setConfirmDelete(true)}
-            showDelete={showDelete}
-            // Hug the image's visible right edge (clamped to the image area, so
-            // the column stops at the reserved strip instead of sliding under a
-            // zoomed image). Vertical is anchored to the fitted image's bottom.
-            style={
-              imageBox
-                ? {
-                    left: Math.min(imageBox.right, imageBox.containerW) + ACTIONS_GAP,
-                    top: imageBox.fitBottom,
-                    right: 'auto',
-                    bottom: 'auto',
-                    transform: 'translateY(-100%)',
-                  }
-                : undefined
-            }
-          />
         </div>
+
+        {/* Fixed bottom-right in the reserved strip — not tied to the image */}
+        <ActionButtonsPanel
+          onShare={() => openShareModal(activeImage.url)}
+          onDownload={() => downloadImage(activeImage.url)}
+          onDelete={() => setConfirmDelete(true)}
+          showDelete={showDelete}
+        />
 
         {/* Close button (top-right) */}
         <IconButton
