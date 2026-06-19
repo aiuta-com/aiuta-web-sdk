@@ -5,6 +5,7 @@ import { uploadsSlice, fullScreenImageUrlSelector } from '@/store/slices/uploads
 import { galleryModalSlice, galleryModalSelector } from '@/store/slices/galleryModalSlice'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { ThumbnailList, IconButton, Confirmation } from '@/components'
+import type { ThumbnailWheelApi } from '@/components/gallery/ThumbnailList/types'
 import { useShare, useLogger } from '@/contexts'
 import { useSelectionStrings, usePreventParentScroll } from '@/hooks'
 import { useGenerationsData, useDeleteGeneratedImages } from '@/hooks/data'
@@ -44,6 +45,19 @@ export const FullScreenGallery = () => {
   // Scrolling the thumbnail strip still works (it can consume the gesture).
   const modalRef = useRef<HTMLDivElement>(null)
   usePreventParentScroll(isOpen || !!fullScreenImageUrl, isMobile, modalRef)
+
+  // Wheel/trackpad gestures over the central image (un-zoomed) or the backdrop
+  // are forwarded to the thumbnail strip, so the whole center scrolls the strip.
+  const thumbWheelApi = useRef<ThumbnailWheelApi | null>(null)
+  const handleCenterWheel = useCallback((e: React.WheelEvent) => {
+    const api = thumbWheelApi.current
+    if (!api) return
+    // A wheel directly on the strip is handled by the strip itself; a zoomed
+    // image stops propagation — so reaching here means the backdrop or an
+    // un-zoomed image. Forward it to the strip.
+    if ((e.target as Element).closest?.(`.${styles.leftContent}`)) return
+    api.scrollByWheel(e.deltaY, e.deltaX, e.deltaMode)
+  }, [])
 
   const activeUrl = isOpen
     ? (images.find((image) => image.id === activeId)?.url ?? images[0]?.url)
@@ -194,6 +208,7 @@ export const FullScreenGallery = () => {
         onClick={(e) => {
           if (e.target === e.currentTarget) closeGallery()
         }}
+        onWheel={handleCenterWheel}
       >
         {/* Left sidebar with image thumbnails */}
         <ThumbnailList
@@ -203,6 +218,7 @@ export const FullScreenGallery = () => {
           variant="fullscreen"
           direction="vertical"
           className={styles.leftContent}
+          wheelApiRef={thumbWheelApi}
         />
 
         {/* Center content: the active image (crossfaded on switch) */}
@@ -223,6 +239,7 @@ export const FullScreenGallery = () => {
               tapToClose={false}
               onClose={closeGallery}
               onImageBox={handleImageBox}
+              disableZoom
             />
           </div>
         </div>
