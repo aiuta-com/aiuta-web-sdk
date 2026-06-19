@@ -66,8 +66,9 @@
     min-height: 0;
     aspect-ratio: auto;
     object-fit: contain;
+    // 8px below the navbar, 16px to the slide title (Figma)
     margin-top: 8px;
-    margin-bottom: 40px;
+    margin-bottom: 16px;
   }
 }
 

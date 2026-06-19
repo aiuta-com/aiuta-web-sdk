@@ -115,7 +115,10 @@ export default class IframeManager {
     const iframe = document.createElement('iframe') as HTMLIFrameElement
     iframe.id = this.iframeId
     iframe.src = src
-    iframe.allow = 'clipboard-write; web-share'
+    // autoplay must be delegated explicitly: its permission-policy allowlist
+    // defaults to `self`, so a cross-origin app iframe (SDK loaded from the CDN
+    // on a partner page) can't muted-autoplay the onboarding video without it
+    iframe.allow = 'clipboard-write; web-share; autoplay'
 
     iframe.style.position = 'fixed'
     iframe.style.top = '0'

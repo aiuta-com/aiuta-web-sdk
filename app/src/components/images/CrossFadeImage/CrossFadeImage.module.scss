@@ -23,6 +23,12 @@
   opacity: 1;
 }
 
+// Instant swap (crossFade off): no fade between images — the new layer just
+// appears once decoded.
+.layer_instant {
+  transition: none;
+}
+
 .image {
   position: absolute;
   top: 0;

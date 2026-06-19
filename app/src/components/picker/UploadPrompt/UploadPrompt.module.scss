@@ -10,10 +10,13 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  // 52px from the last button to the card's bottom edge (Figma)
+  padding: 24px 24px 52px;
   background: var(--aiuta-color-neutral);
   border-radius: 16px;
   overflow: hidden;
+  // 8px below the navbar, 24px above the screen bottom (Figma)
+  margin-bottom: 24px;
 }
 
 // Zero-state artwork fit into the free space above the title (onboarding
@@ -36,7 +39,8 @@
   text-align: center;
   gap: 8px;
   max-width: 303px;
-  margin-bottom: 48px;
+  // 36px from the description to the first button (Figma)
+  margin-bottom: 36px;
 }
 
 .title {
@@ -55,11 +59,14 @@
   gap: 16px;
 }
 
-// Figma: 200px wide, 8px radius (override the medium shape's 12px)
+// Figma: 200px wide, 8px radius (override the medium shape's 12px). Drop the
+// buttons' own 16px vertical margins so the column's 16px gap is the only
+// spacing between Upload / Or / Select (flex centers them horizontally).
 .button {
   width: 200px;
   border-radius: 8px !important;
   padding: 12px 24px !important;
+  margin: 0 !important;
 }
 
 .or {

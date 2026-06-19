@@ -1,33 +1,39 @@
 .modelsList {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
-  overflow-x: scroll;
-  overflow-y: hidden;
-  padding: 0 calc(50vw - 32px);
+  gap: 4px;
+  overflow-x: auto;
   scrollbar-width: none; /* Firefox */
-  -webkit-overflow-scrolling: touch; /* Smooth momentum scrolling on iOS */
+  touch-action: pan-x;
   scroll-snap-type: x mandatory; /* Snap to center on scroll end */
-  height: 104px;
+  height: 80px;
 
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */
   }
 }
 
+// Real lead/trailing spacers (width set in JS to half-viewport minus half-card)
+// so any card can scroll to the exact center and there's always scroll range.
+// Real elements, because browsers don't count trailing padding in the scroll
+// area. Not snap targets, so snapping lands only on cards.
+.spacer {
+  flex: 0 0 auto;
+  align-self: stretch;
+}
+
+// Base size = the non-active thumbnail (44×70). The card nearest the viewport
+// center is scaled up (to ~50×80) continuously by scroll distance — see
+// ModelsList.tsx updateScales — instead of a width/height animation, so the
+// size tracks the scroll position. transform-origin: center keeps the layout
+// center stable (so centering math stays correct).
 .modelCard {
   position: relative;
   flex-shrink: 0;
-  width: 55px;
-  height: 88px;
+  width: 44px;
+  height: 70px;
   cursor: pointer;
-  scroll-snap-align: center; /* Snap each card to center */
-  transition:
-    width 0.3s,
-    height 0.3s;
-
-  &_selected {
-    width: 64px;
-    height: 104px;
-  }
+  scroll-snap-align: center; /* Snap to center on scroll end */
+  transform-origin: center center;
 }

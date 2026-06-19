@@ -22,6 +22,10 @@
   // Mobile fullscreen dims to near-black (a touch of transparency)
   background-color: color-mix(in srgb, var(--aiuta-color-on-light) 92%, transparent);
   cursor: pointer;
+  // Keep the close button and image clear of the device safe areas; the dim
+  // still covers the full screen (it's the border-box background).
+  padding: var(--aiuta-safe-top) var(--aiuta-safe-right) var(--aiuta-safe-bottom)
+    var(--aiuta-safe-left);
 
   .fullImage {
     width: 100%;
@@ -32,10 +36,14 @@
     cursor: pointer;
   }
 
+  // Absolutely positioned, so the container's safe-area padding doesn't move it
+  // (abs children are offset from the padding box, whose top/left edge sits at
+  // the element border — padding insets normal-flow content, not abs children).
+  // Inset it explicitly by the device safe areas instead.
   .closeButton {
     position: absolute;
-    top: 16px;
-    left: 16px;
+    top: calc(16px + var(--aiuta-safe-top));
+    left: calc(16px + var(--aiuta-safe-left));
     color: var(--aiuta-color-on-dark);
     z-index: 1;
   }
@@ -52,29 +60,41 @@ $actions-reserve: 76px;
   inset: 0;
   z-index: 10000;
   background-color: var(--aiuta-color-screen-dim);
+  // Slightly blur the dimmed app behind the viewer (Figma)
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   animation: aiuta-dim-in 0.25s ease-out;
   user-select: none;
   overflow: hidden;
   margin: 0;
   border: none;
   outline: none;
+  // Desktop-only viewer (not used on mobile), so no device safe-area insets.
 
-  // Vertical thumbnail strip — scrolls the full screen height; the top/bottom
-  // spacing is padding inside the scroll area so items aren't clipped by an inset
+  // Vertical thumbnail strip, centered both ways: items are centered across the
+  // strip width (the active one is wider), and the column is vertically centered
+  // when it's short — `safe center` falls back to the top once it overflows so
+  // the first items stay reachable. Top/bottom edges fade out (only visible once
+  // the strip is tall enough to reach them). The active thumbnail is kept
+  // centered as the selection changes (see ThumbnailList).
   .leftContent {
     position: absolute;
-    left: 22px;
-    top: 0;
-    bottom: 0;
+    left: 5px;
+    // Clipped vertically where the photo is (top/bottom 16) — the spacing is the
+    // element's own inset, not inner padding, so items run edge to edge inside it
+    top: 16px;
+    bottom: 16px;
     width: 84px;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: safe center;
     row-gap: 8px;
     overflow-y: auto;
     scrollbar-width: none;
     box-sizing: border-box;
-    padding-top: 16px;
-    padding-bottom: 16px;
+    // The top/bottom edge fades are applied inline by ThumbnailList so they can
+    // drop at the scroll extremes (no top fade at the top, none at the bottom).
 
     &::-webkit-scrollbar {
       display: none;

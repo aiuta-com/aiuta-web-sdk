@@ -6,17 +6,22 @@
 }
 
 .preview {
-  // 8px below the navbar (Figma)
-  padding: 8px 8px 0;
+  // Full-bleed, edge to edge (like the image picker preview); no rounding
+  padding: 0;
+  // 8px gap below the navbar / segmented control before the preview
+  margin-top: 8px;
 }
 
 // Mobile: the Women/Men segmented control sits in the navbar center. It's
 // absolute and the nearest positioned ancestor is the fixed AppContainer, so
 // it lands over the pagebar without being part of it. 44px bar, ~40px control
 // → 2px from the top; 200px wide keeps it clear of the back/close buttons.
+// AppContainer's safe-area padding doesn't move abs children, and the pagebar
+// (normal flow) is pushed down by it, so add the safe-top here too to stay
+// aligned with the bar and clear of the notch.
 .tabsOverlay {
   position: absolute;
-  top: 2px;
+  top: calc(2px + var(--aiuta-safe-top));
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
@@ -41,7 +46,8 @@
 
 .list {
   flex-shrink: 0;
-  margin: 9px 0 14px;
+  // 2px less top and bottom than before (Figma)
+  margin: 7px 0 12px;
 }
 
 .buttonContainer {
