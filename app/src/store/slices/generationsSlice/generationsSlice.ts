@@ -29,6 +29,10 @@ export const generationsSlice = createSlice({
     },
 
     addCurrentResult: (state, action: PayloadAction<GeneratedImage>) => {
+      // Dedupe by id: a polling race can deliver the same result more than once
+      // (several in-flight status polls all return SUCCESS before the interval
+      // is cleared), which would otherwise show the image multiple times.
+      if (state.currentResults.some((image) => image.id === action.payload.id)) return
       state.currentResults.push(action.payload)
     },
 

@@ -56,6 +56,10 @@ export const useTryOnGeneration = () => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const usedImageRef = useRef<InputImage | null>(null)
+  // The operation whose terminal status has already been handled. Clearing the
+  // interval stops future polls but not the ones already in flight, so several
+  // can resolve SUCCESS at once — this guards the handler from running twice.
+  const settledOperationRef = useRef<string | null>(null)
 
   const getAuthParams = useCallback((): ApiAuthParams | null => {
     const auth = rpc.config.auth
@@ -265,16 +269,25 @@ export const useTryOnGeneration = () => {
       try {
         const result = await TryOnApiService.getGenerationResult(operationId, auth)
 
+        // Handle a terminal status only once per operation: in-flight polls that
+        // resolve after the first one must not re-run the handlers (which would
+        // duplicate the result / history entry).
+        const settleOnce = () => {
+          if (settledOperationRef.current === operationId) return false
+          settledOperationRef.current = operationId
+          return true
+        }
+
         switch (result.status) {
           case 'SUCCESS':
-            handleGenerationSuccess(result)
+            if (settleOnce()) handleGenerationSuccess(result)
             break
           case 'FAILED':
           case 'CANCELLED':
-            handleGenerationError(result)
+            if (settleOnce()) handleGenerationError(result)
             break
           case 'ABORTED':
-            handleGenerationAborted(result)
+            if (settleOnce()) handleGenerationAborted(result)
             break
           default:
             // Continue waiting for final status
@@ -403,8 +416,9 @@ export const useTryOnGeneration = () => {
         return
       }
 
-      // Save operation ID to Redux
+      // Save operation ID to Redux; arm the once-only terminal guard for it
       dispatch(tryOnSlice.actions.setOperationId(operationId))
+      settledOperationRef.current = null
 
       // Step 3: After 4 seconds, switch to generating stage
       setTimeout(() => {
