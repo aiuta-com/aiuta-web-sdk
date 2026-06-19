@@ -6,8 +6,8 @@
 }
 
 .preview {
-  // 8px below the navbar (Figma)
-  padding: 8px 8px 0;
+  // Full-bleed, edge to edge (like the image picker preview); no rounding
+  padding: 0;
 }
 
 // Mobile: the Women/Men segmented control sits in the navbar center. It's
@@ -41,7 +41,8 @@
 
 .list {
   flex-shrink: 0;
-  margin: 9px 0 14px;
+  // 2px less top and bottom than before (Figma)
+  margin: 7px 0 12px;
 }
 
 .buttonContainer {

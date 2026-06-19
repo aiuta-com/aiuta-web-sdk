@@ -28,7 +28,7 @@ export const useOnboardingStrings = () => {
       bestResultsStrings?.onboardingBestResultsTitle ?? 'For the best results',
     onboardingBestResultsDescription:
       bestResultsStrings?.onboardingBestResultsDescription ??
-      'Use a photo with good lighting, stand straight a plain background',
+      'Use a photo with good lighting, standing straight against a plain background',
 
     // Shoes Best Results page strings
     onboardingShoesBestResultsPageTitle:

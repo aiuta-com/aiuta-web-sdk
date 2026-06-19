@@ -42,3 +42,13 @@
   margin-left: auto;
   margin-right: auto;
 }
+
+// 8px between the two sheet buttons (Figma) instead of the buttons' default
+// 16px vertical margins (which collapse to 16). Only when both are present.
+.uploadButton:has(+ .selectModelButton) {
+  margin-bottom: 8px;
+}
+
+.uploadButton + .selectModelButton {
+  margin-top: 8px;
+}

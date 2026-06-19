@@ -79,7 +79,12 @@ export const UploadsHistorySheet = ({
       </PrimaryButton>
 
       {onSelectModel && (
-        <SecondaryButton onClick={onSelectModel} shape="M" maxWidth={true}>
+        <SecondaryButton
+          onClick={onSelectModel}
+          shape="M"
+          maxWidth={true}
+          classNames={styles.selectModelButton}
+        >
           {predefinedModelsTitle}
         </SecondaryButton>
       )}

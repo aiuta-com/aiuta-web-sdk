@@ -110,10 +110,11 @@ export default function ModelsMobile() {
         className={styles.tabsOverlay}
       />
 
-      {/* Large preview of selected model */}
-      <Flex containerClassName={styles.preview}>
+      {/* Large preview of selected model — full-bleed, no rounding, smart fit
+          (same as the image picker preview) */}
+      <Flex fill containerClassName={styles.preview}>
         {selectedModel && (
-          <RemoteImage src={selectedModel.url} alt="Selected Model" shape="L" fit="smart" />
+          <RemoteImage src={selectedModel.url} alt="Selected Model" shape={null} fit="smart" />
         )}
       </Flex>
 

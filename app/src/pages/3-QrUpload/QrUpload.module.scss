@@ -8,17 +8,10 @@
   overflow: hidden;
 }
 
-// Lift the Powered by footer 8px off the bottom on the QR upload screen only
-// (it's pinned to bottom: 0 of the fixed AppContainer by default)
+// Powered by sits inside the grey card (Figma): the card ends 24px above the
+// screen bottom, so lift the footer above that edge to land within the card.
 .poweredByWrap :global(.aiuta-powered-by) {
-  bottom: 8px;
-}
-
-// QR empty state: the picker has a single low-sitting Upload button, so raise
-// it 50px inside the card (extra bottom padding on top of the card's own 24px).
-// Doubled class beats UploadPrompt's own .card padding regardless of bundle order.
-.emptyCard.emptyCard {
-  padding-bottom: 74px;
+  bottom: 24px;
 }
 
 // Compact top bar on the preview/loading states (Figma 12429-17256): centered
