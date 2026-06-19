@@ -8,6 +8,14 @@
   /* Common aspect ratio for UGC */
   --aiuta-aspect-ratio: 115 / 180;
 
+  /* Device safe-area insets. Use var(--aiuta-safe-*) instead of repeating the
+     env() expression. Under the scaled shell these are overridden to divide by
+     --aiuta-zoom (see Shell.module.scss) so the on-screen inset stays correct. */
+  --aiuta-safe-top: env(safe-area-inset-top);
+  --aiuta-safe-right: env(safe-area-inset-right);
+  --aiuta-safe-bottom: env(safe-area-inset-bottom);
+  --aiuta-safe-left: env(safe-area-inset-left);
+
   /* Insents */
   --aiuta-inset-t: 8px;
   --aiuta-inset-v: 16px;

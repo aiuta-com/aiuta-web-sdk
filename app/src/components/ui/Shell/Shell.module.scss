@@ -12,6 +12,12 @@
 // the full-screen elements inside use `%` (of the shell) instead of vw/vh.
 .shell_scaled {
   --aiuta-zoom: 1;
+  // Safe-area insets divided by the shell scale, so the on-screen inset equals
+  // the real safe area. Components use var(--aiuta-safe-*) (base in guides.css).
+  --aiuta-safe-top: calc(env(safe-area-inset-top) / var(--aiuta-zoom, 1));
+  --aiuta-safe-right: calc(env(safe-area-inset-right) / var(--aiuta-zoom, 1));
+  --aiuta-safe-bottom: calc(env(safe-area-inset-bottom) / var(--aiuta-zoom, 1));
+  --aiuta-safe-left: calc(env(safe-area-inset-left) / var(--aiuta-zoom, 1));
   position: fixed;
   top: 0;
   left: 0;

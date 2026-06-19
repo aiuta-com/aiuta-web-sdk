@@ -8,8 +8,12 @@
   align-items: flex-end;
   justify-content: center;
   // Figma: the card is inset ~12px from the empty-state grey area, which itself
-  // sits 8px off the widget edges → 20px margins on the sides and bottom.
-  padding: 0 20px 20px;
+  // sits 8px off the widget edges → 20px margins on the sides and bottom. Plus
+  // the device safe areas (var(--aiuta-safe-*), see guides.css).
+  padding-top: var(--aiuta-safe-top);
+  padding-right: calc(20px + var(--aiuta-safe-right));
+  padding-bottom: calc(36px + var(--aiuta-safe-bottom));
+  padding-left: calc(20px + var(--aiuta-safe-left));
   visibility: hidden;
   transition: visibility 0.25s ease-in-out;
 }
