@@ -26,7 +26,12 @@
 .image {
   flex: 1 1 auto;
   min-height: 0;
-  width: 100%;
+  // Full-bleed across the card: cancel the card's 24px horizontal padding so
+  // the artwork box reaches the neutral card edges and stays as large as
+  // possible (the title/buttons keep the 24px inset).
+  width: calc(100% + 48px);
+  margin-left: -24px;
+  margin-right: -24px;
   object-fit: contain;
   margin-top: 8px;
   margin-bottom: 16px;
