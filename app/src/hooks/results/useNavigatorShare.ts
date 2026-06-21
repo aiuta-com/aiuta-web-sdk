@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
-import { useAppSelector, useAppDispatch } from '@/store/store'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { useAppSelector } from '@/store/store'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { useRpc, useLogger, useShare } from '@/contexts'
 import { useGenerationsData } from '@/hooks/data'
@@ -29,7 +28,6 @@ const canUseNativeShare = (): boolean => {
  * by device capability, not viewport width.
  */
 export const useNavigatorShare = () => {
-  const dispatch = useAppDispatch()
   const rpc = useRpc()
   const logger = useLogger()
   const { openShareModal } = useShare()
@@ -113,17 +111,8 @@ export const useNavigatorShare = () => {
     [generatedImages, rpc, productIds, logger, openShareModal],
   )
 
-  // Handle full screen image on mobile
-  const handleMobileImageClick = useCallback(
-    (imageUrl: string) => {
-      dispatch(uploadsSlice.actions.showImageFullScreen(imageUrl))
-    },
-    [dispatch],
-  )
-
   return {
     shareImage,
-    handleMobileImageClick,
     hasImages: generatedImages.length > 0,
     firstImage: generatedImages[0],
   }

@@ -13,6 +13,8 @@ const TAP_MAX_MS = 300
 const DOUBLE_TAP_MS = 280
 const DOUBLE_TAP_DIST = 30
 const DOUBLE_TAP_ZOOM = 2.5
+// Minimum vertical travel (local px) for a swipe to count as a navigation step.
+const SWIPE_MIN = 40
 
 /** Displayed image rectangle in the container's local coordinate space. */
 export interface ImageBox {
@@ -56,6 +58,12 @@ interface ZoomableImageProps {
    * forward them to the thumbnail strip).
    */
   disableZoom?: boolean
+  /**
+   * Mobile history navigation: a vertical swipe at fit scale steps the gallery.
+   * dir = +1 for a swipe up (later image), -1 for a swipe down (earlier image).
+   * Ignored while zoomed in (the swipe pans instead).
+   */
+  onSwipeNav?: (dir: 1 | -1) => void
 }
 
 interface Transform {
@@ -85,6 +93,7 @@ export const ZoomableImage = ({
   onImageBox,
   deferWheelAtFit = false,
   disableZoom = false,
+  onSwipeNav,
 }: ZoomableImageProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const natRef = useRef<{ w: number; h: number } | null>(null)
@@ -275,6 +284,20 @@ export const ZoomableImage = ({
         return
       }
       if (g.mode === 'pan' && e.touches.length === 0) {
+        // A vertical swipe at fit scale (not zoomed) navigates the gallery.
+        if (onSwipeNav && g.moved) {
+          const mm = metrics()
+          const fit = mm ? fitScale(mm.cw, mm.ch) : 1
+          const atFit = tfRef.current.s <= fit * 1.01
+          const dyTotal = g.lastY - g.downY
+          const dxTotal = g.lastX - g.downX
+          if (atFit && Math.abs(dyTotal) >= SWIPE_MIN && Math.abs(dyTotal) > Math.abs(dxTotal)) {
+            cancelPendingClose()
+            onSwipeNav(dyTotal < 0 ? 1 : -1)
+            g.mode = 'none'
+            return
+          }
+        }
         const dt = e.timeStamp - g.downT
         if (!g.moved && dt < TAP_MAX_MS) {
           // Suppress the synthesized click so the container's onClick fallback
@@ -334,7 +357,18 @@ export const ZoomableImage = ({
       el.removeEventListener('touchend', onEnd)
       el.removeEventListener('touchcancel', onEnd)
     }
-  }, [metrics, fitScale, clamp, apply, reset, cancelPendingClose, onClose, tapToClose, disableZoom])
+  }, [
+    metrics,
+    fitScale,
+    clamp,
+    apply,
+    reset,
+    cancelPendingClose,
+    onClose,
+    tapToClose,
+    disableZoom,
+    onSwipeNav,
+  ])
 
   // Mouse gestures (desktop): wheel zoom around the cursor, drag to pan,
   // double-click to toggle zoom.

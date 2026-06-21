@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
-import { uploadsSlice, fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 import { galleryModalSlice, galleryModalSelector } from '@/store/slices/galleryModalSlice'
 import { isMobileSelector } from '@/store/slices/appSlice'
 import { ThumbnailList, IconButton, Confirmation } from '@/components'
@@ -33,9 +32,8 @@ export const FullScreenGallery = () => {
   // Delete confirmation dialog visibility
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  // Mobile: single-image fullscreen (pinch-to-zoom, tap to close)
-  const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
-  // Desktop: gallery modal (thumbnails + zoomable image + actions)
+  // Gallery data — the same on both breakpoints. Desktop shows a thumbnail
+  // strip + zoom; mobile shows a single swipeable image (crossfade + pinch).
   const { isOpen, images, activeId, modalType } = useAppSelector(galleryModalSelector)
   const isMobile = useAppSelector(isMobileSelector)
 
@@ -44,7 +42,7 @@ export const FullScreenGallery = () => {
   // cancelled so it never scrolls the page behind or chains out of the iframe.
   // Scrolling the thumbnail strip still works (it can consume the gesture).
   const modalRef = useRef<HTMLDivElement>(null)
-  usePreventParentScroll(isOpen || !!fullScreenImageUrl, isMobile, modalRef)
+  usePreventParentScroll(isOpen, isMobile, modalRef)
 
   // Wheel/trackpad gestures over the central image (un-zoomed) or the backdrop
   // are forwarded to the thumbnail strip, so the whole center scrolls the strip.
@@ -90,14 +88,24 @@ export const FullScreenGallery = () => {
   const { data: generations = [] } = useGenerationsData()
   const { mutate: deleteGenerations } = useDeleteGeneratedImages()
 
-  const closeMobile = useCallback(() => {
-    dispatch(uploadsSlice.actions.showImageFullScreen(null))
-  }, [dispatch])
-
   const closeGallery = useCallback(() => {
     setConfirmDelete(false)
     dispatch(galleryModalSlice.actions.closeGalleryModal())
   }, [dispatch])
+
+  // Move the selection by one image (clamped at the ends). Used by the desktop
+  // keyboard arrows and the mobile vertical swipe.
+  const stepActive = useCallback(
+    (dir: number) => {
+      const idx = images.findIndex((image) => image.id === activeId)
+      if (idx === -1) return
+      const target = images[Math.min(images.length - 1, Math.max(0, idx + dir))]
+      if (target && target.id !== activeId) {
+        dispatch(galleryModalSlice.actions.setActiveGalleryImage(target.id))
+      }
+    },
+    [images, activeId, dispatch],
+  )
 
   // Keyboard navigation for the desktop gallery: arrows step through the images
   // (clamped at the ends), Escape closes.
@@ -109,24 +117,17 @@ export const FullScreenGallery = () => {
         return
       }
       if (images.length < 2) return
-      const idx = images.findIndex((image) => image.id === activeId)
       if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
         e.preventDefault()
-        const target = images[Math.max(0, idx - 1)]
-        if (target.id !== activeId) {
-          dispatch(galleryModalSlice.actions.setActiveGalleryImage(target.id))
-        }
+        stepActive(-1)
       } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault()
-        const target = images[Math.min(images.length - 1, idx + 1)]
-        if (target.id !== activeId) {
-          dispatch(galleryModalSlice.actions.setActiveGalleryImage(target.id))
-        }
+        stepActive(1)
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [isOpen, images, activeId, dispatch, closeGallery])
+  }, [isOpen, images.length, closeGallery, stepActive])
 
   const downloadImage = useCallback(
     async (url: string) => {
@@ -149,8 +150,11 @@ export const FullScreenGallery = () => {
     [logger],
   )
 
-  // ===== Mobile single-image fullscreen =====
-  if (fullScreenImageUrl && !isOpen) {
+  // ===== Mobile: single swipeable image (crossfade on switch, pinch-to-zoom) =====
+  // Vertical swipe at fit navigates the history: up → later, down → earlier.
+  // Once zoomed in the swipe pans instead (handled inside ZoomableImage).
+  if (isOpen && images.length > 0 && isMobile) {
+    const activeImage = images.find((image) => image.id === activeId) ?? images[0]
     return (
       <div
         ref={modalRef}
@@ -162,12 +166,28 @@ export const FullScreenGallery = () => {
           label="Close fullscreen image"
           onClick={(e) => {
             e?.stopPropagation()
-            closeMobile()
+            closeGallery()
           }}
           className={styles.closeButton}
           size={20}
         />
-        <ZoomableImage src={fullScreenImageUrl} alt="Full Screen Image" onClose={closeMobile} />
+        <div className={styles.mobileImageArea}>
+          {prevUrl && prevUrl !== activeImage.url && (
+            <img src={prevUrl} alt="" aria-hidden="true" className={styles.prevImage} />
+          )}
+          <ZoomableImage
+            key={activeImage.url}
+            src={activeImage.url}
+            alt="Full Screen Image"
+            onClose={closeGallery}
+            onImageBox={handleImageBox}
+            // Swipe up should always go to the earlier image. The two
+            // collections are ordered oppositely by index (results are
+            // oldest→newest, generations newest→oldest), so the results step is
+            // inverted to keep the chronological direction consistent.
+            onSwipeNav={(dir) => stepActive(modalType === 'results' ? -dir : dir)}
+          />
+        </div>
       </div>
     )
   }
