@@ -239,7 +239,10 @@ export const FullScreenGallery = () => {
               tapToClose={false}
               onClose={closeGallery}
               onImageBox={handleImageBox}
-              disableZoom
+              // At fit, a plain wheel/trackpad scroll bubbles to the thumbnail
+              // strip (priority); pinch (ctrl+wheel) and double-click zoom, and
+              // once zoomed in the wheel pans/zooms (no longer forwarded).
+              deferWheelAtFit
             />
           </div>
         </div>
