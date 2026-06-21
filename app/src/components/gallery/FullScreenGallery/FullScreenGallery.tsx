@@ -181,11 +181,9 @@ export const FullScreenGallery = () => {
             alt="Full Screen Image"
             onClose={closeGallery}
             onImageBox={handleImageBox}
-            // Swipe up should always go to the earlier image. The two
-            // collections are ordered oppositely by index (results are
-            // oldest→newest, generations newest→oldest), so the results step is
-            // inverted to keep the chronological direction consistent.
-            onSwipeNav={(dir) => stepActive(modalType === 'results' ? -dir : dir)}
+            // Both collections are newest → oldest, so a swipe up always steps
+            // to the earlier (older) image.
+            onSwipeNav={stepActive}
           />
         </div>
       </div>
