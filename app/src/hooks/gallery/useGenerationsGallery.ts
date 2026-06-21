@@ -2,9 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
-import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { selectedImagesSelector } from '@/store/slices/generationsSlice/selectors'
-import { isMobileSelector } from '@/store/slices/appSlice'
 import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { useRpc } from '@/contexts'
@@ -28,7 +26,6 @@ export const useGenerationsGallery = ({
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const rpc = useRpc()
-  const isMobile = useAppSelector(isMobileSelector)
   const selectedImages = useAppSelector(selectedImagesSelector)
   const { data: generatedImages = [] } = useGenerationsData()
   const { mutate: deleteGeneratedImages } = useDeleteGeneratedImages()
@@ -65,12 +62,9 @@ export const useGenerationsGallery = ({
     if (isSelecting) {
       toggleImageSelection(image.id)
     } else {
-      // Show full screen (different logic for desktop vs mobile)
-      if (!isMobile) {
-        gallery.showFullScreen(image)
-      } else {
-        dispatch(uploadsSlice.actions.showImageFullScreen(image.url))
-      }
+      // Same gallery data on both breakpoints; the viewer renders a thumbnail
+      // strip on desktop and a swipeable single image on mobile.
+      gallery.showFullScreen(image)
     }
   }
 

@@ -9,8 +9,8 @@ export interface GalleryModalImage {
 export type GalleryModalType = 'results' | 'generations'
 
 /**
- * Desktop fullscreen gallery modal state (the mobile fullscreen is a separate,
- * single-image flow on uploadsSlice.fullScreenImageUrl).
+ * Fullscreen gallery modal state, shared by both breakpoints: desktop renders a
+ * thumbnail strip + zoom, mobile a single swipeable image.
  */
 export interface GalleryModalState {
   isOpen: boolean

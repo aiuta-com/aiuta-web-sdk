@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
+import { galleryModalSlice } from '@/store/slices/galleryModalSlice'
 import {
   Flex,
   RemoteImage,
@@ -37,8 +38,8 @@ export default function ResultsMobile() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const { currentImage } = useResultsGallery()
-  const { shareImage, handleMobileImageClick } = useNavigatorShare()
+  const { currentImage, images } = useResultsGallery()
+  const { shareImage } = useNavigatorShare()
   const { isEnabled: isOtherPhotoEnabled } = useTryOnWithOtherPhoto()
   const { startTryOn } = useTryOnGeneration()
   const { selectImageToTryOn } = useTryOnImage()
@@ -79,6 +80,19 @@ export default function ResultsMobile() {
     navigate('/models')
   }, [navigate])
 
+  // Open the fullscreen viewer with the full session results, so it can be
+  // swiped through (same data/flow as desktop; mobile renders a single image).
+  const openFullScreen = useCallback(() => {
+    if (!currentImage) return
+    dispatch(
+      galleryModalSlice.actions.openGalleryModal({
+        images: images.map(({ id, url }) => ({ id, url })),
+        activeId: currentImage.id,
+        modalType: 'results',
+      }),
+    )
+  }, [currentImage, images, dispatch])
+
   return (
     <main className={styles.results}>
       <FilePicker onFileSelect={handleFileSelect}>
@@ -96,7 +110,7 @@ export default function ResultsMobile() {
                 alt="Generated result"
                 shape="M"
                 fit="smart"
-                onClick={() => currentImage && handleMobileImageClick(currentImage.url)}
+                onClick={openFullScreen}
               />
               <IconButton
                 icon={icons.share}

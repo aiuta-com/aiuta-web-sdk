@@ -6,7 +6,6 @@ import { combineClassNames } from '@/utils'
 import { useShareStrings } from '@/hooks'
 import { useAppSelector } from '@/store/store'
 import { galleryModalIsOpenSelector } from '@/store/slices/galleryModalSlice'
-import { fullScreenImageUrlSelector } from '@/store/slices/uploadsSlice'
 import { icons } from './icons'
 import styles from './Share.module.scss'
 
@@ -32,11 +31,9 @@ export const Share = () => {
   const logger = useLogger()
   const { modalData, animationState, isVisible, closeShareModal } = useShare()
   const { sharePageTitle, copyButton, copiedButton, copyError } = useShareStrings()
-  // When a fullscreen viewer is already dimming the screen, this is a second
+  // When the fullscreen viewer is already dimming the screen, this is a second
   // dim layer — keep it much lighter so the stack doesn't go too dark.
-  const isGalleryOpen = useAppSelector(galleryModalIsOpenSelector)
-  const fullScreenImageUrl = useAppSelector(fullScreenImageUrlSelector)
-  const isSecondLayer = isGalleryOpen || !!fullScreenImageUrl
+  const isSecondLayer = useAppSelector(galleryModalIsOpenSelector)
 
   // Drop the "Copied" timer on unmount
   useEffect(() => () => clearTimeout(copiedTimer.current ?? undefined), [])

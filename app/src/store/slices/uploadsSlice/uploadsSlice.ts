@@ -5,14 +5,12 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
  */
 export interface UploadsState {
   selectedImages: Array<string>
-  fullScreenImageUrl: string | null
   isSelecting: boolean
   isBottomSheetOpen: boolean
 }
 
 const initialState: UploadsState = {
   selectedImages: [],
-  fullScreenImageUrl: null,
   isSelecting: false,
   isBottomSheetOpen: false,
 }
@@ -36,10 +34,6 @@ export const uploadsSlice = createSlice({
 
     clearSelectedImages: (state) => {
       state.selectedImages = []
-    },
-
-    showImageFullScreen: (state, action: PayloadAction<string | null>) => {
-      state.fullScreenImageUrl = action.payload
     },
 
     setIsSelecting: (state, action: PayloadAction<boolean>) => {

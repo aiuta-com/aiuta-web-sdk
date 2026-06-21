@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useAppSelector } from '@/store/store'
 import { currentResultsSelector } from '@/store/slices/generationsSlice/selectors'
 
@@ -7,13 +8,16 @@ import { currentResultsSelector } from '@/store/slices/generationsSlice/selector
  * (storage is used only for history page /generations)
  */
 export const useResultsGallery = () => {
-  // Fresh results from Redux (instant, no storage delay)
+  // Fresh results from Redux (instant, no storage delay), stored oldest → newest
   const generatedImages = useAppSelector(currentResultsSelector)
 
+  // Expose newest → oldest, to match the generations history ordering (newest at
+  // the top of the fullscreen thumbnail strip / first in the swipe sequence).
+  const images = useMemo(() => [...generatedImages].reverse(), [generatedImages])
+
   return {
-    // Return last generated image (most recent)
-    currentImage: generatedImages[generatedImages.length - 1],
-    // Full result set (oldest → newest), for the fullscreen gallery
-    images: generatedImages,
+    // Most recent result (now the first item)
+    currentImage: images[0],
+    images,
   }
 }
