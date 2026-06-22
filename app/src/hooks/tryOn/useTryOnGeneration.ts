@@ -151,19 +151,22 @@ export const useTryOnGeneration = () => {
 
         dispatch(tryOnSlice.actions.setGeneratedImageUrl(generatedImage.url))
 
-        // Immediately store result in Redux for instant display on /results
-        dispatch(generationsSlice.actions.addCurrentResult(generatedImage))
+        // Mark this as the current result shown on /results (the image itself
+        // lives in the single generations history below).
+        dispatch(generationsSlice.actions.setCurrentResultId(generatedImage.id))
 
         // Common logic after navigation
         const finalizeGeneration = () => {
+          // Persist to the generations history first — its optimistic update
+          // puts the image in the cache synchronously, so /results can read it
+          // instantly (this replaces the old separate currentResults array).
+          addGeneration(generatedImage)
+
           // Replace: a result is the end of a generation cycle and has no back
           // button, so it consumes the /tryon (loading) entry instead of
           // stacking — together with the picker→/tryon replaces this keeps the
           // history from growing on every generation.
           navigate('/results', { replace: true })
-
-          // After navigation, add images to history (background, slow storage)
-          addGeneration(generatedImage)
 
           const imageToStore = usedImageRef.current
           if (imageToStore) {

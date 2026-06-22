@@ -1,20 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { GeneratedImage } from '@lib/models'
 
 /**
  * Generations UI State
- * - currentResults: Fresh generated images (not yet persisted to storage)
+ * - currentResultId: id of the just-generated image shown on /results. The
+ *   image itself lives in the single persisted generations history; this is
+ *   only a pointer, so deleting it anywhere makes /results fall back to the
+ *   input step.
  * - selectedImages: Images selected for deletion in gallery
  * - isSelecting: Selection mode in gallery
  */
 export interface GenerationsState {
-  currentResults: GeneratedImage[]
+  currentResultId: string | null
   selectedImages: Array<string>
   isSelecting: boolean
 }
 
 const initialState: GenerationsState = {
-  currentResults: [],
+  currentResultId: null,
   selectedImages: [],
   isSelecting: false,
 }
@@ -23,21 +25,13 @@ export const generationsSlice = createSlice({
   name: 'generations',
   initialState,
   reducers: {
-    // Fresh generation results (immediate, no storage delay)
-    setCurrentResults: (state, action: PayloadAction<GeneratedImage[]>) => {
-      state.currentResults = action.payload
+    // The image to show on the results screen (the latest generation)
+    setCurrentResultId: (state, action: PayloadAction<string>) => {
+      state.currentResultId = action.payload
     },
 
-    addCurrentResult: (state, action: PayloadAction<GeneratedImage>) => {
-      // Dedupe by id: a polling race can deliver the same result more than once
-      // (several in-flight status polls all return SUCCESS before the interval
-      // is cleared), which would otherwise show the image multiple times.
-      if (state.currentResults.some((image) => image.id === action.payload.id)) return
-      state.currentResults.push(action.payload)
-    },
-
-    clearCurrentResults: (state) => {
-      state.currentResults = []
+    clearCurrentResultId: (state) => {
+      state.currentResultId = null
     },
 
     // Selection state for gallery

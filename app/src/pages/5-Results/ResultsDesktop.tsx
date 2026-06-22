@@ -17,11 +17,13 @@ export default function ResultsDesktop() {
 
   const openFullScreen = () => {
     if (!currentImage) return
+    // The results fullscreen IS the generations history, opened at the current
+    // result — so delete is available (modalType 'generations').
     dispatch(
       galleryModalSlice.actions.openGalleryModal({
         images: images.map(({ id, url }) => ({ id, url })),
         activeId: currentImage.id,
-        modalType: 'results',
+        modalType: 'generations',
       }),
     )
   }
