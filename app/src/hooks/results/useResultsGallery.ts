@@ -1,23 +1,28 @@
 import { useMemo } from 'react'
 import { useAppSelector } from '@/store/store'
-import { currentResultsSelector } from '@/store/slices/generationsSlice/selectors'
+import { currentResultIdSelector } from '@/store/slices/generationsSlice/selectors'
+import { useGenerationsData } from '@/hooks/data'
 
 /**
- * Hook for managing results gallery
- * Uses only Redux currentResults for instant display
- * (storage is used only for history page /generations)
+ * Results gallery — the results screen shows the latest generation from the
+ * single (persisted) generations history, identified by currentResultId; the
+ * fullscreen opens that same history at that image. There is no separate
+ * "current results" list anymore, so deleting the image anywhere is reflected
+ * here immediately.
  */
 export const useResultsGallery = () => {
-  // Fresh results from Redux (instant, no storage delay), stored oldest → newest
-  const generatedImages = useAppSelector(currentResultsSelector)
+  const currentResultId = useAppSelector(currentResultIdSelector)
+  // History is stored newest-first
+  const { data: images = [] } = useGenerationsData()
 
-  // Expose newest → oldest, to match the generations history ordering (newest at
-  // the top of the fullscreen thumbnail strip / first in the swipe sequence).
-  const images = useMemo(() => [...generatedImages].reverse(), [generatedImages])
+  const currentImage = useMemo(
+    () => images.find((image) => image.id === currentResultId),
+    [images, currentResultId],
+  )
 
   return {
-    // Most recent result (now the first item)
-    currentImage: images[0],
+    currentImage,
+    // Full history (newest-first), for the fullscreen gallery
     images,
   }
 }

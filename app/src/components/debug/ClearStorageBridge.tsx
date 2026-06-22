@@ -54,7 +54,7 @@ export const ClearStorageBridge = () => {
       dispatch(uploadsSlice.actions.setIsSelecting(false))
       dispatch(generationsSlice.actions.clearSelectedImages())
       dispatch(generationsSlice.actions.setIsSelecting(false))
-      dispatch(generationsSlice.actions.clearCurrentResults())
+      dispatch(generationsSlice.actions.clearCurrentResultId())
 
       // Back to the entry point so the initial route is re-decided cleanly
       navigate('/', { replace: true })

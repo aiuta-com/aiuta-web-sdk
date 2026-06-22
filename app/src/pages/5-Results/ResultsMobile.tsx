@@ -80,15 +80,15 @@ export default function ResultsMobile() {
     navigate('/models')
   }, [navigate])
 
-  // Open the fullscreen viewer with the full session results, so it can be
-  // swiped through (same data/flow as desktop; mobile renders a single image).
+  // Open the fullscreen viewer on the generations history at the current
+  // result, so it can be swiped through (same data/flow as desktop).
   const openFullScreen = useCallback(() => {
     if (!currentImage) return
     dispatch(
       galleryModalSlice.actions.openGalleryModal({
         images: images.map(({ id, url }) => ({ id, url })),
         activeId: currentImage.id,
-        modalType: 'results',
+        modalType: 'generations',
       }),
     )
   }, [currentImage, images, dispatch])
