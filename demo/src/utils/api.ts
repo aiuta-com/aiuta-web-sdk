@@ -51,19 +51,26 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
     )
     .map((item) => {
       const extra = item.product_info?.extra ?? {}
+      const metadata = item.metadata ?? {}
+      // Resolved PER FIELD: `metadata` (the current home of these attributes)
+      // wins whenever it carries the key at all — even false/0 — and only a
+      // missing key falls back to the legacy `product_info.extra`.
+      const titleImage = metadata.title_image ?? extra.title_image
+      const sourceImages = metadata.source_images ?? extra.source_images
+      const order = metadata.order ?? extra.order
+      const singleItemTryOn = metadata.single_item_try_on ?? extra.single_item_try_on
       return {
         sku_id: item.sku_id,
         title: item.product_info?.title ?? item.sku_id,
         brand: item.product_info?.brand ?? undefined,
         gender: item.product_info?.gender ?? undefined,
-        // Image priority: extra.title_image | source_images[0] | image_urls[0]
-        image_url:
-          extra.title_image || extra.source_images?.[0] || item.product_info?.image_urls?.[0] || '',
+        // Image priority: title_image | source_images[0] | image_urls[0]
+        image_url: titleImage || sourceImages?.[0] || item.product_info?.image_urls?.[0] || '',
         mode: isShoeCategory(item.product_info?.category)
           ? ('shoes' as const)
           : ('general' as const),
-        order: typeof extra.order === 'number' ? extra.order : Number.MAX_SAFE_INTEGER,
-        singleItemTryOn: extra.single_item_try_on === true,
+        order: typeof order === 'number' ? order : Number.MAX_SAFE_INTEGER,
+        singleItemTryOn: singleItemTryOn === true,
       }
     })
 
