@@ -2,7 +2,10 @@
 
 export type SkuCapabilityReadinessStatus = 'absent' | 'preparing' | 'ready' | 'rejected' | 'failed'
 
-/** Merchant-defined free-form fields the demo understands */
+/** Merchant-defined free-form fields the demo understands. Live in the
+ *  top-level `metadata` (the current home) and, for items created before
+ *  the move, in the legacy `product_info.extra` — resolved per field,
+ *  metadata first. */
 export interface SkuItemExtra {
   /** Catalog sort key: the smaller, the earlier in the list */
   order?: number | null
@@ -28,6 +31,7 @@ export interface UnifiedSkuItem {
     store_url?: string | null
     extra?: SkuItemExtra | null
   }
+  metadata?: SkuItemExtra | null
   capabilities: {
     try_on?: boolean
     outfit_recommendations?: boolean
