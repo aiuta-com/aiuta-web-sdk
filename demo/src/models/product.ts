@@ -15,6 +15,13 @@ export interface SkuItemExtra {
   title_image?: string | null
   /** All source SKU images (internal, for the mobile demo app) */
   source_images?: string[] | null
+  /** Overrides of the immutable product_info fields — metadata-only (these
+   *  never existed in the legacy extra). Absent = fall back to product_info.
+   *  `brand: ''` is a real value — the item deliberately shows no brand;
+   *  an empty title falls back instead. */
+  title?: string | null
+  brand?: string | null
+  gender?: string | null
 }
 
 export interface UnifiedSkuItem {

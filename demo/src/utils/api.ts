@@ -61,9 +61,13 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
       const singleItemTryOn = metadata.single_item_try_on ?? extra.single_item_try_on
       return {
         sku_id: item.sku_id,
-        title: item.product_info?.title ?? item.sku_id,
-        brand: item.product_info?.brand ?? undefined,
-        gender: item.product_info?.gender ?? undefined,
+        // The title/brand/gender overrides are metadata-only (never in the
+        // legacy extra). An empty title override falls back to product_info
+        // (||); an empty BRAND override is a real value — the card then
+        // deliberately shows no brand (hence ??).
+        title: metadata.title || item.product_info?.title || item.sku_id,
+        brand: metadata.brand ?? item.product_info?.brand ?? undefined,
+        gender: metadata.gender || item.product_info?.gender || undefined,
         // Image priority: title_image | source_images[0] | image_urls[0]
         image_url: titleImage || sourceImages?.[0] || item.product_info?.image_urls?.[0] || '',
         mode: isShoeCategory(item.product_info?.category)
