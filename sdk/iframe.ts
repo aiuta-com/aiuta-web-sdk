@@ -71,14 +71,22 @@ export default class IframeManager {
 
     if (interactive) {
       iframe.style.visibility = 'visible'
+      // Also undo display:none — ours (set below once hidden) or a host's:
+      // pages shield the idle overlay from drag-and-drop hit-testing by
+      // display-hiding it, and a try-on must recover even if the host never
+      // restored it.
+      iframe.style.display = ''
     } else {
       // Keep the overlay rendered through the app's closing animation, then drop
       // it out of hit-testing. A lingering full-screen pointer-events:none iframe
-      // still captures wheel/scroll in Safari, breaking the host page's scrollers.
+      // still captures wheel/scroll in Safari, breaking the host page's
+      // scrollers — and Chromium keeps routing drag-and-drop hit-testing into it
+      // even under visibility:hidden, so it leaves layout entirely.
       this.hideTimer = setTimeout(() => {
         this.hideTimer = null
         if (this.iframe && this.iframe.style.pointerEvents === 'none') {
           this.iframe.style.visibility = 'hidden'
+          this.iframe.style.display = 'none'
         }
       }, OVERLAY_HIDE_DELAY_MS)
     }
