@@ -1,5 +1,11 @@
 import { demoConfig } from './config'
-import type { CatalogItem, OutfitsApiResponse, SkuItemsListResponse } from '../models/product'
+import type {
+  CatalogItem,
+  Outfit,
+  OutfitItemView,
+  SkuItem,
+  SkuItemsListResponse,
+} from '../models/product'
 
 const headers = (): HeadersInit => ({ 'x-api-key': demoConfig.apiKey })
 
@@ -24,7 +30,7 @@ const SHOE_CATEGORIES = new Set([
 const isShoeCategory = (category?: string | null): boolean =>
   !!category && SHOE_CATEGORIES.has(category.trim().toLowerCase())
 
-export const SKU_PAGE_SIZE = 100 // the API maximum
+export const SKU_PAGE_SIZE = 400 // outfits reference hidden items too — pull the whole catalog fast
 
 export interface SkuPage {
   items: CatalogItem[]
@@ -81,13 +87,112 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
   return { items, nextOffset: data.next_offset ?? null }
 }
 
-export const fetchOutfits = async (): Promise<OutfitsApiResponse[]> => {
-  const url = new URL(demoConfig.outfitsUrl)
-  url.searchParams.set('limit', '100')
-
-  const response = await fetch(url.toString(), { headers: headers() })
+/** Raw entries — the endpoint has shipped three shapes over time, so the
+ *  demo never trusts the payload's type: see normalizeOutfits below. */
+export const fetchOutfits = async (): Promise<unknown[]> => {
+  // No query params — the endpoint supports none (a limit here was cargo-cult).
+  const response = await fetch(demoConfig.outfitsUrl, { headers: headers() })
   if (!response.ok) throw new Error(`suggested_outfits request failed: ${response.status}`)
 
-  const data = (await response.json()) as OutfitsApiResponse[]
-  return data ?? []
+  const data = (await response.json()) as unknown[]
+  return Array.isArray(data) ? data : []
+}
+
+// ------------------------------------------- Outfit response normalizer ---
+// Two /suggested_outfits shapes are live:
+//   1. legacy: { items: SkuItem[], collage_image_url, tags }
+//   2. admin:  { sku_ids, metadata: { title?, title_image?, gender?,
+//                occasion?, style?, order?, multi_item_try_on? } }
+// The admin shape carries only ids — items resolve through the sku_items
+// catalog (which includes single_item_try_on:false items: hidden from the
+// single-items grid, but legal inside outfits).
+
+const isRecord = (v: unknown): v is Record<string, unknown> =>
+  typeof v === 'object' && v !== null && !Array.isArray(v)
+
+// The outfits API serializes missing images as a URL ending in "None"
+// (Python None stringified); bare filenames have no resolvable base — only
+// an absolute http(s) URL is renderable.
+const usableUrl = (v: unknown): string | undefined =>
+  typeof v === 'string' && /^https?:\/\//i.test(v) && !/\/None$/i.test(v) ? v : undefined
+
+const asString = (v: unknown): string | undefined =>
+  typeof v === 'string' && v !== '' ? v : undefined
+
+// A view for EVERY id — unresolved ones keep an empty imageUrl and render
+// as placeholder tiles until the catalog page carrying them arrives, so the
+// grid layout is final from the first paint and images just pop in.
+const resolveItems = (skuIds: string[], catalog: Map<string, CatalogItem>): OutfitItemView[] =>
+  skuIds.map((skuId) => {
+    const item = catalog.get(skuId)
+    return item ? { skuId, imageUrl: item.image_url, title: item.title } : { skuId, imageUrl: '' }
+  })
+
+const normalizeOutfit = (
+  entry: unknown,
+  index: number,
+  catalog: Map<string, CatalogItem>,
+): Outfit | null => {
+  if (!isRecord(entry)) return null
+
+  // Format 1 — legacy embedded items.
+  if (Array.isArray(entry.items)) {
+    const items = entry.items as SkuItem[]
+    const tags = isRecord(entry.tags) ? entry.tags : {}
+    return {
+      skuIds: items.map((i) => i.sku_id),
+      items: items.map((i) => ({
+        skuId: i.sku_id,
+        imageUrl: usableUrl(i.descriptive_image_urls?.[0]) ?? usableUrl(i.image_urls?.[0]) ?? '',
+        title: i.title,
+      })),
+      collageUrl: usableUrl(entry.collage_image_url),
+      gender: asString(tags.gender),
+      occasion: asString(tags.occasion),
+      style: asString(tags.style),
+      order: index,
+      multiItemTryOn: true,
+    }
+  }
+
+  if (!Array.isArray(entry.sku_ids)) return null
+  const skuIds = entry.sku_ids.filter((id): id is string => typeof id === 'string' && id !== '')
+  const metadata = isRecord(entry.metadata) ? entry.metadata : {}
+
+  // Format 2 — the admin panel's metadata: flat tags, explicit availability
+  // (kept even when not flagged — the gear menu's outfits filter decides).
+  return {
+    skuIds,
+    items: resolveItems(skuIds, catalog),
+    collageUrl: usableUrl(metadata.title_image),
+    title: asString(metadata.title),
+    gender: asString(metadata.gender),
+    occasion: asString(metadata.occasion),
+    style: asString(metadata.style),
+    multiItemTryOn: metadata.multi_item_try_on === true,
+    order: typeof metadata.order === 'number' ? metadata.order : index,
+  }
+}
+
+/** Fold whatever /suggested_outfits returned into the demo's `Outfit` shape.
+ *  A malformed entry is skipped, never the whole list — one bad outfit must
+ *  not blank the tab again. */
+export const normalizeOutfits = (raw: unknown[], catalog: Map<string, CatalogItem>): Outfit[] => {
+  const outfits: Outfit[] = []
+  raw.forEach((entry, index) => {
+    try {
+      const outfit = normalizeOutfit(entry, index, catalog)
+      if (outfit && outfit.skuIds.length > 0) outfits.push(outfit)
+    } catch (error) {
+      console.error('Skipping a malformed outfit entry', error)
+    }
+  })
+  outfits.sort((a, b) => a.order - b.order)
+  // With no title and no style a card would read just "Outfit" (occasion
+  // lives in the subtitle) — number the nameless ones by their position in
+  // the final list, so several of them stay distinguishable ("Outfit 3").
+  outfits.forEach((outfit, position) => {
+    if (!outfit.title && !outfit.style) outfit.title = `Outfit ${position + 1}`
+  })
+  return outfits
 }

@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import GearIcon from './icons/GearIcon'
 import { getAiuta } from '../sdk'
 import {
+  isOutfitsFilterEnabled,
   isTryOnFilterEnabled,
+  setOutfitsFilterEnabled,
   setTryOnFilterEnabled,
   subscribeTryOnFilter,
 } from '../utils/settings'
@@ -29,6 +31,7 @@ export default function DebugMenu() {
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const tryOnFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isTryOnFilterEnabled)
+  const outfitsFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isOutfitsFilterEnabled)
 
   const toggleOpen = () => {
     const rect = rootRef.current?.getBoundingClientRect()
@@ -110,6 +113,14 @@ export default function DebugMenu() {
               onChange={(event) => setTryOnFilterEnabled(event.target.checked)}
             />
             <span>Filter single items</span>
+          </label>
+          <label className="debug-menu__item debug-menu__item--checkbox" role="menuitemcheckbox">
+            <input
+              type="checkbox"
+              checked={outfitsFilterEnabled}
+              onChange={(event) => setOutfitsFilterEnabled(event.target.checked)}
+            />
+            <span>Filter outfits</span>
           </label>
           <button
             type="button"

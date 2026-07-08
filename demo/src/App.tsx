@@ -12,9 +12,13 @@ import SkuList from './components/SkuList'
 import VersionBadges from './components/VersionBadges'
 import { getAiuta } from './sdk'
 import { demoConfig } from './utils/config'
-import { fetchOutfits, fetchSkuPage } from './utils/api'
-import { isTryOnFilterEnabled, subscribeTryOnFilter } from './utils/settings'
-import type { CatalogItem, OutfitsApiResponse } from './models/product'
+import { fetchOutfits, fetchSkuPage, normalizeOutfits } from './utils/api'
+import {
+  isOutfitsFilterEnabled,
+  isTryOnFilterEnabled,
+  subscribeTryOnFilter,
+} from './utils/settings'
+import type { CatalogItem } from './models/product'
 import type { AiutaMode } from '@sdk/index'
 
 // Smaller extra.order first; items without one keep their fetch order at
@@ -36,7 +40,7 @@ const readTabFromHash = (): TabValue => {
 
 export default function App() {
   const [skus, setSkus] = useState<CatalogItem[]>([])
-  const [outfits, setOutfits] = useState<OutfitsApiResponse[]>([])
+  const [rawOutfits, setRawOutfits] = useState<unknown[]>([])
   const [loadingList, setLoadingList] = useState(true)
   const [loadingMoreSkus, setLoadingMoreSkus] = useState(false)
   const [loadingOutfits, setLoadingOutfits] = useState(true)
@@ -87,7 +91,7 @@ export default function App() {
     void loadSkuPage()
 
     fetchOutfits()
-      .then(setOutfits)
+      .then(setRawOutfits)
       .catch((error) => console.error('Failed to load outfits', error))
       .finally(() => setLoadingOutfits(false))
   }, [loadSkuPage])
@@ -96,12 +100,29 @@ export default function App() {
     void getAiuta().then((sdk) => sdk.tryOn(productId, { mode, gender }))
   }
 
+  // The outfit formats that carry only sku_ids resolve their items through
+  // the full catalog (including single_item_try_on:false items — hidden from
+  // the single-items grid below, but legal inside outfits). Re-normalizes as
+  // catalog pages stream in.
+  const outfits = useMemo(
+    () => normalizeOutfits(rawOutfits, new Map(skus.map((sku) => [sku.sku_id, sku]))),
+    [rawOutfits, skus],
+  )
+
   // Gear-menu toggle: when on, only items explicitly flagged
   // extra.single_item_try_on: true stay; by default everything is shown
   const tryOnFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isTryOnFilterEnabled)
   const visibleSkus = useMemo(
     () => (tryOnFilterEnabled ? skus.filter((sku) => sku.singleItemTryOn) : skus),
     [tryOnFilterEnabled, skus],
+  )
+
+  // Same idea for outfits: the filter reproduces the REAL demo page (only
+  // multi_item_try_on ones); off shows everything for testing.
+  const outfitsFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isOutfitsFilterEnabled)
+  const visibleOutfits = useMemo(
+    () => (outfitsFilterEnabled ? outfits.filter((outfit) => outfit.multiItemTryOn) : outfits),
+    [outfitsFilterEnabled, outfits],
   )
 
   // Single-Item Try-On is the default tab; outfits (which load slowly) sit
@@ -153,7 +174,7 @@ export default function App() {
           />
         ) : (
           <OutfitList
-            outfits={outfits}
+            outfits={visibleOutfits}
             loading={loadingOutfits}
             onTryOn={(skuIds, gender) => tryOn(skuIds, 'general', gender)}
           />
