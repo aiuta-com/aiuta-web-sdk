@@ -11,13 +11,17 @@ type Listener = () => void
 const listeners = new Set<Listener>()
 const notify = () => listeners.forEach((listener) => listener())
 
-// A `filter` query param (0/1) takes precedence over the stored preferences
-// and forces BOTH filters — the admin panel's test link opens with `filter=0`
-// to show the full catalog and every outfit.
-const filterParam = new URLSearchParams(window.location.search).get('filter')
+// A `filter` query param outranks the stored preferences. It's a bitmask:
+//   0 — both filters off (the admin panel's test link)
+//   1 — single items only          2 — outfits only          3 — both
+const FILTER_BIT_SINGLE = 1
+const FILTER_BIT_OUTFITS = 2
 
-const initial = (key: string): boolean => {
-  if (filterParam === '0' || filterParam === '1') return filterParam === '1'
+const filterParam = new URLSearchParams(window.location.search).get('filter')
+const filterMask = filterParam !== null && /^[0-3]$/.test(filterParam) ? Number(filterParam) : null
+
+const initial = (key: string, bit: number): boolean => {
+  if (filterMask !== null) return (filterMask & bit) !== 0
   try {
     return localStorage.getItem(key) === '1'
   } catch {
@@ -34,14 +38,26 @@ const persist = (key: string, value: boolean): void => {
   }
 }
 
-let filterEnabled = initial(FILTER_KEY)
-let outfitsFilterEnabled = initial(OUTFITS_FILTER_KEY)
+// Every toggle stamps the current combined state into the address, so the
+// URL always shares/reloads into exactly what's on screen (and a stale
+// override from the original navigation can't win again).
+const syncAddress = (): void => {
+  const mask =
+    (filterEnabled ? FILTER_BIT_SINGLE : 0) | (outfitsFilterEnabled ? FILTER_BIT_OUTFITS : 0)
+  const url = new URL(window.location.href)
+  url.searchParams.set('filter', String(mask))
+  window.history.replaceState(null, '', url.toString())
+}
+
+let filterEnabled = initial(FILTER_KEY, FILTER_BIT_SINGLE)
+let outfitsFilterEnabled = initial(OUTFITS_FILTER_KEY, FILTER_BIT_OUTFITS)
 
 export const isTryOnFilterEnabled = (): boolean => filterEnabled
 
 export const setTryOnFilterEnabled = (value: boolean): void => {
   filterEnabled = value
   persist(FILTER_KEY, value)
+  syncAddress()
   notify()
 }
 
@@ -50,6 +66,7 @@ export const isOutfitsFilterEnabled = (): boolean => outfitsFilterEnabled
 export const setOutfitsFilterEnabled = (value: boolean): void => {
   outfitsFilterEnabled = value
   persist(OUTFITS_FILTER_KEY, value)
+  syncAddress()
   notify()
 }
 

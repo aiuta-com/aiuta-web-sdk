@@ -1,15 +1,33 @@
 import React from 'react'
 import OutfitCard from './OutfitCard'
 import Spinner from './Spinner'
+import CatalogEmpty from './CatalogEmpty'
 import type { Outfit } from '../models/product'
 
 interface Props {
   outfits: Outfit[]
   loading: boolean
+  apiKey: string
+  /** The outfits filter hides every existing outfit (unfiltered list isn't empty). */
+  filtersHideEverything: boolean
   onTryOn: (skuIds: string[], gender?: string) => void
 }
 
-export default function OutfitList({ outfits, loading, onTryOn }: Props) {
+export default function OutfitList({
+  outfits,
+  loading,
+  apiKey,
+  filtersHideEverything,
+  onTryOn,
+}: Props) {
+  if (!outfits.length && !loading) {
+    return (
+      <CatalogEmpty filtersHideEverything={filtersHideEverything}>
+        The catalog with the <b>{apiKey}</b> code has no outfits
+      </CatalogEmpty>
+    )
+  }
+
   return (
     <div className="outfit">
       <div className="outfit-grid">

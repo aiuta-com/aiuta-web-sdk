@@ -170,12 +170,19 @@ export default function App() {
             hasMore={hasMoreSkus}
             onLoadMore={loadMoreSkus}
             apiKey={demoConfig.apiKey}
+            filtersHideEverything={
+              tryOnFilterEnabled && skus.length > 0 && visibleSkus.length === 0
+            }
             onTryOn={tryOn}
           />
         ) : (
           <OutfitList
             outfits={visibleOutfits}
             loading={loadingOutfits}
+            apiKey={demoConfig.apiKey}
+            filtersHideEverything={
+              outfitsFilterEnabled && outfits.length > 0 && visibleOutfits.length === 0
+            }
             onTryOn={(skuIds, gender) => tryOn(skuIds, 'general', gender)}
           />
         )}
