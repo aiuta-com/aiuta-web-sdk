@@ -74,8 +74,39 @@ export interface CatalogItem {
 }
 
 // ------------------------------------------------------------- Outfits ---
-// The suggested_outfits endpoint still returns items in the legacy SkuItem
-// shape (with descriptive_image_urls) — see the OpenAPI spec
+// The suggested_outfits endpoint has two live shapes (the legacy
+// embedded-items one and the admin-panel metadata one) — the demo normalizes
+// whatever arrives into `Outfit` (see normalizeOutfits in utils/api.ts) and
+// renders only that.
+
+/** One resolved item of an outfit, ready for the card grid. */
+export interface OutfitItemView {
+  skuId: string
+  imageUrl: string
+  title?: string
+}
+
+/** The demo's own outfit shape — every response format folds into this. */
+export interface Outfit {
+  /** Ordered composition; ALL ids go to tryOn even when not resolved. */
+  skuIds: string[]
+  /** One view per sku id; unresolved ids carry an empty imageUrl and render
+   *  as placeholder tiles until the catalog page carrying them arrives. */
+  items: OutfitItemView[]
+  /** Absolute http(s) URL only; absent → the item grid renders instead. */
+  collageUrl?: string
+  /** Explicit title when the format provides one; tags are the fallback. */
+  title?: string
+  gender?: string
+  occasion?: string
+  style?: string
+  /** position / order / array index — the list is sorted by it. */
+  order: number
+  /** Whether the REAL demo page would list it (admin shape:
+   *  metadata.multi_item_try_on === true; legacy shape: always). The test
+   *  page shows everything unless the gear-menu outfits filter is on. */
+  multiItemTryOn: boolean
+}
 
 export interface OutfitTags {
   gender?: string

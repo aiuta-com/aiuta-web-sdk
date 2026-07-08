@@ -3,52 +3,46 @@ import { useImageGradient } from '../hooks/useImageGradient'
 import { createRipple } from '../utils/ripple'
 import RetryImage from './RetryImage'
 import TryOnIcon from './icons/TryOnIcon'
-import type { OutfitsApiResponse } from '../models/product'
+import type { Outfit } from '../models/product'
 
 interface Props {
-  outfit: OutfitsApiResponse
-  onTryOn: (outfit: OutfitsApiResponse) => void
+  outfit: Outfit
+  onTryOn: (outfit: Outfit) => void
 }
-
-// The outfits API serializes missing images as a URL ending in "None" (Python
-// None stringified by the backend), which 404s — treat those as absent.
-const isUsableImage = (url?: string): boolean => Boolean(url) && !/\/None$/i.test(url ?? '')
 
 export default function OutfitCard({ outfit, onTryOn }: Props) {
   const { getBgStyle, isMultiplied, initGradient } = useImageGradient()
   const [collageFailed, setCollageFailed] = useState(false)
 
-  const showCollage = isUsableImage(outfit.collage_image_url) && !collageFailed
+  // The normalizer only lets absolute, non-"/None" URLs through.
+  const showCollage = Boolean(outfit.collageUrl) && !collageFailed
 
-  const gridItems = useMemo(
-    () =>
-      outfit.items.slice(0, 6).map((item) => {
-        const imageUrl = [item.descriptive_image_urls[0], item.image_urls[0]].find(isUsableImage)
-        return { item, imageUrl: imageUrl ?? '' }
-      }),
-    [outfit.items],
-  )
-  const gridSize = Math.min(Math.max(outfit.items.length, 1), 6)
-  const itemCount = outfit.items.length
+  const gridItems = useMemo(() => outfit.items.slice(0, 6), [outfit.items])
+  const gridSize = Math.min(Math.max(gridItems.length, 1), 6)
 
-  // The API exposes no outfit name; the occasion tag (e.g. "Office Hours") is
-  // the closest human-readable title, with style as a fallback.
-  const title = outfit.tags?.occasion || outfit.tags?.style || 'Outfit'
+  // Explicit title when the format provides one; the occasion tag (e.g.
+  // "Office Hours") is the closest human-readable fallback, then style.
+  // Occasion is NOT a title fallback — it lives in the subtitle (the main
+  // demo page's treatment), so it never shows twice.
+  const title = outfit.title || outfit.style || 'Outfit'
+  const subtitle = [
+    outfit.occasion,
+    `${outfit.skuIds.length} ${outfit.skuIds.length === 1 ? 'item' : 'items'}`,
+  ]
+    .filter(Boolean)
+    .join(' • ')
 
   // Same corner-gradient / white-bg multiply fill as the SKU cards, keyed by the
   // collage URL (the outfit's lead image).
-  const collageKey = outfit.collage_image_url ?? ''
+  const collageKey = outfit.collageUrl ?? ''
 
   return (
     <div className="outfit-card outfit-card--clickable" onClick={() => onTryOn(outfit)}>
       <div className="outfit-card__inner" onPointerDown={createRipple}>
-        <div
-          className="outfit-card__item"
-          style={showCollage ? getBgStyle(collageKey) : undefined}
-        >
+        <div className="outfit-card__item" style={showCollage ? getBgStyle(collageKey) : undefined}>
           {showCollage ? (
             <RetryImage
-              src={outfit.collage_image_url}
+              src={outfit.collageUrl ?? ''}
               alt={title}
               loading="lazy"
               // No icon: a failed collage falls back to the item grid below.
@@ -57,27 +51,31 @@ export default function OutfitCard({ outfit, onTryOn }: Props) {
                 'outfit-card__image' +
                 (isMultiplied(collageKey) ? ' outfit-card__image--multiply' : '')
               }
-              onLoad={() => void initGradient(collageKey, outfit.collage_image_url)}
+              onLoad={() => void initGradient(collageKey, outfit.collageUrl ?? '')}
               onError={() => setCollageFailed(true)}
             />
           ) : (
             <div className={`outfit-card__grid outfit-card__grid--${gridSize}`}>
-              {gridItems.map(({ item, imageUrl }) => (
+              {gridItems.map((item) => (
                 <div
-                  key={item.sku_id}
+                  key={item.skuId}
                   className="outfit-card__grid-item"
-                  style={getBgStyle(item.sku_id)}
+                  style={getBgStyle(item.skuId)}
                 >
-                  <RetryImage
-                    src={imageUrl}
-                    alt={item.title}
-                    loading="lazy"
-                    className={
-                      'outfit-card__image' +
-                      (isMultiplied(item.sku_id) ? ' outfit-card__image--multiply' : '')
-                    }
-                    onLoad={() => void initGradient(item.sku_id, imageUrl)}
-                  />
+                  {/* An unresolved id stays a bare gray tile — the image pops
+                      in reactively once its catalog page arrives. */}
+                  {item.imageUrl && (
+                    <RetryImage
+                      src={item.imageUrl}
+                      alt={item.title ?? ''}
+                      loading="lazy"
+                      className={
+                        'outfit-card__image' +
+                        (isMultiplied(item.skuId) ? ' outfit-card__image--multiply' : '')
+                      }
+                      onLoad={() => void initGradient(item.skuId, item.imageUrl)}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -106,9 +104,7 @@ export default function OutfitCard({ outfit, onTryOn }: Props) {
 
         <div className="outfit-card__content">
           <div className="outfit-card__title">{title}</div>
-          <div className="outfit-card__count">
-            {itemCount} {itemCount === 1 ? 'item' : 'items'}
-          </div>
+          <div className="outfit-card__count">{subtitle}</div>
         </div>
       </div>
     </div>

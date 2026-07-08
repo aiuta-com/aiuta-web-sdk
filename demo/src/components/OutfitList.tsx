@@ -1,10 +1,10 @@
 import React from 'react'
 import OutfitCard from './OutfitCard'
 import Spinner from './Spinner'
-import type { OutfitsApiResponse } from '../models/product'
+import type { Outfit } from '../models/product'
 
 interface Props {
-  outfits: OutfitsApiResponse[]
+  outfits: Outfit[]
   loading: boolean
   onTryOn: (skuIds: string[], gender?: string) => void
 }
@@ -34,7 +34,7 @@ export default function OutfitList({ outfits, loading, onTryOn }: Props) {
               <OutfitCard
                 key={index}
                 outfit={outfit}
-                onTryOn={(o) => onTryOn(o.items.map((i) => i.sku_id), o.tags?.gender)}
+                onTryOn={(o) => onTryOn(o.skuIds, o.gender)}
               />
             ))}
       </div>
