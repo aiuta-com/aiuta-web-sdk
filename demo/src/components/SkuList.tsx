@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react'
 import { useImageGradient } from '../hooks/useImageGradient'
 import { createRipple } from '../utils/ripple'
 import RetryImage from './RetryImage'
+import CatalogEmpty from './CatalogEmpty'
 import Spinner from './Spinner'
 import TryOnIcon from './icons/TryOnIcon'
 import type { CatalogItem } from '../models/product'
@@ -15,6 +16,8 @@ interface Props {
   hasMore: boolean
   onLoadMore: () => void
   apiKey: string
+  /** The single-items filter hides every existing item (unfiltered list isn't empty). */
+  filtersHideEverything: boolean
   onTryOn: (skuId: string, mode?: AiutaMode, gender?: string) => void
 }
 
@@ -44,6 +47,7 @@ export default function SkuList({
   hasMore,
   onLoadMore,
   apiKey,
+  filtersHideEverything,
   onTryOn,
 }: Props) {
   const { getBgStyle, isMultiplied, initGradient } = useImageGradient()
@@ -73,9 +77,9 @@ export default function SkuList({
   // out (not try-on ready) but further pages may still have showable items
   if (!items.length && !loading && !hasMore) {
     return (
-      <h3 className="catalog-empty">
+      <CatalogEmpty filtersHideEverything={filtersHideEverything}>
         The catalog with the <b>{apiKey}</b> code is empty
-      </h3>
+      </CatalogEmpty>
     )
   }
 
