@@ -1,10 +1,11 @@
-import { useRef, useEffect, useCallback, useState, useMemo } from 'react'
+import { useEffect, useCallback, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { qrSlice } from '@/store/slices/qrSlice'
 import { qrTokenSelector, qrIsLoadingSelector } from '@/store/slices/qrSlice'
 import { productIdsSelector, tryOnModeSelector } from '@/store/slices/tryOnSlice'
+import { isAppVisibleSelector } from '@/store/slices/appSlice'
 import { QrApiService } from '@/utils/api/qrApiService'
 import { generateRandomString } from '@/utils/helpers/generateRandomString'
 import { useLogger, useRpc } from '@/contexts'
@@ -24,8 +25,10 @@ export const useQrPrompt = () => {
   const apiKey = 'apiKey' in auth ? auth.apiKey : undefined
   const subscriptionId = 'subscriptionId' in auth ? auth.subscriptionId : undefined
 
-  const qrApiInterval = useRef<ReturnType<typeof setInterval> | null>(null)
+  // Whether polling is WANTED (the page asked for it and no photo landed
+  // yet); the actual interval also requires the widget to be visible.
   const [isPolling, setIsPolling] = useState(false)
+  const isAppVisible = useAppSelector(isAppVisibleSelector)
 
   // Initialize QR token on mount
   useEffect(() => {
@@ -33,6 +36,11 @@ export const useQrPrompt = () => {
       dispatch(qrSlice.actions.setToken(generateRandomString()))
     }
   }, [dispatch, qrToken])
+
+  // Stop polling (explicitly — a scanned photo landed or the page is done)
+  const stopPolling = useCallback(() => {
+    setIsPolling(false)
+  }, [])
 
   // Check for QR uploaded photo
   const checkQrUpload = useCallback(async () => {
@@ -67,24 +75,23 @@ export const useQrPrompt = () => {
     } catch (error) {
       logger.error('QR polling error:', error)
     }
-  }, [qrToken, apiKey, subscriptionId, productIds, dispatch, navigate])
+  }, [qrToken, apiKey, subscriptionId, productIds, dispatch, navigate, stopPolling])
 
   // Start polling for QR uploads
   const startPolling = useCallback(() => {
-    if (isPolling || !qrToken) return
-
+    if (!qrToken) return
     setIsPolling(true)
-    qrApiInterval.current = setInterval(checkQrUpload, 3000)
-  }, [isPolling, qrToken, checkQrUpload])
+  }, [qrToken])
 
-  // Stop polling
-  const stopPolling = useCallback(() => {
-    if (qrApiInterval.current) {
-      clearInterval(qrApiInterval.current)
-      qrApiInterval.current = null
-      setIsPolling(false)
-    }
-  }, [])
+  // The interval lives only while polling is wanted AND the widget is shown.
+  // The QR page stays mounted behind a closed overlay, and without the
+  // visibility gate it kept hitting get-photo every 3s while the SDK was
+  // hidden; closing pauses it, reopening on this page resumes it.
+  useEffect(() => {
+    if (!isPolling || !isAppVisible) return
+    const interval = setInterval(checkQrUpload, 3000)
+    return () => clearInterval(interval)
+  }, [isPolling, isAppVisible, checkQrUpload])
 
   // Generate QR URL
   const qrUrl = useMemo(() => {
