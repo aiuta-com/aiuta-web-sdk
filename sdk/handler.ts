@@ -53,6 +53,12 @@ export default class MessageHandler {
       const iframe = this.iframeManager.getIframe()
       if (!iframe) return
 
+      // The overlay may still be display:none from the previous close (or a
+      // host page's own shielding) — restore rendering BEFORE the app opens,
+      // or Chromium skips the slide-in and stalls lazy images (see
+      // IframeManager.prepareShow).
+      this.iframeManager.prepareShow()
+
       await this.ensureConnected(iframe)
 
       // Drain to the latest pending request (more may have arrived during the

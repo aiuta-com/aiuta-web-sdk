@@ -58,6 +58,30 @@ export default class IframeManager {
     await this.creating
   }
 
+  /** Bring the iframe back into rendering BEFORE the app starts its opening
+   *  flow. A display:none'd iframe doesn't render in Chromium — rAF doesn't
+   *  tick, CSS transitions skip to their end state and lazy images have no
+   *  geometry to intersect — so an opening staged there pops in with no
+   *  slide-in (and image loaders mis-fire). Visibility stays as it is: the
+   *  app flips it via setInteractive(true) when it actually shows, exactly
+   *  the pre-display:none sequence that worked everywhere. Also cancels a
+   *  pending idle-hide from a close still in flight, so it can't display-hide
+   *  the iframe mid-reopen. */
+  prepareShow() {
+    const iframe = this.iframe
+    if (!iframe) return
+    if (this.hideTimer !== null) {
+      clearTimeout(this.hideTimer)
+      this.hideTimer = null
+    }
+    if (iframe.style.display === 'none') {
+      iframe.style.display = ''
+      // Flush the restored display so the app's very first animation frame
+      // has a rendered iframe to paint into.
+      void iframe.getBoundingClientRect()
+    }
+  }
+
   setInteractive(interactive: boolean) {
     const iframe = this.iframe
     if (!iframe) return
