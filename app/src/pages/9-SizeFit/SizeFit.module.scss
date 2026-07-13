@@ -214,7 +214,9 @@
   line-height: 1.1;
   margin: 30px 0 0;
   flex-shrink: 0;
-  overflow-wrap: anywhere;
+  // A size never breaks ("40/42" must not split across lines) — long ones
+  // shrink instead, via the font-size fitting in SizeFitResultsPage
+  white-space: nowrap;
 }
 
 // Figma "size_gradient": #4372FF → #726FFF

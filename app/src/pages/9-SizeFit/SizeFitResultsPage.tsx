@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useLayoutEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import {
@@ -87,6 +87,31 @@ export default function SizeFitResultsPage() {
     if (!recommendation && !noResult) navigate('/size-fit', { replace: true })
   }, [recommendation, noResult, navigate])
 
+  // The huge size name never wraps (nowrap in the SCSS — "40/42" must not
+  // split); a long one shrinks from the 132px base until the line fits.
+  // Width-only guard: the font-size writes change the element's HEIGHT,
+  // which would re-trigger the observer forever.
+  const nameRef = useRef<HTMLDivElement>(null)
+  const nameText = recommendation ? displaySizes(recommendation)?.best.size.name : undefined
+  useLayoutEffect(() => {
+    const el = nameRef.current
+    if (!el) return
+    let lastWidth = -1
+    const fit = () => {
+      if (el.clientWidth === lastWidth) return
+      lastWidth = el.clientWidth
+      el.style.fontSize = ''
+      const base = parseFloat(getComputedStyle(el).fontSize)
+      if (el.scrollWidth > el.clientWidth) {
+        el.style.fontSize = `${Math.floor((base * el.clientWidth) / el.scrollWidth)}px`
+      }
+    }
+    fit()
+    const ro = new ResizeObserver(fit)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [nameText])
+
   useEffect(() => {
     rpc.sdk.trackEvent({
       type: 'page',
@@ -117,7 +142,9 @@ export default function SizeFitResultsPage() {
     <div className={styles.page}>
       {display ? (
         <>
-          <div className={styles.recommendedName}>{display.best.size.name}</div>
+          <div ref={nameRef} className={styles.recommendedName}>
+            {display.best.size.name}
+          </div>
           <div className={styles.sizeBars}>
             <SizeBar display={display.best} bestFitLabel={sizeFitBestFit} />
             {display.next && <SizeBar display={display.next} muted bestFitLabel={sizeFitBestFit} />}
