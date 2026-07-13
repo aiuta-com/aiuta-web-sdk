@@ -5,6 +5,7 @@ import RetryImage from './RetryImage'
 import CatalogEmpty from './CatalogEmpty'
 import Spinner from './Spinner'
 import TryOnIcon from './icons/TryOnIcon'
+import SizeFitIcon from './icons/SizeFitIcon'
 import type { CatalogItem } from '../models/product'
 import type { AiutaMode } from '@sdk/index'
 
@@ -18,7 +19,8 @@ interface Props {
   apiKey: string
   /** The single-items filter hides every existing item (unfiltered list isn't empty). */
   filtersHideEverything: boolean
-  onTryOn: (skuId: string, mode?: AiutaMode, gender?: string) => void
+  onTryOn: (skuId: string, mode?: AiutaMode, gender?: string, sizeChart?: string) => void
+  onSizeFit: (skuId: string, sizeChart: string) => void
 }
 
 function SkeletonCard() {
@@ -49,6 +51,7 @@ export default function SkuList({
   apiKey,
   filtersHideEverything,
   onTryOn,
+  onSizeFit,
 }: Props) {
   const { getBgStyle, isMultiplied, initGradient } = useImageGradient()
 
@@ -90,12 +93,15 @@ export default function SkuList({
           ? Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)
           : items.map((item) => {
               const image = item.image_url
+              // No try-on but a size chart → the card opens the standalone
+              // Size & Fit flow instead of the try-on
+              const sizeFitOnly = !item.singleItemTryOn && item.sizeFit && !!item.sizeChart
+              const openItem = () =>
+                sizeFitOnly
+                  ? onSizeFit(item.sku_id, item.sizeChart!)
+                  : onTryOn(item.sku_id, item.mode, item.gender, item.sizeChart)
               return (
-                <div
-                  className="sku-card sku-card--clickable"
-                  key={item.sku_id}
-                  onClick={() => onTryOn(item.sku_id, item.mode, item.gender)}
-                >
+                <div className="sku-card sku-card--clickable" key={item.sku_id} onClick={openItem}>
                   <div className="sku-card__inner" onPointerDown={createRipple}>
                     <div className="sku-card__item" style={getBgStyle(item.sku_id)}>
                       <RetryImage
@@ -120,11 +126,15 @@ export default function SkuList({
                           }}
                           onClick={(event) => {
                             event.stopPropagation()
-                            onTryOn(item.sku_id, item.mode, item.gender)
+                            openItem()
                           }}
                         >
-                          <TryOnIcon className="btn__icon" />
-                          <span>Try On</span>
+                          {sizeFitOnly ? (
+                            <SizeFitIcon className="btn__icon" />
+                          ) : (
+                            <TryOnIcon className="btn__icon" />
+                          )}
+                          <span>{sizeFitOnly ? 'Size & Fit' : 'Try On'}</span>
                         </button>
                       </div>
                     </div>

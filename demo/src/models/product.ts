@@ -22,6 +22,10 @@ export interface SkuItemExtra {
   title?: string | null
   brand?: string | null
   gender?: string | null
+  /** Whether the item offers the Size & Fit flow in the demo */
+  size_fit?: boolean | null
+  /** Size-chart code the Size & Fit survey is submitted against */
+  size_chart?: string | null
 }
 
 export interface UnifiedSkuItem {
@@ -71,6 +75,10 @@ export interface CatalogItem {
   order: number
   /** Explicitly flagged extra.single_item_try_on: true (gear-menu filter) */
   singleItemTryOn: boolean
+  /** Explicitly flagged metadata.size_fit: true */
+  sizeFit: boolean
+  /** Size-chart code from metadata.size_chart (present when sizeFit is on) */
+  sizeChart?: string
 }
 
 // ------------------------------------------------------------- Outfits ---
