@@ -83,7 +83,7 @@ export const ResultActions = (props: ResultActionsProps) => {
           tile's slot (Figma); Download stays for everything else */}
       {isSizeFitAvailable && (
         <button className={tileClassName} onClick={openSizeFit}>
-          <Icon icon={icons.sizeFit} size={20} viewBox="0 0 18 12" />
+          <Icon icon={icons.sizeFit} size={20} viewBox="0 0 20 20" />
           <span>{sizeFitButton}</span>
         </button>
       )}
