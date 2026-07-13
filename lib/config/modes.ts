@@ -26,6 +26,20 @@ export interface AiutaTryOnOptions {
    * try-on. Omit to fall back to the configured preference.
    */
   gender?: string
+  /**
+   * Size-chart code of the product. When set, the try-on results screen offers
+   * "Find your size" (the Size & Fit survey) for this product.
+   */
+  sizeChart?: string
+}
+
+/** Per-call options for `aiuta.sizeFit`. */
+export interface AiutaSizeFitOptions {
+  /**
+   * Size-chart code of the product — required, the survey is submitted
+   * against it to get the size recommendation.
+   */
+  sizeChart: string
 }
 
 export interface AiutaModes {

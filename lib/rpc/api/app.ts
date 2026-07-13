@@ -10,6 +10,14 @@ import type { AiutaMode } from '../../config'
 export interface TryOnRequestOptions {
   /** Product gender → default predefined-model category for this try-on. */
   gender?: string
+  /** Size-chart code → the results screen offers "Find your size". */
+  sizeChart?: string
+}
+
+/** Options forwarded with a sizeFit call. */
+export interface SizeFitRequestOptions {
+  /** Size-chart code the survey is submitted against. */
+  sizeChart: string
 }
 
 /**
@@ -42,6 +50,15 @@ export interface AppApi {
    * which the SDK side logs without breaking.
    */
   clearStorage(): Promise<void>
+
+  /**
+   * Open the standalone Size & Fit flow (survey → recommendation) for one
+   * product, skipping onboarding and consents entirely.
+   *
+   * Older apps don't implement it — the RPC responds with "Unknown method",
+   * which the SDK side logs without breaking.
+   */
+  sizeFit(productId: string, options: SizeFitRequestOptions): Promise<void>
 }
 
 /**

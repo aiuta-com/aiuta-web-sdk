@@ -7,14 +7,19 @@ import type { Logger } from '@lib/logger'
 
 declare const __SDK_VERSION__: string
 
+/** The latest open request; rapid calls coalesce so only the last one wins. */
+type PendingOpen =
+  | { kind: 'tryOn'; productIds: string[]; mode: AiutaMode; gender?: string; sizeChart?: string }
+  | { kind: 'sizeFit'; productId: string; sizeChart: string }
+
 export default class MessageHandler {
   private rpc: AiutaSdkRpc<AiutaConfiguration>
   // De-dupes concurrent connects: rapid repeated tryOn calls before the
   // handshake completes must await the same connection, not start new ones
   private connecting?: Promise<void>
-  // Coalesces rapid tryOn calls: only the latest request is forwarded to the app
-  private pendingTryOn?: { productIds: string[]; mode: AiutaMode; gender?: string }
-  private tryOnRunning = false
+  // Coalesces rapid open calls: only the latest request is forwarded to the app
+  private pendingOpen?: PendingOpen
+  private openRunning = false
 
   constructor(
     private readonly analytics: AnalyticsTracker,
@@ -42,13 +47,21 @@ export default class MessageHandler {
     })
   }
 
-  async startTryOn(productIds: string[], mode: AiutaMode, gender?: string) {
-    // Always record the latest request. If a run is already in flight, it will
-    // pick this up — only the most recent tryOn reaches the app.
-    this.pendingTryOn = { productIds, mode, gender }
-    if (this.tryOnRunning) return
+  async startTryOn(productIds: string[], mode: AiutaMode, gender?: string, sizeChart?: string) {
+    await this.open({ kind: 'tryOn', productIds, mode, gender, sizeChart })
+  }
 
-    this.tryOnRunning = true
+  async startSizeFit(productId: string, sizeChart: string) {
+    await this.open({ kind: 'sizeFit', productId, sizeChart })
+  }
+
+  private async open(request: PendingOpen) {
+    // Always record the latest request. If a run is already in flight, it will
+    // pick this up — only the most recent open reaches the app.
+    this.pendingOpen = request
+    if (this.openRunning) return
+
+    this.openRunning = true
     try {
       const iframe = this.iframeManager.getIframe()
       if (!iframe) return
@@ -63,20 +76,24 @@ export default class MessageHandler {
 
       // Drain to the latest pending request (more may have arrived during the
       // connect / the previous send), so the app always ends on the last one.
-      while (this.pendingTryOn) {
-        const next = this.pendingTryOn
-        this.pendingTryOn = undefined
-        await this.rpc.app.tryOn(
-          next.productIds,
-          next.mode,
-          next.gender ? { gender: next.gender } : undefined,
-        )
+      while (this.pendingOpen) {
+        const next = this.pendingOpen
+        this.pendingOpen = undefined
+        if (next.kind === 'tryOn') {
+          const options =
+            next.gender || next.sizeChart
+              ? { gender: next.gender, sizeChart: next.sizeChart }
+              : undefined
+          await this.rpc.app.tryOn(next.productIds, next.mode, options)
+        } else {
+          await this.rpc.app.sizeFit(next.productId, { sizeChart: next.sizeChart })
+        }
       }
     } catch (error) {
-      this.logger.error('Aiuta RPC tryOn failed:', error)
+      this.logger.error(`Aiuta RPC ${request.kind} failed:`, error)
       this.analytics.track({ type: 'session', event: 'rpcFailed' })
     } finally {
-      this.tryOnRunning = false
+      this.openRunning = false
     }
   }
 
