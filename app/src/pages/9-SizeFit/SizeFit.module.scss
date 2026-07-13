@@ -257,7 +257,7 @@ $size-gradient: linear-gradient(79deg, #4372ff 7.49%, #726fff 97.95%);
   letter-spacing: -0.4px;
 }
 
-// 24px badge with a 6px tail pointing at the track's pointer dot
+// 24px badge with a 6px tail pointing at the track's pointer ring
 .sizeBarBadge {
   position: absolute;
   top: 0;
@@ -267,19 +267,20 @@ $size-gradient: linear-gradient(79deg, #4372ff 7.49%, #726fff 97.95%);
   justify-content: center;
   min-width: 46px;
   height: 24px;
-  padding: 0 8px;
+  padding: 0 10px;
   border-radius: 6px;
   background: $size-gradient;
   color: var(--aiuta-color-on-dark);
 
+  // Overlaps the badge by 1px so no seam shows between them
   &::after {
     content: '';
     position: absolute;
-    top: 100%;
+    top: calc(100% - 1px);
     left: 50%;
     transform: translateX(-50%);
-    width: 12px;
-    height: 6px;
+    width: 14px;
+    height: 7px;
     background: inherit;
     clip-path: polygon(0 0, 100% 0, 50% 100%);
   }
@@ -293,15 +294,17 @@ $size-gradient: linear-gradient(79deg, #4372ff 7.49%, #726fff 97.95%);
   background: $size-gradient;
 }
 
+// White ring with a see-through center (Figma: 14px, 3px stroke)
 .sizeBarPointer {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: var(--aiuta-color-background);
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
+  border: 3px solid var(--aiuta-color-on-dark);
+  background: transparent;
 }
 
 .sizeBarSummary {
