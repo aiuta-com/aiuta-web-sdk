@@ -1,4 +1,9 @@
-export { sizeFitSlice, type SizeFitState, type SizeFitOrigin, type SizeFitStep } from './sizeFitSlice'
+export {
+  sizeFitSlice,
+  type SizeFitState,
+  type SizeFitOrigin,
+  type SizeFitStep,
+} from './sizeFitSlice'
 export {
   sizeFitProductIdSelector,
   sizeFitSizeChartSelector,

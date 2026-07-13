@@ -117,6 +117,15 @@
   :global(.aiuta-powered-by) {
     bottom: 20px;
   }
+
+  // Room for the "Find your size" CTA between the disclaimer and the footer
+  &_extended {
+    height: 150px;
+  }
+
+  .sizeFitButton {
+    margin: 8px auto 0;
+  }
 }
 
 // Like/dislike at the photo's bottom-right (Figma 12340-33737: bottom 8px);

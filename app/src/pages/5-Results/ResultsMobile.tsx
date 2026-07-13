@@ -15,6 +15,7 @@ import {
   FilePicker,
   PoweredBy,
   ConsentPopup,
+  PrimaryButton,
 } from '@/components'
 import {
   useResultsGallery,
@@ -26,6 +27,8 @@ import {
   useUploadsGallery,
   useImageTone,
   useConsentGate,
+  useSizeFitStrings,
+  useSizeFitEntry,
 } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
@@ -46,6 +49,8 @@ export default function ResultsMobile() {
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { recentlyPhotos } = useUploadsGallery()
   const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
+  const { sizeFitButton } = useSizeFitStrings()
+  const { isAvailable: isSizeFitAvailable, open: openSizeFit } = useSizeFitEntry()
 
   // Tone of the image bottom → light/dark disclaimer strip (same as desktop)
   const toneInfo = useImageTone(currentImage?.url)
@@ -131,7 +136,12 @@ export default function ResultsMobile() {
                 row — and the Powered by footer. Keeping the disclaimer inside
                 this reserve (not as its own row) is what stops the image from
                 shrinking. */}
-            <div className={styles.cartReserve}>
+            <div
+              className={combineClassNames(
+                styles.cartReserve,
+                isSizeFitAvailable && styles.cartReserve_extended,
+              )}
+            >
               {toneInfo && (
                 <Disclaimer
                   variant="strip"
@@ -139,6 +149,13 @@ export default function ResultsMobile() {
                   tint={toneInfo.averageColor}
                   stripUrl={toneInfo.stripUrl}
                 />
+              )}
+              {/* A product with a size chart gets its CTA in the reserved
+                  cart-button space */}
+              {isSizeFitAvailable && (
+                <PrimaryButton onClick={openSizeFit} className={styles.sizeFitButton}>
+                  {sizeFitButton}
+                </PrimaryButton>
               )}
               <PoweredBy />
             </div>

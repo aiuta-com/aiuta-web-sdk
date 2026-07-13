@@ -48,6 +48,8 @@ export const usePageBarNavigation = () => {
     if (currentPath === '/generations') return 'history'
     if (currentPath === '/uploads') return 'imagePicker'
     if (currentPath === '/tryon') return 'imagePicker'
+    if (currentPath === '/size-fit') return 'sizeFitSurvey'
+    if (currentPath === '/size-fit/results') return 'sizeFitResults'
     return ''
   }
 

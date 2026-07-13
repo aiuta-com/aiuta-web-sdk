@@ -127,7 +127,8 @@ export default class Aiuta {
 
     // The second arg is overloaded: a bare mode string (legacy) or an options
     // object. Normalize both into a single options shape.
-    const opts: AiutaTryOnOptions = typeof options === 'string' ? { mode: options } : (options ?? {})
+    const opts: AiutaTryOnOptions =
+      typeof options === 'string' ? { mode: options } : (options ?? {})
     let mode = opts.mode ?? 'general'
     const gender = opts.gender
     const sizeChart = opts.sizeChart

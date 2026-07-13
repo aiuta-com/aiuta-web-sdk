@@ -45,7 +45,10 @@ const KNOWN_MEASUREMENT_TYPES: MeasurementType[] = [
 const measurementType = (raw: unknown): MeasurementType =>
   KNOWN_MEASUREMENT_TYPES.includes(raw as MeasurementType) ? (raw as MeasurementType) : 'unknown'
 
-export function buildRecommendationRequest(code: string, survey: FitSurvey): SizeFitRecommendationRequest {
+export function buildRecommendationRequest(
+  code: string,
+  survey: FitSurvey,
+): SizeFitRecommendationRequest {
   return {
     code,
     age: survey.age,
