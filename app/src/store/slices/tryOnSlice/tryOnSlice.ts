@@ -20,6 +20,9 @@ export interface TryOnState {
   // for this try-on (overrides the configured preferredCategoryId). null when
   // the request carried no gender.
   preferredCategoryId: string | null
+  // Size-chart code from the tryOn request → the results screen offers
+  // "Find your size". null when the request carried none.
+  sizeChart: string | null
 }
 
 const initialState: TryOnState = {
@@ -32,6 +35,7 @@ const initialState: TryOnState = {
   productIds: [],
   mode: 'general',
   preferredCategoryId: null,
+  sizeChart: null,
 }
 
 export const tryOnSlice = createSlice({
@@ -91,6 +95,10 @@ export const tryOnSlice = createSlice({
 
     setPreferredCategoryId: (state, action: PayloadAction<string | null>) => {
       state.preferredCategoryId = action.payload
+    },
+
+    setSizeChart: (state, action: PayloadAction<string | null>) => {
+      state.sizeChart = action.payload
     },
 
     resetTryOnState: (state) => {

@@ -1,5 +1,6 @@
 import type { InputImage, GeneratedImage } from '@lib/models'
 import type { PredefinedModelCategory } from '@/utils/api'
+import type { FitSurvey } from '@/utils/sizeFit/types'
 import type {
   IStorageBackend,
   PredefinedModelsCache,
@@ -29,6 +30,7 @@ export class LocalStorageBackend implements IStorageBackend {
     ONBOARDING_LEGACY: 'onboarding',
     ONBOARDING_MODES: 'onboarding-modes',
     PREDEFINED_MODELS: 'models',
+    FIT_SURVEY: 'fit-survey',
   } as const
 
   constructor(adapter: IStorageAdapter) {
@@ -152,5 +154,19 @@ export class LocalStorageBackend implements IStorageBackend {
 
   async clearPredefinedModels(): Promise<void> {
     await this.adapter.removeItem(this.KEYS.PREDEFINED_MODELS)
+  }
+
+  // ===== Size & Fit survey =====
+
+  async getFitSurvey(): Promise<FitSurvey | null> {
+    return await this.adapter.getItem<FitSurvey>(this.KEYS.FIT_SURVEY)
+  }
+
+  async saveFitSurvey(survey: FitSurvey): Promise<void> {
+    await this.adapter.setItem(this.KEYS.FIT_SURVEY, survey)
+  }
+
+  async clearFitSurvey(): Promise<void> {
+    await this.adapter.removeItem(this.KEYS.FIT_SURVEY)
   }
 }

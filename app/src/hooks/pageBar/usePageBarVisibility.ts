@@ -27,6 +27,8 @@ export const usePageBarVisibility = () => {
   const isOnQrTokenPage = qrToken ? pathName.includes(qrToken) : false
   const isOnOnboardingPage = pathName === '/onboarding'
   const isOnModelsPage = pathName === '/models'
+  // Size & Fit renders its own progress bar and back arrow inside the page
+  const isOnSizeFitPage = pathName.startsWith('/size-fit')
   // The QR prompt is both an entry screen (from onboarding) and an "Add new"
   // destination. Only the latter is routed with { canGoBack }, where the left
   // button must be a back arrow instead of the history icon.
@@ -49,14 +51,19 @@ export const usePageBarVisibility = () => {
 
   // 2. History button: show only if NOT showing back button, NOT on onboarding, NOT on home page, and have images
   const showHistoryButton =
-    !showBackButton && !isOnOnboardingPage && !isOnHomePage && hasGeneratedImages
+    !showBackButton &&
+    !isOnOnboardingPage &&
+    !isOnHomePage &&
+    !isOnSizeFitPage &&
+    hasGeneratedImages
 
   // Title visibility: the onboarding navbar has no title (close button only);
   // on mobile the general models page puts its Women/Men segmented control in
   // the navbar center instead of the title (see ModelsMobile). Shoes mode keeps
   // the title ("Select example") since its gender toggle lives in the content.
   const isShoes = mode === 'shoes'
-  const showTitle = !isOnOnboardingPage && !(isOnModelsPage && isMobile && !isShoes)
+  const showTitle =
+    !isOnOnboardingPage && !isOnSizeFitPage && !(isOnModelsPage && isMobile && !isShoes)
 
   // Right side content visibility
   const showSelectButton = isOnHistoryPage && hasAnyHistory

@@ -1,5 +1,6 @@
 import type { InputImage, GeneratedImage } from '@lib/models'
 import type { PredefinedModelCategory } from '@/utils/api'
+import type { FitSurvey } from '@/utils/sizeFit/types'
 
 /**
  * Cached data structure for predefined models

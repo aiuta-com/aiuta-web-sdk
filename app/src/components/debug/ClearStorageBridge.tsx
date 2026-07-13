@@ -6,6 +6,7 @@ import { useStorageBackend } from '@/contexts'
 import { onboardingSlice } from '@/store/slices/onboardingSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { qrSlice } from '@/store/slices/qrSlice'
+import { sizeFitSlice } from '@/store/slices/sizeFitSlice'
 import { predefinedModelsSlice } from '@/store/slices/predefinedModelsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
@@ -37,6 +38,7 @@ export const ClearStorageBridge = () => {
         backend.clearConsents(),
         backend.clearOnboarding(),
         backend.clearPredefinedModels(),
+        backend.clearFitSurvey(),
       ])
 
       sessionStorage.removeItem(SELECTED_CATEGORY_KEY)
@@ -48,6 +50,7 @@ export const ClearStorageBridge = () => {
       dispatch(onboardingSlice.actions.resetOnboarding())
       dispatch(tryOnSlice.actions.resetTryOnState())
       dispatch(qrSlice.actions.resetQrState())
+      dispatch(sizeFitSlice.actions.resetSizeFit())
       dispatch(predefinedModelsSlice.actions.resetPredefinedModels())
       dispatch(errorSnackbarSlice.actions.hideErrorSnackbar())
       dispatch(uploadsSlice.actions.clearSelectedImages())

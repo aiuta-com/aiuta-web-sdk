@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { InputImage, GeneratedImage } from '@lib/models'
 import type { PredefinedModelCategory } from '@/utils/api'
+import type { FitSurvey } from '@/utils/sizeFit/types'
 import type {
   IStorageBackend,
   PredefinedModelsCache,
@@ -107,6 +108,20 @@ export class RpcStorageBackend implements IStorageBackend {
   }
 
   async clearPredefinedModels(): Promise<void> {
+    throw new Error('RpcStorageBackend not implemented yet')
+  }
+
+  // ===== Size & Fit survey =====
+
+  async getFitSurvey(): Promise<FitSurvey | null> {
+    throw new Error('RpcStorageBackend not implemented yet')
+  }
+
+  async saveFitSurvey(_survey: FitSurvey): Promise<void> {
+    throw new Error('RpcStorageBackend not implemented yet')
+  }
+
+  async clearFitSurvey(): Promise<void> {
     throw new Error('RpcStorageBackend not implemented yet')
   }
 }
