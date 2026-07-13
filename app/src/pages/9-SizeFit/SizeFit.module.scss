@@ -244,11 +244,12 @@ $size-gradient: linear-gradient(79deg, #4372ff 7.49%, #726fff 97.95%);
   }
 }
 
-// The size name and the confidence badge share one 24px line
+// The size name and the confidence badge share one 24px line; the 12px gap
+// below fits the badge tail (7px) with clear air before the track (Figma)
 .sizeBarHead {
   position: relative;
   height: 24px;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
 
 .sizeBarName {
