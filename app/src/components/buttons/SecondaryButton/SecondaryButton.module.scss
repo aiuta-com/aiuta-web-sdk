@@ -31,6 +31,12 @@
     background: var(--aiuta-color-on-dark);
   }
 
+  // Inverted text-only look; the full-size hit area stays
+  &_ghost {
+    background: none;
+    color: var(--aiuta-color-secondary);
+  }
+
   // Compact pill (snackbars): 36px instead of 50px
   &_compact {
     min-height: 36px;

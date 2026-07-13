@@ -7,6 +7,7 @@ import { galleryModalSlice } from '@/store/slices/galleryModalSlice'
 import {
   Flex,
   RemoteImage,
+  Icon,
   IconButton,
   Disclaimer,
   Feedback,
@@ -15,7 +16,9 @@ import {
   FilePicker,
   PoweredBy,
   ConsentPopup,
+  PrimaryButton,
 } from '@/components'
+import { icons as actionIcons } from '@/components/results/ResultActions/icons'
 import {
   useResultsGallery,
   useNavigatorShare,
@@ -26,6 +29,8 @@ import {
   useUploadsGallery,
   useImageTone,
   useConsentGate,
+  useSizeFitStrings,
+  useSizeFitEntry,
 } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
@@ -46,6 +51,8 @@ export default function ResultsMobile() {
   const { isEnabled: isModelsEnabled } = usePredefinedModels()
   const { recentlyPhotos } = useUploadsGallery()
   const { isConsentOpen, runWithConsent, closeConsent, confirmConsent } = useConsentGate()
+  const { sizeFitButton } = useSizeFitStrings()
+  const { isAvailable: isSizeFitAvailable, open: openSizeFit } = useSizeFitEntry()
 
   // Tone of the image bottom → light/dark disclaimer strip (same as desktop)
   const toneInfo = useImageTone(currentImage?.url)
@@ -99,65 +106,71 @@ export default function ResultsMobile() {
         {({ openFilePicker }) => {
           const requestUpload = () => runWithConsent(openFilePicker)
           return (
-          <>
-            <Flex
-              fill
-              containerClassName={styles.fillContainer}
-              contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
-            >
-              <RemoteImage
-                src={currentImage}
-                alt="Generated result"
-                shape="M"
-                fit="smart"
-                onClick={openFullScreen}
-              />
-              <IconButton
-                icon={icons.share}
-                label="Share"
-                onClick={() => currentImage && shareImage(currentImage.url)}
-                className={styles.shareButton}
-              />
-              {isOtherPhotoEnabled && <OtherPhoto className={styles.changePhotoFab} />}
-              {currentImage && (
-                <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
-              )}
-            </Flex>
+            <>
+              <Flex
+                fill
+                containerClassName={styles.fillContainer}
+                contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
+              >
+                <RemoteImage
+                  src={currentImage}
+                  alt="Generated result"
+                  shape="M"
+                  fit="smart"
+                  onClick={openFullScreen}
+                />
+                <IconButton
+                  icon={icons.share}
+                  label="Share"
+                  onClick={() => currentImage && shareImage(currentImage.url)}
+                  className={styles.shareButton}
+                />
+                {isOtherPhotoEnabled && <OtherPhoto className={styles.changePhotoFab} />}
+                {currentImage && (
+                  <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
+                )}
+              </Flex>
 
-            {/* No Add to cart button yet, but its space is reserved so the
+              {/* No Add to cart button yet, but its space is reserved so the
                 result image keeps the same height as the loading screen (no
                 jump on finish). It holds the fit disclaimer — flush under the
                 photo, full-width, its background the photo's stretched bottom
                 row — and the Powered by footer. Keeping the disclaimer inside
                 this reserve (not as its own row) is what stops the image from
                 shrinking. */}
-            <div className={styles.cartReserve}>
-              {toneInfo && (
-                <Disclaimer
-                  variant="strip"
-                  tone={toneInfo.tone}
-                  tint={toneInfo.averageColor}
-                  stripUrl={toneInfo.stripUrl}
-                />
-              )}
-              <PoweredBy />
-            </div>
+              <div className={styles.cartReserve}>
+                {toneInfo && (
+                  <Disclaimer
+                    variant="strip"
+                    tone={toneInfo.tone}
+                    tint={toneInfo.averageColor}
+                    stripUrl={toneInfo.stripUrl}
+                  />
+                )}
+                {/* A product with a size chart gets its CTA in the reserved
+                  cart-button space; the Powered by footer yields to it so the
+                  reserve (and the result image above) keeps its height */}
+                {isSizeFitAvailable ? (
+                  <PrimaryButton onClick={openSizeFit} className={styles.sizeFitButton}>
+                    <Icon icon={actionIcons.sizeFit} size={20} viewBox="0 0 20 20" />
+                    {sizeFitButton}
+                  </PrimaryButton>
+                ) : (
+                  <PoweredBy />
+                )}
+              </div>
 
-            <UploadsHistorySheet
-              onUploadNew={requestUpload}
-              onImageSelect={hasMultiplePhotos ? handleChoosePhotoFromHistory : undefined}
-              onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
-            />
-          </>
+              <UploadsHistorySheet
+                onUploadNew={requestUpload}
+                onImageSelect={hasMultiplePhotos ? handleChoosePhotoFromHistory : undefined}
+                onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
+              />
+            </>
           )
         }}
       </FilePicker>
 
-      <ConsentPopup
-        isOpen={isConsentOpen}
-        onClose={closeConsent}
-        onConfirm={confirmConsent}
-      />
+      <ConsentPopup isOpen={isConsentOpen} onClose={closeConsent} onConfirm={confirmConsent} />
     </main>
   )
 }

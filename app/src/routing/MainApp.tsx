@@ -39,6 +39,7 @@ import ResultsPage from '@/pages/5-Results'
 import GenerationsHistoryPage from '@/pages/6-GenerationsHistory'
 import UploadsHistoryPage from '@/pages/7-UploadsHistory'
 import PredefinedModelsPage from '@/pages/8-PredefinedModels'
+import { SizeFitSurveyPage, SizeFitResultsPage } from '@/pages/9-SizeFit'
 
 /**
  * Main application component with full RPC and context setup
@@ -130,6 +131,8 @@ function AppContent() {
             <Route path="/results" element={<ResultsPage />} />
             <Route path="/generations" element={<GenerationsHistoryPage />} />
             <Route path="/uploads" element={<UploadsHistoryPage />} />
+            <Route path="/size-fit" element={<SizeFitSurveyPage />} />
+            <Route path="/size-fit/results" element={<SizeFitResultsPage />} />
           </Routes>
 
           {/* Covers the picker while a picked file is being prepared */}

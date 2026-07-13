@@ -1,4 +1,4 @@
-import { AiutaConfiguration, AiutaMode, AiutaTryOnOptions } from '@lib/config'
+import { AiutaConfiguration, AiutaMode, AiutaSizeFitOptions, AiutaTryOnOptions } from '@lib/config'
 import { createLogger, type Logger } from '@lib/logger'
 import IframeManager from './iframe'
 import MessageHandler from './handler'
@@ -127,9 +127,11 @@ export default class Aiuta {
 
     // The second arg is overloaded: a bare mode string (legacy) or an options
     // object. Normalize both into a single options shape.
-    const opts: AiutaTryOnOptions = typeof options === 'string' ? { mode: options } : (options ?? {})
+    const opts: AiutaTryOnOptions =
+      typeof options === 'string' ? { mode: options } : (options ?? {})
     let mode = opts.mode ?? 'general'
     const gender = opts.gender
+    const sizeFit = this.validSizeFitOptions(opts.sizeFit)
 
     // Partners call from untyped JS — fall back instead of breaking the flow
     if (mode !== 'general' && mode !== 'shoes') {
@@ -145,7 +147,76 @@ export default class Aiuta {
     })
 
     await this.iframeManager.ensureIframe()
-    await this.messageHandler.startTryOn(productIds, mode, gender)
+    await this.messageHandler.startTryOn(productIds, mode, gender, sizeFit)
+  }
+
+  // Partners call from untyped JS — an incomplete sizeFit object degrades to
+  // "no size & fit" instead of breaking the flow downstream
+  private validSizeFitOptions(options?: AiutaSizeFitOptions): AiutaSizeFitOptions | undefined {
+    if (!options) return undefined
+    const { sizeChart, apiKey, partition, gender } = options
+    if (
+      typeof sizeChart === 'string' &&
+      sizeChart.length &&
+      typeof apiKey === 'string' &&
+      apiKey.length &&
+      typeof partition === 'string' &&
+      partition.length
+    ) {
+      return {
+        sizeChart,
+        apiKey,
+        partition,
+        gender: typeof gender === 'string' ? gender : undefined,
+      }
+    }
+    this.logger.error('Aiuta sizeFit options require sizeChart, apiKey and partition')
+    return undefined
+  }
+
+  /**
+   * Opens the standalone Size & Fit flow for a product: a short body survey
+   * followed by a size recommendation. Skips try-on onboarding and consents —
+   * intended for products that have a size chart but no virtual try-on.
+   *
+   * @param productId - Product ID the recommendation is for
+   * @param options - the product's size-chart code plus the naiz.fit
+   *   credentials (`sizeChart`, `apiKey`, `partition` — all required)
+   * @throws Error if this instance has been destroyed. Create a new Aiuta instance instead.
+   *
+   * @example
+   * ```typescript
+   * await aiuta.sizeFit('dress-7', {
+   *   sizeChart: 'brand-dresses-eu',
+   *   apiKey: 'naiz-api-key',
+   *   partition: 'brand',
+   * });
+   * ```
+   */
+  async sizeFit(productId: string, options: AiutaSizeFitOptions) {
+    if (this.isDestroyed) {
+      const error =
+        'Cannot call sizeFit() on destroyed Aiuta instance. Please create a new Aiuta instance.'
+      this.logger.error(error)
+      throw new Error(error)
+    }
+
+    // Partners call from untyped JS — fall back instead of breaking the flow
+    if (!productId || !productId.length) {
+      this.logger.error('Product id is not provided for Aiuta sizeFit')
+      return
+    }
+    const sizeFit = this.validSizeFitOptions(options)
+    if (!sizeFit) return
+
+    this.analytics.track({
+      type: 'session',
+      flow: 'sizeFit',
+      productIds: [productId],
+    })
+
+    await this.iframeManager.ensureIframe()
+    await this.messageHandler.startSizeFit(productId, sizeFit)
   }
 
   /**

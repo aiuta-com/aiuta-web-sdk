@@ -8,6 +8,7 @@ export type {
   AiutaFeatures,
   AiutaMode,
   AiutaTryOnOptions,
+  AiutaSizeFitOptions,
   AiutaModes,
   AiutaShoesMode,
   AiutaAnalytics,

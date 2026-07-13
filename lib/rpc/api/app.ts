@@ -10,6 +10,20 @@ import type { AiutaMode } from '../../config'
 export interface TryOnRequestOptions {
   /** Product gender → default predefined-model category for this try-on. */
   gender?: string
+  /** Size & Fit context → the results screen offers "Find your size". */
+  sizeFit?: SizeFitRequestOptions
+}
+
+/** Options forwarded with a sizeFit call (naiz.fit is called directly). */
+export interface SizeFitRequestOptions {
+  /** Size-chart code the survey is submitted against. */
+  sizeChart: string
+  /** naiz.fit API key. */
+  apiKey: string
+  /** naiz.fit partition. */
+  partition: string
+  /** Product gender → preselects the survey gender (male skips the bra step). */
+  gender?: string
 }
 
 /**
@@ -42,6 +56,15 @@ export interface AppApi {
    * which the SDK side logs without breaking.
    */
   clearStorage(): Promise<void>
+
+  /**
+   * Open the standalone Size & Fit flow (survey → recommendation) for one
+   * product, skipping onboarding and consents entirely.
+   *
+   * Older apps don't implement it — the RPC responds with "Unknown method",
+   * which the SDK side logs without breaking.
+   */
+  sizeFit(productId: string, options: SizeFitRequestOptions): Promise<void>
 }
 
 /**

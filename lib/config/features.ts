@@ -8,6 +8,52 @@ export interface AiutaFeatures {
   tryOn?: TryOn
   share?: Share
   consent?: ConsentStandaloneOnboardingPage
+  /**
+   * Size & Fit recommendation flow. Only surfaces for products that were given
+   * a size-chart code (`sizeChart` in the tryOn/sizeFit call options). Absence
+   * keeps it enabled with built-in defaults; explicit null disables it.
+   */
+  sizeFit?: SizeFit | null
+}
+
+export interface SizeFit {
+  strings?: {
+    /** Results-screen entry tile and survey CTA */
+    sizeFitButton?: string
+    // Survey — step 1
+    sizeFitSurveyTitle?: string
+    sizeFitGenderMale?: string
+    sizeFitGenderFemale?: string
+    sizeFitAgeLabel?: string
+    sizeFitHeightLabel?: string
+    sizeFitWeightLabel?: string
+    /** HTML footnote under the survey, may contain a privacy-policy link */
+    sizeFitPrivacyDisclaimerHtml?: string
+    // Survey — step 2 (body shapes)
+    sizeFitBellyTitle?: string
+    sizeFitBellyFlatter?: string
+    sizeFitBellyAverage?: string
+    sizeFitBellyFull?: string
+    sizeFitHipsTitle?: string
+    sizeFitHipsStraight?: string
+    sizeFitHipsAverage?: string
+    sizeFitHipsWide?: string
+    // Survey — step 3 (bra, female only)
+    sizeFitBraTitle?: string
+    sizeFitBraBandTitle?: string
+    sizeFitBraCupTitle?: string
+    // Buttons
+    sizeFitButtonNext?: string
+    sizeFitButtonFindMySize?: string
+    // Results
+    sizeFitResultsTitle?: string
+    sizeFitBestFit?: string
+    sizeFitParametersTitle?: string
+    sizeFitButtonChange?: string
+    sizeFitButtonGotIt?: string
+    sizeFitNoResultTitle?: string
+    sizeFitNoResultDescription?: string
+  }
 }
 
 export interface Share {

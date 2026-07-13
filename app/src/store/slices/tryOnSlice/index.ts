@@ -9,4 +9,5 @@ export {
   productIdsSelector,
   tryOnModeSelector,
   tryOnPreferredCategoryIdSelector,
+  tryOnSizeFitOptionsSelector,
 } from './selectors'

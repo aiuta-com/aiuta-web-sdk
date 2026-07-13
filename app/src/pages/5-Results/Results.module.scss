@@ -117,6 +117,20 @@
   :global(.aiuta-powered-by) {
     bottom: 20px;
   }
+
+  // The "Find your size" CTA takes the reserved cart-button spot (the
+  // Powered by footer yields to it), pinned to the bottom so the reserve —
+  // and with it the result image — never changes height
+  // 16px bottom inset — same as the Size & Fit survey's own CTA
+  .sizeFitButton {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+    max-width: none;
+    margin: 0;
+  }
 }
 
 // Like/dislike at the photo's bottom-right (Figma 12340-33737: bottom 8px);

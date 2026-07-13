@@ -4,7 +4,13 @@ import { productIdsSelector } from '@/store/slices/tryOnSlice'
 import { Icon } from '@/components'
 import { ResultActionsProps } from './types'
 import { useRpc, useShare } from '@/contexts'
-import { useShareStrings, useImagePickerStrings, useTryOnWithOtherPhoto } from '@/hooks'
+import {
+  useShareStrings,
+  useImagePickerStrings,
+  useTryOnWithOtherPhoto,
+  useSizeFitStrings,
+  useSizeFitEntry,
+} from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { icons } from './icons'
 import styles from './ResultActions.module.scss'
@@ -15,6 +21,8 @@ export const ResultActions = (props: ResultActionsProps) => {
   const { openShareModal } = useShare()
   const { shareButton, downloadButton } = useShareStrings()
   const { uploadsHistoryButtonChangePhoto } = useImagePickerStrings()
+  const { sizeFitButton } = useSizeFitStrings()
+  const { isAvailable: isSizeFitAvailable, open: openSizeFit } = useSizeFitEntry()
   const {
     isEnabled: isOtherPhotoEnabled,
     icon: changePhotoIcon,
@@ -71,14 +79,24 @@ export const ResultActions = (props: ResultActionsProps) => {
 
   return (
     <div className={styles.resultActions}>
+      {/* A product with a size chart offers "Find your size" in the Download
+          tile's slot (Figma); Download stays for everything else */}
+      {isSizeFitAvailable && (
+        <button className={tileClassName} onClick={openSizeFit}>
+          <Icon icon={icons.sizeFit} size={20} viewBox="0 0 20 20" />
+          <span>{sizeFitButton}</span>
+        </button>
+      )}
       <button className={tileClassName} onClick={handleShare}>
         <Icon icon={icons.share} size={20} viewBox="0 0 24 24" />
         <span>{shareButton}</span>
       </button>
-      <button className={tileClassName} onClick={handleDownload}>
-        <Icon icon={icons.download} size={20} viewBox="0 0 21 20" />
-        <span>{downloadButton}</span>
-      </button>
+      {!isSizeFitAvailable && (
+        <button className={tileClassName} onClick={handleDownload}>
+          <Icon icon={icons.download} size={20} viewBox="0 0 21 20" />
+          <span>{downloadButton}</span>
+        </button>
+      )}
       {isOtherPhotoEnabled && (
         <button className={tileClassName} onClick={handleChangePhoto}>
           <Icon icon={changePhotoIcon || icons.changePhoto} size={20} viewBox="0 0 24 24" />

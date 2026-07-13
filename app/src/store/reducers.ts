@@ -6,6 +6,7 @@ import { generationsSlice } from './slices/generationsSlice'
 import { onboardingSlice } from './slices/onboardingSlice'
 import { predefinedModelsSlice } from './slices/predefinedModelsSlice'
 import { qrSlice } from './slices/qrSlice'
+import { sizeFitSlice } from './slices/sizeFitSlice'
 import { tryOnSlice } from './slices/tryOnSlice'
 import { uploadsSlice } from './slices/uploadsSlice'
 
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   [onboardingSlice.name]: onboardingSlice.reducer,
   [predefinedModelsSlice.name]: predefinedModelsSlice.reducer,
   [qrSlice.name]: qrSlice.reducer,
+  [sizeFitSlice.name]: sizeFitSlice.reducer,
   [tryOnSlice.name]: tryOnSlice.reducer,
   [uploadsSlice.name]: uploadsSlice.reducer,
 })

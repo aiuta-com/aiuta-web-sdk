@@ -90,7 +90,6 @@ export default function TryOnMobile() {
     })
   }, [rpc, productIds])
 
-
   return (
     <main className={styles.tryOn}>
       <ErrorSnackbar onRetry={retryTryOn} />
@@ -101,56 +100,52 @@ export default function TryOnMobile() {
           // pending, then resumes straight into the native picker
           const requestUpload = () => runWithConsent(openFilePicker)
           return (
-          <>
-            {selectedImage ? (
-              <>
-                {/* Full-bleed image with the loading veil (same as desktop);
+            <>
+              {selectedImage ? (
+                <>
+                  {/* Full-bleed image with the loading veil (same as desktop);
                     the change-photo action moves to the button row below */}
-                <TryOnView image={selectedImage} isGenerating={isGenerating} fill />
+                  <TryOnView image={selectedImage} isGenerating={isGenerating} fill />
 
-                {isGenerating ? (
-                  // The status takes the action row's place so the layout
-                  // doesn't jump when the generation starts
-                  <div className={styles.loadingRow}>
-                    <TryOnStatus />
-                  </div>
-                ) : (
-                  <div className={styles.actions}>
-                    <SecondaryButton
-                      onClick={hasRecentPhotos ? handleOpenBottomSheet : requestUpload}
-                      shape="M"
-                      classNames={styles.action}
-                    >
-                      {uploadsHistoryButtonChangePhoto}
-                    </SecondaryButton>
-                    <TryOnButton onClick={() => startTryOn()} className={styles.action}>
-                      {tryOn}
-                    </TryOnButton>
-                  </div>
-                )}
-              </>
-            ) : (
-              <UploadPrompt
-                onClick={requestUpload}
-                onModelsClick={isModelsEnabled ? handleModelsClick : undefined}
+                  {isGenerating ? (
+                    // The status takes the action row's place so the layout
+                    // doesn't jump when the generation starts
+                    <div className={styles.loadingRow}>
+                      <TryOnStatus />
+                    </div>
+                  ) : (
+                    <div className={styles.actions}>
+                      <SecondaryButton
+                        onClick={hasRecentPhotos ? handleOpenBottomSheet : requestUpload}
+                        shape="M"
+                        classNames={styles.action}
+                      >
+                        {uploadsHistoryButtonChangePhoto}
+                      </SecondaryButton>
+                      <TryOnButton onClick={() => startTryOn()} className={styles.action}>
+                        {tryOn}
+                      </TryOnButton>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <UploadPrompt
+                  onClick={requestUpload}
+                  onModelsClick={isModelsEnabled ? handleModelsClick : undefined}
+                />
+              )}
+
+              <UploadsHistorySheet
+                onUploadNew={requestUpload}
+                onImageSelect={handleChoosePhotoFromHistory}
+                onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
               />
-            )}
-
-            <UploadsHistorySheet
-              onUploadNew={requestUpload}
-              onImageSelect={handleChoosePhotoFromHistory}
-              onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
-            />
-          </>
+            </>
           )
         }}
       </FilePicker>
 
-      <ConsentPopup
-        isOpen={isConsentOpen}
-        onClose={closeConsent}
-        onConfirm={confirmConsent}
-      />
+      <ConsentPopup isOpen={isConsentOpen} onClose={closeConsent} onConfirm={confirmConsent} />
     </main>
   )
 }

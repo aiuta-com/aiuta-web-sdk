@@ -1,0 +1,348 @@
+.page {
+  flex: 1 1 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 20px 16px;
+
+  // The first step/section heading sits 40px under the SDK header (Figma);
+  // the PageBar carries the back arrow and the step progress
+  h1:first-child,
+  h2:first-of-type {
+    margin-top: 40px;
+  }
+}
+
+.title {
+  text-align: center;
+  color: var(--aiuta-color-primary);
+  margin: 40px 0 28px;
+  flex-shrink: 0;
+}
+
+.sectionTitle {
+  text-align: center;
+  color: var(--aiuta-color-primary);
+  margin: 32px 0 20px;
+  flex-shrink: 0;
+}
+
+// Male / Female cards and the belly/hips shape cards share one look:
+// bordered rounded cells where selection thickens the border to the
+// primary color (Figma)
+.optionRow {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.optionCard {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 68px;
+  border: 1px solid var(--aiuta-color-border);
+  border-radius: 16px;
+  background: var(--aiuta-color-background);
+  color: var(--aiuta-color-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease-in-out;
+
+  &_tall {
+    height: 140px;
+  }
+
+  &_selected {
+    // Inset shadow fakes a 2px border without a layout shift
+    border-color: var(--aiuta-color-primary);
+    box-shadow: inset 0 0 0 1px var(--aiuta-color-primary);
+  }
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+  flex-shrink: 0;
+}
+
+.field {
+  position: relative;
+  display: block;
+  height: 68px;
+  padding: 0 48px 0 16px;
+  border: 1px solid var(--aiuta-color-border);
+  border-radius: 16px;
+  cursor: text;
+
+  &:focus-within {
+    border-color: var(--aiuta-color-primary);
+  }
+}
+
+// Floating label: placeholder-sized and centered when empty, small above the
+// value when filled or focused (Figma filled state)
+.fieldLabel {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--aiuta-color-secondary);
+  font-family: var(--aiuta-typeface);
+  font-size: 16px;
+  font-weight: 500;
+  transition:
+    font-size 0.15s ease-in-out,
+    top 0.15s ease-in-out;
+  pointer-events: none;
+}
+
+.field_filled .fieldLabel,
+.field:focus-within .fieldLabel {
+  top: 20px;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.fieldInput {
+  position: absolute;
+  left: 16px;
+  right: 48px;
+  bottom: 10px;
+  width: auto;
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
+  color: var(--aiuta-color-primary);
+  // The value row only shows once the label floated up
+  opacity: 0;
+}
+
+.field_filled .fieldInput,
+.field:focus-within .fieldInput {
+  opacity: 1;
+}
+
+.fieldUnit {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--aiuta-color-try-on);
+  font-weight: 600;
+}
+
+// Bra step: wrap of small choice chips
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.chipsTitle {
+  color: var(--aiuta-color-primary);
+  margin: 24px 0 16px;
+  flex-shrink: 0;
+}
+
+.chip {
+  min-width: 52px;
+  height: 46px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--aiuta-color-border);
+  border-radius: 14px;
+  background: var(--aiuta-color-background);
+  color: var(--aiuta-color-primary);
+  cursor: pointer;
+  transition: border-color 0.15s ease-in-out;
+
+  &_selected {
+    border-color: var(--aiuta-color-primary);
+    box-shadow: inset 0 0 0 1px var(--aiuta-color-primary);
+  }
+}
+
+// Full-bleed footer: the CTA keeps the same 16px side insets as the
+// "+ Add new" button on the uploads-history screen
+.footer {
+  margin: auto -20px 0;
+  flex-shrink: 0;
+  padding: 16px 16px 0;
+}
+
+.footerButton {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.disclaimer {
+  display: block;
+  text-align: center;
+  color: var(--aiuta-color-secondary);
+  margin-bottom: 12px;
+
+  a {
+    // Underlined but in the running text color until hovered
+    color: inherit;
+    text-decoration: underline;
+
+    &:hover {
+      color: var(--aiuta-color-primary);
+    }
+  }
+}
+
+// ===== Results =====
+
+.recommendedName {
+  text-align: center;
+  color: var(--aiuta-color-primary);
+  font-size: 132px;
+  font-weight: 500;
+  line-height: 1.1;
+  margin: 30px 0 0;
+  flex-shrink: 0;
+  overflow-wrap: anywhere;
+}
+
+// Figma "size_gradient": #4372FF → #726FFF
+$size-gradient: linear-gradient(79deg, #4372ff 7.49%, #726fff 97.95%);
+
+// Size bars block (Figma 13677:956): 45px side insets (the page already
+// carries 20), 40px below the huge recommended size
+.sizeBars {
+  margin: 40px 25px 0;
+  flex-shrink: 0;
+}
+
+.sizeBar {
+  margin-bottom: 29px;
+
+  // The neighbor size: everything the gradient tints goes neutral, and the
+  // badge text flips back to primary
+  &_muted {
+    .sizeBarBadge {
+      background: var(--aiuta-color-border);
+      color: var(--aiuta-color-primary);
+    }
+
+    .sizeBarTrack {
+      background: var(--aiuta-color-border);
+    }
+  }
+}
+
+// The size name and the confidence badge share one 24px line; the 12px gap
+// below fits the badge tail (7px) with clear air before the track (Figma)
+.sizeBarHead {
+  position: relative;
+  height: 24px;
+  margin-bottom: 12px;
+}
+
+.sizeBarName {
+  color: var(--aiuta-color-primary);
+  line-height: 24px;
+  letter-spacing: -0.4px;
+}
+
+// 24px badge with a 6px tail pointing at the track's pointer ring
+.sizeBarBadge {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: $size-gradient;
+  color: var(--aiuta-color-on-dark);
+
+  // Overlaps the badge by 1px so no seam shows between them
+  &::after {
+    content: '';
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px;
+    height: 7px;
+    background: inherit;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+}
+
+// The whole track is tinted; the confidence shows as the pointer position
+.sizeBarTrack {
+  position: relative;
+  height: 8px;
+  border-radius: 6px;
+  background: $size-gradient;
+}
+
+// White ring with a see-through center (Figma: 14px, 3px stroke)
+.sizeBarPointer {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--aiuta-color-on-dark);
+  background: transparent;
+}
+
+.sizeBarSummary {
+  text-align: center;
+  color: var(--aiuta-color-secondary);
+  margin-top: 16px;
+}
+
+.parameters {
+  text-align: center;
+  color: var(--aiuta-color-primary);
+  margin-top: 12px;
+  flex-shrink: 0;
+
+  p {
+    margin: 6px 0 0;
+  }
+}
+
+// Spacing only — the look comes from SecondaryButton's ghost prop
+.changeButton {
+  margin: 4px auto;
+}
+
+.noResult {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  color: var(--aiuta-color-primary);
+
+  p {
+    color: var(--aiuta-color-secondary);
+    margin: 0;
+    max-width: 280px;
+  }
+}

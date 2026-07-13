@@ -48,41 +48,47 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
 
   const data = (await response.json()) as SkuItemsListResponse
 
-  // Only items whose try-on capability is enabled and actually ready
-  const items = (data.items ?? [])
-    .filter(
-      (item) =>
-        item.capabilities?.try_on === true &&
-        item.capabilities_readiness?.try_on?.status === 'ready',
-    )
-    .map((item) => {
-      const extra = item.product_info?.extra ?? {}
-      const metadata = item.metadata ?? {}
-      // Resolved PER FIELD: `metadata` (the current home of these attributes)
-      // wins whenever it carries the key at all — even false/0 — and only a
-      // missing key falls back to the legacy `product_info.extra`.
-      const titleImage = metadata.title_image ?? extra.title_image
-      const sourceImages = metadata.source_images ?? extra.source_images
-      const order = metadata.order ?? extra.order
-      const singleItemTryOn = metadata.single_item_try_on ?? extra.single_item_try_on
-      return {
-        sku_id: item.sku_id,
-        // The title/brand/gender overrides are metadata-only (never in the
-        // legacy extra). An empty title override falls back to product_info
-        // (||); an empty BRAND override is a real value — the card then
-        // deliberately shows no brand (hence ??).
-        title: metadata.title || item.product_info?.title || item.sku_id,
-        brand: metadata.brand ?? item.product_info?.brand ?? undefined,
-        gender: metadata.gender || item.product_info?.gender || undefined,
-        // Image priority: title_image | source_images[0] | image_urls[0]
-        image_url: titleImage || sourceImages?.[0] || item.product_info?.image_urls?.[0] || '',
-        mode: isShoeCategory(item.product_info?.category)
-          ? ('shoes' as const)
-          : ('general' as const),
-        order: typeof order === 'number' ? order : Number.MAX_SAFE_INTEGER,
-        singleItemTryOn: singleItemTryOn === true,
-      }
-    })
+  // No capabilities/readiness filtering: the demo goes by METADATA only — a
+  // try-on-rejected item can still carry the Size & Fit flow. Which items
+  // actually show is decided at render time (the gear-menu filter).
+  const items = (data.items ?? []).map((item) => {
+    const extra = item.product_info?.extra ?? {}
+    const metadata = item.metadata ?? {}
+    // Resolved PER FIELD: `metadata` (the current home of these attributes)
+    // wins whenever it carries the key at all — even false/0 — and only a
+    // missing key falls back to the legacy `product_info.extra`.
+    const titleImage = metadata.title_image ?? extra.title_image
+    const sourceImages = metadata.source_images ?? extra.source_images
+    const order = metadata.order ?? extra.order
+    const singleItemTryOn = metadata.single_item_try_on ?? extra.single_item_try_on
+    const sizeFit = metadata.size_fit ?? extra.size_fit
+    const sizeChart = metadata.size_chart ?? extra.size_chart
+    const sizeFitApiKey = metadata.size_fit_api_key ?? extra.size_fit_api_key
+    const sizeFitPartition = metadata.size_fit_partition ?? extra.size_fit_partition
+    return {
+      sku_id: item.sku_id,
+      // The title/brand/gender overrides are metadata-only (never in the
+      // legacy extra). An empty title override falls back to product_info
+      // (||); an empty BRAND override is a real value — the card then
+      // deliberately shows no brand (hence ??).
+      title: metadata.title || item.product_info?.title || item.sku_id,
+      brand: metadata.brand ?? item.product_info?.brand ?? undefined,
+      gender: metadata.gender || item.product_info?.gender || undefined,
+      // Image priority: title_image | source_images[0] | image_urls[0]
+      image_url: titleImage || sourceImages?.[0] || item.product_info?.image_urls?.[0] || '',
+      mode: isShoeCategory(item.product_info?.category) ? ('shoes' as const) : ('general' as const),
+      order: typeof order === 'number' ? order : Number.MAX_SAFE_INTEGER,
+      singleItemTryOn: singleItemTryOn === true,
+      sizeFit: sizeFit === true,
+      sizeChart: typeof sizeChart === 'string' && sizeChart !== '' ? sizeChart : undefined,
+      sizeFitApiKey:
+        typeof sizeFitApiKey === 'string' && sizeFitApiKey !== '' ? sizeFitApiKey : undefined,
+      sizeFitPartition:
+        typeof sizeFitPartition === 'string' && sizeFitPartition !== ''
+          ? sizeFitPartition
+          : undefined,
+    }
+  })
 
   return { items, nextOffset: data.next_offset ?? null }
 }

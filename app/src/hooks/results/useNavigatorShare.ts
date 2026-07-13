@@ -62,10 +62,18 @@ export const useNavigatorShare = () => {
         })
 
         if (navigator.canShare?.({ files: [file] })) {
-          payload = { title: 'Virtual Try-On Result', text: 'Check out how this looks on me!', files: [file] }
+          payload = {
+            title: 'Virtual Try-On Result',
+            text: 'Check out how this looks on me!',
+            files: [file],
+          }
           method = 'web-share-api'
         } else {
-          payload = { title: 'Virtual Try-On Result', text: 'Check out how this looks on me!', url: urlToShare }
+          payload = {
+            title: 'Virtual Try-On Result',
+            text: 'Check out how this looks on me!',
+            url: urlToShare,
+          }
           method = 'web-share-api-url'
         }
       } catch (error) {

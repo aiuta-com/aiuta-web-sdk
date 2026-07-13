@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { appSlice } from '@/store/slices/appSlice'
+import { sizeFitSlice } from '@/store/slices/sizeFitSlice'
 import { tryOnSlice } from '@/store/slices/tryOnSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
 import { useAlert, useLogger } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
+import type { SizeFitRequestOptions } from '@lib/rpc'
 import type { AiutaMode } from '@lib/config'
 import { runClearStorage } from '@/utils/debug/clearStorageRegistry'
 
@@ -42,7 +44,7 @@ export const useRpcInitialization = () => {
 
     const initializeRpc = async () => {
       try {
-        const showApp = () => {
+        const showApp = (route = '/') => {
           // Close any active alerts when showing app
           closeAlert()
 
@@ -50,8 +52,9 @@ export const useRpcInitialization = () => {
           // that was left open in a previous session (e.g. "Change photo")
           dispatch(uploadsSlice.actions.setIsBottomSheetOpen(false))
 
-          // Always navigate to home when showing the app, clearing history
-          navigate('/', { replace: true })
+          // Navigate to the entry route, clearing history. '/' runs the
+          // initial-route logic (onboarding etc.); a direct route skips it.
+          navigate(route, { replace: true })
 
           // Delay to ensure iframe and AppContainer are fully rendered
           // This prevents size flickering during CSS transition
@@ -66,7 +69,7 @@ export const useRpcInitialization = () => {
             tryOn: async (
               productIds: string | string[],
               mode?: AiutaMode,
-              options?: { gender?: string },
+              options?: { gender?: string; sizeFit?: SizeFitRequestOptions },
             ) => {
               try {
                 // Support both single and multi-item try-on (backward compatibility)
@@ -81,6 +84,10 @@ export const useRpcInitialization = () => {
                 // later request that carried no gender.
                 dispatch(tryOnSlice.actions.setPreferredCategoryId(options?.gender ?? null))
 
+                // Size & Fit context → the results screen offers "Find your
+                // size". Reset likewise when the request carried none.
+                dispatch(tryOnSlice.actions.setSizeFitOptions(options?.sizeFit ?? null))
+
                 // Show app when tryOn is called
                 showApp()
 
@@ -91,6 +98,24 @@ export const useRpcInitialization = () => {
               } catch (error) {
                 logger.error('[RPC APP] Error in tryOn handler:', error)
                 throw error // Re-throw so RPC can handle the error
+              }
+            },
+            sizeFit: async (productId: string, options: SizeFitRequestOptions) => {
+              try {
+                dispatch(
+                  sizeFitSlice.actions.startSession({
+                    productId,
+                    options,
+                    origin: 'standalone',
+                  }),
+                )
+
+                // Straight to the survey — never through HomePageRouter, so
+                // onboarding and consents don't apply to this flow
+                showApp('/size-fit')
+              } catch (error) {
+                logger.error('[RPC APP] Error in sizeFit handler:', error)
+                throw error
               }
             },
             // Delegates to the implementation registered by ClearStorageBridge

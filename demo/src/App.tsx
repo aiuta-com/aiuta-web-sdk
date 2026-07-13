@@ -19,7 +19,7 @@ import {
   subscribeTryOnFilter,
 } from './utils/settings'
 import type { CatalogItem } from './models/product'
-import type { AiutaMode } from '@sdk/index'
+import type { AiutaMode, AiutaSizeFitOptions } from '@sdk/index'
 
 // Smaller extra.order first; items without one keep their fetch order at
 // the end (Array.prototype.sort is stable)
@@ -96,8 +96,17 @@ export default function App() {
       .finally(() => setLoadingOutfits(false))
   }, [loadSkuPage])
 
-  const tryOn = (productId: string | string[], mode?: AiutaMode, gender?: string) => {
-    void getAiuta().then((sdk) => sdk.tryOn(productId, { mode, gender }))
+  const tryOn = (
+    productId: string | string[],
+    mode?: AiutaMode,
+    gender?: string,
+    sizeFitOptions?: AiutaSizeFitOptions,
+  ) => {
+    void getAiuta().then((sdk) => sdk.tryOn(productId, { mode, gender, sizeFit: sizeFitOptions }))
+  }
+
+  const sizeFit = (productId: string, options: AiutaSizeFitOptions) => {
+    void getAiuta().then((sdk) => sdk.sizeFit(productId, options))
   }
 
   // The outfit formats that carry only sku_ids resolve their items through
@@ -109,11 +118,12 @@ export default function App() {
     [rawOutfits, skus],
   )
 
-  // Gear-menu toggle: when on, only items explicitly flagged
-  // extra.single_item_try_on: true stay; by default everything is shown
+  // Gear-menu toggle: when on, the list mimics the real demo page — only
+  // items explicitly flagged for try-on or Size & Fit stay; by default
+  // everything is shown
   const tryOnFilterEnabled = useSyncExternalStore(subscribeTryOnFilter, isTryOnFilterEnabled)
   const visibleSkus = useMemo(
-    () => (tryOnFilterEnabled ? skus.filter((sku) => sku.singleItemTryOn) : skus),
+    () => (tryOnFilterEnabled ? skus.filter((sku) => sku.singleItemTryOn || sku.sizeFit) : skus),
     [tryOnFilterEnabled, skus],
   )
 
@@ -174,6 +184,7 @@ export default function App() {
               tryOnFilterEnabled && skus.length > 0 && visibleSkus.length === 0
             }
             onTryOn={tryOn}
+            onSizeFit={sizeFit}
           />
         ) : (
           <OutfitList

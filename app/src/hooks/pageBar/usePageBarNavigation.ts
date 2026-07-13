@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import { generationsSlice } from '@/store/slices/generationsSlice'
+import { sizeFitSlice, sizeFitOriginSelector } from '@/store/slices/sizeFitSlice'
 import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
 import { useRpc } from '@/contexts'
@@ -11,6 +12,7 @@ import { selectedImagesSelector } from '@/store/slices/generationsSlice/selector
 import { generationsIsSelectingSelector } from '@/store/slices/generationsSlice'
 import { uploadsIsSelectingSelector } from '@/store/slices/uploadsSlice'
 import { useUploadsData } from '@/hooks/data'
+import { useSizeFitSteps } from '@/hooks/sizeFit'
 
 export const usePageBarNavigation = () => {
   const navigate = useNavigate()
@@ -27,6 +29,8 @@ export const usePageBarNavigation = () => {
   const selectedImages = useAppSelector(selectedImagesSelector)
   const isSelectingGenerations = useAppSelector(generationsIsSelectingSelector)
   const isSelectingUploads = useAppSelector(uploadsIsSelectingSelector)
+  const sizeFitOrigin = useAppSelector(sizeFitOriginSelector)
+  const { steps: sizeFitSteps, stepIndex: sizeFitStepIndex } = useSizeFitSteps()
 
   const trackAnalyticsEvent = (pageId: string, type: string = 'exit') => {
     const analytic = {
@@ -48,6 +52,8 @@ export const usePageBarNavigation = () => {
     if (currentPath === '/generations') return 'history'
     if (currentPath === '/uploads') return 'imagePicker'
     if (currentPath === '/tryon') return 'imagePicker'
+    if (currentPath === '/size-fit') return 'sizeFitSurvey'
+    if (currentPath === '/size-fit/results') return 'sizeFitResults'
     return ''
   }
 
@@ -72,6 +78,23 @@ export const usePageBarNavigation = () => {
   }
 
   const handleHistoryNavigation = (targetPath: string) => {
+    // Size & Fit: back steps through the survey; the first step returns to
+    // the try-on results (only reachable when entered from there), and the
+    // recommendation screen returns to the survey
+    if (pathName === '/size-fit') {
+      if (sizeFitStepIndex > 0) {
+        dispatch(sizeFitSlice.actions.setStep(sizeFitSteps[sizeFitStepIndex - 1]))
+      } else if (sizeFitOrigin === 'results') {
+        navigate('/results')
+      }
+      return
+    }
+    if (pathName === '/size-fit/results') {
+      dispatch(sizeFitSlice.actions.setStep('main'))
+      navigate('/size-fit')
+      return
+    }
+
     // QR prompt reached via "Add new" → the left button is a back arrow
     if (pathName === '/qr' && (location.state as { canGoBack?: boolean } | null)?.canGoBack) {
       navigate(-1)

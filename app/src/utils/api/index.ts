@@ -8,3 +8,4 @@ export {
   type PredefinedModelsResponse,
 } from './tryOnApiService'
 export { QrApiService, type QrUploadResult, type QrEndpointData } from './qrApiService'
+export { SizeFitApiService, type SizeFitRecommendationResult } from './sizeFitApiService'

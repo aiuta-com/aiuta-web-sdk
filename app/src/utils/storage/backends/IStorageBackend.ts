@@ -1,5 +1,6 @@
 import type { InputImage, GeneratedImage } from '@lib/models'
 import type { PredefinedModelCategory } from '@/utils/api'
+import type { FitSurvey } from '@/utils/sizeFit/types'
 
 /**
  * Cached data structure for predefined models
@@ -123,4 +124,21 @@ export interface IStorageBackend {
    * Clears cached predefined models
    */
   clearPredefinedModels(): Promise<void>
+
+  // ===== Size & Fit survey =====
+
+  /**
+   * Loads the last submitted fit survey (prefills the next one)
+   */
+  getFitSurvey(): Promise<FitSurvey | null>
+
+  /**
+   * Saves the submitted fit survey
+   */
+  saveFitSurvey(survey: FitSurvey): Promise<void>
+
+  /**
+   * Clears the saved fit survey
+   */
+  clearFitSurvey(): Promise<void>
 }
