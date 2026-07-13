@@ -285,13 +285,9 @@
   }
 }
 
+// Spacing only — the look comes from SecondaryButton's ghost prop
 .changeButton {
-  display: block;
-  margin: 16px auto 20px;
-  border: none;
-  background: none;
-  color: var(--aiuta-color-secondary);
-  cursor: pointer;
+  margin: 4px auto;
 }
 
 .noResult {

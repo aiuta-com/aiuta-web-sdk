@@ -10,7 +10,7 @@ import {
   sizeFitNoResultSelector,
 } from '@/store/slices/sizeFitSlice'
 import { useRpc } from '@/contexts'
-import { PrimaryButton } from '@/components'
+import { PrimaryButton, SecondaryButton } from '@/components'
 import { useAppVisibility, useSizeFitStrings } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { displaySizes, BEST_FIT } from '@/utils/sizeFit/fitLogic'
@@ -131,12 +131,15 @@ export default function SizeFitResultsPage() {
             </p>
           </div>
         )}
-        <button
-          className={combineClassNames('aiuta-page-title', styles.changeButton)}
+        <SecondaryButton
+          ghost
+          maxWidth
+          shape="M"
+          classNames={styles.changeButton}
           onClick={handleChange}
         >
           {sizeFitButtonChange}
-        </button>
+        </SecondaryButton>
         <PrimaryButton onClick={handleGotIt} className={styles.footerButton}>
           {sizeFitButtonGotIt}
         </PrimaryButton>
