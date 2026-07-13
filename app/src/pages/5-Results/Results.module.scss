@@ -118,13 +118,17 @@
     bottom: 20px;
   }
 
-  // Room for the "Find your size" CTA between the disclaimer and the footer
-  &_extended {
-    height: 158px;
-  }
-
+  // The "Find your size" CTA takes the reserved cart-button spot (the
+  // Powered by footer yields to it), pinned to the bottom so the reserve —
+  // and with it the result image — never changes height
   .sizeFitButton {
-    margin: 16px auto 0;
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    margin: 0;
   }
 }
 

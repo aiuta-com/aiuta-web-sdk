@@ -138,12 +138,7 @@ export default function ResultsMobile() {
                 row — and the Powered by footer. Keeping the disclaimer inside
                 this reserve (not as its own row) is what stops the image from
                 shrinking. */}
-              <div
-                className={combineClassNames(
-                  styles.cartReserve,
-                  isSizeFitAvailable && styles.cartReserve_extended,
-                )}
-              >
+              <div className={styles.cartReserve}>
                 {toneInfo && (
                   <Disclaimer
                     variant="strip"
@@ -153,14 +148,16 @@ export default function ResultsMobile() {
                   />
                 )}
                 {/* A product with a size chart gets its CTA in the reserved
-                  cart-button space */}
-                {isSizeFitAvailable && (
+                  cart-button space; the Powered by footer yields to it so the
+                  reserve (and the result image above) keeps its height */}
+                {isSizeFitAvailable ? (
                   <PrimaryButton onClick={openSizeFit} className={styles.sizeFitButton}>
                     <Icon icon={actionIcons.sizeFit} size={20} viewBox="0 0 20 20" />
                     {sizeFitButton}
                   </PrimaryButton>
+                ) : (
+                  <PoweredBy />
                 )}
-                <PoweredBy />
               </div>
 
               <UploadsHistorySheet
