@@ -154,7 +154,7 @@ export default class Aiuta {
   // "no size & fit" instead of breaking the flow downstream
   private validSizeFitOptions(options?: AiutaSizeFitOptions): AiutaSizeFitOptions | undefined {
     if (!options) return undefined
-    const { sizeChart, apiKey, partition } = options
+    const { sizeChart, apiKey, partition, gender } = options
     if (
       typeof sizeChart === 'string' &&
       sizeChart.length &&
@@ -163,7 +163,12 @@ export default class Aiuta {
       typeof partition === 'string' &&
       partition.length
     ) {
-      return { sizeChart, apiKey, partition }
+      return {
+        sizeChart,
+        apiKey,
+        partition,
+        gender: typeof gender === 'string' ? gender : undefined,
+      }
     }
     this.logger.error('Aiuta sizeFit options require sizeChart, apiKey and partition')
     return undefined

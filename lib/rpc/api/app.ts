@@ -22,6 +22,8 @@ export interface SizeFitRequestOptions {
   apiKey: string
   /** naiz.fit partition. */
   partition: string
+  /** Product gender → preselects the survey gender (male skips the bra step). */
+  gender?: string
 }
 
 /**

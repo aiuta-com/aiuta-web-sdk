@@ -18,7 +18,8 @@ export const useSizeFitStrings = () => {
     sizeFitHeightLabel: strings?.sizeFitHeightLabel ?? 'Height',
     sizeFitWeightLabel: strings?.sizeFitWeightLabel ?? 'Weight',
     sizeFitPrivacyDisclaimerHtml:
-      strings?.sizeFitPrivacyDisclaimerHtml ?? 'Your data will be processed securely',
+      strings?.sizeFitPrivacyDisclaimerHtml ??
+      'Your data will be processed under our <a href="https://aiuta.com/legal/privacy-policy.html" target="_blank" rel="noopener noreferrer">Privacy Policy</a>',
     // Survey — step 2 (body shapes)
     sizeFitBellyTitle: strings?.sizeFitBellyTitle ?? 'Belly shape',
     sizeFitBellyFlatter: strings?.sizeFitBellyFlatter ?? 'Flatter',

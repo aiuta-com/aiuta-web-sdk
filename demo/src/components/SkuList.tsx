@@ -31,6 +31,7 @@ const sizeFitOptions = (item: CatalogItem): AiutaSizeFitOptions | undefined =>
         sizeChart: item.sizeChart,
         apiKey: item.sizeFitApiKey,
         partition: item.sizeFitPartition,
+        gender: item.gender,
       }
     : undefined
 

@@ -51,6 +51,20 @@ export const BRA_CUPS: BraCup[] = ['AA', 'A', 'B', 'C', 'D', 'DD', 'E', 'F', 'G'
 /** Chest circumference options for the bra step */
 export const BRA_BANDS = [60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 125]
 
+/** Maps a free-form product gender tag ("male" / "female") to the survey enum */
+export function normalizeFitGender(gender?: string): FitGender | undefined {
+  switch (gender?.trim().toLowerCase()) {
+    case 'male':
+    case 'm':
+      return 'Male'
+    case 'female':
+    case 'f':
+      return 'Female'
+    default:
+      return undefined
+  }
+}
+
 export interface FitSurvey {
   gender: FitGender
   age: number

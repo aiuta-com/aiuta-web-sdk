@@ -1,24 +1,26 @@
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
 import {
   sizeFitSlice,
   sizeFitProductIdSelector,
   sizeFitOptionsSelector,
-  sizeFitStepSelector,
   sizeFitSurveySelector,
   sizeFitIsLoadingSelector,
 } from '@/store/slices/sizeFitSlice'
-import type { SizeFitStep } from '@/store/slices/sizeFitSlice'
 import { useRpc } from '@/contexts'
-import { Icon, PrimaryButton } from '@/components'
-import { useSizeFitStrings, useSizeFitRecommendation, isSurveyComplete } from '@/hooks'
+import { PrimaryButton } from '@/components'
+import {
+  useSizeFitStrings,
+  useSizeFitRecommendation,
+  useSizeFitSteps,
+  isSurveyComplete,
+} from '@/hooks'
 import { useFitSurveyData } from '@/hooks/data'
 import { combineClassNames } from '@/utils'
 import { StepMain } from './steps/StepMain'
 import { StepShapes } from './steps/StepShapes'
 import { StepBra } from './steps/StepBra'
-import { icons } from './icons'
 import styles from './SizeFit.module.scss'
 
 /**
@@ -26,7 +28,8 @@ import styles from './SizeFit.module.scss'
  *
  * Steps: main (gender/age/height/weight) → shapes (belly/hips) → bra
  * (female only), then the recommendation request. Steps are internal state,
- * not routes — the progress bar and back arrow live inside the page.
+ * not routes — the PageBar shows the step progress and drives the back
+ * navigation (see usePageBarNavigation).
  */
 export default function SizeFitSurveyPage() {
   const rpc = useRpc()
@@ -34,10 +37,10 @@ export default function SizeFitSurveyPage() {
   const dispatch = useAppDispatch()
   const productId = useAppSelector(sizeFitProductIdSelector)
   const options = useAppSelector(sizeFitOptionsSelector)
-  const step = useAppSelector(sizeFitStepSelector)
   const survey = useAppSelector(sizeFitSurveySelector)
   const isLoading = useAppSelector(sizeFitIsLoadingSelector)
-  const { data: cachedSurvey } = useFitSurveyData()
+  const { data: cachedSurvey, isFetched: isCacheFetched } = useFitSurveyData()
+  const { steps, step, stepIndex, isLastStep } = useSizeFitSteps()
   const { submit } = useSizeFitRecommendation()
   const {
     sizeFitSurveyTitle,
@@ -52,12 +55,21 @@ export default function SizeFitSurveyPage() {
     if (!options) navigate('/', { replace: true })
   }, [options, navigate])
 
-  // Prefill from the cached previous survey (or default to Female, as iOS
-  // does); the visitor confirms or edits — no auto-skip to results
+  // Prefill from the cached previous survey once, before anything was typed.
+  // The session's product gender (set by startSession) wins over the cached
+  // one; without either, default to Female as iOS does.
+  const prefilled = useRef(false)
   useEffect(() => {
-    if (survey.gender) return
-    dispatch(sizeFitSlice.actions.updateSurvey(cachedSurvey ?? { gender: 'Female' }))
-  }, [dispatch, survey.gender, cachedSurvey])
+    if (prefilled.current || !isCacheFetched || survey.age !== undefined) return
+    prefilled.current = true
+    dispatch(
+      sizeFitSlice.actions.updateSurvey({
+        gender: 'Female',
+        ...(cachedSurvey ?? {}),
+        ...(survey.gender ? { gender: survey.gender } : {}),
+      }),
+    )
+  }, [dispatch, isCacheFetched, cachedSurvey, survey.age, survey.gender])
 
   useEffect(() => {
     rpc.sdk.trackEvent({
@@ -66,14 +78,6 @@ export default function SizeFitSurveyPage() {
       productIds: productId ? [productId] : [],
     })
   }, [rpc, productId])
-
-  // The bra step only exists for the female survey
-  const steps = useMemo<SizeFitStep[]>(
-    () => (survey.gender === 'Female' ? ['main', 'shapes', 'bra'] : ['main', 'shapes']),
-    [survey.gender],
-  )
-  const stepIndex = Math.max(0, steps.indexOf(step))
-  const isLastStep = stepIndex === steps.length - 1
 
   const canProceed = step === 'main' ? isSurveyComplete({ ...survey }) : true
 
@@ -85,28 +89,10 @@ export default function SizeFitSurveyPage() {
     }
   }
 
-  const handleBack = () => {
-    dispatch(sizeFitSlice.actions.setStep(steps[stepIndex - 1]))
-  }
-
   if (!options) return null
 
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        {stepIndex > 0 && (
-          <button className={styles.backButton} onClick={handleBack} aria-label="Back">
-            <Icon icon={icons.back} size={24} viewBox="0 0 24 24" />
-          </button>
-        )}
-        <div className={styles.progress}>
-          <div
-            className={styles.progressFill}
-            style={{ width: `${((stepIndex + 1) / steps.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
       {step === 'main' && (
         <h1 className={combineClassNames('aiuta-page-title', styles.title)}>
           {sizeFitSurveyTitle}
@@ -139,7 +125,11 @@ export default function SizeFitSurveyPage() {
             dangerouslySetInnerHTML={{ __html: sizeFitPrivacyDisclaimerHtml }}
           />
         )}
-        <PrimaryButton onClick={handleNext} disabled={!canProceed || isLoading}>
+        <PrimaryButton
+          onClick={handleNext}
+          disabled={!canProceed || isLoading}
+          className={styles.footerButton}
+        >
           {isLastStep ? sizeFitButtonFindMySize : sizeFitButtonNext}
         </PrimaryButton>
       </div>

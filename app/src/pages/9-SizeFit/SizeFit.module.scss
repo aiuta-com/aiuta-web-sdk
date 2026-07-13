@@ -6,54 +6,19 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 20px 16px;
-}
 
-// The page renders its own header row under the PageBar (whose title is
-// hidden here): back arrow on the left, step progress centered
-.header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 24px;
-  flex-shrink: 0;
-}
-
-.backButton {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  background: none;
-  color: var(--aiuta-color-primary);
-  cursor: pointer;
-}
-
-.progress {
-  width: 120px;
-  height: 10px;
-  border-radius: 8px;
-  background: var(--aiuta-color-neutral);
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  border-radius: 8px;
-  background: var(--aiuta-color-brand);
-  transition: width 0.3s ease-in-out;
+  // The first step/section heading sits 40px under the SDK header (Figma);
+  // the PageBar carries the back arrow and the step progress
+  h1:first-child,
+  h2:first-of-type {
+    margin-top: 40px;
+  }
 }
 
 .title {
   text-align: center;
   color: var(--aiuta-color-primary);
-  margin: 32px 0 28px;
+  margin: 40px 0 28px;
   flex-shrink: 0;
 }
 
@@ -89,7 +54,7 @@
   transition: border-color 0.15s ease-in-out;
 
   &_tall {
-    height: 130px;
+    height: 140px;
   }
 
   &_selected {
@@ -208,10 +173,18 @@
   }
 }
 
+// Full-bleed footer: the CTA keeps the same 16px side insets as the
+// "+ Add new" button on the uploads-history screen
 .footer {
-  margin-top: auto;
+  margin: auto -20px 0;
   flex-shrink: 0;
-  padding-top: 16px;
+  padding: 16px 16px 0;
+}
+
+.footerButton {
+  width: 100%;
+  max-width: none;
+  margin: 0;
 }
 
 .disclaimer {
@@ -221,26 +194,25 @@
   margin-bottom: 12px;
 
   a {
+    // Underlined but in the running text color until hovered
     color: inherit;
     text-decoration: underline;
+
+    &:hover {
+      color: var(--aiuta-color-primary);
+    }
   }
 }
 
 // ===== Results =====
 
-.resultsTitle {
-  text-align: center;
-  color: var(--aiuta-color-primary);
-  flex-shrink: 0;
-}
-
 .recommendedName {
   text-align: center;
   color: var(--aiuta-color-primary);
-  font-size: 96px;
+  font-size: 132px;
   font-weight: 500;
   line-height: 1.1;
-  margin: 12px 0 24px;
+  margin: 30px 0 24px;
   flex-shrink: 0;
   overflow-wrap: anywhere;
 }

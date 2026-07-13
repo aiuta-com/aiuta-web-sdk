@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 import {
   usePageBarNavigation,
   usePageBarVisibility,
@@ -7,6 +6,7 @@ import {
   useSwipeGesture,
   useSelectionStrings,
   useAppVisibility,
+  useSizeFitSteps,
 } from '@/hooks'
 import { IconButton } from '@/components'
 import { combineClassNames } from '@/utils'
@@ -57,13 +57,12 @@ export const PageBar = ({ minimal = false }: PageBarProps) => {
 }
 
 function FullPageBar() {
-  const navigate = useNavigate()
-
   const { title } = usePageBarTitle()
   const {
     showHistoryButton,
     showBackButton,
     showTitle,
+    showSizeFitProgress,
     showSelectButton,
     showCloseButton,
     isSelectionActive,
@@ -74,11 +73,13 @@ function FullPageBar() {
     usePageBarNavigation()
 
   const { select, cancel } = useSelectionStrings()
+  const { progress: sizeFitProgress } = useSizeFitSteps()
 
   // Swipe navigation - right swipe goes back when back button is shown
+  // (through the same handler as the button, so step-wise flows work too)
   const swipeHandlers = useSwipeGesture(({ direction }) => {
     if (direction === 'right' && showBackButton) {
-      navigate(-1)
+      handleHistoryNavigation('generations')
     }
   })
 
@@ -103,10 +104,15 @@ function FullPageBar() {
         />
       )}
 
-      {/* Center - Title */}
+      {/* Center - Title (or the Size & Fit survey step progress) */}
       <div className={styles.titleContainer}>
         {showTitle && (
           <h1 className={combineClassNames('aiuta-page-title', styles.titleLabel)}>{title}</h1>
+        )}
+        {showSizeFitProgress && (
+          <div className={styles.progress}>
+            <div className={styles.progressFill} style={{ width: `${sizeFitProgress * 100}%` }} />
+          </div>
         )}
       </div>
 

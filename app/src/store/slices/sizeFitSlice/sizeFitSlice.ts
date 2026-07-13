@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { SizeFitRequestOptions } from '@lib/rpc'
+import { normalizeFitGender } from '@/utils/sizeFit/types'
 import type { FitSurvey, SizeRecommendation } from '@/utils/sizeFit/types'
 
 /**
@@ -56,6 +57,11 @@ export const sizeFitSlice = createSlice({
       state.isLoading = false
       state.recommendation = null
       state.noResult = false
+
+      // The product's gender preselects the survey's (a male product skips
+      // the bra step); unknown tags leave the previous choice alone
+      const gender = normalizeFitGender(action.payload.options.gender)
+      if (gender) state.survey.gender = gender
     },
 
     setStep: (state, action: PayloadAction<SizeFitStep>) => {

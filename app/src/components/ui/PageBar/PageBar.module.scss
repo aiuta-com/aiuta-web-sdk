@@ -39,3 +39,24 @@
   background: none;
   border: none;
 }
+
+// Size & Fit survey step progress, centered like a title (Figma: 120x10
+// pill, neutral track, brand fill)
+.progress {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 10px;
+  border-radius: 8px;
+  background: var(--aiuta-color-neutral);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 8px;
+  background: var(--aiuta-color-brand);
+  transition: width 0.3s ease-in-out;
+}

@@ -10,12 +10,11 @@ import {
   sizeFitNoResultSelector,
 } from '@/store/slices/sizeFitSlice'
 import { useRpc } from '@/contexts'
-import { Icon, PrimaryButton } from '@/components'
+import { PrimaryButton } from '@/components'
 import { useAppVisibility, useSizeFitStrings } from '@/hooks'
 import { combineClassNames } from '@/utils'
 import { displaySizes, BEST_FIT } from '@/utils/sizeFit/fitLogic'
 import type { DisplaySize } from '@/utils/sizeFit/fitLogic'
-import { icons } from './icons'
 import styles from './SizeFit.module.scss'
 
 interface SizeBarProps {
@@ -69,7 +68,6 @@ export default function SizeFitResultsPage() {
   const recommendation = useAppSelector(sizeFitRecommendationSelector)
   const noResult = useAppSelector(sizeFitNoResultSelector)
   const {
-    sizeFitResultsTitle,
     sizeFitBestFit,
     sizeFitParametersTitle,
     sizeFitButtonChange,
@@ -109,16 +107,8 @@ export default function SizeFitResultsPage() {
   const display = recommendation ? displaySizes(recommendation) : null
 
   return (
+    // The "Recommended size" title and the back arrow live in the PageBar
     <div className={styles.page}>
-      <div className={styles.header}>
-        <button className={styles.backButton} onClick={handleChange} aria-label="Back">
-          <Icon icon={icons.back} size={24} viewBox="0 0 24 24" />
-        </button>
-        <h1 className={combineClassNames('aiuta-page-title', styles.resultsTitle)}>
-          {sizeFitResultsTitle}
-        </h1>
-      </div>
-
       {display ? (
         <>
           <div className={styles.recommendedName}>{display.best.size.name}</div>
@@ -147,7 +137,9 @@ export default function SizeFitResultsPage() {
         >
           {sizeFitButtonChange}
         </button>
-        <PrimaryButton onClick={handleGotIt}>{sizeFitButtonGotIt}</PrimaryButton>
+        <PrimaryButton onClick={handleGotIt} className={styles.footerButton}>
+          {sizeFitButtonGotIt}
+        </PrimaryButton>
       </div>
     </div>
   )

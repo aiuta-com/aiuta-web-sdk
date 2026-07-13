@@ -1,7 +1,11 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/store/store'
-import { productIdsSelector, tryOnSizeFitOptionsSelector } from '@/store/slices/tryOnSlice'
+import {
+  productIdsSelector,
+  tryOnPreferredCategoryIdSelector,
+  tryOnSizeFitOptionsSelector,
+} from '@/store/slices/tryOnSlice'
 import { sizeFitSlice } from '@/store/slices/sizeFitSlice'
 import { useRpc } from '@/contexts'
 
@@ -17,6 +21,9 @@ export const useSizeFitEntry = () => {
   const dispatch = useAppDispatch()
   const productIds = useAppSelector(productIdsSelector)
   const options = useAppSelector(tryOnSizeFitOptionsSelector)
+  // The tryOn call carries the product gender as a top-level option; reuse it
+  // for the survey unless the sizeFit options set their own
+  const tryOnGender = useAppSelector(tryOnPreferredCategoryIdSelector)
 
   const isAvailable = rpc.config.features?.sizeFit !== null && !!options && productIds.length === 1
 
@@ -25,12 +32,12 @@ export const useSizeFitEntry = () => {
     dispatch(
       sizeFitSlice.actions.startSession({
         productId: productIds[0],
-        options,
+        options: { ...options, gender: options.gender ?? tryOnGender ?? undefined },
         origin: 'results',
       }),
     )
     navigate('/size-fit')
-  }, [dispatch, navigate, productIds, options])
+  }, [dispatch, navigate, productIds, options, tryOnGender])
 
   return { isAvailable, open }
 }

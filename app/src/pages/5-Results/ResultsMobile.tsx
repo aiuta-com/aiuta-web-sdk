@@ -7,6 +7,7 @@ import { galleryModalSlice } from '@/store/slices/galleryModalSlice'
 import {
   Flex,
   RemoteImage,
+  Icon,
   IconButton,
   Disclaimer,
   Feedback,
@@ -17,6 +18,7 @@ import {
   ConsentPopup,
   PrimaryButton,
 } from '@/components'
+import { icons as actionIcons } from '@/components/results/ResultActions/icons'
 import {
   useResultsGallery,
   useNavigatorShare,
@@ -154,6 +156,7 @@ export default function ResultsMobile() {
                   cart-button space */}
                 {isSizeFitAvailable && (
                   <PrimaryButton onClick={openSizeFit} className={styles.sizeFitButton}>
+                    <Icon icon={actionIcons.sizeFit} size={20} viewBox="0 0 20 20" />
                     {sizeFitButton}
                   </PrimaryButton>
                 )}

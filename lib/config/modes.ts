@@ -45,6 +45,12 @@ export interface AiutaSizeFitOptions {
   apiKey: string
   /** naiz.fit partition */
   partition: string
+  /**
+   * Gender of the product (e.g. "male" / "female") — preselects the survey
+   * gender; a male product skips the bra step. In a tryOn call the top-level
+   * `gender` option is used instead, so this matters for `aiuta.sizeFit`.
+   */
+  gender?: string
 }
 
 export interface AiutaModes {
