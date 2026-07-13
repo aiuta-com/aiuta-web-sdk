@@ -3,14 +3,21 @@ import AnalyticsTracker from './analytics'
 import { AiutaSdkRpc } from '@lib/rpc'
 import type { SdkApi, SdkContext } from '@lib/rpc'
 import type { AiutaConfiguration, AiutaMode } from '@lib/config'
+import type { SizeFitRequestOptions } from '@lib/rpc'
 import type { Logger } from '@lib/logger'
 
 declare const __SDK_VERSION__: string
 
 /** The latest open request; rapid calls coalesce so only the last one wins. */
 type PendingOpen =
-  | { kind: 'tryOn'; productIds: string[]; mode: AiutaMode; gender?: string; sizeChart?: string }
-  | { kind: 'sizeFit'; productId: string; sizeChart: string }
+  | {
+      kind: 'tryOn'
+      productIds: string[]
+      mode: AiutaMode
+      gender?: string
+      sizeFit?: SizeFitRequestOptions
+    }
+  | { kind: 'sizeFit'; productId: string; sizeFit: SizeFitRequestOptions }
 
 export default class MessageHandler {
   private rpc: AiutaSdkRpc<AiutaConfiguration>
@@ -47,12 +54,17 @@ export default class MessageHandler {
     })
   }
 
-  async startTryOn(productIds: string[], mode: AiutaMode, gender?: string, sizeChart?: string) {
-    await this.open({ kind: 'tryOn', productIds, mode, gender, sizeChart })
+  async startTryOn(
+    productIds: string[],
+    mode: AiutaMode,
+    gender?: string,
+    sizeFit?: SizeFitRequestOptions,
+  ) {
+    await this.open({ kind: 'tryOn', productIds, mode, gender, sizeFit })
   }
 
-  async startSizeFit(productId: string, sizeChart: string) {
-    await this.open({ kind: 'sizeFit', productId, sizeChart })
+  async startSizeFit(productId: string, sizeFit: SizeFitRequestOptions) {
+    await this.open({ kind: 'sizeFit', productId, sizeFit })
   }
 
   private async open(request: PendingOpen) {
@@ -81,12 +93,10 @@ export default class MessageHandler {
         this.pendingOpen = undefined
         if (next.kind === 'tryOn') {
           const options =
-            next.gender || next.sizeChart
-              ? { gender: next.gender, sizeChart: next.sizeChart }
-              : undefined
+            next.gender || next.sizeFit ? { gender: next.gender, sizeFit: next.sizeFit } : undefined
           await this.rpc.app.tryOn(next.productIds, next.mode, options)
         } else {
-          await this.rpc.app.sizeFit(next.productId, { sizeChart: next.sizeChart })
+          await this.rpc.app.sizeFit(next.productId, next.sizeFit)
         }
       }
     } catch (error) {

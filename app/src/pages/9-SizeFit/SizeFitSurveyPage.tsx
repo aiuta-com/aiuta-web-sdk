@@ -4,7 +4,7 @@ import { useAppDispatch, useAppSelector } from '@/store/store'
 import {
   sizeFitSlice,
   sizeFitProductIdSelector,
-  sizeFitSizeChartSelector,
+  sizeFitOptionsSelector,
   sizeFitStepSelector,
   sizeFitSurveySelector,
   sizeFitIsLoadingSelector,
@@ -33,7 +33,7 @@ export default function SizeFitSurveyPage() {
   const navigate = useNavigate()
   const dispatch = useAppDispatch()
   const productId = useAppSelector(sizeFitProductIdSelector)
-  const sizeChart = useAppSelector(sizeFitSizeChartSelector)
+  const options = useAppSelector(sizeFitOptionsSelector)
   const step = useAppSelector(sizeFitStepSelector)
   const survey = useAppSelector(sizeFitSurveySelector)
   const isLoading = useAppSelector(sizeFitIsLoadingSelector)
@@ -49,8 +49,8 @@ export default function SizeFitSurveyPage() {
   // Direct navigation without a session (e.g. stale history) — nothing to
   // survey against, fall back to the regular entry
   useEffect(() => {
-    if (!sizeChart) navigate('/', { replace: true })
-  }, [sizeChart, navigate])
+    if (!options) navigate('/', { replace: true })
+  }, [options, navigate])
 
   // Prefill from the cached previous survey (or default to Female, as iOS
   // does); the visitor confirms or edits — no auto-skip to results
@@ -89,7 +89,7 @@ export default function SizeFitSurveyPage() {
     dispatch(sizeFitSlice.actions.setStep(steps[stepIndex - 1]))
   }
 
-  if (!sizeChart) return null
+  if (!options) return null
 
   return (
     <div className={styles.page}>

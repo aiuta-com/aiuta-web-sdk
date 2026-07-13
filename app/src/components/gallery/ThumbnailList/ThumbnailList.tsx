@@ -148,9 +148,12 @@ export const ThumbnailList = ({
     anchorActive(true)
   }, [activeId, anchorActive])
 
-  useEffect(() => () => {
-    if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (programmaticTimer.current) clearTimeout(programmaticTimer.current)
+    },
+    [],
+  )
 
   // While the user scrolls the strip, the active is whichever thumbnail moves
   // into the active zone (the fixed on-screen spot captured when the selection

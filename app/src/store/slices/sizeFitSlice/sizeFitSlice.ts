@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import type { SizeFitRequestOptions } from '@lib/rpc'
 import type { FitSurvey, SizeRecommendation } from '@/utils/sizeFit/types'
 
 /**
@@ -11,8 +12,8 @@ export type SizeFitStep = 'main' | 'shapes' | 'bra'
 
 export interface SizeFitState {
   productId: string | null
-  /** Size-chart code the survey is submitted against */
-  sizeChart: string | null
+  /** Size-chart code + naiz credentials the survey is submitted with */
+  options: SizeFitRequestOptions | null
   origin: SizeFitOrigin
   step: SizeFitStep
   /** Survey draft; prefilled from the cached previous survey */
@@ -25,7 +26,7 @@ export interface SizeFitState {
 
 const initialState: SizeFitState = {
   productId: null,
-  sizeChart: null,
+  options: null,
   origin: 'standalone',
   step: 'main',
   survey: {},
@@ -40,12 +41,16 @@ export const sizeFitSlice = createSlice({
   reducers: {
     startSession: (
       state,
-      action: PayloadAction<{ productId: string; sizeChart: string; origin: SizeFitOrigin }>,
+      action: PayloadAction<{
+        productId: string
+        options: SizeFitRequestOptions
+        origin: SizeFitOrigin
+      }>,
     ) => {
       // Fresh flow for the product; the survey draft survives so a repeat
       // visitor only confirms their parameters
       state.productId = action.payload.productId
-      state.sizeChart = action.payload.sizeChart
+      state.options = action.payload.options
       state.origin = action.payload.origin
       state.step = 'main'
       state.isLoading = false

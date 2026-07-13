@@ -10,14 +10,18 @@ import type { AiutaMode } from '../../config'
 export interface TryOnRequestOptions {
   /** Product gender → default predefined-model category for this try-on. */
   gender?: string
-  /** Size-chart code → the results screen offers "Find your size". */
-  sizeChart?: string
+  /** Size & Fit context → the results screen offers "Find your size". */
+  sizeFit?: SizeFitRequestOptions
 }
 
-/** Options forwarded with a sizeFit call. */
+/** Options forwarded with a sizeFit call (naiz.fit is called directly). */
 export interface SizeFitRequestOptions {
   /** Size-chart code the survey is submitted against. */
   sizeChart: string
+  /** naiz.fit API key. */
+  apiKey: string
+  /** naiz.fit partition. */
+  partition: string
 }
 
 /**

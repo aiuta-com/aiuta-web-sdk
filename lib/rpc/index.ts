@@ -16,4 +16,6 @@ export type {
   // App API interfaces (for SDK developers)
   AppApi,
   AppContext,
+  TryOnRequestOptions,
+  SizeFitRequestOptions,
 } from './api'

@@ -216,12 +216,21 @@ export const CrossFadeImage = ({
           aria-hidden="true"
         >
           {fit === 'smart' && (
-            <img src={prevSrc} alt="" className={styles.blurBackdrop} decoding="async" draggable={false} />
+            <img
+              src={prevSrc}
+              alt=""
+              className={styles.blurBackdrop}
+              decoding="async"
+              draggable={false}
+            />
           )}
           <img
             src={prevSrc}
             alt=""
-            className={combineClassNames(styles.image, prevFit === 'contain' && styles.image_contain)}
+            className={combineClassNames(
+              styles.image,
+              prevFit === 'contain' && styles.image_contain,
+            )}
             decoding="async"
             draggable={false}
           />
@@ -255,7 +264,10 @@ export const CrossFadeImage = ({
         <img
           src={currentSrc}
           alt={alt}
-          className={combineClassNames(styles.image, currentFit === 'contain' && styles.image_contain)}
+          className={combineClassNames(
+            styles.image,
+            currentFit === 'contain' && styles.image_contain,
+          )}
           loading={loading}
           decoding="async"
           draggable={false}

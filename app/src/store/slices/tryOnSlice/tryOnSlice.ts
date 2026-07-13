@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import type { AiutaMode } from '@lib/config'
+import type { SizeFitRequestOptions } from '@lib/rpc'
 import type { TryOnImage } from '@/models'
 import { isNewImage } from '@/models'
 
@@ -20,9 +21,10 @@ export interface TryOnState {
   // for this try-on (overrides the configured preferredCategoryId). null when
   // the request carried no gender.
   preferredCategoryId: string | null
-  // Size-chart code from the tryOn request → the results screen offers
-  // "Find your size". null when the request carried none.
-  sizeChart: string | null
+  // Size & Fit context (size-chart code + naiz credentials) from the tryOn
+  // request → the results screen offers "Find your size". null when the
+  // request carried none.
+  sizeFitOptions: SizeFitRequestOptions | null
 }
 
 const initialState: TryOnState = {
@@ -35,7 +37,7 @@ const initialState: TryOnState = {
   productIds: [],
   mode: 'general',
   preferredCategoryId: null,
-  sizeChart: null,
+  sizeFitOptions: null,
 }
 
 export const tryOnSlice = createSlice({
@@ -97,8 +99,8 @@ export const tryOnSlice = createSlice({
       state.preferredCategoryId = action.payload
     },
 
-    setSizeChart: (state, action: PayloadAction<string | null>) => {
-      state.sizeChart = action.payload
+    setSizeFitOptions: (state, action: PayloadAction<SizeFitRequestOptions | null>) => {
+      state.sizeFitOptions = action.payload
     },
 
     resetTryOnState: (state) => {

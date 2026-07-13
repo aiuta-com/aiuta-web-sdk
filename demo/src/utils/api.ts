@@ -63,6 +63,8 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
     const singleItemTryOn = metadata.single_item_try_on ?? extra.single_item_try_on
     const sizeFit = metadata.size_fit ?? extra.size_fit
     const sizeChart = metadata.size_chart ?? extra.size_chart
+    const sizeFitApiKey = metadata.size_fit_api_key ?? extra.size_fit_api_key
+    const sizeFitPartition = metadata.size_fit_partition ?? extra.size_fit_partition
     return {
       sku_id: item.sku_id,
       // The title/brand/gender overrides are metadata-only (never in the
@@ -79,6 +81,12 @@ export const fetchSkuPage = async (offset: number): Promise<SkuPage> => {
       singleItemTryOn: singleItemTryOn === true,
       sizeFit: sizeFit === true,
       sizeChart: typeof sizeChart === 'string' && sizeChart !== '' ? sizeChart : undefined,
+      sizeFitApiKey:
+        typeof sizeFitApiKey === 'string' && sizeFitApiKey !== '' ? sizeFitApiKey : undefined,
+      sizeFitPartition:
+        typeof sizeFitPartition === 'string' && sizeFitPartition !== ''
+          ? sizeFitPartition
+          : undefined,
     }
   })
 

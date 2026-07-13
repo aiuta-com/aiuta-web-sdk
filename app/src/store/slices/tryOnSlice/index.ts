@@ -9,5 +9,5 @@ export {
   productIdsSelector,
   tryOnModeSelector,
   tryOnPreferredCategoryIdSelector,
-  tryOnSizeChartSelector,
+  tryOnSizeFitOptionsSelector,
 } from './selectors'

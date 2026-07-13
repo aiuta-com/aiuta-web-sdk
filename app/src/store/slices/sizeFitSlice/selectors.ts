@@ -1,7 +1,7 @@
 import { RootState } from '@/store/store'
 
 export const sizeFitProductIdSelector = (state: RootState) => state.sizeFit.productId
-export const sizeFitSizeChartSelector = (state: RootState) => state.sizeFit.sizeChart
+export const sizeFitOptionsSelector = (state: RootState) => state.sizeFit.options
 export const sizeFitOriginSelector = (state: RootState) => state.sizeFit.origin
 export const sizeFitStepSelector = (state: RootState) => state.sizeFit.step
 export const sizeFitSurveySelector = (state: RootState) => state.sizeFit.survey

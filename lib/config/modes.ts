@@ -27,19 +27,24 @@ export interface AiutaTryOnOptions {
    */
   gender?: string
   /**
-   * Size-chart code of the product. When set, the try-on results screen offers
-   * "Find your size" (the Size & Fit survey) for this product.
+   * Size & Fit context of the product. When set, the try-on results screen
+   * offers "Find your size" (the Size & Fit survey) for this product.
    */
-  sizeChart?: string
+  sizeFit?: AiutaSizeFitOptions
 }
 
-/** Per-call options for `aiuta.sizeFit`. */
+/**
+ * Per-call options for `aiuta.sizeFit` (and the `sizeFit` field of the tryOn
+ * options). The recommendation is requested from the naiz.fit API directly,
+ * so the call carries the naiz credentials along with the size-chart code.
+ */
 export interface AiutaSizeFitOptions {
-  /**
-   * Size-chart code of the product — required, the survey is submitted
-   * against it to get the size recommendation.
-   */
+  /** Size-chart code of the product the survey is submitted against */
   sizeChart: string
+  /** naiz.fit API key */
+  apiKey: string
+  /** naiz.fit partition */
+  partition: string
 }
 
 export interface AiutaModes {

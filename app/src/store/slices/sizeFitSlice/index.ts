@@ -6,7 +6,7 @@ export {
 } from './sizeFitSlice'
 export {
   sizeFitProductIdSelector,
-  sizeFitSizeChartSelector,
+  sizeFitOptionsSelector,
   sizeFitOriginSelector,
   sizeFitStepSelector,
   sizeFitSurveySelector,

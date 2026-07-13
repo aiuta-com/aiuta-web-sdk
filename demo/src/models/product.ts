@@ -26,6 +26,9 @@ export interface SkuItemExtra {
   size_fit?: boolean | null
   /** Size-chart code the Size & Fit survey is submitted against */
   size_chart?: string | null
+  /** naiz.fit credentials the SDK calls the recommendation API with */
+  size_fit_api_key?: string | null
+  size_fit_partition?: string | null
 }
 
 export interface UnifiedSkuItem {
@@ -79,6 +82,9 @@ export interface CatalogItem {
   sizeFit: boolean
   /** Size-chart code from metadata.size_chart (present when sizeFit is on) */
   sizeChart?: string
+  /** naiz.fit credentials from metadata */
+  sizeFitApiKey?: string
+  sizeFitPartition?: string
 }
 
 // ------------------------------------------------------------- Outfits ---

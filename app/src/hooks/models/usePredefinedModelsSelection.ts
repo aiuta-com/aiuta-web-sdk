@@ -21,7 +21,13 @@ export const usePredefinedModelsSelection = () => {
   const navigate = useNavigate()
   const rpc = useRpc()
   const mode = useAppSelector(tryOnModeSelector)
-  const { categories: allCategories, isLoading, isLoaded, isError, isEnabled } = usePredefinedModels()
+  const {
+    categories: allCategories,
+    isLoading,
+    isLoaded,
+    isError,
+    isEnabled,
+  } = usePredefinedModels()
   const { startTryOn } = useTryOnGeneration()
   const { trackCategoryChange, trackModelSelected } = usePredefinedModelsAnalytics()
 

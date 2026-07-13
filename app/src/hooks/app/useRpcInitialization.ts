@@ -8,6 +8,7 @@ import { uploadsSlice } from '@/store/slices/uploadsSlice'
 import { isAppVisibleSelector } from '@/store/slices/appSlice'
 import { useAlert, useLogger } from '@/contexts'
 import { AiutaAppRpc } from '@lib/rpc'
+import type { SizeFitRequestOptions } from '@lib/rpc'
 import type { AiutaMode } from '@lib/config'
 import { runClearStorage } from '@/utils/debug/clearStorageRegistry'
 
@@ -68,7 +69,7 @@ export const useRpcInitialization = () => {
             tryOn: async (
               productIds: string | string[],
               mode?: AiutaMode,
-              options?: { gender?: string; sizeChart?: string },
+              options?: { gender?: string; sizeFit?: SizeFitRequestOptions },
             ) => {
               try {
                 // Support both single and multi-item try-on (backward compatibility)
@@ -83,9 +84,9 @@ export const useRpcInitialization = () => {
                 // later request that carried no gender.
                 dispatch(tryOnSlice.actions.setPreferredCategoryId(options?.gender ?? null))
 
-                // Size-chart code → the results screen offers "Find your
+                // Size & Fit context → the results screen offers "Find your
                 // size". Reset likewise when the request carried none.
-                dispatch(tryOnSlice.actions.setSizeChart(options?.sizeChart ?? null))
+                dispatch(tryOnSlice.actions.setSizeFitOptions(options?.sizeFit ?? null))
 
                 // Show app when tryOn is called
                 showApp()
@@ -99,12 +100,12 @@ export const useRpcInitialization = () => {
                 throw error // Re-throw so RPC can handle the error
               }
             },
-            sizeFit: async (productId: string, options: { sizeChart: string }) => {
+            sizeFit: async (productId: string, options: SizeFitRequestOptions) => {
               try {
                 dispatch(
                   sizeFitSlice.actions.startSession({
                     productId,
-                    sizeChart: options.sizeChart,
+                    options,
                     origin: 'standalone',
                   }),
                 )

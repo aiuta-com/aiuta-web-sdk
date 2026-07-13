@@ -1,33 +1,17 @@
-import type { ApiAuthParams } from './tryOnApiService'
-import type {
-  BellyShape,
-  BraCup,
-  FitGender,
-  FitSurvey,
-  HipShape,
-  MeasurementType,
-  SizeRecommendation,
-} from '../sizeFit/types'
+import type { SizeFitRequestOptions } from '@lib/rpc'
+import type { FitSurvey, MeasurementType, SizeRecommendation } from '../sizeFit/types'
 
-declare const __TRY_ON_API_URL__: string
-
-/** Wire format of POST /size_and_fit/recommendation (same request as iOS) */
-export interface SizeFitRecommendationRequest {
-  /** Size-chart code of the product */
-  code: string
-  age: number
-  height: number
-  weight: number
-  gender: FitGender
-  hip_shape?: HipShape
-  belly_shape?: BellyShape
-  bra_size?: number
-  bra_cup?: BraCup
-}
+/**
+ * Size recommendations come from the naiz.fit API directly (the Aiuta backend
+ * used to proxy this verbatim): POST /recommendation with the tenant API key
+ * and partition headers; the payload matches FitSurvey field-for-field
+ * (camelCase per the naiz OpenAPI spec).
+ */
+const NAIZ_API_URL = 'https://api.naiz.fit'
 
 export type SizeFitRecommendationResult =
   | { kind: 'recommendation'; recommendation: SizeRecommendation }
-  /** The expected "wrong body type / gender" outcome, not a failure */
+  /** The expected "wrong body type / gender / no chart" outcome, not a failure */
   | { kind: 'noResult' }
 
 const KNOWN_MEASUREMENT_TYPES: MeasurementType[] = [
@@ -45,47 +29,29 @@ const KNOWN_MEASUREMENT_TYPES: MeasurementType[] = [
 const measurementType = (raw: unknown): MeasurementType =>
   KNOWN_MEASUREMENT_TYPES.includes(raw as MeasurementType) ? (raw as MeasurementType) : 'unknown'
 
-export function buildRecommendationRequest(
-  code: string,
-  survey: FitSurvey,
-): SizeFitRecommendationRequest {
-  return {
-    code,
-    age: survey.age,
-    height: survey.height,
-    weight: survey.weight,
-    gender: survey.gender,
-    hip_shape: survey.hipShape,
-    belly_shape: survey.bellyShape,
-    bra_size: survey.braSize,
-    bra_cup: survey.braCup,
-  }
-}
-
 export class SizeFitApiService {
-  private static readonly BASE_URL = __TRY_ON_API_URL__
-
-  private static addAuthHeaders(headers: Record<string, string>, auth: ApiAuthParams): void {
-    if (auth.apiKey) {
-      headers['x-api-key'] = auth.apiKey
-    } else if (auth.subscriptionId) {
-      headers['x-user-id'] = auth.subscriptionId
-    }
-  }
-
   static async getRecommendation(
-    request: SizeFitRecommendationRequest,
-    auth: ApiAuthParams,
+    options: SizeFitRequestOptions,
+    survey: FitSurvey,
   ): Promise<SizeFitRecommendationResult> {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    }
-    this.addAuthHeaders(headers, auth)
-
-    const response = await fetch(`${this.BASE_URL}/size_and_fit/recommendation`, {
+    const response = await fetch(`${NAIZ_API_URL}/recommendation`, {
       method: 'POST',
-      headers,
-      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': options.apiKey,
+        'X-Partition': options.partition,
+      },
+      body: JSON.stringify({
+        code: options.sizeChart,
+        age: survey.age,
+        height: survey.height,
+        weight: survey.weight,
+        gender: survey.gender,
+        hipShape: survey.hipShape,
+        bellyShape: survey.bellyShape,
+        braSize: survey.braSize,
+        braCup: survey.braCup,
+      }),
     })
 
     // A 4xx is the expected "this chart doesn't cover that body" answer;
@@ -97,18 +63,20 @@ export class SizeFitApiService {
       throw new Error(`Size & fit recommendation failed: ${response.status} ${response.statusText}`)
     }
 
-    const data = await response.json()
+    // naiz wraps every payload in a { data } envelope
+    const payload = await response.json()
+    const data = payload?.data ?? payload
 
     const recommendation: SizeRecommendation = {
-      recommendedSizeName: data?.recommended_size_name ?? '',
+      recommendedSizeName: data?.recommendedSizeName ?? '',
       sizes: (data?.sizes ?? []).map((size: any) => ({
         name: size?.name ?? '',
         measurements: (size?.measurements ?? []).map((m: any) => ({
           type: measurementType(m?.type),
-          fitRatio: Number(m?.fit_ratio ?? 0),
+          fitRatio: Number(m?.fitRatio ?? 0),
         })),
       })),
-      bodyMeasurements: (data?.body_measurements ?? []).map((m: any) => ({
+      bodyMeasurements: (data?.bodyMeasurements ?? []).map((m: any) => ({
         type: measurementType(m?.type),
         value: Number(m?.value ?? 0),
       })),

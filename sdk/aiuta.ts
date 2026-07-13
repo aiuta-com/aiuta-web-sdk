@@ -131,7 +131,7 @@ export default class Aiuta {
       typeof options === 'string' ? { mode: options } : (options ?? {})
     let mode = opts.mode ?? 'general'
     const gender = opts.gender
-    const sizeChart = opts.sizeChart
+    const sizeFit = this.validSizeFitOptions(opts.sizeFit)
 
     // Partners call from untyped JS — fall back instead of breaking the flow
     if (mode !== 'general' && mode !== 'shoes') {
@@ -147,7 +147,26 @@ export default class Aiuta {
     })
 
     await this.iframeManager.ensureIframe()
-    await this.messageHandler.startTryOn(productIds, mode, gender, sizeChart)
+    await this.messageHandler.startTryOn(productIds, mode, gender, sizeFit)
+  }
+
+  // Partners call from untyped JS — an incomplete sizeFit object degrades to
+  // "no size & fit" instead of breaking the flow downstream
+  private validSizeFitOptions(options?: AiutaSizeFitOptions): AiutaSizeFitOptions | undefined {
+    if (!options) return undefined
+    const { sizeChart, apiKey, partition } = options
+    if (
+      typeof sizeChart === 'string' &&
+      sizeChart.length &&
+      typeof apiKey === 'string' &&
+      apiKey.length &&
+      typeof partition === 'string' &&
+      partition.length
+    ) {
+      return { sizeChart, apiKey, partition }
+    }
+    this.logger.error('Aiuta sizeFit options require sizeChart, apiKey and partition')
+    return undefined
   }
 
   /**
@@ -156,12 +175,17 @@ export default class Aiuta {
    * intended for products that have a size chart but no virtual try-on.
    *
    * @param productId - Product ID the recommendation is for
-   * @param options - `sizeChart` (required) — the product's size-chart code
+   * @param options - the product's size-chart code plus the naiz.fit
+   *   credentials (`sizeChart`, `apiKey`, `partition` — all required)
    * @throws Error if this instance has been destroyed. Create a new Aiuta instance instead.
    *
    * @example
    * ```typescript
-   * await aiuta.sizeFit('dress-7', { sizeChart: 'brand-dresses-eu' });
+   * await aiuta.sizeFit('dress-7', {
+   *   sizeChart: 'brand-dresses-eu',
+   *   apiKey: 'naiz-api-key',
+   *   partition: 'brand',
+   * });
    * ```
    */
   async sizeFit(productId: string, options: AiutaSizeFitOptions) {
@@ -177,11 +201,8 @@ export default class Aiuta {
       this.logger.error('Product id is not provided for Aiuta sizeFit')
       return
     }
-    const sizeChart = options?.sizeChart
-    if (!sizeChart || typeof sizeChart !== 'string') {
-      this.logger.error('Size chart code is not provided for Aiuta sizeFit')
-      return
-    }
+    const sizeFit = this.validSizeFitOptions(options)
+    if (!sizeFit) return
 
     this.analytics.track({
       type: 'session',
@@ -190,7 +211,7 @@ export default class Aiuta {
     })
 
     await this.iframeManager.ensureIframe()
-    await this.messageHandler.startSizeFit(productId, sizeChart)
+    await this.messageHandler.startSizeFit(productId, sizeFit)
   }
 
   /**

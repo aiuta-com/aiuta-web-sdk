@@ -74,7 +74,12 @@ export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
       cornersSquareOptions: { type: 'dot', color: darkColor },
       cornersDotOptions: { type: 'dot', color: darkColor },
       backgroundOptions: { color: lightColor },
-      imageOptions: { crossOrigin: 'anonymous', imageSize: 0.6, margin: 4, hideBackgroundDots: true },
+      imageOptions: {
+        crossOrigin: 'anonymous',
+        imageSize: 0.6,
+        margin: 4,
+        hideBackgroundDots: true,
+      },
     }),
     [url, darkColor, lightColor],
   )
@@ -104,5 +109,7 @@ export const QrCode = ({ url }: Omit<QrCodeProps, 'onFileUpload'>) => {
 
   // Background matches the QR's own backgroundOptions so the padding reads as
   // a seamless quiet zone around the modules
-  return <div className={styles.qrCode} style={{ backgroundColor: lightColor }} ref={containerRef} />
+  return (
+    <div className={styles.qrCode} style={{ backgroundColor: lightColor }} ref={containerRef} />
+  )
 }

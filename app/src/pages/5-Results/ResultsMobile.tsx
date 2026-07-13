@@ -104,77 +104,73 @@ export default function ResultsMobile() {
         {({ openFilePicker }) => {
           const requestUpload = () => runWithConsent(openFilePicker)
           return (
-          <>
-            <Flex
-              fill
-              containerClassName={styles.fillContainer}
-              contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
-            >
-              <RemoteImage
-                src={currentImage}
-                alt="Generated result"
-                shape="M"
-                fit="smart"
-                onClick={openFullScreen}
-              />
-              <IconButton
-                icon={icons.share}
-                label="Share"
-                onClick={() => currentImage && shareImage(currentImage.url)}
-                className={styles.shareButton}
-              />
-              {isOtherPhotoEnabled && <OtherPhoto className={styles.changePhotoFab} />}
-              {currentImage && (
-                <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
-              )}
-            </Flex>
+            <>
+              <Flex
+                fill
+                containerClassName={styles.fillContainer}
+                contentClassName={combineClassNames('aiuta-image-m', styles.fillContent)}
+              >
+                <RemoteImage
+                  src={currentImage}
+                  alt="Generated result"
+                  shape="M"
+                  fit="smart"
+                  onClick={openFullScreen}
+                />
+                <IconButton
+                  icon={icons.share}
+                  label="Share"
+                  onClick={() => currentImage && shareImage(currentImage.url)}
+                  className={styles.shareButton}
+                />
+                {isOtherPhotoEnabled && <OtherPhoto className={styles.changePhotoFab} />}
+                {currentImage && (
+                  <Feedback generatedImageUrl={currentImage.url} className={styles.feedback} />
+                )}
+              </Flex>
 
-            {/* No Add to cart button yet, but its space is reserved so the
+              {/* No Add to cart button yet, but its space is reserved so the
                 result image keeps the same height as the loading screen (no
                 jump on finish). It holds the fit disclaimer — flush under the
                 photo, full-width, its background the photo's stretched bottom
                 row — and the Powered by footer. Keeping the disclaimer inside
                 this reserve (not as its own row) is what stops the image from
                 shrinking. */}
-            <div
-              className={combineClassNames(
-                styles.cartReserve,
-                isSizeFitAvailable && styles.cartReserve_extended,
-              )}
-            >
-              {toneInfo && (
-                <Disclaimer
-                  variant="strip"
-                  tone={toneInfo.tone}
-                  tint={toneInfo.averageColor}
-                  stripUrl={toneInfo.stripUrl}
-                />
-              )}
-              {/* A product with a size chart gets its CTA in the reserved
+              <div
+                className={combineClassNames(
+                  styles.cartReserve,
+                  isSizeFitAvailable && styles.cartReserve_extended,
+                )}
+              >
+                {toneInfo && (
+                  <Disclaimer
+                    variant="strip"
+                    tone={toneInfo.tone}
+                    tint={toneInfo.averageColor}
+                    stripUrl={toneInfo.stripUrl}
+                  />
+                )}
+                {/* A product with a size chart gets its CTA in the reserved
                   cart-button space */}
-              {isSizeFitAvailable && (
-                <PrimaryButton onClick={openSizeFit} className={styles.sizeFitButton}>
-                  {sizeFitButton}
-                </PrimaryButton>
-              )}
-              <PoweredBy />
-            </div>
+                {isSizeFitAvailable && (
+                  <PrimaryButton onClick={openSizeFit} className={styles.sizeFitButton}>
+                    {sizeFitButton}
+                  </PrimaryButton>
+                )}
+                <PoweredBy />
+              </div>
 
-            <UploadsHistorySheet
-              onUploadNew={requestUpload}
-              onImageSelect={hasMultiplePhotos ? handleChoosePhotoFromHistory : undefined}
-              onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
-            />
-          </>
+              <UploadsHistorySheet
+                onUploadNew={requestUpload}
+                onImageSelect={hasMultiplePhotos ? handleChoosePhotoFromHistory : undefined}
+                onSelectModel={isModelsEnabled ? handleModelsClick : undefined}
+              />
+            </>
           )
         }}
       </FilePicker>
 
-      <ConsentPopup
-        isOpen={isConsentOpen}
-        onClose={closeConsent}
-        onConfirm={confirmConsent}
-      />
+      <ConsentPopup isOpen={isConsentOpen} onClose={closeConsent} onConfirm={confirmConsent} />
     </main>
   )
 }

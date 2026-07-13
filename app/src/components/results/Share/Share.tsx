@@ -189,11 +189,7 @@ export const Share = () => {
       {/* Copy failures (clipboard blocked, e.g. on http) surface here, above
           the modal. Wrapper stops the dismiss tap from closing the modal. */}
       <div onClick={(e) => e.stopPropagation()}>
-        <ErrorSnackbar
-          open={copyFailed}
-          message={copyError}
-          onClose={() => setCopyFailed(false)}
-        />
+        <ErrorSnackbar open={copyFailed} message={copyError} onClose={() => setCopyFailed(false)} />
       </div>
     </div>
   )

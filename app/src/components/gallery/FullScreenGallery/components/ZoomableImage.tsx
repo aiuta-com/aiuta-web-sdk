@@ -260,7 +260,10 @@ export const ZoomableImage = ({
         const dy = p.y - g.lastY
         g.lastX = p.x
         g.lastY = p.y
-        if (!g.moved && (Math.abs(p.x - g.downX) > TAP_MOVE_TOL || Math.abs(p.y - g.downY) > TAP_MOVE_TOL)) {
+        if (
+          !g.moved &&
+          (Math.abs(p.x - g.downX) > TAP_MOVE_TOL || Math.abs(p.y - g.downY) > TAP_MOVE_TOL)
+        ) {
           g.moved = true
         }
         const { s, tx, ty } = tfRef.current
@@ -417,7 +420,8 @@ export const ZoomableImage = ({
       const looksLikeMouseWheel =
         e.deltaMode !== 0 || Math.abs(e.deltaY) >= 80 || Math.abs(e.deltaX) >= 80
       if (isPinch) wheelGesture.intent = 'zoom'
-      else if (wheelGesture.intent === null) wheelGesture.intent = looksLikeMouseWheel ? 'zoom' : 'pan'
+      else if (wheelGesture.intent === null)
+        wheelGesture.intent = looksLikeMouseWheel ? 'zoom' : 'pan'
 
       const { s, tx, ty } = tfRef.current
 

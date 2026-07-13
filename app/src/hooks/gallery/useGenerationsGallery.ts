@@ -121,7 +121,9 @@ export const useGenerationsGallery = ({
     // Fetch every selected image in parallel, then trigger the downloads
     // together (the browser asks once to allow multiple files)
     const blobs = await Promise.all(
-      toDownload.map((image) => fetch(image.url, { mode: 'cors' }).then((response) => response.blob())),
+      toDownload.map((image) =>
+        fetch(image.url, { mode: 'cors' }).then((response) => response.blob()),
+      ),
     )
 
     const timestamp = Date.now()

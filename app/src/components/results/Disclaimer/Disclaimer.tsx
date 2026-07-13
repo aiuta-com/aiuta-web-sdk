@@ -40,7 +40,11 @@ export const Disclaimer = ({
       stripUrl ? `url("${stripUrl}")` : null,
     ].filter(Boolean)
     stripStyle = layers.length
-      ? { backgroundImage: layers.join(', '), backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' }
+      ? {
+          backgroundImage: layers.join(', '),
+          backgroundSize: '100% 100%',
+          backgroundRepeat: 'no-repeat',
+        }
       : undefined
   }
 

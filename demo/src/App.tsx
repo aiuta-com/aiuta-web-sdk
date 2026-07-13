@@ -19,7 +19,7 @@ import {
   subscribeTryOnFilter,
 } from './utils/settings'
 import type { CatalogItem } from './models/product'
-import type { AiutaMode } from '@sdk/index'
+import type { AiutaMode, AiutaSizeFitOptions } from '@sdk/index'
 
 // Smaller extra.order first; items without one keep their fetch order at
 // the end (Array.prototype.sort is stable)
@@ -100,13 +100,13 @@ export default function App() {
     productId: string | string[],
     mode?: AiutaMode,
     gender?: string,
-    sizeChart?: string,
+    sizeFitOptions?: AiutaSizeFitOptions,
   ) => {
-    void getAiuta().then((sdk) => sdk.tryOn(productId, { mode, gender, sizeChart }))
+    void getAiuta().then((sdk) => sdk.tryOn(productId, { mode, gender, sizeFit: sizeFitOptions }))
   }
 
-  const sizeFit = (productId: string, sizeChart: string) => {
-    void getAiuta().then((sdk) => sdk.sizeFit(productId, { sizeChart }))
+  const sizeFit = (productId: string, options: AiutaSizeFitOptions) => {
+    void getAiuta().then((sdk) => sdk.sizeFit(productId, options))
   }
 
   // The outfit formats that carry only sku_ids resolve their items through

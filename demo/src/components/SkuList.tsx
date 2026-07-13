@@ -7,7 +7,7 @@ import Spinner from './Spinner'
 import TryOnIcon from './icons/TryOnIcon'
 import SizeFitIcon from './icons/SizeFitIcon'
 import type { CatalogItem } from '../models/product'
-import type { AiutaMode } from '@sdk/index'
+import type { AiutaMode, AiutaSizeFitOptions } from '@sdk/index'
 
 interface Props {
   items: CatalogItem[]
@@ -19,9 +19,20 @@ interface Props {
   apiKey: string
   /** The single-items filter hides every existing item (unfiltered list isn't empty). */
   filtersHideEverything: boolean
-  onTryOn: (skuId: string, mode?: AiutaMode, gender?: string, sizeChart?: string) => void
-  onSizeFit: (skuId: string, sizeChart: string) => void
+  onTryOn: (skuId: string, mode?: AiutaMode, gender?: string, sizeFit?: AiutaSizeFitOptions) => void
+  onSizeFit: (skuId: string, options: AiutaSizeFitOptions) => void
 }
+
+// The SDK needs the full triple; a partially configured item degrades to
+// no size & fit
+const sizeFitOptions = (item: CatalogItem): AiutaSizeFitOptions | undefined =>
+  item.sizeFit && item.sizeChart && item.sizeFitApiKey && item.sizeFitPartition
+    ? {
+        sizeChart: item.sizeChart,
+        apiKey: item.sizeFitApiKey,
+        partition: item.sizeFitPartition,
+      }
+    : undefined
 
 function SkeletonCard() {
   return (
@@ -93,13 +104,14 @@ export default function SkuList({
           ? Array.from({ length: 8 }).map((_, index) => <SkeletonCard key={index} />)
           : items.map((item) => {
               const image = item.image_url
-              // No try-on but a size chart → the card opens the standalone
-              // Size & Fit flow instead of the try-on
-              const sizeFitOnly = !item.singleItemTryOn && item.sizeFit && !!item.sizeChart
+              // No try-on but a configured size & fit → the card opens the
+              // standalone Size & Fit flow instead of the try-on
+              const options = sizeFitOptions(item)
+              const sizeFitOnly = !item.singleItemTryOn && !!options
               const openItem = () =>
                 sizeFitOnly
-                  ? onSizeFit(item.sku_id, item.sizeChart!)
-                  : onTryOn(item.sku_id, item.mode, item.gender, item.sizeChart)
+                  ? onSizeFit(item.sku_id, options)
+                  : onTryOn(item.sku_id, item.mode, item.gender, options)
               return (
                 <div className="sku-card sku-card--clickable" key={item.sku_id} onClick={openItem}>
                   <div className="sku-card__inner" onPointerDown={createRipple}>
