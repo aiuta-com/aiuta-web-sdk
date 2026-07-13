@@ -23,22 +23,28 @@ interface SizeBarProps {
   bestFitLabel: string
 }
 
-// A size option: name, a confidence track with a pointer bubble ("59%"), and
-// the fit summary line ("Slightly loose in chest")
+// A size option (Figma 13677:956): the size name and the confidence badge on
+// one line, a fully tinted track with a pointer dot at the confidence
+// position, and the fit summary line ("Slightly loose in chest") below
 const SizeBar = ({ display, muted, bestFitLabel }: SizeBarProps) => {
   const summary = display.summary === BEST_FIT ? bestFitLabel : display.summary
+  // The badge is half its width wide (23px) — clamp it inside the track
+  const badgeLeft = `clamp(23px, ${display.percent}%, calc(100% - 23px))`
 
   return (
     <div className={combineClassNames(styles.sizeBar, muted && styles.sizeBar_muted)}>
-      <div className={styles.sizeBarName}>{display.size.name}</div>
-      <div className={styles.sizeBarTrack}>
-        <div className={styles.sizeBarFill} style={{ width: `${display.percent}%` }} />
+      <div className={styles.sizeBarHead}>
+        <div className={combineClassNames('aiuta-title-m', styles.sizeBarName)}>
+          {display.size.name}
+        </div>
         <span
-          className={combineClassNames('aiuta-label-subtle', styles.sizeBarBubble)}
-          style={{ left: `${display.percent}%` }}
+          className={combineClassNames('aiuta-button-s', styles.sizeBarBadge)}
+          style={{ left: badgeLeft }}
         >
           {display.percent}%
         </span>
+      </div>
+      <div className={styles.sizeBarTrack}>
         <span className={styles.sizeBarPointer} style={{ left: `${display.percent}%` }} />
       </div>
       {summary && (
@@ -112,8 +118,10 @@ export default function SizeFitResultsPage() {
       {display ? (
         <>
           <div className={styles.recommendedName}>{display.best.size.name}</div>
-          <SizeBar display={display.best} bestFitLabel={sizeFitBestFit} />
-          {display.next && <SizeBar display={display.next} muted bestFitLabel={sizeFitBestFit} />}
+          <div className={styles.sizeBars}>
+            <SizeBar display={display.best} bestFitLabel={sizeFitBestFit} />
+            {display.next && <SizeBar display={display.next} muted bestFitLabel={sizeFitBestFit} />}
+          </div>
         </>
       ) : (
         <div className={styles.noResult}>

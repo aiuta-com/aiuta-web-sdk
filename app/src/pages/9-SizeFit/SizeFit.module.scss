@@ -212,66 +212,102 @@
   font-size: 132px;
   font-weight: 500;
   line-height: 1.1;
-  margin: 30px 0 24px;
+  margin: 30px 0 0;
   flex-shrink: 0;
   overflow-wrap: anywhere;
 }
 
-.sizeBar {
-  margin: 0 0 28px;
-  flex-shrink: 0;
+// Figma "size_gradient": #4372FF → #726FFF
+$size-gradient: linear-gradient(79deg, #4372ff 7.49%, #726fff 97.95%);
 
+// Size bars block (Figma 13677:956): 45px side insets (the page already
+// carries 20), 40px below the huge recommended size
+.sizeBars {
+  margin: 40px 25px 0;
+  flex-shrink: 0;
+}
+
+.sizeBar {
+  margin-bottom: 29px;
+
+  // The neighbor size: everything the gradient tints goes neutral, and the
+  // badge text flips back to primary
   &_muted {
-    filter: grayscale(1);
-    opacity: 0.85;
+    .sizeBarBadge {
+      background: var(--aiuta-color-border);
+      color: var(--aiuta-color-primary);
+    }
+
+    .sizeBarTrack {
+      background: var(--aiuta-color-border);
+    }
   }
+}
+
+// The size name and the confidence badge share one 24px line
+.sizeBarHead {
+  position: relative;
+  height: 24px;
+  margin-bottom: 6px;
 }
 
 .sizeBarName {
   color: var(--aiuta-color-primary);
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  line-height: 24px;
+  letter-spacing: -0.4px;
 }
 
+// 24px badge with a 6px tail pointing at the track's pointer dot
+.sizeBarBadge {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 6px;
+  background: $size-gradient;
+  color: var(--aiuta-color-on-dark);
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 6px;
+    background: inherit;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+}
+
+// The whole track is tinted; the confidence shows as the pointer position
 .sizeBarTrack {
   position: relative;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--aiuta-color-neutral);
-}
-
-.sizeBarFill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, #2054ee 0%, #7a5bff 100%);
+  height: 8px;
+  border-radius: 6px;
+  background: $size-gradient;
 }
 
 .sizeBarPointer {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--aiuta-color-background);
-  border: 2px solid #7a5bff;
-}
-
-.sizeBarBubble {
-  position: absolute;
-  bottom: 14px;
-  transform: translateX(-50%);
-  padding: 3px 8px;
-  border-radius: 8px;
-  background: #7a5bff;
-  color: var(--aiuta-color-on-dark);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
 }
 
 .sizeBarSummary {
   text-align: center;
   color: var(--aiuta-color-secondary);
-  margin-top: 10px;
+  margin-top: 16px;
 }
 
 .parameters {
