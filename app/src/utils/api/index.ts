@@ -7,5 +7,7 @@ export {
   type PredefinedModelCategory,
   type PredefinedModelsResponse,
 } from './tryOnApiService'
+export { operationDelays, type OperationDelaysSequence } from './operationDelays'
+export { prefetchOperationDelays, getOperationDelays } from './subscriptionDetails'
 export { QrApiService, type QrUploadResult, type QrEndpointData } from './qrApiService'
 export { SizeFitApiService, type SizeFitRecommendationResult } from './sizeFitApiService'

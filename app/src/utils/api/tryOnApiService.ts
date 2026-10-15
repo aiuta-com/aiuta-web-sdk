@@ -4,6 +4,8 @@ export type { Image, InputImage, GeneratedImage }
 
 declare const __TRY_ON_API_URL__: string
 
+const STATUS_REQUEST_TIMEOUT_MS = 10_000
+
 /**
  * Authentication parameters for API requests
  */
@@ -27,6 +29,10 @@ export interface GenerationResult {
   id?: string
   error?: string
   abort_reason?: AbortReason
+}
+
+export interface SubscriptionDetails {
+  operation_delays_sequence?: unknown
 }
 
 export interface OperationResponse {
@@ -171,13 +177,36 @@ export class TryOnApiService {
     const headers: Record<string, string> = {}
     this.addAuthHeaders(headers, auth)
 
+    // Status polls are sequential, so a request hanging on a bad network must
+    // fail (and be retried by the next poll) instead of stalling the polling
     const response = await fetch(`${this.BASE_URL}/sku_try_on_operations/${operationId}`, {
+      method: 'GET',
+      headers,
+      signal: AbortSignal.timeout(STATUS_REQUEST_TIMEOUT_MS),
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to get generation result')
+    }
+
+    return response.json()
+  }
+
+  /**
+   * Get the subscription details configured on the backend. Only the fields
+   * the web SDK uses are typed; they are validated by the caller.
+   */
+  static async getSubscriptionDetails(auth: ApiAuthParams): Promise<SubscriptionDetails> {
+    const headers: Record<string, string> = {}
+    this.addAuthHeaders(headers, auth)
+
+    const response = await fetch(`${this.BASE_URL}/subscription_details`, {
       method: 'GET',
       headers,
     })
 
     if (!response.ok) {
-      throw new Error('Failed to get generation result')
+      throw new Error(`Failed to get subscription details: ${response.status}`)
     }
 
     return response.json()

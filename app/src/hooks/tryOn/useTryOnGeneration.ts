@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector, useAppDispatch } from '@/store/store'
 import { errorSnackbarSlice } from '@/store/slices/errorSnackbarSlice'
@@ -13,6 +13,7 @@ import {
   type AbortReason,
   type ApiAuthParams,
 } from '@/utils/api/tryOnApiService'
+import { operationDelays, prefetchOperationDelays, getOperationDelays } from '@/utils/api'
 import { isNewImage, isInputImage, type TryOnImage } from '@/models'
 import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
@@ -54,11 +55,16 @@ export const useTryOnGeneration = () => {
     insufficientTargetAreaDescription,
   } = useTryOnStrings()
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // The operation being polled; a poll that resolves after polling was stopped
+  // or moved on to another operation must not schedule the next one
+  const pollingOperationRef = useRef<string | null>(null)
+  // Switches the loader to the generating stage; cleared with the polling, so
+  // a result that arrives early can't have its stage changed afterwards
+  const generatingStageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const usedImageRef = useRef<InputImage | null>(null)
-  // The operation whose terminal status has already been handled. Clearing the
-  // interval stops future polls but not the ones already in flight, so several
-  // can resolve SUCCESS at once — this guards the handler from running twice.
+  // The operation whose terminal status has already been handled, so a late
+  // response can never run the result handlers twice.
   const settledOperationRef = useRef<string | null>(null)
 
   const getAuthParams = useCallback((): ApiAuthParams | null => {
@@ -74,11 +80,22 @@ export const useTryOnGeneration = () => {
     return productIds
   }, [productIds])
 
-  const clearGenerationInterval = useCallback(() => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
+  // Load the backend polling delays early, so they are there by the time the
+  // operation is created
+  useEffect(() => {
+    prefetchOperationDelays(getAuthParams())
+  }, [getAuthParams])
+
+  const stopPolling = useCallback(() => {
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current)
+      pollTimeoutRef.current = null
     }
+    if (generatingStageTimeoutRef.current) {
+      clearTimeout(generatingStageTimeoutRef.current)
+      generatingStageTimeoutRef.current = null
+    }
+    pollingOperationRef.current = null
     dispatch(tryOnSlice.actions.setOperationId(null))
   }, [dispatch])
 
@@ -194,26 +211,33 @@ export const useTryOnGeneration = () => {
         img.src = generatedImage.url
 
         trackTryOnFinished()
-        clearGenerationInterval()
+        stopPolling()
+      } else {
+        // A finished operation without results can't be shown; polling has
+        // stopped, so leave the loader with an error instead of hanging
+        stopPolling()
+        dispatch(tryOnSlice.actions.setIsGenerating(false))
+        dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
+        trackTryOnError('operationEmptyResults', 'Operation succeeded without results')
       }
     },
-    [dispatch, navigate, trackTryOnFinished, clearGenerationInterval],
+    [dispatch, navigate, trackTryOnFinished, trackTryOnError, stopPolling],
   )
 
   const handleGenerationError = useCallback(
     (result: GenerationResult) => {
-      clearGenerationInterval()
+      stopPolling()
       dispatch(tryOnSlice.actions.setIsGenerating(false))
       dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
 
       trackTryOnError(result.status, result.error || 'Unknown error')
     },
-    [dispatch, trackTryOnError, clearGenerationInterval],
+    [dispatch, trackTryOnError, stopPolling],
   )
 
   const handleGenerationAborted = useCallback(
     (result: GenerationResult) => {
-      clearGenerationInterval()
+      stopPolling()
       dispatch(tryOnSlice.actions.setIsGenerating(false))
 
       // Track with abort_reason if available, fallback to error message
@@ -248,7 +272,7 @@ export const useTryOnGeneration = () => {
     [
       dispatch,
       trackTryOnAborted,
-      clearGenerationInterval,
+      stopPolling,
       showAlert,
       navigate,
       noPeopleDetectedDescription,
@@ -264,17 +288,17 @@ export const useTryOnGeneration = () => {
   // ========================================
   // API: Poll Generation Status
   // ========================================
+  /**
+   * Requests the operation status once and handles a terminal one.
+   * @returns true when the operation reached a terminal status
+   */
   const pollGenerationStatus = useCallback(
-    async (operationId: string) => {
-      const auth = getAuthParams()
-      if (!auth) return
-
+    async (operationId: string, auth: ApiAuthParams): Promise<boolean> => {
       try {
         const result = await TryOnApiService.getGenerationResult(operationId, auth)
 
-        // Handle a terminal status only once per operation: in-flight polls that
-        // resolve after the first one must not re-run the handlers (which would
-        // duplicate the result / history entry).
+        // Handle a terminal status only once per operation, so a late
+        // response can't duplicate the result / history entry
         const settleOnce = () => {
           if (settledOperationRef.current === operationId) return false
           settledOperationRef.current = operationId
@@ -284,23 +308,66 @@ export const useTryOnGeneration = () => {
         switch (result.status) {
           case 'SUCCESS':
             if (settleOnce()) handleGenerationSuccess(result)
-            break
+            return true
           case 'FAILED':
           case 'CANCELLED':
             if (settleOnce()) handleGenerationError(result)
-            break
+            return true
           case 'ABORTED':
             if (settleOnce()) handleGenerationAborted(result)
-            break
+            return true
           default:
             // Continue waiting for final status
-            break
+            return false
         }
       } catch (error) {
+        // A failed poll is retried with the next delay
         logger.error('Generation polling error:', error)
+        return false
       }
     },
-    [getAuthParams, handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
+    [handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
+  )
+
+  const handleGenerationTimeout = useCallback(() => {
+    stopPolling()
+    dispatch(tryOnSlice.actions.setIsGenerating(false))
+    dispatch(errorSnackbarSlice.actions.showErrorSnackbar())
+
+    trackTryOnError('operationTimeout', 'Operation status polling timed out')
+  }, [dispatch, trackTryOnError, stopPolling])
+
+  /**
+   * Polls the operation status with the delays configured on the backend
+   * (default: 1s ×4, 0.5s ×20, then 3s). Each delay is waited after the
+   * previous response, so polls never overlap.
+   */
+  const startPolling = useCallback(
+    (operationId: string, auth: ApiAuthParams) => {
+      const delays = operationDelays(getOperationDelays(auth))
+      pollingOperationRef.current = operationId
+
+      const scheduleNextPoll = () => {
+        if (pollingOperationRef.current !== operationId) return
+
+        const delay = delays.next()
+        if (delay.done) {
+          handleGenerationTimeout()
+          return
+        }
+
+        pollTimeoutRef.current = setTimeout(async () => {
+          pollTimeoutRef.current = null
+          if (pollingOperationRef.current !== operationId) return
+
+          const isSettled = await pollGenerationStatus(operationId, auth)
+          if (!isSettled) scheduleNextPoll()
+        }, delay.value * 1000)
+      }
+
+      scheduleNextPoll()
+    },
+    [pollGenerationStatus, handleGenerationTimeout],
   )
 
   // ========================================
@@ -320,6 +387,9 @@ export const useTryOnGeneration = () => {
         logger.error('Product IDs are missing')
         return
       }
+
+      // No-op when the polling delays are already loaded or loading
+      prefetchOperationDelays(auth)
 
       // Determine image for try-on: use parameter, selectedImage from Redux, or get recent from history
       let targetImage = imageToUse || selectedImage || getRecentPhoto()
@@ -419,19 +489,21 @@ export const useTryOnGeneration = () => {
         return
       }
 
+      // A new operation replaces any previous one still being polled
+      stopPolling()
+
       // Save operation ID to Redux; arm the once-only terminal guard for it
       dispatch(tryOnSlice.actions.setOperationId(operationId))
       settledOperationRef.current = null
 
       // Step 3: After 4 seconds, switch to generating stage
-      setTimeout(() => {
+      generatingStageTimeoutRef.current = setTimeout(() => {
+        generatingStageTimeoutRef.current = null
         dispatch(tryOnSlice.actions.setGenerationStage('generating'))
       }, 4000)
 
       // Start status polling
-      intervalRef.current = setInterval(() => {
-        pollGenerationStatus(operationId)
-      }, 3000)
+      startPolling(operationId, auth)
     },
     [
       getAuthParams,
@@ -448,7 +520,8 @@ export const useTryOnGeneration = () => {
       invalidInputImageChangePhotoButton,
       createOperationWithJwt,
       createOperationWithoutJwt,
-      pollGenerationStatus,
+      stopPolling,
+      startPolling,
     ],
   )
 
