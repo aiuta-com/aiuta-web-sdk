@@ -13,7 +13,13 @@ import {
   type AbortReason,
   type ApiAuthParams,
 } from '@/utils/api/tryOnApiService'
-import { operationDelays, prefetchOperationDelays, getOperationDelays } from '@/utils/api'
+import {
+  operationDelays,
+  prefetchOperationDelays,
+  getOperationDelays,
+  startOperationPolling,
+  type OperationPolling,
+} from '@/utils/api'
 import { isNewImage, isInputImage, type TryOnImage } from '@/models'
 import { resizeAndConvertImage } from '@/utils'
 import { useTryOnAnalytics } from './useTryOnAnalytics'
@@ -55,10 +61,7 @@ export const useTryOnGeneration = () => {
     insufficientTargetAreaDescription,
   } = useTryOnStrings()
 
-  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  // The operation being polled; a poll that resolves after polling was stopped
-  // or moved on to another operation must not schedule the next one
-  const pollingOperationRef = useRef<string | null>(null)
+  const pollingRef = useRef<OperationPolling | null>(null)
   // Switches the loader to the generating stage; cleared with the polling, so
   // a result that arrives early can't have its stage changed afterwards
   const generatingStageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -83,19 +86,17 @@ export const useTryOnGeneration = () => {
   // Load the backend polling delays early, so they are there by the time the
   // operation is created
   useEffect(() => {
-    prefetchOperationDelays(getAuthParams())
+    const auth = getAuthParams()
+    if (auth) prefetchOperationDelays(auth)
   }, [getAuthParams])
 
   const stopPolling = useCallback(() => {
-    if (pollTimeoutRef.current) {
-      clearTimeout(pollTimeoutRef.current)
-      pollTimeoutRef.current = null
-    }
+    pollingRef.current?.stop()
+    pollingRef.current = null
     if (generatingStageTimeoutRef.current) {
       clearTimeout(generatingStageTimeoutRef.current)
       generatingStageTimeoutRef.current = null
     }
-    pollingOperationRef.current = null
     dispatch(tryOnSlice.actions.setOperationId(null))
   }, [dispatch])
 
@@ -344,28 +345,11 @@ export const useTryOnGeneration = () => {
    */
   const startPolling = useCallback(
     (operationId: string, auth: ApiAuthParams) => {
-      const delays = operationDelays(getOperationDelays(auth))
-      pollingOperationRef.current = operationId
-
-      const scheduleNextPoll = () => {
-        if (pollingOperationRef.current !== operationId) return
-
-        const delay = delays.next()
-        if (delay.done) {
-          handleGenerationTimeout()
-          return
-        }
-
-        pollTimeoutRef.current = setTimeout(async () => {
-          pollTimeoutRef.current = null
-          if (pollingOperationRef.current !== operationId) return
-
-          const isSettled = await pollGenerationStatus(operationId, auth)
-          if (!isSettled) scheduleNextPoll()
-        }, delay.value * 1000)
-      }
-
-      scheduleNextPoll()
+      pollingRef.current = startOperationPolling({
+        delays: operationDelays(getOperationDelays(auth)),
+        poll: () => pollGenerationStatus(operationId, auth),
+        onTimeout: handleGenerationTimeout,
+      })
     },
     [pollGenerationStatus, handleGenerationTimeout],
   )
