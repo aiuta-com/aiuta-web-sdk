@@ -50,6 +50,23 @@ describe('operationDelays', () => {
     const delays = operationDelays([{ mode: 'infinite', delay: 0 }])
     expect(take(delays, 2)).toEqual([0.1, 0.1])
   })
+
+  it('caps delays at 60s, so a value in milliseconds cannot overflow the timer', () => {
+    const delays = operationDelays([{ mode: 'infinite', delay: 3000 }])
+    expect(take(delays, 2)).toEqual([60, 60])
+  })
+
+  it('falls back to the default when a sequence has no usable delay', () => {
+    const defaults = take(operationDelays(DEFAULT_OPERATION_DELAYS), 26)
+
+    // Wrong-case mode, missing repeat and a zero repeat count: nothing usable
+    const misconfigured = operationDelays([
+      { mode: 'Recurring', delay: 1, repeat: 4 },
+      { mode: 'recurring', delay: 1 },
+      { mode: 'recurring', delay: 1, repeat: 0 },
+    ])
+    expect(take(misconfigured, 26)).toEqual(defaults)
+  })
 })
 
 describe('parseOperationDelays', () => {

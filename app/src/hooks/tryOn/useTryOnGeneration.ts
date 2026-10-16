@@ -66,10 +66,6 @@ export const useTryOnGeneration = () => {
   // a result that arrives early can't have its stage changed afterwards
   const generatingStageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const usedImageRef = useRef<InputImage | null>(null)
-  // The operation whose terminal status has already been handled, so a late
-  // response can never run the result handlers twice.
-  const settledOperationRef = useRef<string | null>(null)
-
   const getAuthParams = useCallback((): ApiAuthParams | null => {
     const auth = rpc.config.auth
 
@@ -290,41 +286,25 @@ export const useTryOnGeneration = () => {
   // API: Poll Generation Status
   // ========================================
   /**
-   * Requests the operation status once and handles a terminal one.
+   * Handles one status response of the polled operation.
    * @returns true when the operation reached a terminal status
    */
-  const pollGenerationStatus = useCallback(
-    async (operationId: string, auth: ApiAuthParams): Promise<boolean> => {
-      try {
-        const result = await TryOnApiService.getGenerationResult(operationId, auth)
-
-        // Handle a terminal status only once per operation, so a late
-        // response can't duplicate the result / history entry
-        const settleOnce = () => {
-          if (settledOperationRef.current === operationId) return false
-          settledOperationRef.current = operationId
+  const handleGenerationStatus = useCallback(
+    (result: GenerationResult): boolean => {
+      switch (result.status) {
+        case 'SUCCESS':
+          handleGenerationSuccess(result)
           return true
-        }
-
-        switch (result.status) {
-          case 'SUCCESS':
-            if (settleOnce()) handleGenerationSuccess(result)
-            return true
-          case 'FAILED':
-          case 'CANCELLED':
-            if (settleOnce()) handleGenerationError(result)
-            return true
-          case 'ABORTED':
-            if (settleOnce()) handleGenerationAborted(result)
-            return true
-          default:
-            // Continue waiting for final status
-            return false
-        }
-      } catch (error) {
-        // A failed poll is retried with the next delay
-        logger.error('Generation polling error:', error)
-        return false
+        case 'FAILED':
+        case 'CANCELLED':
+          handleGenerationError(result)
+          return true
+        case 'ABORTED':
+          handleGenerationAborted(result)
+          return true
+        default:
+          // Continue waiting for final status
+          return false
       }
     },
     [handleGenerationSuccess, handleGenerationError, handleGenerationAborted],
@@ -341,17 +321,21 @@ export const useTryOnGeneration = () => {
   /**
    * Polls the operation status with the delays configured on the backend
    * (default: 1s ×4, 0.5s ×20, then 3s). Each delay is waited after the
-   * previous response, so polls never overlap.
+   * previous response, so polls never overlap; once polling is stopped (a
+   * terminal status or a newer operation), late responses are dropped, so a
+   * result is handled once and only for the current operation.
    */
   const startPolling = useCallback(
     (operationId: string, auth: ApiAuthParams) => {
       pollingRef.current = startOperationPolling({
         delays: operationDelays(getOperationDelays(auth)),
-        poll: () => pollGenerationStatus(operationId, auth),
+        request: () => TryOnApiService.getGenerationResult(operationId, auth),
+        handle: handleGenerationStatus,
+        onError: (error) => logger.error('Generation polling error:', error),
         onTimeout: handleGenerationTimeout,
       })
     },
-    [pollGenerationStatus, handleGenerationTimeout],
+    [handleGenerationStatus, handleGenerationTimeout, logger],
   )
 
   // ========================================
@@ -476,9 +460,8 @@ export const useTryOnGeneration = () => {
       // A new operation replaces any previous one still being polled
       stopPolling()
 
-      // Save operation ID to Redux; arm the once-only terminal guard for it
+      // Save operation ID to Redux
       dispatch(tryOnSlice.actions.setOperationId(operationId))
-      settledOperationRef.current = null
 
       // Step 3: After 4 seconds, switch to generating stage
       generatingStageTimeoutRef.current = setTimeout(() => {

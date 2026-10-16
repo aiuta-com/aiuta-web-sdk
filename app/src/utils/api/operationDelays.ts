@@ -27,9 +27,11 @@ export const DEFAULT_OPERATION_DELAYS: OperationDelaysSequence = [
   { mode: 'infinite', delay: 3 },
 ]
 
-// Guards the backend against a misconfigured zero/negative delay turning the
-// polling into a busy loop
+// Guard against misconfigured delays: zero/negative ones would turn the
+// polling into a busy loop, and huge ones (e.g. milliseconds sent as seconds)
+// would overflow setTimeout, which then fires immediately
 const MIN_DELAY_SECONDS = 0.1
+const MAX_DELAY_SECONDS = 60
 
 /**
  * Validates a raw `operation_delays_sequence` from the backend. Returns null
@@ -45,18 +47,27 @@ export const parseOperationDelays = (raw: unknown): OperationDelaysSequence | nu
 }
 
 /**
- * Iterates the delays (in seconds) of a sequence. An empty or missing sequence
- * means the default one; steps with an unknown mode or a non-positive repeat
- * count are skipped.
+ * Iterates the delays (in seconds) of a sequence. Steps with an unknown mode
+ * or a non-positive repeat count are skipped; a missing sequence, or one
+ * without a single usable delay, means the default one. Delays are clamped to
+ * 0.1–60s.
  */
 export function* operationDelays(sequence?: OperationDelaysSequence | null): Generator<number> {
-  const steps = sequence && sequence.length > 0 ? sequence : DEFAULT_OPERATION_DELAYS
+  let hasDelays = false
+  for (const delay of stepDelays(sequence ?? [])) {
+    hasDelays = true
+    yield delay
+  }
 
+  // A misconfigured sequence must not time out every operation before the
+  // first poll
+  if (!hasDelays) yield* stepDelays(DEFAULT_OPERATION_DELAYS)
+}
+
+function* stepDelays(steps: OperationDelaysSequence): Generator<number> {
   for (const step of steps) {
-    const delay = Math.max(
-      typeof step.delay === 'number' && Number.isFinite(step.delay) ? step.delay : 0,
-      MIN_DELAY_SECONDS,
-    )
+    const rawDelay = typeof step.delay === 'number' && Number.isFinite(step.delay) ? step.delay : 0
+    const delay = Math.min(Math.max(rawDelay, MIN_DELAY_SECONDS), MAX_DELAY_SECONDS)
 
     if (step.mode === 'recurring') {
       const count = typeof step.repeat === 'number' ? Math.floor(step.repeat) : 0
